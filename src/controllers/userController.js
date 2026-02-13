@@ -14,7 +14,8 @@ import {
         
         req.session.user = {
             id: user._id,
-            email: user.email
+            email: user.email,
+            name: user.name
         }
 
         res.redirect("/")
