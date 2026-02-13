@@ -1,0 +1,198 @@
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-fixed">
+        <div class="container nav-container">
+            <a href="index.html" class="logo">
+                <i class="fa-solid fa-bolt text-gradient-clip"></i>
+                <span class="text-gradient">Quavix</span>
+            </a>
+
+            <div class="mobile-search-container">
+                <div class="hamburger-menu">
+                    <i class="fa-solid fa-bars"></i>
+                </div>
+                <div class="mobile-search">
+                    <input type="text" placeholder="Search gadgets...">
+                    <button><i class="fa-solid fa-magnifying-glass"></i></button>
+                </div>
+            </div>
+
+            <!-- Mobile Sidebar (Hidden by default) -->
+            <aside class="mobile-sidebar">
+                <div class="sidebar-header">
+                    <a href="index.html" class="logo">
+                        <i class="fa-solid fa-bolt text-gradient-clip"></i>
+                        <span class="text-gradient">Quavix</span>
+                    </a>
+                    <button class="close-btn"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <div class="sidebar-content">
+                    <a href="products.html"><i class="fa-solid fa-shop"></i> Shop</a>
+                    <a href="order-history.html"><i class="fa-solid fa-box"></i> Orders</a>
+                    <a href="wishlist.html"><i class="fa-regular fa-heart"></i> Wishlist</a>
+                    <a href="cart.html"><i class="fa-solid fa-cart-shopping"></i> Cart</a>
+                    <% if (user) { %>
+                            <a href="/profile"><i class="fa-solid fa-user"></i> Profile</a>
+                            <a href="/logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+                        <% } else { %>
+                            <a href="/login"><i class="fa-solid fa-right-to-bracket"></i> Sign In</a>
+                    <% } %>
+
+                </div>
+            </aside>
+
+            <!-- Overlay -->
+            <div class="mobile-overlay"></div>
+
+            <!-- Desktop Menu -->
+            <div class="nav-menu">
+                <a href="/">Home</a>
+                <a href="products.html">Shop</a>
+                <a href="order-history.html">Orders</a>
+            </div>
+
+            <div class="nav-icons">
+                <!-- Search Bar -->
+                <div class="nav-search">
+                    <input type="text" placeholder="Search gadgets...">
+                    <button><i class="fa-solid fa-magnifying-glass"></i></button>
+                </div>
+
+                <a href="wishlist.html" class="relative">
+                    <i class="fa-regular fa-heart nav-icon-lg"></i>
+                </a>
+
+                <a href="cart.html" class="relative">
+                    <i class="fa-solid fa-cart-shopping nav-icon-lg"></i>
+                </a>
+
+                <% if (user) { %>
+                        <a href="/profile" class="nav-profile-icon">
+                            <%= user.email.charAt(0).toUpperCase() %>
+                        </a>
+                    <% } else { %>
+                        <a href="/login" class="btn btn-primary btn-sm">
+                            <i class="fa-solid fa-right-to-bracket"></i> Sign In
+                        </a>
+                <% } %>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Profile Section -->
+    <section class="section-padding section-profile">
+        <div class="container">
+            <h2 class="mb-8">My Profile</h2>
+
+            <div class="grid gap-8 profile-grid">
+                <!-- Profile Sidebar / Card -->
+                <div class="card p-6">
+                    <div class="text-center mb-6">
+                        <div class="profile-img-container text-primary text-3xl font-bold">
+                            <%= user.email.charAt(0).toUpperCase() %>
+                        </div>
+
+                        <h3 class="text-xl font-bold">John Doe</h3>
+                        <p class="text-muted">johndoe@gmail.com</p>
+                    </div>
+                    <br>
+                    <div class="flex flex-col">
+                        <a href="order-history.html" class="profile-nav-link">
+                            <i class="fa-solid fa-box"></i> My Orders
+                        </a>
+                        <a href="cart.html" class="profile-nav-link">
+                            <i class="fa-solid fa-cart-shopping"></i> My Cart
+                        </a>
+                        <a href="wishlist.html" class="profile-nav-link">
+                            <i class="fa-regular fa-heart"></i> My Wishlist
+                        </a>
+                        <a href="coupons.html" class="profile-nav-link">
+                            <i class="fa-solid fa-ticket"></i> My Coupons
+                        </a>
+                        <a href="wallet.html" class="profile-nav-link">
+                            <i class="fa-solid fa-wallet"></i> My Wallet
+                        </a>
+                        <a href="referral.html" class="profile-nav-link">
+                            <i class="fa-solid fa-share-nodes"></i> Refer & Earn
+                        </a>
+                        <a href="/logout" class="btn btn-outline-danger w-full mt-4 text-left">
+                            <i class="fa-solid fa-right-from-bracket mr-2"></i> Logout
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Profile Details Form -->
+                <div class="flex flex-col gap-8">
+
+                    <!-- Personal Details & Addresses -->
+                    <div class="card p-8">
+                        <h3 class="text-xl font-bold mb-6">Personal Details</h3>
+                        <form>
+                            <div class="form-group mb-4">
+                                <label class="form-label">Full Name</label>
+                                <input type="text" class="form-input" value="John Doe" required>
+                            </div>
+
+                            <div class="form-group mb-4">
+                                <label class="form-label">Current password</label>
+                                <div class="password-group">
+                                    <input type="password" class="form-input" placeholder="Enter current password">
+                                    <button type="button" class="password-toggle">
+                                        <i class="fa-regular fa-eye-slash"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">New Password</label>
+                                <div class="password-group">
+                                    <input type="password" class="form-input" placeholder="Enter new password">
+                                    <button type="button" class="password-toggle">
+                                        <i class="fa-regular fa-eye-slash"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="flex justify-between items-center mb-6 mt-10">
+                                <h3 class="text-xl font-bold">Saved Addresses</h3>
+                            </div>
+
+
+                            <div class="grid gap-4 mb-8">
+                                <div class="address-card">
+                                    <h4 class="font-bold mb-1">John Doe</h4>
+                                    <p class="text-muted text-sm leading-relaxed mb-2">
+                                        123, Tech Park, Electronic City, <br>
+                                        Bengaluru, Karnataka - 560100 <br>
+                                        India
+                                    </p>
+                                    <p class="text-sm font-medium mb-3">Phone: +91 98765 43210</p>
+                                    <div class="flex gap-3 justify-end">
+                                        <button class="btn-outline-danger btn-sm">Remove</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mb-8">
+                                <a href="/addAddress" class="btn btn-sm btn-primary"><i
+                                        class="fa-solid fa-plus mr-2"></i>
+                                    Add New Address</a>
+                            </div>
+
+                            <div class="flex justify-end">
+                                <button type="submit" class="btn btn-primary">Save Profile</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script src="/js/user/navbar.js"></script>
+
+
+    
+</body>
+

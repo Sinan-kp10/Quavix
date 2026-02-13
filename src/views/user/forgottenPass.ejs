@@ -1,0 +1,37 @@
+
+<body class="auth-body">
+
+    <!-- Dark overlay -->
+    <div class="auth-overlay">
+    </div>
+
+    <!-- Forgot Password Section -->
+    <div class="auth-container">
+        <div class="card auth-card text-center p-8 otp-card">
+
+            <div class="mb-6">
+                <a href="/forgotPassword" class="logo justify-center mb-4">
+                    <i class="fa-solid fa-bolt text-primary"></i>
+                    <span class="text-primary">Quavix</span>
+                </a>
+                <h2 class="mb-2">Forgot password?</h2>
+                <p class="text-muted text-sm">Enter your email address and we’ll send a link to reset password</p>
+            </div>
+
+            <form>
+                <div class="form-group mb-6 text-left">
+                    <label class="form-label">Email</label>
+                    <input type="email" class="form-input" placeholder="Enter your email" required>
+                </div>
+
+                <button onclick="window.location.href='/loginVerify'" type="submit" class="btn btn-verify w-full mb-6">Send Reset Link</button>
+            </form>
+
+            <p class="text-sm text-muted">
+                Go to <a href="/login" class="link-resend">Log in</a>
+            </p>
+        </div>
+    </div>
+
+</body>
+
