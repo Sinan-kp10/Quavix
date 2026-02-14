@@ -12,6 +12,8 @@ const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 const app=express()
 dotenv.config();
+import passport from "./src/config/passport.js";
+
 
 
 app.use(nocache());
@@ -30,20 +32,21 @@ app.set("views", path.join(__dirname, "src/views"));
 app.use(session({
   secret:process.env.SESSION_SECRET,  
   resave: false,
-  saveUninitialized: false,
+  saveUninitialized: true,
   
 }));
+app.use(passport.initialize())
+app.use(passport.session())
+
 app.use((req, res, next) => {
-  res.locals.user = req.session.user || null;
+  res.locals.user =  req.session.user ||req.user || null;
   next();
 });
-
-
 
 
 app.use("/",userRoutes)
 app.use("/",adminRoutes)
 
 connectDB();
-const PORT = process.env.PORT 
+const PORT = process.env.PORT
 app.listen(PORT,console.log("http://localhost:3000/"))

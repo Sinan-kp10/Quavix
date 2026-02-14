@@ -3455,3 +3455,19 @@ footer a:hover {
   margin-right: 8px;
 }
 
+.otp-timer {
+  margin-top: 10px;
+  font-size: 14px;
+  color: #e60023;
+  font-weight: 500;
+}
+
+.resend-btn {
+    background: none;
+    border: none;
+    padding: 0;
+    color: #0d6efd;
+    cursor: pointer;
+    text-decoration: underline;
+}
+

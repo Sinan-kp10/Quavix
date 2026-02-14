@@ -1,14 +1,20 @@
 import userModel from "../models/userModal.js"
 import bcrypt from "bcrypt"
+import nodemailer from "nodemailer"
+import dotenv from "dotenv"
+dotenv.config();
 const saltround=10
 
 
 
 
 export const loginUser=async(email,password)=>{
-    const user=await userModel.findOne({email})
+    const user=await userModel.findOne({email}) 
     if(!user){
         throw new Error("User does not exist!");
+    }
+    if(user.googleId){
+        throw new Error("You can login throgh google")
     }
     const isPasswordMatch = await bcrypt.compare(password, user.password);
     if (!isPasswordMatch) {
@@ -17,19 +23,100 @@ export const loginUser=async(email,password)=>{
     return user;
 }
 
+function generateOtp(){
+    return Math.floor(1000 + Math.random() * 9000).toString();
+
+}
+
+const sendVerificationEmail=async(email,otp)=>{
+    try{
+
+        const transporter= nodemailer.createTransport({
+
+            service:"gmail",
+            port:587,
+            secure:false,
+            requireTLS:true,
+            auth:{
+                user:process.env.NODEMAILER_EMAIL,
+                pass:process.env.NODEMAILER_PASS
+            }
+        })
+
+        const info= await transporter.sendMail({
+            from:process.env.NODEMAILER_EMAIL,
+            to:email,
+            subject:"Verify Your Email - Quavix",
+            text:`Your OTP : ${otp}`,
+            html: `<div style="font-family: Arial, sans-serif; text-align: center; padding: 20px;">
+                    <h2 style="color: #333;">Verify Your Email</h2>
+                    <p>Thank you for registering with <strong>Quavix</strong>.</p>
+                    <p>Please use the OTP below to complete your registration:</p>
+
+                    <div style="
+                        display: inline-block;
+                        padding: 15px 30px;
+                        font-size: 24px;
+                        font-weight: bold;
+                        letter-spacing: 4px;
+                        background-color: #f2f2f2;
+                        border-radius: 8px;
+                    ">
+                        ${otp}
+                    </div>
+
+                    <p style="margin-top:20px; font-size: 14px; color: #777;">
+                        This OTP will expire in 3 minutes.
+                    </p>
+                </div>
+                `
+
+        })
+        return info.accepted.length >0
+
+    }catch(err){
+        console.err("Error Sending Email ",err)
+        return false
+
+    }
+
+}
+
+export const resendUserOtp=async(email)=>{
+
+    const otp=generateOtp()
+    console.log("new OTP :",otp)
+    const emailSent= await sendVerificationEmail(email, otp);
+
+    if(!emailSent){
+        throw new Error("Email sending failed");
+    }
+    return otp;
+
+}
 
 
 export const registerUser = async ({ name, email, password }) => {
+    
     const user = await userModel.findOne({ email });
     if (user) {
         throw new Error("User already exists!");
     }
+    const otp=generateOtp()
+    const emailSent= await sendVerificationEmail(email,otp)
+
+    if(!emailSent){
+       throw new Error("Email sending failed");
+    }
+
+
+    
+    console.log(`OTP sent ${otp}`)
+
     const hashedPassword = await bcrypt.hash(password, saltround);
-    const newUser = new userModel({
-        name,
-        email,
-        password: hashedPassword
-    });
-    await newUser.save();
-    return newUser;
+    return {
+        otp,
+        userData: { name, email, password: hashedPassword }
+    };
+    
 };

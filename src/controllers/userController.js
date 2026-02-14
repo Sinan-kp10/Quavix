@@ -1,6 +1,9 @@
+import userModel from "../models/userModal.js"
+
 import {
     loginUser,
-    registerUser
+    registerUser,
+    resendUserOtp
 
 } from "../services/userService.js"
 
@@ -24,6 +27,10 @@ import {
 
     let message = "Something went wrong!";
     let type = "error";
+    
+    if(err.message === "You can login throgh google"){
+        message = "You can login throgh google";
+    }
 
     if(err.message === "User does not exist!"){
         message = "User does not exist!";
@@ -47,14 +54,16 @@ import {
 export const register=async(req,res)=>{
     try{
         const {name,email,password}=req.body
-        console.log(req.body)
-        await registerUser({name,email,password})
+        const result=await registerUser({name,email,password})
+
+        req.session.userOtp = result.otp;
+        req.session.userData = result.userData;
+        req.session.otpExpiry = Date.now() + (3 * 60 * 1000);
         
-        return res.render("user/login", {
+        return res.render("user/otp", {
             title: "Login-Quavix",
-            css: "userStyle",
-            toastMessage: "Successfully Created",
-            toastType: "success"   
+            css: "userStyle", 
+            expiryTime: req.session.otpExpiry|| 0
         });
 
 
@@ -81,6 +90,94 @@ export const register=async(req,res)=>{
 
 }
 
+export const verifyOtp = async (req, res) => {
+
+    const { otp } = req.body;
+
+    
+    if (!otp || otp.length !== 4) {
+        return res.render("user/otp", {
+            title: "Verify OTP - Quavix",
+            css: "userStyle",
+            toastMessage: "Please enter complete OTP",
+            toastType: "error",
+            expiryTime: req.session.otpExpiry || 0
+        });
+    }
+
+   
+    if (otp !== req.session.userOtp) {
+        return res.render("user/otp", {
+            title: "Verify OTP - Quavix",
+            css: "userStyle",
+            toastMessage: "Invalid OTP",
+            toastType: "error",
+            expiryTime: req.session.otpExpiry || 0 
+        });
+    }
+
+    if (Date.now() > req.session.otpExpiry) {
+        return res.render("user/otp", {
+            title: "Verify OTP - Quavix",
+            css: "userStyle",
+            toastMessage: "OTP Expired. Please resend.",
+            toastType: "error",
+            expiryTime: req.session.otpExpiry || 0
+
+        });
+    }
+
+
+    
+    const newUser = new userModel(req.session.userData);
+    await newUser.save();
+
+    req.session.userOtp = null;
+    req.session.userData = null;
+
+    return res.render("user/login", {
+        title: "Login-Quavix",
+        css: "userStyle",
+        toastMessage: "Account Created Successfully",
+        toastType: "success"
+    });
+};
+
+export const resendOtp = async (req, res) => {
+    try {
+
+        if (!req.session.userData) {
+            return res.redirect("/register");
+        }
+
+        const email = req.session.userData.email;
+
+        const newOtp = await resendUserOtp(email);
+
+        req.session.userOtp = newOtp;
+        req.session.otpExpiry = Date.now() + (3 * 60 * 1000);
+
+        return res.render("user/otp", {
+            title: "Verify OTP - Quavix",
+            css: "userStyle",
+            toastMessage: "New OTP sent successfully!",
+            toastType: "success",
+            expiryTime: req.session.otpExpiry|| 0
+        });
+
+    } catch (err) {
+        return res.render("user/otp", {
+            title: "Verify OTP - Quavix",
+            css: "userStyle",
+            toastMessage: "Failed to resend OTP",
+            toastType: "error",
+            expiryTime: req.session.otpExpiry || 0
+
+        });
+    }
+};
+
+
 export const loadHome=(req,res)=>{
 
     res.render("user/home",{ title: "Home-Quavix",css:"userStyle" })
@@ -98,7 +195,7 @@ export const loadSingnup=(req,res)=>{
 }
 
 export const loadOtpVerify=(req,res)=>{
-    res.render("user/otp",{ title: "Login Verify-Quavix",css:"userStyle" })
+    res.render("user/otp",{ title: "Login Verify-Quavix",css:"userStyle", expiryTime: req.session.otpExpiry || 0 })
 }
 export const loadForgottenPass=(req,res)=>{
     res.render("user/forgottenPass",{ title: "Login Verify-Quavix",css:"userStyle" })
