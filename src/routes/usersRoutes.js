@@ -14,7 +14,10 @@ import {
     register,
     logout,
     verifyOtp,
-    resendOtp
+    resendOtp,
+    forgottenPass,
+    verifyResetOtp,
+    resetPassword
 
 
 } from "../controllers/userController.js"
@@ -35,6 +38,22 @@ router.get("/loginVerify",loadOtpVerify)
 router.post("/loginVerify", verifyOtp);
 router.post("/resend-otp", resendOtp);
 
+
+
+router.get("/newPassword",loadNewPassword)
+router.post("/newPassword",resetPassword)
+
+
+router.get("/forgotPassword",loadForgottenPass)
+router.post("/forgotPassword", forgottenPass);
+router.post("/verifyResetOtp", verifyResetOtp);
+
+
+router.get("/addAddress",isLogin,loadAddAddress)
+router.get("/profile",isLogin,loadProfile)
+router.get("/logout", logout);
+
+
 router.get("/auth/google",passport.authenticate("google", {scope: ["profile", "email"]}));
 
 router.get("/auth/google/callback",passport.authenticate("google", {failureRedirect: "/register"}),(req, res) => {
@@ -49,13 +68,6 @@ router.get("/auth/google/callback",passport.authenticate("google", {failureRedir
 );
 
 
-
-
-router.get("/newPassword",loadNewPassword)
-router.get("/forgotPassword",loadForgottenPass)
-router.get("/addAddress",isLogin,loadAddAddress)
-router.get("/profile",isLogin,loadProfile)
-router.get("/logout", logout);
 
 
 

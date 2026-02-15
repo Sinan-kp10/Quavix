@@ -1,6 +1,6 @@
 document.addEventListener("DOMContentLoaded", function () {
 
-   const email = document.getElementById("email");
+  const email = document.getElementById("email");
   const passwordInput = document.getElementById("password");
   const toggleBtn = document.getElementById("togglePassword");
   const eyeIcon = document.getElementById("eyeIcon");

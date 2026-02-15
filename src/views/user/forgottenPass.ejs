@@ -1,5 +1,10 @@
 
 <body class="auth-body">
+    <% if (typeof toastMessage !== "undefined") { %>
+        <div id="toast" class="toast <%= toastType %>">
+            <%= toastMessage %>
+        </div>
+    <% } %>
 
     <!-- Dark overlay -->
     <div class="auth-overlay">
@@ -18,20 +23,27 @@
                 <p class="text-muted text-sm">Enter your email address and we’ll send a link to reset password</p>
             </div>
 
-            <form>
+            <form id="forgotPasswordForm" method="post" action="/forgotPassword">
                 <div class="form-group mb-6 text-left">
                     <label class="form-label">Email</label>
-                    <input type="email" class="form-input" placeholder="Enter your email" required>
+                    <input type="email" id="email" name="email" class="form-input" placeholder="Enter your email">
+                    <small class="error-message" id="emailError"></small>
+
                 </div>
 
-                <button onclick="window.location.href='/loginVerify'" type="submit" class="btn btn-verify w-full mb-6">Send Reset Link</button>
+                <button type="submit" class="btn btn-verify w-full mb-6">
+                    Send Reset Link
+                </button>
             </form>
+
 
             <p class="text-sm text-muted">
                 Go to <a href="/login" class="link-resend">Log in</a>
             </p>
         </div>
     </div>
+
+    <script src="/js/user/forgotpass.js"></script>
 
 </body>
 

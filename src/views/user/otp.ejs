@@ -26,7 +26,7 @@
 
             
 
-            <form id="otpForm" action="/loginVerify" method="post">
+            <form id="otpForm"  action="<%= formAction || '/loginVerify' %>" method="post">
                 <div class="otp-input-group">
                     <input type="text" class="form-input otp-digit" maxlength="1">
                     <div class="otp-dash">-</div>

@@ -3,12 +3,14 @@ import userModel from "../models/userModal.js"
 import {
     loginUser,
     registerUser,
-    resendUserOtp
+    resendUserOtp,
+    sendForgotPassword,
+    resetUserPassword
 
 } from "../services/userService.js"
 
 
- export const login=async(req,res)=>{
+export const login=async(req,res)=>{
     try{
 
         const {email,password}=req.body
@@ -63,7 +65,8 @@ export const register=async(req,res)=>{
         return res.render("user/otp", {
             title: "Login-Quavix",
             css: "userStyle", 
-            expiryTime: req.session.otpExpiry|| 0
+            expiryTime: req.session.otpExpiry|| 0,
+            formAction: "/loginVerify"
         });
 
 
@@ -90,7 +93,7 @@ export const register=async(req,res)=>{
 
 }
 
-export const verifyOtp = async (req, res) => {
+export const verifyOtp = async (req, res) =>{
 
     const { otp } = req.body;
 
@@ -101,7 +104,8 @@ export const verifyOtp = async (req, res) => {
             css: "userStyle",
             toastMessage: "Please enter complete OTP",
             toastType: "error",
-            expiryTime: req.session.otpExpiry || 0
+            expiryTime: req.session.otpExpiry || 0,
+            formAction: "/loginVerify"
         });
     }
 
@@ -112,7 +116,8 @@ export const verifyOtp = async (req, res) => {
             css: "userStyle",
             toastMessage: "Invalid OTP",
             toastType: "error",
-            expiryTime: req.session.otpExpiry || 0 
+            expiryTime: req.session.otpExpiry || 0 ,
+            formAction: "/loginVerify"
         });
     }
 
@@ -122,7 +127,8 @@ export const verifyOtp = async (req, res) => {
             css: "userStyle",
             toastMessage: "OTP Expired. Please resend.",
             toastType: "error",
-            expiryTime: req.session.otpExpiry || 0
+            expiryTime: req.session.otpExpiry || 0,
+            formAction: "/loginVerify"
 
         });
     }
@@ -144,39 +150,175 @@ export const verifyOtp = async (req, res) => {
 };
 
 export const resendOtp = async (req, res) => {
+
     try {
 
-        if (!req.session.userData) {
+        let email;
+        let formAction;
+        let expiryKey;
+        let otpKey;
+
+        //Registration 
+        if (req.session.userData) {
+            email = req.session.userData.email;
+            formAction = "/loginVerify";
+            expiryKey = "otpExpiry";
+            otpKey = "userOtp";
+        }
+
+        //Forgot password 
+        else if (req.session.resetEmail) {
+            email = req.session.resetEmail;
+            formAction = "/verifyResetOtp";
+            expiryKey = "resetExpiry";
+            otpKey = "resetOtp";
+        }
+
+        else {
             return res.redirect("/register");
         }
 
-        const email = req.session.userData.email;
-
         const newOtp = await resendUserOtp(email);
 
-        req.session.userOtp = newOtp;
-        req.session.otpExpiry = Date.now() + (3 * 60 * 1000);
+        req.session[otpKey] = newOtp;
+        req.session[expiryKey] = Date.now() + (3 * 60 * 1000);
 
         return res.render("user/otp", {
             title: "Verify OTP - Quavix",
             css: "userStyle",
             toastMessage: "New OTP sent successfully!",
             toastType: "success",
-            expiryTime: req.session.otpExpiry|| 0
+            expiryTime: req.session[expiryKey],
+            formAction: formAction
         });
 
     } catch (err) {
+
         return res.render("user/otp", {
             title: "Verify OTP - Quavix",
             css: "userStyle",
             toastMessage: "Failed to resend OTP",
             toastType: "error",
-            expiryTime: req.session.otpExpiry || 0
-
+            expiryTime: 0
         });
     }
 };
 
+export const forgottenPass=async(req,res)=>{
+    try {
+        const {email}=req.body
+
+        const otp =await sendForgotPassword(email)
+        req.session.resetOtp=otp
+        req.session.resetExpiry= Date.now() + (3 * 60 * 1000);
+        req.session.resetEmail = email;
+
+        return res.render("user/otp", {
+            title: "Verify Reset OTP",
+            css: "userStyle",
+            toastMessage: "Reset OTP sent successfully!",
+            toastType: "success",
+            expiryTime: req.session.resetExpiry || 0,
+            formAction: "/verifyResetOtp"
+        });
+
+
+
+
+        
+    } catch(err){
+        let message = "Something went wrong!";
+        let type = "error";
+        
+        if(err.message === "User does not exist!"){
+            message = "User does not exist!";
+        }
+
+        if(err.message === "Email sending failed"){
+            message ="Email sending failed";
+        }
+        
+        if(err.message === "You can login throgh google"){
+            message = "You can login throgh google";
+        }
+        return res.render("user/forgottenPass", {
+            title: "Login-Quavix",
+            css: "userStyle",
+            toastMessage: message,
+            toastType: type
+        });
+    }
+}
+
+export const verifyResetOtp = async (req, res)=>{
+
+    const { otp } = req.body;
+
+    if (!otp || otp.length !== 4) {
+        return res.render("user/otp", {
+            title: "Verify Reset OTP",
+            css: "userStyle",
+            toastMessage: "Enter complete OTP",
+            toastType: "error",
+            expiryTime: req.session.resetExpiry|| 0,
+            formAction: "/verifyResetOtp"
+        });
+    }
+
+    if (Date.now() > req.session.resetExpiry) {
+        return res.render("user/otp", {
+            title: "Verify Reset OTP",
+            css: "userStyle",
+            toastMessage: "OTP Expired",
+            toastType: "error",
+            expiryTime: req.session.resetExpiry || 0,
+            formAction: "/verifyResetOtp"
+        });
+    }
+
+    if (otp !== req.session.resetOtp) {
+        return res.render("user/otp", {
+            title: "Verify Reset OTP",
+            css: "userStyle",
+            toastMessage: "Invalid OTP",
+            toastType: "error",
+            expiryTime: req.session.resetExpiry || 0,
+            formAction: "/verifyResetOtp"
+        });
+    }
+
+    return res.redirect("/newPassword");
+};
+
+export const resetPassword=async(req,res)=>{
+    try {
+        const {password}=req.body
+
+    if(!req.session.resetEmail){
+        return res.redirect("/forgotPassword");
+    }
+
+    await resetUserPassword(req.session.resetEmail,password)
+    req.session.resetOtp = null;
+    req.session.resetExpiry = null;
+    req.session.resetEmail = null;
+
+    return res.render("user/login",{
+        title: "Login-Quavix",
+        css: "userStyle",
+        toastMessage: "Password updated successfully!",
+        toastType: "success"
+    })
+    }catch(err){
+        return res.render("user/newPass", {
+            title: "New Password-Quavix",
+            css: "userStyle",
+            toastMessage: err.message,
+            toastType: "error"
+        });
+    }
+
+}
 
 export const loadHome=(req,res)=>{
 
@@ -194,9 +336,22 @@ export const loadSingnup=(req,res)=>{
     res.render("user/signup",{ title: "SignUp-Quavix",css:"userStyle" })
 }
 
-export const loadOtpVerify=(req,res)=>{
-    res.render("user/otp",{ title: "Login Verify-Quavix",css:"userStyle", expiryTime: req.session.otpExpiry || 0 })
-}
+export const loadOtpVerify=(req, res)=>{
+
+    let action = "/loginVerify";
+
+    if (req.session.resetOtp) {
+        action = "/verifyResetOtp";
+    }
+
+    res.render("user/otp", {
+        title: "Login Verify-Quavix",
+        css: "userStyle",
+        expiryTime: req.session.otpExpiry || req.session.resetExpiry || 0,
+        formAction: action
+    });
+};
+
 export const loadForgottenPass=(req,res)=>{
     res.render("user/forgottenPass",{ title: "Login Verify-Quavix",css:"userStyle" })
 }

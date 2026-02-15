@@ -120,3 +120,34 @@ export const registerUser = async ({ name, email, password }) => {
     };
     
 };
+
+export const sendForgotPassword= async(email)=>{
+
+    const user=await userModel.findOne({email})
+    if(!user){
+        throw new Error("User does not exist!")
+    }
+    if(user.googleId){
+        throw new Error("You can login throgh google")
+    }
+    const otp=generateOtp()
+    console.log("forgot otp ",otp)
+    const emailSent=await sendVerificationEmail(email,otp)
+
+    if(!emailSent){
+        throw new Error("Email sending failed");
+    }
+    return otp
+
+}
+
+export const resetUserPassword = async (email, newPassword) => {
+    const user = await userModel.findOne({ email });
+
+    const hashedPassword = await bcrypt.hash(newPassword, saltround);
+    user.password = hashedPassword;
+
+    await user.save();
+
+    return true;
+}
