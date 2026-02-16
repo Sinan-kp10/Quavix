@@ -33,7 +33,7 @@ document.addEventListener("DOMContentLoaded", function () {
       password.classList.add("input-error");
       isValid = false;
     }
-    // Password length check
+    
     else if (password.value.trim().length < 6) {
       passwordError.textContent = "Password must be at least 6 characters";
       password.classList.add("input-error");

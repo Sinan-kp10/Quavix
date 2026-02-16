@@ -50,7 +50,6 @@ const sendVerificationEmail=async(email,otp)=>{
             text:`Your OTP : ${otp}`,
             html: `<div style="font-family: Arial, sans-serif; text-align: center; padding: 20px;">
                     <h2 style="color: #333;">Verify Your Email</h2>
-                    <p>Thank you for registering with <strong>Quavix</strong>.</p>
                     <p>Please use the OTP below to complete your registration:</p>
 
                     <div style="
@@ -66,7 +65,7 @@ const sendVerificationEmail=async(email,otp)=>{
                     </div>
 
                     <p style="margin-top:20px; font-size: 14px; color: #777;">
-                        This OTP will expire in 3 minutes.
+                        This OTP will expire in 2 minutes.
                     </p>
                 </div>
                 `
@@ -99,7 +98,7 @@ export const resendUserOtp=async(email)=>{
 export const registerUser = async ({ name, email, password }) => {
     
     const user = await userModel.findOne({ email });
-    if (user) {
+    if(user){
         throw new Error("User already exists!");
     }
     const otp=generateOtp()
@@ -108,7 +107,6 @@ export const registerUser = async ({ name, email, password }) => {
     if(!emailSent){
        throw new Error("Email sending failed");
     }
-
 
     
     console.log(`OTP sent ${otp}`)
@@ -121,7 +119,7 @@ export const registerUser = async ({ name, email, password }) => {
     
 };
 
-export const sendForgotPassword= async(email)=>{
+export const sendForgotPassword=async(email)=>{
 
     const user=await userModel.findOne({email})
     if(!user){
@@ -141,7 +139,7 @@ export const sendForgotPassword= async(email)=>{
 
 }
 
-export const resetUserPassword = async (email, newPassword) => {
+export const resetUserPassword =async(email, newPassword)=>{
     const user = await userModel.findOne({ email });
 
     const hashedPassword = await bcrypt.hash(newPassword, saltround);
@@ -151,3 +149,81 @@ export const resetUserPassword = async (email, newPassword) => {
 
     return true;
 }
+
+export const updateUserProfile =async(userId,{ name,currentPassword,newPassword})=>{
+
+    const user = await userModel.findById(userId);
+    
+    let isChanged=false
+
+    if(!user) {
+        throw new Error("User not found");
+    }
+    
+    if(name&& name !== user.name){
+        user.name=name;
+        isChanged=true
+        
+    }
+
+    if (currentPassword || newPassword) {
+
+        if(user.googleId){
+            throw new Error("Password change is not allowed for Google-authenticated users")
+        }
+
+        if (!currentPassword || !newPassword) {
+            throw new Error("Both current and new password are required");
+        }
+
+        const isMatch =await bcrypt.compare(currentPassword,user.password);
+
+        if(!isMatch){
+            throw new Error("Current password is incorrect");
+        }
+
+        const hashedPassword=await bcrypt.hash(newPassword,saltround);
+        user.password=hashedPassword;
+        isChanged=true
+        
+    }
+    if(!isChanged){
+        throw new Error("No changes made");
+    }
+
+    await user.save();
+
+    return user;
+};
+
+export const UserEmailChange=async(userId,newEmail)=>{
+
+    const user =await userModel.findById(userId)
+
+    if(!user) {
+        throw new Error("User not found");
+    }
+    if(user.googleId){
+        throw new Error("Email change is not allowed for Google-authenticated users")
+    }
+    if(user.email==newEmail){
+        throw new Error("Enter new email");
+    }
+    const existing = await userModel.findOne({ email: newEmail });
+    if(existing){
+        throw new Error("Email already in use");
+    }
+
+
+    const otp=generateOtp()
+
+    const emailSent= await sendVerificationEmail(newEmail,otp)
+    if(!emailSent){
+       throw new Error("Email sending failed");
+    }
+    console.log(`Reset Google OTP : ${otp}`)
+
+    
+    return otp
+
+} 

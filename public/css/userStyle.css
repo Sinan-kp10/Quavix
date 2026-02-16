@@ -3468,6 +3468,38 @@ footer a:hover {
     padding: 0;
     color: #0d6efd;
     cursor: pointer;
-    text-decoration: underline;
+    text-decoration: none;
+}
+.link-resend:hover {
+    text-decoration: none;
 }
 
+
+.email-update-group {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.email-update-group .form-input {
+    flex: 1;
+}
+
+/* Make button smaller */
+.update-email-btn {
+    padding: 8px 14px;
+    font-size: 14px;
+}
+
+/* 📱 Mobile */
+@media (max-width: 576px) {
+    .email-update-group {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .update-email-btn {
+        width: auto;          /* remove full width */
+        align-self: flex-end; /* move button to right */
+    }
+}

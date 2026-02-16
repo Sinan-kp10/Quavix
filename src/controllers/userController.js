@@ -5,7 +5,9 @@ import {
     registerUser,
     resendUserOtp,
     sendForgotPassword,
-    resetUserPassword
+    resetUserPassword,
+    updateUserProfile,
+    UserEmailChange
 
 } from "../services/userService.js"
 
@@ -60,7 +62,7 @@ export const register=async(req,res)=>{
 
         req.session.userOtp = result.otp;
         req.session.userData = result.userData;
-        req.session.otpExpiry = Date.now() + (3 * 60 * 1000);
+        req.session.otpExpiry = Date.now() + (2 * 60 * 1000);
         
         return res.render("user/otp", {
             title: "Login-Quavix",
@@ -173,6 +175,13 @@ export const resendOtp = async (req, res) => {
             expiryKey = "resetExpiry";
             otpKey = "resetOtp";
         }
+        //Email Reset
+        else if (req.session.newEmail) {
+            email = req.session.newEmail;
+            formAction = "/verifyEmailOtp";
+            expiryKey = "emailOtpExpiry";
+            otpKey = "emailOtp";
+        }
 
         else {
             return res.redirect("/register");
@@ -181,7 +190,7 @@ export const resendOtp = async (req, res) => {
         const newOtp = await resendUserOtp(email);
 
         req.session[otpKey] = newOtp;
-        req.session[expiryKey] = Date.now() + (3 * 60 * 1000);
+        req.session[expiryKey] = Date.now() + (2 * 60 * 1000);
 
         return res.render("user/otp", {
             title: "Verify OTP - Quavix",
@@ -210,7 +219,7 @@ export const forgottenPass=async(req,res)=>{
 
         const otp =await sendForgotPassword(email)
         req.session.resetOtp=otp
-        req.session.resetExpiry= Date.now() + (3 * 60 * 1000);
+        req.session.resetExpiry= Date.now() + (2 * 60 * 1000);
         req.session.resetEmail = email;
 
         return res.render("user/otp", {
@@ -320,6 +329,131 @@ export const resetPassword=async(req,res)=>{
 
 }
 
+
+export const updateProfile=async(req,res)=>{
+
+    try {
+        const {name,currentPassword,newPassword}=req.body
+
+    const updatedUser= await updateUserProfile(req.session.user.id,{name,currentPassword,newPassword})
+
+    req.session.user.name=updatedUser.name
+    return res.render("user/profile", {
+        title: "Profile-Quavix",
+        css: "userStyle",
+        user: updatedUser,
+        toastMessage: "Profile updated successfully!",
+        toastType: "success"
+    })
+    }catch(err){
+
+    
+
+        return res.render("user/profile", {
+            title: "Profile-Quavix",
+            css: "userStyle",
+            user: req.session.user,
+            toastMessage: err.message,
+            toastType: "error"
+        });
+        
+    }
+
+}
+
+export const emailChange=async(req,res)=>{
+
+    try {
+        
+        const {newEmail}=req.body
+
+        const otp=await UserEmailChange(req.session.user.id,newEmail)
+        req.session.emailOtp=otp
+        req.session.emailOtpExpiry = Date.now() + (2 * 60 * 1000)
+        req.session.newEmail = newEmail; 
+        
+
+        return res.render("user/otp", {
+            title: "Verify Reset OTP",
+            css: "userStyle",
+            expiryTime: req.session.emailOtpExpiry || 0,
+            formAction: "/verifyEmailOtp"
+        });
+
+
+    }catch(err){
+
+        return res.render("user/profile", {
+            title: "Profile-Quavix",
+            css: "userStyle",
+            user: req.session.user,
+            toastMessage: err.message,
+            toastType: "error"
+        });
+        
+    }
+}
+
+export const verifyEmailOtp=async(req, res)=>{
+
+    const {otp}=req.body;
+
+    if (!otp || otp.length !== 4) {
+        return res.render("user/otp", {
+            title: "Verify Email Change",
+            css: "userStyle",
+            toastMessage: "Enter complete OTP",
+            toastType: "error",
+            expiryTime: req.session.emailOtpExpiry,
+            formAction: "/verifyEmailOtp"
+        });
+    }
+
+    if(Date.now() > req.session.emailOtpExpiry){
+        return res.render("user/otp", {
+            title: "Verify Email Change",
+            css: "userStyle",
+            toastMessage: "OTP Expired",
+            toastType: "error",
+            expiryTime: 0,
+            formAction: "/verifyEmailOtp"
+        });
+    }
+
+    if(otp !== req.session.emailOtp){
+        return res.render("user/otp", {
+            title: "Verify Email Change",
+            css: "userStyle",
+            toastMessage: "Invalid OTP",
+            toastType: "error",
+            expiryTime: req.session.emailOtpExpiry,
+            formAction: "/verifyEmailOtp"
+        });
+    }
+
+    
+    const user = await userModel.findById(req.session.user.id);
+    user.email = req.session.newEmail;
+    await user.save();
+
+    req.session.user.email = user.email;
+
+    req.session.emailOtp = null;
+    req.session.emailOtpExpiry = null;
+    req.session.newEmail = null;
+
+    return res.render("user/profile", {
+        title: "Profile-Quavix",
+        css: "userStyle",
+        user: user,
+        toastMessage: "Email updated successfully!",
+        toastType: "success"
+    });
+};
+
+
+
+
 export const loadHome=(req,res)=>{
 
     res.render("user/home",{ title: "Home-Quavix",css:"userStyle" })
@@ -343,11 +477,15 @@ export const loadOtpVerify=(req, res)=>{
     if (req.session.resetOtp) {
         action = "/verifyResetOtp";
     }
+    if (req.session.emailOtpExpiry) {
+        action = "/verifyEmailOtp";
+    }
+
 
     res.render("user/otp", {
         title: "Login Verify-Quavix",
         css: "userStyle",
-        expiryTime: req.session.otpExpiry || req.session.resetExpiry || 0,
+        expiryTime: req.session.otpExpiry || req.session.resetExpiry ||req.session.emailOtpExpiry|| 0,
         formAction: action
     });
 };
@@ -362,7 +500,7 @@ export const loadAddAddress=(req,res)=>{
     res.render("user/addAddress",{ title: "Add Address-Quavix",css:"userStyle" })
 }
 export const loadProfile=(req,res)=>{
-    res.render("user/profile",{ title: "Profile-Quavix",css:"userStyle" })
+    res.render("user/profile",{ title: "Profile-Quavix",css:"userStyle"})
 }
 
 export const logout = (req, res) => {
