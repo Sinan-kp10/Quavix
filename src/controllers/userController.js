@@ -607,11 +607,6 @@ export const loadProfile = async (req, res) => {
 
 
 export const logout = (req, res) => {
-    req.session.destroy((err) => {
-        if (err) {
-            console.log(err);
-            return res.redirect("/");
-        }
-        res.redirect("/");
-    });
-};
+    req.session.user=null
+    res.redirect("/")
+}

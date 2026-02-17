@@ -2,6 +2,7 @@ import dotenv from "dotenv"
 dotenv.config();
 import users from "../models/userModal.js"
 
+
 export  const adminLoginAccess=async(email,password)=>{
 
     const adminEmail=process.env.ADMIN_EMAIL
@@ -21,7 +22,7 @@ export  const adminLoginAccess=async(email,password)=>{
 
 }
 
-export const getAllUsers=async(search="",status="all")=>{
+export const getAllUsers=async(search="",status="all",page=1,limit=10)=>{
 
     let query={}
 
@@ -36,8 +37,14 @@ export const getAllUsers=async(search="",status="all")=>{
         query.status = status;
     }
 
+    const skip=(page-1)*limit
+    const usersList=await users.find(query).sort({createdAt:1}).skip(skip).limit(limit)
 
-    return await users.find(query).sort({createdAt:-1})
+    const totalUsers=await users.countDocuments(query)
+
+    return {
+        usersList,totalUsers
+    }
 }
 
 export const allBlockedUser=async(id)=>{
@@ -48,3 +55,4 @@ export const allActiveUsers=async(id)=>{
 
     return await users.findByIdAndUpdate(id,{status: "active"},{new:true})
 }
+

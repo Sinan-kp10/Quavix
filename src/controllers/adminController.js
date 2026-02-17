@@ -49,14 +49,22 @@ export const loadAllUsers=async(req,res)=>{
 
         const search=req.query.search|| ""
         const status=req.query.status|| "all"
+        const page=parseInt(req.query.page) || 1
+        const limit = 10
 
-        const users=await getAllUsers(search,status);
+        const {usersList,totalUsers}=await getAllUsers(search,status,page,limit)
+
+        const totalPages= Math.ceil(totalUsers/limit)
+
         res.render("admin/users", {
             title: "Users Admin - Quavix",
             css: "adminStyle",
-            users,
+            users:usersList,
             search,
-            status
+            status,
+            currentPage:page,
+            totalPages,
+            noUsers:usersList.length===0
         })
         
     }catch(err){

@@ -85,9 +85,7 @@
                                 Blocked
                             </option>
                         </select>
-
                     </form>
-
                 </div>
 
                 <div class="table-responsive">
@@ -102,33 +100,41 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <% users.forEach(user => { %>
+                             <% if (users.length === 0) { %>
                                 <tr>
-                                <td><%= user.name %></td>
-                                <td><%= user.email %></td>
-                                <td><%= user.createdAt.toDateString() %></td>
-
-                                <td>
-                                    <% if(user.status === "blocked") { %>
-                                    <span class="status-badge status-danger">Blocked</span>
-                                    <% } else { %>
-                                    <span class="status-badge status-success">Active</span>
-                                    <% } %>
-                                </td>
-
-                                <td style="text-align: right;">
-                                    <% if(user.status === "blocked") { %>
-                                    <a href="/admin/unblock/<%= user._id %>" class="btn btn-success btn-sm">
-                                        Unblock
-                                    </a>
-                                    <% } else { %>
-                                    <a href="/admin/block/<%= user._id %>" class="btn btn-danger btn-sm">
-                                        Block
-                                    </a>
-                                    <% } %>
+                                <td colspan="5" style="text-align:center; padding:20px;">
+                                    No users found
                                 </td>
                                 </tr>
-                            <% }) %>
+                                <% } else { %>
+                                <% users.forEach(user => { %>
+                                    <tr>
+                                    <td><%= user.name %></td>
+                                    <td><%= user.email %></td>
+                                    <td><%= user.createdAt.toDateString() %></td>
+
+                                    <td>
+                                        <% if(user.status === "blocked") { %>
+                                        <span class="status-badge status-danger">Blocked</span>
+                                        <% } else { %>
+                                        <span class="status-badge status-success">Active</span>
+                                        <% } %>
+                                    </td>
+
+                                    <td style="text-align: right;">
+                                        <% if(user.status === "blocked") { %>
+                                        <a href="/admin/unblock/<%= user._id %>" class="btn btn-success btn-sm">
+                                            Unblock
+                                        </a>
+                                        <% } else { %>
+                                        <a href="/admin/block/<%= user._id %>" class="btn btn-danger btn-sm">
+                                            Block
+                                        </a>
+                                        <% } %>
+                                    </td>
+                                    </tr>
+                                <% }) %>
+                            <% } %> 
                         </tbody>
 
                     </table>
@@ -136,12 +142,34 @@
 
                 <!-- Pagination -->
                 <div class="pagination">
-                    <a href="#" class="page-link"><i class="fa-solid fa-chevron-left"></i></a>
-                    <a href="#" class="page-link active">1</a>
-                    <a href="#" class="page-link">2</a>
-                    <a href="#" class="page-link">3</a>
-                    <a href="#" class="page-link"><i class="fa-solid fa-chevron-right"></i></a>
+                    <% if(currentPage > 1){ %>
+                        <a href="?search=<%= search %>&status=<%= status %>&page=<%= currentPage - 1 %>"
+                        class="page-link">
+                            <i class="fa-solid fa-chevron-left"></i>
+                        </a>
+                    <% } %>
+                    <% 
+                        let startPage = Math.max(1, currentPage - 1);
+                        let endPage = Math.min(totalPages, startPage + 2);
+                        if(endPage - startPage < 2){
+                            startPage = Math.max(1, endPage - 2);
+                        }
+                    %>
+                    <% for(let i = startPage; i <= endPage; i++){ %>
+                        <a href="?search=<%= search %>&status=<%= status %>&page=<%= i %>"
+                        class="page-link <%= currentPage === i ? 'active' : '' %>">
+                            <%= i %>
+                        </a>
+                    <% } %>
+                    <% if(currentPage < totalPages){ %>
+                        <a href="?search=<%= search %>&status=<%= status %>&page=<%= currentPage + 1 %>"
+                        class="page-link">
+                            <i class="fa-solid fa-chevron-right"></i>
+                        </a>
+                    <% } %>
                 </div>
+
+
             </div>
         </main>
     </div>
