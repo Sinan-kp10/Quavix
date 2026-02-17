@@ -134,6 +134,7 @@
                     <div class="card p-8">
                         <h3 class="text-xl font-bold mb-6">Personal Details</h3>
                         <form id="profileUpdateForm" method="post" action="/updateProfile">
+                            
                             <div class="form-group mb-4">
                                 <label class="form-label">Full Name</label>
                                 <input type="text" id="name" name="name" class="form-input" value="<%= user.name %>" >
@@ -186,20 +187,27 @@
                             </div>
 
                         </form>
+                        <br>
 
-                        <div class="flex justify-between items-center mb-6 mt-10">
+                        <div class="address-header">
                             <h3 class="text-xl font-bold">Saved Addresses</h3>
+                            <a href="/addAddress" class="btn btn-primary update-email-btn ">+ Add New Address</a>
                         </div>
+                        <br>
 
 
-                       <% if (user.address && user.address.length > 0) { %>
+                       <% if(user.address && user.address.length > 0){ %>
 
                             <% user.address.forEach(function(addr){ %>
 
                                 <div class="address-card">
-                                    <h4 class="font-bold mb-1">
-                                        <%= addr.fullname %> (<%= addr.addressType %>)
-                                    </h4>
+                                    <h4 class="font-bold mb-1 flex items-center gap-2">
+                                    <%= addr.fullname %>
+                                    <span class="address-badge">
+                                        <%= addr.addressType %>
+                                    </span>
+                                </h4>
+
 
                                     <p class="text-muted text-sm leading-relaxed mb-2">
                                         <%= addr.street %>, <br>
@@ -212,8 +220,8 @@
                                     </p>
 
                                     <div class="flex gap-4 justify-end">
-                                        <button class="btn btn-outline btn-sm">Edit</button>
-                                        <button class="btn btn-outline-danger btn-sm">Remove</button>
+                                        <a href="/editAddress/<%= addr._id %>" class="btn btn-outline btn-sm">Edit</a>
+                                        <button class="btn btn-outline-danger btn-sm delete-btn" data-id="<%= addr._id %>">Remove</button>
                                     </div>
                                 </div>
 
@@ -224,18 +232,14 @@
                             <p class="text-muted">No addresses added yet.</p>
 
                         <% } %>
-                        <br>
-                        <div class="mb-8">
-                            <a href="/addAddress" class="btn btn-sm btn-primary"><i
-                                class="fa-solid fa-plus mr-2"></i>
-                                Add New Address</a>
-                        </div>
+                        
+                        
                     </div>
                 </div>
             </div>
         </div>
     </section>
-
+    
     <script src="/js/user/navbar.js"></script>
     <script src="/js/user/profile.js"></script>
 

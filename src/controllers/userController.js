@@ -7,7 +7,10 @@ import {
     sendForgotPassword,
     resetUserPassword,
     updateUserProfile,
-    UserEmailChange
+    UserEmailChange,
+    addUserAddress,
+    updateUserAddress,
+    deleteUserAddress
 
 } from "../services/userService.js"
 
@@ -95,7 +98,7 @@ export const register=async(req,res)=>{
 
 }
 
-export const verifyOtp = async (req, res) =>{
+export const verifyOtp = async (req, res)=>{
 
     const { otp } = req.body;
 
@@ -155,32 +158,32 @@ export const resendOtp = async (req, res) => {
 
     try {
 
-        let email;
-        let formAction;
-        let expiryKey;
-        let otpKey;
+        let email
+        let formAction
+        let expiryKey
+        let otpKey
 
         //Registration 
-        if (req.session.userData) {
-            email = req.session.userData.email;
-            formAction = "/loginVerify";
-            expiryKey = "otpExpiry";
-            otpKey = "userOtp";
+        if(req.session.userData){
+            email=req.session.userData.email
+            formAction="/loginVerify"
+            expiryKey="otpExpiry"
+            otpKey="userOtp"
         }
 
         //Forgot password 
-        else if (req.session.resetEmail) {
-            email = req.session.resetEmail;
-            formAction = "/verifyResetOtp";
-            expiryKey = "resetExpiry";
-            otpKey = "resetOtp";
+        else if(req.session.resetEmail){
+            email=req.session.resetEmail
+            formAction="/verifyResetOtp"
+            expiryKey="resetExpiry"
+            otpKey="resetOtp"
         }
         //Email Reset
-        else if (req.session.newEmail) {
-            email = req.session.newEmail;
-            formAction = "/verifyEmailOtp";
-            expiryKey = "emailOtpExpiry";
-            otpKey = "emailOtp";
+        else if(req.session.newEmail){
+            email=req.session.newEmail;
+            formAction="/verifyEmailOtp"
+            expiryKey="emailOtpExpiry"
+            otpKey="emailOtp"
         }
 
         else {
@@ -347,12 +350,12 @@ export const updateProfile=async(req,res)=>{
     })
     }catch(err){
 
-    
+        const user = await userModel.findById(req.session.user.id);
 
         return res.render("user/profile", {
             title: "Profile-Quavix",
             css: "userStyle",
-            user: req.session.user,
+            user: user,
             toastMessage: err.message,
             toastType: "error"
         });
@@ -383,10 +386,13 @@ export const emailChange=async(req,res)=>{
 
     }catch(err){
 
+        const user = await userModel.findById(req.session.user.id);
+
+
         return res.render("user/profile", {
             title: "Profile-Quavix",
             css: "userStyle",
-            user: req.session.user,
+            user: user,
             toastMessage: err.message,
             toastType: "error"
         });
@@ -451,8 +457,84 @@ export const verifyEmailOtp=async(req, res)=>{
     });
 };
 
+export const addAddress = async (req, res) => {
+    try {
+
+        await addUserAddress(req.session.user.id, req.body);
+        req.session.toastMessage = "Address added successfully!";
+        req.session.toastType = "success";
+        return res.redirect("/profile");
+
+    } catch (err) {
+        return res.render("user/addAddress", {
+            title: "Add Address-Quavix",
+            css: "userStyle",
+            toastMessage: err.message,
+            toastType: "error"
+        });
+    }
+};
+
+export const loadEditAddress=async(req,res)=>{
+
+    try{
+        const user= await userModel.findById(req.session.user.id)
+        const address= user.address.id(req.params.id)
+
+        if(!address){
+           res.redirect("/profile")
+        }
+
+        res.render("user/addAddress",{
+            title: "Edit Address - Quavix",
+            css: "userStyle",
+            address: address
+        })
+
+    }catch(err){
+        res.redirect('/profile')   
+    }
+    
+}
+
+export const updateAddress=async(req,res)=>{
+
+    try {
+
+        await updateUserAddress(req.session.user.id,req.params.id,req.body)
+        req.session.toastMessage = "Address updated successfully!"
+        req.session.toastType = "success"
+
+        res.redirect("/profile")
+        
+    } catch(err){
+        res.render("user/addAddress", {
+            title: "Edit Address - Quavix",
+            css: "userStyle",
+            address: {...req.body, _id: req.params.id},
+            toastMessage: err.message,
+            toastType: "error"
+        })
+    }
+}
+
+export const deleteAddress=async(req,res)=>{
+    try {
+       
+        await deleteUserAddress(req.session.user.id,req.params.id)
+
+        req.session.toastMessage = "Address deleted successfully!"
+        req.session.toastType = "success"
+        res.redirect("/profile")
 
 
+    }catch(err) {
+        req.session.toastMessage = err.message;
+        req.session.toastType = "error";
+
+        res.redirect("/profile");
+    }
+}
 
 export const loadHome=(req,res)=>{
 
@@ -497,11 +579,29 @@ export const loadNewPassword=(req,res)=>{
     res.render("user/newPass",{ title: "New Password-Quavix",css:"userStyle" })
 }
 export const loadAddAddress=(req,res)=>{
-    res.render("user/addAddress",{ title: "Add Address-Quavix",css:"userStyle" })
+    res.render("user/addAddress",{ title: "Add Address-Quavix",css:"userStyle",address:null })
 }
-export const loadProfile=(req,res)=>{
-    res.render("user/profile",{ title: "Profile-Quavix",css:"userStyle"})
-}
+export const loadProfile = async (req, res) => {
+    try {
+
+        const user = await userModel.findById(req.session.user.id);
+
+        if(!req.session.user) {
+            return res.redirect("/login");
+        }
+
+        res.render("user/profile", {
+            title: "Profile-Quavix",
+            css: "userStyle",
+            user: user
+        });
+
+    } catch (err) {
+        console.log(err);
+        res.redirect("/");
+    }
+};
+
 
 export const logout = (req, res) => {
     req.session.destroy((err) => {

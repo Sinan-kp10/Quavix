@@ -3503,3 +3503,19 @@ footer a:hover {
         align-self: flex-end; /* move button to right */
     }
 }
+
+.address-badge {
+    background: #eef2ff;
+    color: #4f46e5;
+    font-size: 12px;
+    padding: 3px 8px;
+    border-radius: 20px;
+    font-weight: 600;
+}
+.address-header {
+    display: flex;
+    justify-content: space-between;  /* pushes items to left & right */
+    align-items: center;             /* vertical alignment */
+}
+
+

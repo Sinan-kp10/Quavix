@@ -28,7 +28,7 @@ document.addEventListener("DOMContentLoaded", function () {
       isValid = false;
     }
 
-    if (password.value.trim() === "") {
+    if(password.value.trim() === "") {
       passwordError.textContent = "Password is required";
       password.classList.add("input-error");
       isValid = false;
@@ -40,7 +40,7 @@ document.addEventListener("DOMContentLoaded", function () {
       isValid = false;
     }
 
-    if (!isValid) {
+    if(!isValid){
       e.preventDefault();
     }
 

@@ -20,7 +20,11 @@ import {
     resetPassword,
     updateProfile,
     emailChange,
-    verifyEmailOtp
+    verifyEmailOtp,
+    addAddress,
+    loadEditAddress,
+    updateAddress,
+    deleteAddress
 
 
 } from "../controllers/userController.js"
@@ -52,7 +56,14 @@ router.post("/forgotPassword", forgottenPass);
 router.post("/verifyResetOtp", verifyResetOtp);
 
 
-router.get("/addAddress",loadAddAddress)
+router.get("/addAddress",isLogin,loadAddAddress)
+router.post("/addAddress", addAddress)
+router.get("/editAddress/:id", isLogin,loadEditAddress)
+router.post("/editAddress/:id", updateAddress)
+router.post("/deleteAddress/:id", deleteAddress)
+
+
+
 router.get("/profile",isLogin,loadProfile)
 router.post("/updateProfile",  updateProfile)
 router.post("/verifyEmailResetOtp", emailChange);

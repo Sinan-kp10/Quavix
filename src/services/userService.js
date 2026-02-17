@@ -166,7 +166,7 @@ export const updateUserProfile =async(userId,{ name,currentPassword,newPassword}
         
     }
 
-    if (currentPassword || newPassword) {
+    if(currentPassword || newPassword){
 
         if(user.googleId){
             throw new Error("Password change is not allowed for Google-authenticated users")
@@ -227,3 +227,82 @@ export const UserEmailChange=async(userId,newEmail)=>{
     return otp
 
 } 
+
+export const addUserAddress=async(userId,addressData)=>{
+
+    const user= await userModel.findById(userId)
+
+    if(!user){
+        throw new Error("User not found")
+    }
+
+    const {fullname,phone,pincode,street,state,city,addressType } = addressData;
+    
+    if(!fullname||!phone||!pincode||!street||!state||!city||!addressType){
+        throw new Error("All fields are required")
+    }
+    if (!/^[0-9]{6}$/.test(pincode)) {
+        throw new Error("Invalid pincode format");
+    }
+
+    user.address.push({
+        fullname,
+        phone,
+        pincode,
+        street,
+        state,
+        city,
+        addressType
+    })
+    await user.save()
+    return true
+}
+
+export const updateUserAddress=async(userId,addressId,data)=>{
+
+    const user=await userModel.findById(userId)
+
+    if(!user){
+        throw new Error("User not found")
+    }
+    const address= user.address.id(addressId)
+
+
+    const {fullname,phone,pincode,street,state,city,addressType} = data
+
+    if (!fullname||!phone||!pincode||!street||!state||!city||!addressType) {
+        throw new Error("All fields are required");
+    }
+
+    address.fullname = fullname;
+    address.phone = phone;
+    address.pincode = pincode;
+    address.street = street;
+    address.state = state;
+    address.city = city;
+    address.addressType = addressType;
+
+    await user.save()
+    return true
+    
+}
+
+export const deleteUserAddress=async(userId,addressId)=>{
+
+    const user =await userModel.findById(userId)
+    if(!user){
+        throw new Error("user not found")
+    }
+
+    const address=user.address.id(addressId)
+
+    if(!address){
+        throw new Error("Address not found")
+    }
+
+    address.deleteOne()
+    await user.save()
+
+    return true;
+
+}

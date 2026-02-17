@@ -106,6 +106,35 @@ document.addEventListener('DOMContentLoaded',()=>{
         }, 3000);
     }
 
-    form
+     //delete
+
+    document.querySelectorAll(".delete-btn").forEach(button => {
+
+        button.addEventListener("click", function () {
+
+            const addressId = this.dataset.id
+
+            Swal.fire({
+                title: "Are you sure?",
+                text: "This address will be permanently deleted!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#d33",
+                confirmButtonText: "Yes, delete it!"
+            }).then((result) => {
+
+                if(result.isConfirmed){
+
+                    const formDelete = document.createElement("form");
+                    formDelete.method = "POST";
+                    formDelete.action = "/deleteAddress/" + addressId;
+
+                    document.body.appendChild(formDelete);
+                    formDelete.submit();
+                }
+            });
+        });
+
+    });
 
 });
