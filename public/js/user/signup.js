@@ -36,13 +36,15 @@ document.addEventListener("DOMContentLoaded", function () {
             isValid = false;
         }
 
-        if (email.value.trim() === "") {
+        if(email.value.trim()==="") {
             showError(email, "Email is required");
             isValid = false;
         }
-
-        if (password.value.length < 6) {
+        if (password.value.trim().length < 6) {
             showError(password, "Password must be at least 6 characters");
+            isValid = false;
+        }else if (password.value.includes(" ")) {
+            showError(passwordInput, "Password cannot contain spaces");
             isValid = false;
         }
 

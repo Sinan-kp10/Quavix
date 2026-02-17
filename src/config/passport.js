@@ -14,8 +14,10 @@ passport.use(new GoogleStrategy({
 
     try {
         let user= await userModel.findOne({googleId:profile.id})
+        
 
         if(user){
+
             return done(null,user)
         }else{
              user=new userModel({

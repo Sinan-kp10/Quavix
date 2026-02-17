@@ -1,4 +1,9 @@
 <body>
+    <% if (typeof toastMessage !== "undefined") { %>
+    <div id="toast" class="toast <%= toastType %>">
+         <%= toastMessage %>
+    </div>
+    <% } %>
 
     <div class="admin-layout">
         <!-- Mobile Header -->
@@ -21,7 +26,7 @@
             </div>
 
             <nav>
-                <a href="index.html" class="sidebar-link"><i class="fa-solid fa-chart-line"></i>
+                <a href="/admin/dashboard" class="sidebar-link"><i class="fa-solid fa-chart-line"></i>
                     Dashboard</a>
                 <a href="products.html" class="sidebar-link"><i class="fa-solid fa-box"></i>
                     Products</a>
@@ -29,7 +34,7 @@
                 <a href="coupons.html" class="sidebar-link"><i class="fa-solid fa-ticket"></i> Coupons</a>
                 <a href="categories.html" class="sidebar-link"><i class="fa-solid fa-tags"></i>
                     Categories</a>
-                <a href="users.html" class="sidebar-link active"><i class="fa-solid fa-users"></i>
+                <a href="/admin/users" class="sidebar-link active"><i class="fa-solid fa-users"></i>
                     Users</a>
                 <a href="banner.html" class="sidebar-link"><i class="fa-solid fa-image"></i>
                     Banner</a>
@@ -53,13 +58,36 @@
 
             <div class="card p-4">
                 <div class="flex justify-between items-center mb-4">
-                    <div class="flex gap-2">
-                        <input type="text" class="form-input" placeholder="Search users..." style="width: 300px;">
-                        <select class="form-select" style="width: 150px;">
-                            <option>All Users</option>
-                            <option>Blocked</option>
+                    <form method="GET" action="/admin/users" class="flex gap-2">
+
+                        <div class="search-group">
+                            <input 
+                                type="text" 
+                                name="search"
+                                value="<%= search || '' %>"
+                                class="form-input" 
+                                placeholder="Search users..." 
+                                style="width: 300px;"
+                            >
+                            <button class="btn btn-primary">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                            </button>
+                        </div>
+
+                        <select  name="status"class="form-select" style="width: 150px;" onchange="this.form.submit()">
+                            <option value="all" <%= status === "all" ? "selected" : "" %>>
+                                All Users
+                            </option>
+                            <option value="active" <%= status === "active" ? "selected" : "" %>>
+                                Active
+                            </option>
+                            <option value="blocked" <%= status === "blocked" ? "selected" : "" %>>
+                                Blocked
+                            </option>
                         </select>
-                    </div>
+
+                    </form>
+
                 </div>
 
                 <div class="table-responsive">
@@ -74,25 +102,35 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td>John Doe</td>
-                                <td>john@example.com</td>
-                                <td>Jan 24, 2026</td>
-                                <td><span class="status-badge status-success">Active</span></td>
-                                <td style="text-align: right;">
-                                    <button class="btn btn-danger btn-sm">Block</button>
+                            <% users.forEach(user => { %>
+                                <tr>
+                                <td><%= user.name %></td>
+                                <td><%= user.email %></td>
+                                <td><%= user.createdAt.toDateString() %></td>
+
+                                <td>
+                                    <% if(user.status === "blocked") { %>
+                                    <span class="status-badge status-danger">Blocked</span>
+                                    <% } else { %>
+                                    <span class="status-badge status-success">Active</span>
+                                    <% } %>
                                 </td>
-                            </tr>
-                            <tr>
-                                <td>Jane Smith</td>
-                                <td>jane@example.com</td>
-                                <td>Jan 23, 2026</td>
-                                <td><span class="status-badge status-danger">Blocked</span></td>
+
                                 <td style="text-align: right;">
-                                    <button class="btn btn-success btn-sm">Unblock</button>
+                                    <% if(user.status === "blocked") { %>
+                                    <a href="/admin/unblock/<%= user._id %>" class="btn btn-success btn-sm">
+                                        Unblock
+                                    </a>
+                                    <% } else { %>
+                                    <a href="/admin/block/<%= user._id %>" class="btn btn-danger btn-sm">
+                                        Block
+                                    </a>
+                                    <% } %>
                                 </td>
-                            </tr>
+                                </tr>
+                            <% }) %>
                         </tbody>
+
                     </table>
                 </div>
 

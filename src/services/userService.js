@@ -16,7 +16,10 @@ export const loginUser=async(email,password)=>{
     if(user.googleId){
         throw new Error("You can login throgh google")
     }
-    const isPasswordMatch = await bcrypt.compare(password, user.password);
+    if (user.status==="blocked") {
+        throw new Error("Your account has been blocked by the administrator")
+    }
+    const isPasswordMatch = await bcrypt.compare(password, user.password)
     if (!isPasswordMatch) {
         throw new Error("Incorrect password!");
     }
@@ -306,3 +309,4 @@ export const deleteUserAddress=async(userId,addressId)=>{
     return true;
 
 }
+

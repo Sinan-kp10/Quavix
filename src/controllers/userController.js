@@ -46,7 +46,10 @@ export const login=async(req,res)=>{
     if(err.message === "Incorrect password!"){
         message = "Incorrect password!"
     }
-
+    
+    if(err.message === "Your account has been blocked by the administrator"){
+        message = "Your account has been blocked by the administrator"
+    }
     return res.render("user/login", {
         title: "Login-Quavix",
         css: "userStyle",

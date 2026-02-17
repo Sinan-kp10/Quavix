@@ -1,6 +1,7 @@
 import express from "express"
 const router=express.Router()
 import { isLogin } from "../middleware/auth.js"
+import { googleUserStatus } from "../middleware/googleUser.js"
 import {
     loadLogin,
     loadSingnup,
@@ -76,12 +77,20 @@ router.get("/logout", logout);
 
 router.get("/auth/google",passport.authenticate("google", {scope: ["profile", "email"]}));
 
-router.get("/auth/google/callback",passport.authenticate("google", {failureRedirect: "/register"}),(req, res) => {
+router.get(
+  "/auth/google",
+  passport.authenticate("google", { scope: ["profile", "email"] })
+);
+
+router.get("/auth/google/callback",
+  passport.authenticate("google", { failureRedirect: "/login" }),googleUserStatus,(req, res) =>{
+    
     req.session.user = {
-      name: req.user.name,
       id: req.user._id,
+      name: req.user.name,
       email: req.user.email
-    };
+    }
+    console.log(req.session.user)
 
     res.redirect("/");
   }

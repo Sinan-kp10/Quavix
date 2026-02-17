@@ -24,13 +24,17 @@ document.addEventListener('DOMContentLoaded',()=>{
 
     if (currentPassword.value || newPassword.value) {
 
-        if (currentPassword.value.length < 6) {
+        if(currentPassword.value.length < 6) {
             showError(currentPassword, "Password must be at least 6 characters");
             isValid = false;
         }
 
         if (newPassword.value.length < 6) {
             showError(newPassword, "Password must be at least 6 characters");
+            isValid = false;
+        }
+        else if (newPassword.value.includes(" ")) {
+            showError(newPassword, "Password cannot contain spaces");
             isValid = false;
         }
     }

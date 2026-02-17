@@ -1,4 +1,4 @@
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded",function(){
 
   const email = document.getElementById("email");
   const passwordInput = document.getElementById("password");
@@ -38,7 +38,11 @@ document.addEventListener("DOMContentLoaded", function () {
       passwordError.textContent = "Password must be at least 6 characters";
       password.classList.add("input-error");
       isValid = false;
+    }else if (password.value.includes(" ")) {
+      showError(password, "Password cannot contain spaces");
+      isValid = false;
     }
+
 
     if(!isValid){
       e.preventDefault();
@@ -63,11 +67,11 @@ document.addEventListener("DOMContentLoaded", function () {
   //Toggle password visibility
   toggleBtn.addEventListener("click", function () {
 
-    if (passwordInput.type === "password") {
+    if (passwordInput.type === "password"){
       passwordInput.type = "text";
       eyeIcon.classList.remove("fa-eye-slash");
       eyeIcon.classList.add("fa-eye");
-    } else {
+    }else{
       passwordInput.type = "password";
       eyeIcon.classList.remove("fa-eye");
       eyeIcon.classList.add("fa-eye-slash");

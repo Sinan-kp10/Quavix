@@ -36,7 +36,7 @@ app.use(session({
 }));
 app.use(passport.initialize())
 app.use(passport.session())
-app.use(toastMiddleware);
+app.use(toastMiddleware)
 
 app.use((req,res,next)=>{
   res.locals.user =  req.session.user ||req.user || null
