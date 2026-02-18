@@ -95,3 +95,8 @@ export const loadLogin=(req,res)=>{
 export const loadDashboard=(req,res)=>{
     res.render("admin/dashboard",{ title: "Users Admin-Quavix",css: "adminStyle" })
 }
+
+export const adminLogout=(req,res)=>{
+    req.session.admin=null
+    res.redirect("/admin/login")
+}

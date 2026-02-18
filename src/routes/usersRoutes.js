@@ -90,7 +90,6 @@ router.get("/auth/google/callback",
       name: req.user.name,
       email: req.user.email
     }
-    console.log(req.session.user)
 
     res.redirect("/");
   }

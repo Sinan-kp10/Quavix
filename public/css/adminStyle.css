@@ -1836,3 +1836,49 @@ img {
     transform: none;
     box-shadow: none;
 }
+.search-clear {
+    position: absolute;
+    right: 50px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: #94a3b8;
+    cursor: pointer;
+    font-size: 0.9rem;
+    display: none;
+    padding: 0;
+    width: 20px;
+    height: 20px;
+    line-height: 20px;
+    text-align: center;
+    z-index: 10;
+}
+
+.search-clear:hover {
+    color: #ef4444;
+}
+
+.search-clear.active {
+    display: block;
+}
+
+    /* Fix Search Group on Mobile */
+    .search-group {
+        width: 100% !important;
+        flex: 0 0 100% !important;
+        margin-bottom: 0.5rem;
+    }
+
+    .search-group .form-input {
+        width: auto !important;
+        flex: 1 !important;
+        min-width: 0;
+        border-top-right-radius: 0 !important;
+        border-bottom-right-radius: 0 !important;
+    }
+
+    .search-group .btn {
+        width: auto !important;
+        flex: 0 0 auto !important;
+    }

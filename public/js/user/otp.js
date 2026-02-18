@@ -29,24 +29,25 @@ document.addEventListener("DOMContentLoaded", function () {
     const expiryTime = Number(timerWrapper.dataset.expiry);
     
 
-    const interval=setInterval(()=>{
-        
-        const remaining = Math.floor((expiryTime - Date.now()) / 1000);
-        if (remaining <= 0) {
-            clearInterval(interval);
-            timer.textContent = "Expired";
+    function updateTimer(){
+        const remaining=Math.floor((expiryTime - Date.now()) / 1000)
+
+        if(remaining <= 0){
+            timer.textContent = "Expired"
+            clearInterval(interval)
             return;
         }
 
         let minute=Math.floor(remaining/60)
         let second=remaining % 60
 
-        timer.textContent= minute+":"+(second<10?"0"+second:second)
+        timer.textContent=minute + ":"+(second < 10 ? "0" + second : second)
+    }
 
+    updateTimer()
 
-    },1000)
+    const interval =setInterval(updateTimer, 1000);
 
-    //toast
     const toast = document.getElementById("toast");
 
     if (toast) {
