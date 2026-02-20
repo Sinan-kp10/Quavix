@@ -7,7 +7,7 @@ export const googleUserStatus = async (req, res, next) => {
       return res.redirect("/login");
     }
 
-    const user = await users.findById(req.user.id);
+    const user = await users.findById(req.user.id)
 
 
 

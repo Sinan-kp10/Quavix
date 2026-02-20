@@ -1,5 +1,6 @@
 import userModel from "../models/userModal.js"
-
+import cloudinary from "../config/cloudinary.js"
+import upload from "../config/multer.js"
 import {
     loginUser,
     registerUser,
@@ -10,7 +11,9 @@ import {
     UserEmailChange,
     addUserAddress,
     updateUserAddress,
-    deleteUserAddress
+    deleteUserAddress,
+    updateUserProfileImage,
+    removeUserProfileImage
 
 } from "../services/userService.js"
 
@@ -20,12 +23,13 @@ export const login=async(req,res)=>{
 
         const {email,password}=req.body
         
-        const user = await loginUser(email, password);
+        const user = await loginUser(email, password)
         
         req.session.user = {
             id: user._id,
             email: user.email,
-            name: user.name
+            name: user.name,
+            profileImage: user.profileImage
         }
 
         res.redirect("/")
@@ -367,6 +371,45 @@ export const updateProfile=async(req,res)=>{
 
 }
 
+
+
+export const uploadProfileImage=async(req,res)=>{
+
+  try{
+
+    const imageUrl=await updateUserProfileImage(req.session.user.id,req.file)
+    if (imageUrl) {
+      req.session.user.profileImage = imageUrl;
+    }
+    req.session.toastMessage = "Profile image updated successfully!";
+    req.session.toastType = "success";
+    res.redirect("/profile")
+    
+  }catch(err){
+    console.log(err)
+    res.redirect("/profile")
+  }  
+
+}
+
+export const removeProfileImage =async (req,res)=>{
+    try {
+
+        await removeUserProfileImage(req.session.user.id)
+        delete req.session.user.profileImage
+
+        req.session.toastMessage = "Profile image removed successfully!"
+        req.session.toastType = "success";
+
+        res.redirect("/profile")
+        
+    }catch(err){
+        console.log(err);
+        res.redirect("/profile");
+    }
+}
+
+
 export const emailChange=async(req,res)=>{
 
     try {
@@ -603,10 +646,10 @@ export const loadProfile = async (req, res) => {
         console.log(err);
         res.redirect("/");
     }
-};
+}
 
 
 export const logout = (req, res) => {
-    req.session.user=null
-    res.redirect("/")
+    req.session.destroy()
+    res.redirect("/login")
 }

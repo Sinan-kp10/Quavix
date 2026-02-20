@@ -97,6 +97,6 @@ export const loadDashboard=(req,res)=>{
 }
 
 export const adminLogout=(req,res)=>{
-    req.session.admin=null
+    delete req.session.admin
     res.redirect("/admin/login")
 }

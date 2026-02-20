@@ -66,6 +66,15 @@ const userSchema = new mongoose.Schema(
       type: String,
       unique: true
     },
+
+    profileImage: {
+      type: String
+    },
+
+    profileImageId: {
+      type: String
+    },
+    
     address:[addressSchema],
 
     status: {

@@ -38,7 +38,7 @@ export const getAllUsers=async(search="",status="all",page=1,limit=10)=>{
     }
 
     const skip=(page-1)*limit
-    const usersList=await users.find(query).sort({createdAt:1}).skip(skip).limit(limit)
+    const usersList=await users.find(query).sort({createdAt:-1}).skip(skip).limit(limit)
 
     const totalUsers=await users.countDocuments(query)
 

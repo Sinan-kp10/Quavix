@@ -1,7 +1,9 @@
 import userModel from "../models/userModal.js"
+import cloudinary from "../config/cloudinary.js"
 import bcrypt from "bcrypt"
 import nodemailer from "nodemailer"
 import dotenv from "dotenv"
+import { profile } from "node:console"
 dotenv.config();
 const saltround=10
 
@@ -162,6 +164,11 @@ export const updateUserProfile =async(userId,{ name,currentPassword,newPassword}
     if(!user) {
         throw new Error("User not found");
     }
+
+    if(name.length<3){
+        throw new Error("Enter your name")
+    }
+
     
     if(name&& name !== user.name){
         user.name=name;
@@ -197,7 +204,50 @@ export const updateUserProfile =async(userId,{ name,currentPassword,newPassword}
     await user.save();
 
     return user;
-};
+}
+
+export const updateUserProfileImage = async(userId, file)=>{
+
+    if(!file){
+        return null
+    }
+    const user = await userModel.findById(userId);
+    if(user.profileImageId){
+        await cloudinary.uploader.destroy(user.profileImageId)
+    } 
+    const result = await cloudinary.uploader.upload(
+        `data:${file.mimetype};base64,${file.buffer.toString("base64")}`,
+        { folder: "profile_images" }
+    )
+    user.profileImage = result.secure_url
+    user.profileImageId = result.public_id
+
+    await user.save();
+
+    return result.secure_url;
+}
+
+export const removeUserProfileImage=async(userId)=>{
+
+    const user = await userModel.findById(userId)
+
+    if(!user){
+        throw new Error("User not found")
+    }
+
+    if(user.profileImageId){
+        await cloudinary.uploader.destroy(user.profileImageId)
+    }
+
+    user.profileImage=undefined,
+    user.profileImageId = undefined;
+
+    await user.save();
+
+    return true;
+
+
+}
 
 export const UserEmailChange=async(userId,newEmail)=>{
 
@@ -240,16 +290,23 @@ export const addUserAddress=async(userId,addressData)=>{
     }
 
     const {fullname,phone,pincode,street,state,city,addressType } = addressData;
+    const trimmedName = fullname?.trim();
     
-    if(!fullname||!phone||!pincode||!street||!state||!city||!addressType){
+    if(!trimmedName||!phone||!pincode||!street||!state||!city||!addressType){
         throw new Error("All fields are required")
     }
+
+    if(trimmedName.length < 3){
+        throw new Error("Full name required")
+
+    }
+
     if (!/^[0-9]{6}$/.test(pincode)) {
         throw new Error("Invalid pincode format");
     }
 
     user.address.push({
-        fullname,
+        fullname:trimmedName,
         phone,
         pincode,
         street,
