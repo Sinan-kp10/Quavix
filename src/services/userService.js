@@ -212,6 +212,10 @@ export const updateUserProfileImage = async(userId, file)=>{
         return null
     }
     const user = await userModel.findById(userId);
+    if (!user) {
+        throw new Error("User not found");
+    }
+    
     if(user.profileImageId){
         await cloudinary.uploader.destroy(user.profileImageId)
     } 
@@ -239,7 +243,7 @@ export const removeUserProfileImage=async(userId)=>{
         await cloudinary.uploader.destroy(user.profileImageId)
     }
 
-    user.profileImage=undefined,
+    user.profileImage=undefined;
     user.profileImageId = undefined;
 
     await user.save();
@@ -332,6 +336,9 @@ export const updateUserAddress=async(userId,addressId,data)=>{
 
     if (!fullname||!phone||!pincode||!street||!state||!city||!addressType) {
         throw new Error("All fields are required");
+    }
+    if(address.fullname === fullname && address.phone === phone && address.pincode === pincode && address.street === street && address.state === state && address.city === city && address.addressType === addressType ){
+        throw new Error("No changes were made");
     }
 
     address.fullname = fullname;

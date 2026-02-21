@@ -6,10 +6,7 @@ export const googleUserStatus = async (req, res, next) => {
     if(!req.user){
       return res.redirect("/login");
     }
-
     const user = await users.findById(req.user.id)
-
-
 
     if (!user || user.status==="blocked") {
       req.session.toastMessage = "Your account has been blocked by administrator"

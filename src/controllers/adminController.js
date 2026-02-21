@@ -73,7 +73,6 @@ export const loadAllUsers=async(req,res)=>{
     }
 }
 
-
 export const blockedUsers=async(req,res)=>{
 
     await allBlockedUser(req.params.id)
@@ -86,8 +85,6 @@ export const activeUsers=async(req,res)=>{
     res.redirect("/admin/users");
 }
 
-
-
 export const loadLogin=(req,res)=>{
     res.render("admin/login",{ title: "Login Admin-Quavix",css: "adminStyle" })
 }
@@ -99,4 +96,8 @@ export const loadDashboard=(req,res)=>{
 export const adminLogout=(req,res)=>{
     delete req.session.admin
     res.redirect("/admin/login")
+}
+
+export const loadCategory=async(req,res)=>{
+    
 }

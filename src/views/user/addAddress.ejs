@@ -1,6 +1,10 @@
 
 <body>
-
+    <% if (typeof toastMessage !== "undefined") { %>
+        <div id="toast" class="toast <%= toastType %>">
+            <%= toastMessage %>
+        </div>
+    <% } %>
     <!-- Navbar -->
     <nav class="navbar">
         <div class="container nav-container">

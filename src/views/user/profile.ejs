@@ -8,7 +8,7 @@
     <!-- Navbar -->
     <nav class="navbar navbar-fixed">
         <div class="container nav-container">
-            <a href="index.html" class="logo">
+            <a href="/" class="logo">
                 <i class="fa-solid fa-bolt text-gradient-clip"></i>
                 <span class="text-gradient">Quavix</span>
             </a>
@@ -26,14 +26,14 @@
             <!-- Mobile Sidebar (Hidden by default) -->
             <aside class="mobile-sidebar">
                 <div class="sidebar-header">
-                    <a href="index.html" class="logo">
+                    <a href="/" class="logo">
                         <i class="fa-solid fa-bolt text-gradient-clip"></i>
                         <span class="text-gradient">Quavix</span>
                     </a>
                     <button class="close-btn"><i class="fa-solid fa-xmark"></i></button>
                 </div>
                 <div class="sidebar-content">
-                    <a href="products.html"><i class="fa-solid fa-shop"></i> Shop</a>
+                    <a href="/products"><i class="fa-solid fa-shop"></i> Shop</a>
                     <a href="order-history.html"><i class="fa-solid fa-box"></i> Orders</a>
                     <a href="wishlist.html"><i class="fa-regular fa-heart"></i> Wishlist</a>
                     <a href="cart.html"><i class="fa-solid fa-cart-shopping"></i> Cart</a>
@@ -53,7 +53,7 @@
             <!-- Desktop Menu -->
             <div class="nav-menu">
                 <a href="/">Home</a>
-                <a href="products.html">Shop</a>
+                <a href="/products">Shop</a>
                 <a href="order-history.html">Orders</a>
             </div>
 
@@ -118,7 +118,7 @@
                                 <label for="profileInput" class="change-btn">
                                     <i class="fa-solid fa-camera"></i>
                                 </label>
-                                <input type="file" name="profileImage" id="profileInput" hidden onchange="this.form.submit()">
+                                <input type="file" name="profileImage" id="profileInput" hidden >
                             </form>
                         </div>
 
@@ -273,11 +273,87 @@
             </div>
         </div>
     </section>
+    <div id="cropModal" class="crop-modal">
+    <div class="crop-modal-content">
+        <div class="crop-header">
+            <h3>Crop Image</h3>
+            <button id="cropCancelTop" class="crop-close">&times;</button>
+        </div>
+
+        <div class="crop-body">
+            <img id="cropImage">
+        </div>
+
+        <div class="crop-footer">
+            <button id="cropConfirm" class="btn btn-primary">Crop</button>
+            <button id="cropCancel" class="btn btn-outline">Cancel</button>
+        </div>
+    </div>
+</div>
     
     <script src="/js/user/navbar.js"></script>
     <script src="/js/user/profile.js"></script>
 
+    <script>
+        let cropper;
+        const input = document.getElementById("profileInput");
+        const image = document.getElementById("cropImage");
+        const modal = document.getElementById("cropModal");
+        const cropConfirm = document.getElementById("cropConfirm");
+        const cropCancel = document.getElementById("cropCancel");
 
+        input.addEventListener("change", function (e) {
+            const file = e.target.files[0];
+            const reader = new FileReader();
+
+            reader.onload = function () {
+                image.src = reader.result;
+                modal.style.display = "flex";
+
+                cropper = new Cropper(image, {
+                aspectRatio: 1,
+                viewMode: 1,
+                dragMode: "move",        // move image instead of crop box
+                cropBoxResizable: false, 
+                cropBoxMovable: false,   
+                zoomable: true,
+                scalable: false,
+                responsive: true
+            });
+            };
+
+            reader.readAsDataURL(file);
+        });
+
+        cropConfirm.addEventListener("click", function () {
+            const canvas = cropper.getCroppedCanvas({
+                width: 300,
+                height: 300
+            });
+
+            canvas.toBlob(function (blob) {
+                const formData = new FormData();
+                formData.append("profileImage", blob, "profile.jpg");
+
+                fetch("/upload-profile", {
+                    method: "POST",
+                    body: formData
+                })
+                .then(res => {
+                    if (res.ok) {
+                        window.location.href = "/profile";
+                    }
+                });
+            });
+
+            modal.style.display = "none";
+        });
+
+        cropCancel.addEventListener("click", function () {
+            modal.style.display = "none";
+            cropper.destroy();
+        });
+        </script>
 
     
 </body>

@@ -1,6 +1,4 @@
 import userModel from "../models/userModal.js"
-import cloudinary from "../config/cloudinary.js"
-import upload from "../config/multer.js"
 import {
     loginUser,
     registerUser,
@@ -378,15 +376,21 @@ export const uploadProfileImage=async(req,res)=>{
   try{
 
     const imageUrl=await updateUserProfileImage(req.session.user.id,req.file)
-    if (imageUrl) {
-      req.session.user.profileImage = imageUrl;
+    if (!imageUrl) {
+      req.session.toastMessage = "Please select an image.";
+      req.session.toastType = "error";
+      return res.redirect("/profile");
     }
+
+    req.session.user.profileImage = imageUrl;
     req.session.toastMessage = "Profile image updated successfully!";
     req.session.toastType = "success";
     res.redirect("/profile")
     
   }catch(err){
     console.log(err)
+    req.session.toastMessage = "Something went wrong.";
+    req.session.toastType = "error";
     res.redirect("/profile")
   }  
 

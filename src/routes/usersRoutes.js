@@ -2,40 +2,40 @@ import express from "express"
 const router=express.Router()
 import { isLogin } from "../middleware/auth.js"
 import upload from "../config/multer.js"
+import multer from "multer";
+import {profileUploadValidation} from "../middleware/profileUploadValidation.js"
 import { googleUserStatus } from "../middleware/googleUser.js"
+import passport from "passport"
 import {
-    loadLogin,
-    loadSingnup,
-    loadOtpVerify,
-    loadForgottenPass,
-    loadHome,
-    loadAddAddress,
-    loadProfile,
-    loadNewPassword,
-    login,
-    register,
-    logout,
-    verifyOtp,
-    resendOtp,
-    forgottenPass,
-    verifyResetOtp,
-    resetPassword,
-    updateProfile,
-    emailChange,
-    verifyEmailOtp,
-    addAddress,
-    loadEditAddress,
-    updateAddress,
-    deleteAddress,
-    uploadProfileImage,
-    removeProfileImage
-
-
+  loadLogin,
+  loadSingnup,
+  loadOtpVerify,
+  loadForgottenPass,
+  loadHome,
+  loadAddAddress,
+  loadProfile,
+  loadNewPassword,
+  login,
+  register,
+  logout,
+  verifyOtp,
+  resendOtp,
+  forgottenPass,
+  verifyResetOtp,
+  resetPassword,
+  updateProfile,
+  emailChange,
+  verifyEmailOtp,
+  addAddress,
+  loadEditAddress,
+  updateAddress,
+  deleteAddress,
+  uploadProfileImage,
+  removeProfileImage
 
 } from "../controllers/userController.js"
-import passport from "passport"
 
-
+import { loadShop } from "../controllers/userProductController.js"
 
 
 
@@ -73,34 +73,14 @@ router.get("/profile",isLogin,loadProfile)
 router.post("/updateProfile",  updateProfile)
 router.post("/verifyEmailResetOtp", emailChange);
 router.post("/verifyEmailOtp", verifyEmailOtp)
-import multer from "multer";
 
-router.post("/upload-profile",isLogin,(req, res, next) => {upload.single("profileImage")(req, res, function (err){
-
-  if(err instanceof multer.MulterError){
-      req.session.toastMessage = "File too large. Max size is 2MB.";
-      req.session.toastType = "error";
-      return res.redirect("/profile");
-
-    }else if(err){
-
-      req.session.toastMessage = err.message;
-      req.session.toastType = "error";
-      return res.redirect("/profile");
-
-    }
-
-      next();
-    })
-
-  },
+router.post(
+  "/upload-profile",
+  isLogin,
+  profileUploadValidation,
   uploadProfileImage
-)
+);
 router.post("/remove-profile-image", isLogin, removeProfileImage);
-
-
-
-router.get("/logout", logout)
 
 router.get("/auth/google",passport.authenticate("google", {scope: ["profile", "email"]}))
 
@@ -115,6 +95,10 @@ router.get("/auth/google/callback",passport.authenticate("google",{ failureRedir
     res.redirect("/");
   }
 )
+
+router.get("/products",loadShop)
+
+router.get("/logout", logout)
 
 
 
