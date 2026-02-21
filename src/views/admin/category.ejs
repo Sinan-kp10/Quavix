@@ -1,0 +1,252 @@
+<body>
+    <% if (typeof toastMessage !== "undefined") { %>
+    <div id="toast" class="toast <%= toastType %>">
+         <%= toastMessage %>
+    </div>
+    <% } %>
+
+    <div class="admin-layout">
+        <!-- Mobile Header -->
+        <div class="mobile-header">
+            <div class="mobile-logo">
+                <i class="fa-solid fa-bolt"></i> Quavix
+            </div>
+            <button class="menu-toggle" onclick="toggleSidebar()">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+        </div>
+
+        <!-- Sidebar Overlay -->
+        <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo">
+                <i class="fa-solid fa-bolt"></i> Quavix Admin
+            </div>
+
+            <nav>
+                <a href="/admin/dashboard" class="sidebar-link"><i class="fa-solid fa-chart-line"></i>
+                    Dashboard</a>
+                <a href="products.html" class="sidebar-link"><i class="fa-solid fa-box"></i>
+                    Products</a>
+                <a href="orders.html" class="sidebar-link"><i class="fa-solid fa-clipboard-list"></i> Orders</a>
+                <a href="coupons.html" class="sidebar-link"><i class="fa-solid fa-ticket"></i> Coupons</a>
+                <a href="categories.html" class="sidebar-link active"><i class="fa-solid fa-tags"></i>
+                    Categories</a>
+                <a href="/admin/users" class="sidebar-link"><i class="fa-solid fa-users"></i>
+                    Users</a>
+                <a href="banner.html" class="sidebar-link"><i class="fa-solid fa-image"></i>
+                    Banner</a>
+
+                <a href="reports.html" class="sidebar-link"><i class="fa-solid fa-chart-pie"></i>
+                    Reports</a>
+
+            </nav>
+
+            <div class="sidebar-footer">
+                <a href="../index.html" class="sidebar-link"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+            </div>
+        </aside>
+
+        <!-- Category Content -->
+        <main class="content">
+            <header class="flex justify-between items-center mb-4">
+                <h2>Category Management</h2>
+                <button class="btn btn-primary" onclick="openModal('categoryModal')"><i class="fa-solid fa-plus"></i>
+                    Add Category</button>
+            </header>
+
+            <div class="card p-4">
+                <div class="flex justify-between items-center mb-4">
+                    <form method="GET" action="/admin/category" class="flex gap-2 items-center">
+
+                        <!-- Search Box -->
+                        <div class="search-group flex" style="position: relative;">
+                            <input type="text"  name="search" value="<%= search || '' %>"  class="form-input" placeholder="Search categories..." >
+
+                            <% if (search) { %>
+                                <a href="/admin/category?status=<%= status %>"
+                                class="search-clear active">
+                                    <i class="fa-solid fa-xmark"></i>
+                                </a>
+                            <% } %>
+
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                            </button>
+                        </div>
+                        <!-- Status Filter -->
+                        <select name="status" class="form-select" style="width: 150px;" onchange="this.form.submit()">
+
+                            <option value="all" <%= status === "all" ? "selected" : "" %>>
+                                All Status
+                            </option>
+
+                            <option value="Active" <%= status === "Active" ? "selected" : "" %>>
+                                Active
+                            </option>
+
+                            <option value="Inactive" <%= status === "Inactive" ? "selected" : "" %>>
+                                Inactive
+                            </option>
+
+                        </select>
+
+                        <!-- Reset page -->
+                        <input type="hidden" name="page" value="1">
+
+                    </form>
+                </div>
+                <div class="table-responsive">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Category Name</th>
+                                <th>Products Count</th>
+                                <th>Status</th>
+                                <th style="text-align: right;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% if (!noCategories) { %>
+                                <% categories.forEach(category => { %>
+                                    <tr>
+                                        <td><%= category.name %></td>
+
+                                        <td>
+                                            <%= category.productCount || 0 %>
+                                        </td>
+
+                                        <td>
+                                            <span class="status-badge 
+                                                <%= category.status === 'Active' 
+                                                    ? 'status-success' 
+                                                    : 'status-danger' %>">
+                                                <%= category.status %>
+                                            </span>
+                                        </td>
+
+                                        <td style="text-align: right;">
+                                            <button class="btn btn-outline btn-sm">
+                                                <i class="fa-solid fa-pen"></i>
+                                            </button>
+
+                                            <form action="/admin/category/delete/<%= category._id %>" method="POST" style="display:inline;">
+                                                <button type="button" class="btn btn-danger btn-sm delete-btn"  data-id="<%= category._id %>">
+                                                    <i class="fa-solid fa-trash"></i>
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                <% }) %>
+                            <% } else { %>
+                                <tr>
+                                    <td colspan="4" style="text-align:center;">
+                                        No Categories Found
+                                    </td>
+                                </tr>
+                            <% } %>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                <div class="pagination">
+                    <% if(currentPage > 1){ %>
+                        <a href="?search=<%= search %>&status=<%= status %>&page=<%= currentPage - 1 %>"
+                        class="page-link">
+                            <i class="fa-solid fa-chevron-left"></i>
+                        </a>
+                    <% } %>
+                    <% 
+                        let startPage = Math.max(1, currentPage - 1);
+                        let endPage = Math.min(totalPages, startPage + 2);
+                        if(endPage - startPage < 2){
+                            startPage = Math.max(1, endPage - 2);
+                        }
+                    %>
+                    <% for(let i = startPage; i <= endPage; i++){ %>
+                        <a href="?search=<%= search %>&status=<%= status %>&page=<%= i %>"
+                        class="page-link <%= currentPage === i ? 'active' : '' %>">
+                            <%= i %>
+                        </a>
+                    <% } %>
+                    <% if(currentPage < totalPages){ %>
+                        <a href="?search=<%= search %>&status=<%= status %>&page=<%= currentPage + 1 %>"
+                        class="page-link">
+                            <i class="fa-solid fa-chevron-right"></i>
+                        </a>
+                    <% } %>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Category Modal -->
+    <div id="categoryModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Add / Edit Category</h3>
+                <button class="btn btn-outline btn-sm" onclick="closeModal('categoryModal')"><i
+                        class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form id="form" method="POST" action="/admin/category" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label>Category Name</label>
+                    <input type="text" id="name" name="name" class="form-input" placeholder="e.g. Mobiles">
+                    <small class="error-message" ></small>
+                </div>
+                <div class="form-group">
+                    <label>Status</label>
+                    <select name="status" class="form-select">
+                        <option>Active</option>
+                        <option>Inactive</option>
+                    </select>
+                    <div class="form-group">
+                        <label>Category Image</label>
+
+                        <div class="image-preview-wrapper">
+                            <img id="previewImage" class="preview-img hidden" />
+
+                            <div class="upload-area" id="uploadArea">
+                                <input type="file" id="catImage" name="categoryImage" hidden accept="image/*">
+                                <i class="fa-solid fa-cloud-arrow-up"></i>
+                                <p>Click to Upload Image</p>
+                                <small>Only JPG, PNG, WEBP (Max 2MB)</small>
+                            </div>
+
+                            <button type="button" id="changeImageBtn" class="btn btn-outline btn-sm hidden" style="margin-left:150px; margin-top: 20px;">
+                                Change Image
+                            </button>
+
+                            <small class="error-message"></small>
+                        </div>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary w-full">Save Category</button>
+            </form>
+        </div>
+    </div>
+    <script src="/js/admin/category.js"></script>
+    <script src="/js/admin/sidebar.js"></script>
+
+    <script>
+        function toggleSidebar() {
+        document.querySelector('.sidebar').classList.toggle('active');
+        document.getElementById('sidebarOverlay').classList.toggle('active');
+    }
+    function openModal(modalId) {
+        document.getElementById(modalId).classList.add('active');
+    }
+    function closeModal(modalId) {
+    document.getElementById(modalId).classList.remove('active');
+    }
+    window.onclick = function (event) {
+        if (event.target.classList.contains('modal')) {
+            event.target.classList.remove('active');
+        }
+    }
+    </script>
+</body>
+

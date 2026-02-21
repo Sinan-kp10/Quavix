@@ -17,7 +17,7 @@ document.addEventListener("DOMContentLoaded", function(){
 
         let isValid = true;
 
-        if (name.value.trim()=== "") {
+        if (name.value.trim().length< 3) {
             showError(name, "Full name is required")
             isValid = false;
         }
@@ -72,7 +72,7 @@ document.addEventListener("DOMContentLoaded", function(){
         }
 
         if(city.value.trim().toLowerCase()!==apiCity){
-            showError(city, "City/District does not match pincode");
+            showError(city, "District does not match pincode");
             return;
         }
         form.submit();
@@ -101,5 +101,17 @@ document.addEventListener("DOMContentLoaded", function(){
         });
     }
 
+     const toast = document.getElementById("toast");
+
+  if (toast) {
+    setTimeout(() => {
+      toast.classList.add("show");
+    }, 100);
+
+    setTimeout(() => {
+      toast.classList.remove("show");
+    }, 3000);
+  }
+  
 
 });

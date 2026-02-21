@@ -15,15 +15,22 @@ passport.use(new GoogleStrategy({
     try {
         let user= await userModel.findOne({googleId:profile.id})
         
+        const googleImage = profile.photos?.[0]?.value
+        ?.replace("=s96-c", "=s400-c");
 
         if(user){
+            if (!user.profileImage && googleImage) {
+            user.profileImage = googleImage;
+            await user.save();
+        }
 
             return done(null,user)
         }else{
              user=new userModel({
                 name:profile.displayName,
                 email:profile.emails[0].value,
-                googleId:profile.id
+                googleId:profile.id,
+                profileImage: googleImage
             })
             await user.save()
             return done(null,user)

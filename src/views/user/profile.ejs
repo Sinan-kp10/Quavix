@@ -8,7 +8,7 @@
     <!-- Navbar -->
     <nav class="navbar navbar-fixed">
         <div class="container nav-container">
-            <a href="index.html" class="logo">
+            <a href="/" class="logo">
                 <i class="fa-solid fa-bolt text-gradient-clip"></i>
                 <span class="text-gradient">Quavix</span>
             </a>
@@ -26,14 +26,14 @@
             <!-- Mobile Sidebar (Hidden by default) -->
             <aside class="mobile-sidebar">
                 <div class="sidebar-header">
-                    <a href="index.html" class="logo">
+                    <a href="/" class="logo">
                         <i class="fa-solid fa-bolt text-gradient-clip"></i>
                         <span class="text-gradient">Quavix</span>
                     </a>
                     <button class="close-btn"><i class="fa-solid fa-xmark"></i></button>
                 </div>
                 <div class="sidebar-content">
-                    <a href="products.html"><i class="fa-solid fa-shop"></i> Shop</a>
+                    <a href="/products"><i class="fa-solid fa-shop"></i> Shop</a>
                     <a href="order-history.html"><i class="fa-solid fa-box"></i> Orders</a>
                     <a href="wishlist.html"><i class="fa-regular fa-heart"></i> Wishlist</a>
                     <a href="cart.html"><i class="fa-solid fa-cart-shopping"></i> Cart</a>
@@ -53,7 +53,7 @@
             <!-- Desktop Menu -->
             <div class="nav-menu">
                 <a href="/">Home</a>
-                <a href="products.html">Shop</a>
+                <a href="/products">Shop</a>
                 <a href="order-history.html">Orders</a>
             </div>
 
@@ -73,13 +73,23 @@
                 </a>
 
                 <% if (user) { %>
-                        <a href="/profile" class="nav-profile-icon">
-                            <%= user.name.charAt(0).toUpperCase() %>
-                        </a>
+                    <a href="/profile" class="nav-profile-icon">
+
+                        <% if (user.profileImage) { %>
+                            <img src="<%= user.profileImage %>" 
+                                alt="Profile"
+                                class="nav-profile-img">
+                        <% } else { %>
+                            <div class="nav-default-avatar">
+                                <%= user.name.charAt(0).toUpperCase() %>
+                            </div>
+                        <% } %>
+
+                    </a>
                 <% } else { %>
-                        <a href="/login" class="btn btn-primary btn-sm">
-                            <i class="fa-solid fa-right-to-bracket"></i> Sign In
-                        </a>
+                    <a href="/login" class="btn btn-primary btn-sm">
+                        <i class="fa-solid fa-right-to-bracket"></i> Sign In
+                    </a>
                 <% } %>
             </div>
         </div>
@@ -94,12 +104,36 @@
                 <!-- Profile Sidebar / Card -->
                 <div class="card p-6">
                     <div class="text-center mb-6">
-                        <div class="profile-img-container text-primary text-3xl font-bold">
-                            <%= user.name.charAt(0).toUpperCase() %>
+    
+                        <div class="profile-img-container">
+                            <% if (user.profileImage) { %>
+                                <img src="<%= user.profileImage %>" alt="Profile" class="profile-img">
+                            <% } else { %>
+                                <div class="default-avatar">
+                                    <i class="fa-solid fa-user"></i>
+                                </div>
+                            <% } %>
+
+                            <form action="/upload-profile" method="POST" enctype="multipart/form-data">
+                                <label for="profileInput" class="change-btn">
+                                    <i class="fa-solid fa-camera"></i>
+                                </label>
+                                <input type="file" name="profileImage" id="profileInput" hidden >
+                            </form>
                         </div>
+
+                        <% if (user.profileImage) { %>
+                            <form action="/remove-profile-image" method="POST">
+                                <button type="submit" class="remove-btn">
+                                    Remove Photo
+                                </button>
+                            </form>
+                        <% } %>
+                        
 
                         <h3 class="text-xl font-bold"><%= user.name %></h3>
                         <p class="text-muted"><%= user.email %></p>
+
                     </div>
                     <br>
                     <div class="flex flex-col">
@@ -138,8 +172,8 @@
                             <div class="form-group mb-4">
                                 <label class="form-label">Full Name</label>
                                 <input type="text" id="name" name="name" class="form-input" value="<%= user.name %>" >
+                                <small class="error-message"></small>
                             </div>
-                            <small class="error-message"></small>
 
 
                             <div class="form-group mb-4">
@@ -191,7 +225,7 @@
 
                         <div class="address-header">
                             <h3 class="text-xl font-bold">Saved Addresses</h3>
-                            <a href="/addAddress" class="btn btn-primary update-email-btn ">+ Add New Address</a>
+                            <a href="/addAddress" class="btn btn-primary update-email-btn ">+ Add Address</a>
                         </div>
                         <br>
 
@@ -220,7 +254,7 @@
                                     </p>
 
                                     <div class="flex gap-4 justify-end">
-                                        <a href="/editAddress/<%= addr._id %>" class="btn btn-outline btn-sm">Edit</a>
+                                        <a href="/editAddress/<%= addr._id %>" class="btn btn-google btn-sm">Edit</a>
                                         <button class="btn btn-outline-danger btn-sm delete-btn" data-id="<%= addr._id %>">Remove</button>
                                     </div>
                                 </div>
@@ -239,11 +273,87 @@
             </div>
         </div>
     </section>
+    <div id="cropModal" class="crop-modal">
+    <div class="crop-modal-content">
+        <div class="crop-header">
+            <h3>Crop Image</h3>
+            <button id="cropCancelTop" class="crop-close">&times;</button>
+        </div>
+
+        <div class="crop-body">
+            <img id="cropImage">
+        </div>
+
+        <div class="crop-footer">
+            <button id="cropConfirm" class="btn btn-primary">Crop</button>
+            <button id="cropCancel" class="btn btn-outline">Cancel</button>
+        </div>
+    </div>
+</div>
     
     <script src="/js/user/navbar.js"></script>
     <script src="/js/user/profile.js"></script>
 
+    <script>
+        let cropper;
+        const input = document.getElementById("profileInput");
+        const image = document.getElementById("cropImage");
+        const modal = document.getElementById("cropModal");
+        const cropConfirm = document.getElementById("cropConfirm");
+        const cropCancel = document.getElementById("cropCancel");
 
+        input.addEventListener("change", function (e) {
+            const file = e.target.files[0];
+            const reader = new FileReader();
+
+            reader.onload = function () {
+                image.src = reader.result;
+                modal.style.display = "flex";
+
+                cropper = new Cropper(image, {
+                    aspectRatio: 1,
+                    viewMode: 1,
+                    dragMode: "move",        // move image instead of crop box
+                    cropBoxResizable: false, 
+                    cropBoxMovable: false,   
+                    zoomable: true,
+                    scalable: false,
+                    responsive: true
+                });
+            };
+
+            reader.readAsDataURL(file);
+        });
+
+        cropConfirm.addEventListener("click", function () {
+            const canvas = cropper.getCroppedCanvas({
+                width: 300,
+                height: 300
+            });
+
+            canvas.toBlob(function (blob) {
+                const formData = new FormData();
+                formData.append("profileImage", blob, "profile.jpg");
+
+                fetch("/upload-profile", {
+                    method: "POST",
+                    body: formData
+                })
+                .then(res => {
+                    if (res.ok) {
+                        window.location.href = "/profile";
+                    }
+                });
+            });
+
+            modal.style.display = "none";
+        });
+
+        cropCancel.addEventListener("click", function () {
+            modal.style.display = "none";
+            cropper.destroy();
+        });
+        </script>
 
     
 </body>

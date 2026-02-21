@@ -6,17 +6,17 @@ document.addEventListener("DOMContentLoaded",function (){
   const toggleBtn = document.getElementById("togglePassword");
   const eyeIcon = document.getElementById("eyeIcon");
 
-    function clearErrors() {
-        document.querySelectorAll(".error-message").forEach(el =>el.textContent ="");
-        email.classList.remove("input-error");
-        passwordInput.classList.remove("input-error");
-    }
+  function clearErrors() {
+    document.querySelectorAll(".error-message").forEach(el =>el.textContent ="");
+    email.classList.remove("input-error");
+    passwordInput.classList.remove("input-error");
+  }
 
-    function showError(input, message) {
-        const errorElement = input.parentElement.querySelector(".error-message");
-        errorElement.textContent = message;
-        input.classList.add("input-error");
-    }
+  function showError(input, message) {
+    const errorElement = input.parentElement.querySelector(".error-message");
+    errorElement.textContent = message;
+    input.classList.add("input-error");
+  }
 
   form.addEventListener("submit",function(e){
     e.preventDefault();
@@ -61,7 +61,7 @@ document.addEventListener("DOMContentLoaded",function (){
 
   })
 
-    const toast = document.getElementById("toast");
+  const toast = document.getElementById("toast");
 
   if (toast) {
     setTimeout(() => {

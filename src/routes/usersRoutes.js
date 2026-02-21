@@ -1,37 +1,41 @@
 import express from "express"
 const router=express.Router()
 import { isLogin } from "../middleware/auth.js"
+import upload from "../config/multer.js"
+import multer from "multer";
+import {profileUploadValidation} from "../middleware/profileUploadValidation.js"
 import { googleUserStatus } from "../middleware/googleUser.js"
+import passport from "passport"
 import {
-    loadLogin,
-    loadSingnup,
-    loadOtpVerify,
-    loadForgottenPass,
-    loadHome,
-    loadAddAddress,
-    loadProfile,
-    loadNewPassword,
-    login,
-    register,
-    logout,
-    verifyOtp,
-    resendOtp,
-    forgottenPass,
-    verifyResetOtp,
-    resetPassword,
-    updateProfile,
-    emailChange,
-    verifyEmailOtp,
-    addAddress,
-    loadEditAddress,
-    updateAddress,
-    deleteAddress
-
+  loadLogin,
+  loadSingnup,
+  loadOtpVerify,
+  loadForgottenPass,
+  loadHome,
+  loadAddAddress,
+  loadProfile,
+  loadNewPassword,
+  login,
+  register,
+  logout,
+  verifyOtp,
+  resendOtp,
+  forgottenPass,
+  verifyResetOtp,
+  resetPassword,
+  updateProfile,
+  emailChange,
+  verifyEmailOtp,
+  addAddress,
+  loadEditAddress,
+  updateAddress,
+  deleteAddress,
+  uploadProfileImage,
+  removeProfileImage
 
 } from "../controllers/userController.js"
-import passport from "passport"
 
-
+import { loadShop } from "../controllers/userProductController.js"
 
 
 
@@ -68,22 +72,19 @@ router.post("/deleteAddress/:id", deleteAddress)
 router.get("/profile",isLogin,loadProfile)
 router.post("/updateProfile",  updateProfile)
 router.post("/verifyEmailResetOtp", emailChange);
-router.post("/verifyEmailOtp", verifyEmailOtp);
+router.post("/verifyEmailOtp", verifyEmailOtp)
 
-
-
-router.get("/logout", logout);
-
-
-router.get("/auth/google",passport.authenticate("google", {scope: ["profile", "email"]}));
-
-router.get(
-  "/auth/google",
-  passport.authenticate("google", { scope: ["profile", "email"] })
+router.post(
+  "/upload-profile",
+  isLogin,
+  profileUploadValidation,
+  uploadProfileImage
 );
+router.post("/remove-profile-image", isLogin, removeProfileImage);
 
-router.get("/auth/google/callback",
-  passport.authenticate("google", { failureRedirect: "/login" }),googleUserStatus,(req, res) =>{
+router.get("/auth/google",passport.authenticate("google", {scope: ["profile", "email"]}))
+
+router.get("/auth/google/callback",passport.authenticate("google",{ failureRedirect: "/login"}),googleUserStatus,(req,res)=>{
     
     req.session.user = {
       id: req.user._id,
@@ -93,8 +94,11 @@ router.get("/auth/google/callback",
 
     res.redirect("/");
   }
-);
+)
 
+router.get("/products",loadShop)
+
+router.get("/logout", logout)
 
 
 

@@ -39,7 +39,7 @@ app.use(passport.session())
 app.use(toastMiddleware)
 
 app.use((req,res,next)=>{
-  res.locals.user =  req.session.user ||req.user || null
+  res.locals.user = req.user || req.session.user || null
   next();
 });
 

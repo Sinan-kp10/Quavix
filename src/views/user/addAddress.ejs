@@ -1,6 +1,10 @@
 
 <body>
-
+    <% if (typeof toastMessage !== "undefined") { %>
+        <div id="toast" class="toast <%= toastType %>">
+            <%= toastMessage %>
+        </div>
+    <% } %>
     <!-- Navbar -->
     <nav class="navbar">
         <div class="container nav-container">
@@ -73,7 +77,7 @@
                 </div>
                 <div class="col-span-2 flex gap-4 mt-4 justify-end address-btn-container">
                     <button type="submit" class="btn btn-primary px-8">Save Address</button>
-                    <a href="/profile" class="btn btn-outline px-8">Cancel</a>
+                    <a href="/profile" class="btn btn-google px-8">Cancel</a>
                 </div>
             </form>
         </div>

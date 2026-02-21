@@ -17,7 +17,11 @@ document.addEventListener('DOMContentLoaded',()=>{
 
         let isValid=true
 
-        if(name.value.trim().length== 0){
+        if(name.value.trim().length== 0 ){
+            showError(name,"Enter your name")
+            isValid=false
+        }
+        else if(name.value.trim().length<3){
             showError(name,"Enter your name")
             isValid=false
         }
@@ -139,6 +143,6 @@ document.addEventListener('DOMContentLoaded',()=>{
             });
         });
 
-    });
+    })
 
-});
+})

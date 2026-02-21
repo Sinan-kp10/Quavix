@@ -10,7 +10,7 @@ export const isLogin = async(req, res, next) => {
 
 
     if(!user||user.status==="blocked"){
-        req.session.user=null
+        req.session.user.destroy()
         return res.redirect("/login")
     }
 

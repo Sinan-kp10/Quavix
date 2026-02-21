@@ -1,9 +1,15 @@
+import categoryModal from "../models/category.js"
+
 import {
     adminLoginAccess,
     getAllUsers,
     allBlockedUser,
-    allActiveUsers
+    allActiveUsers,
+    getAllCategory,
+    createCategory,
+    deleteCategory
 } from "../services/adminService.js"
+
 
 export const adminLogin=async(req,res)=>{
 
@@ -73,7 +79,6 @@ export const loadAllUsers=async(req,res)=>{
     }
 }
 
-
 export const blockedUsers=async(req,res)=>{
 
     await allBlockedUser(req.params.id)
@@ -86,8 +91,6 @@ export const activeUsers=async(req,res)=>{
     res.redirect("/admin/users");
 }
 
-
-
 export const loadLogin=(req,res)=>{
     res.render("admin/login",{ title: "Login Admin-Quavix",css: "adminStyle" })
 }
@@ -97,6 +100,76 @@ export const loadDashboard=(req,res)=>{
 }
 
 export const adminLogout=(req,res)=>{
-    req.session.admin=null
+    delete req.session.admin
     res.redirect("/admin/login")
+}
+
+export const loadCategory=async(req,res)=>{
+ 
+    try {
+
+        const search=req.query.search || ""
+        const status=req.query.status || "all"
+        const page=parseInt(req.query.page) || 1
+        const limit = 10
+        
+        const {categoryList,totalCategory}=await getAllCategory(search,status,page,limit)
+
+        const totalPages=Math.ceil(totalCategory/limit)
+
+        res.render("admin/category", {
+        title: "Category Admin - Quavix",
+        css: "adminStyle",
+        categories: categoryList,  
+        search,
+        status,
+        currentPage: page,
+        totalPages,
+        noCategories: categoryList.length === 0
+});
+
+    }catch(err){
+        console.log(err);
+        res.redirect("/admin/dashboard");
+    }
+}
+
+export const addCategory=async(req,res)=>{
+    try {
+        
+        const {name,status}=req.body
+        const result=await createCategory(name,status,req.file)
+        if (!result) {
+            req.session.toastMessage = "Please select an image.";
+            req.session.toastType = "error";
+            return res.redirect("/admin/category");
+        }
+
+        req.session.toastMessage = "Category added successfully!";
+        req.session.toastType = "success";
+
+        res.redirect("/admin/category");
+        
+    }catch(err){
+        req.session.toastMessage = err.message || "Something went wrong.";
+        req.session.toastType = "error"
+        res.redirect("/admin/category")
+    }
+}
+
+export const removeCategory=async(req,res)=>{
+    try {
+        
+        const {id}=req.params
+
+        await deleteCategory(id)
+        req.session.toastMessage = "Category deleted successfully!";
+        req.session.toastType = "success";
+        res.redirect("/admin/category");
+    }catch(err){
+        req.session.toastMessage = err.message || "Delete failed";
+        req.session.toastType = "error";
+
+        res.redirect("/admin/category");
+    }
 }
