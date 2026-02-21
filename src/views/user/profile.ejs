@@ -1,4 +1,9 @@
 <body>
+    <% if (typeof toastMessage !== "undefined") { %>
+        <div id="toast" class="toast <%= toastType %>">
+            <%= toastMessage %>
+        </div>
+    <% } %>
 
     <!-- Navbar -->
     <nav class="navbar navbar-fixed">
@@ -32,10 +37,10 @@
                     <a href="order-history.html"><i class="fa-solid fa-box"></i> Orders</a>
                     <a href="wishlist.html"><i class="fa-regular fa-heart"></i> Wishlist</a>
                     <a href="cart.html"><i class="fa-solid fa-cart-shopping"></i> Cart</a>
-                    <% if (user) { %>
+                    <% if(user){ %>
                             <a href="/profile"><i class="fa-solid fa-user"></i> Profile</a>
                             <a href="/logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
-                        <% } else { %>
+                        <%} else{ %>
                             <a href="/login"><i class="fa-solid fa-right-to-bracket"></i> Sign In</a>
                     <% } %>
 
@@ -69,9 +74,9 @@
 
                 <% if (user) { %>
                         <a href="/profile" class="nav-profile-icon">
-                            <%= user.email.charAt(0).toUpperCase() %>
+                            <%= user.name.charAt(0).toUpperCase() %>
                         </a>
-                    <% } else { %>
+                <% } else { %>
                         <a href="/login" class="btn btn-primary btn-sm">
                             <i class="fa-solid fa-right-to-bracket"></i> Sign In
                         </a>
@@ -90,11 +95,11 @@
                 <div class="card p-6">
                     <div class="text-center mb-6">
                         <div class="profile-img-container text-primary text-3xl font-bold">
-                            <%= user.email.charAt(0).toUpperCase() %>
+                            <%= user.name.charAt(0).toUpperCase() %>
                         </div>
 
-                        <h3 class="text-xl font-bold">John Doe</h3>
-                        <p class="text-muted">johndoe@gmail.com</p>
+                        <h3 class="text-xl font-bold"><%= user.name %></h3>
+                        <p class="text-muted"><%= user.email %></p>
                     </div>
                     <br>
                     <div class="flex flex-col">
@@ -128,69 +133,116 @@
                     <!-- Personal Details & Addresses -->
                     <div class="card p-8">
                         <h3 class="text-xl font-bold mb-6">Personal Details</h3>
-                        <form>
+                        <form id="profileUpdateForm" method="post" action="/updateProfile">
+                            
                             <div class="form-group mb-4">
                                 <label class="form-label">Full Name</label>
-                                <input type="text" class="form-input" value="John Doe" required>
+                                <input type="text" id="name" name="name" class="form-input" value="<%= user.name %>" >
                             </div>
+                            <small class="error-message"></small>
+
 
                             <div class="form-group mb-4">
                                 <label class="form-label">Current password</label>
                                 <div class="password-group">
-                                    <input type="password" class="form-input" placeholder="Enter current password">
-                                    <button type="button" class="password-toggle">
+                                    <input type="password"  name="currentPassword" id="currentPassword" class="form-input" placeholder="Enter current password">
+                                    <button type="button" class="password-toggle" data-target="currentPassword">
                                         <i class="fa-regular fa-eye-slash"></i>
                                     </button>
+
                                 </div>
+                                <small class="error-message"></small>
+
                             </div>
 
                             <div class="form-group">
                                 <label class="form-label">New Password</label>
                                 <div class="password-group">
-                                    <input type="password" class="form-input" placeholder="Enter new password">
-                                    <button type="button" class="password-toggle">
-                                        <i class="fa-regular fa-eye-slash"></i>
-                                    </button>
-                                </div>
+                                <input type="password" id="newPassword" name="newPassword" class="form-input" placeholder="Enter your password">
+                                <button type="button" class="password-toggle" data-target="newPassword">
+                                    <i class="fa-regular fa-eye-slash"></i>
+                                </button>
                             </div>
-
-                            <div class="flex justify-between items-center mb-6 mt-10">
-                                <h3 class="text-xl font-bold">Saved Addresses</h3>
+                                <small class="error-message"></small>
                             </div>
-
-
-                            <div class="grid gap-4 mb-8">
-                                <div class="address-card">
-                                    <h4 class="font-bold mb-1">John Doe</h4>
-                                    <p class="text-muted text-sm leading-relaxed mb-2">
-                                        123, Tech Park, Electronic City, <br>
-                                        Bengaluru, Karnataka - 560100 <br>
-                                        India
-                                    </p>
-                                    <p class="text-sm font-medium mb-3">Phone: +91 98765 43210</p>
-                                    <div class="flex gap-3 justify-end">
-                                        <button class="btn-outline-danger btn-sm">Remove</button>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="mb-8">
-                                <a href="/addAddress" class="btn btn-sm btn-primary"><i
-                                        class="fa-solid fa-plus mr-2"></i>
-                                    Add New Address</a>
-                            </div>
+                            <br>
 
                             <div class="flex justify-end">
-                                <button type="submit" class="btn btn-primary">Save Profile</button>
+                                <button type="submit" class="btn btn-primary update-email-btn">Save Profile</button>
                             </div>
                         </form>
+
+                        <form id="emailForm" method="post" action="/verifyEmailResetOtp">
+                            <div class="form-group mb-6">
+                                <label class="form-label">Email</label>
+
+                                <div class="email-update-group">
+                                    <input  type="email" id="newEmail" name="newEmail" class="form-input" value="<%= user.email %>">
+                                    <button  type="submit" class="btn btn-primary update-email-btn">
+                                        Update Email
+                                    </button>
+                                </div>
+                               <small class="error-message" id="passwordError"></small>
+
+                            </div>
+
+                        </form>
+                        <br>
+
+                        <div class="address-header">
+                            <h3 class="text-xl font-bold">Saved Addresses</h3>
+                            <a href="/addAddress" class="btn btn-primary update-email-btn ">+ Add New Address</a>
+                        </div>
+                        <br>
+
+
+                       <% if(user.address && user.address.length > 0){ %>
+
+                            <% user.address.forEach(function(addr){ %>
+
+                                <div class="address-card">
+                                    <h4 class="font-bold mb-1 flex items-center gap-2">
+                                    <%= addr.fullname %>
+                                    <span class="address-badge">
+                                        <%= addr.addressType %>
+                                    </span>
+                                </h4>
+
+
+                                    <p class="text-muted text-sm leading-relaxed mb-2">
+                                        <%= addr.street %>, <br>
+                                        <%= addr.city %>, <%= addr.state %> - <%= addr.pincode %> <br>
+                                        India
+                                    </p>
+
+                                    <p class="text-sm font-medium mb-3">
+                                        Phone: +91 <%= addr.phone %>
+                                    </p>
+
+                                    <div class="flex gap-4 justify-end">
+                                        <a href="/editAddress/<%= addr._id %>" class="btn btn-outline btn-sm">Edit</a>
+                                        <button class="btn btn-outline-danger btn-sm delete-btn" data-id="<%= addr._id %>">Remove</button>
+                                    </div>
+                                </div>
+
+                            <% }) %>
+
+                        <% } else { %>
+
+                            <p class="text-muted">No addresses added yet.</p>
+
+                        <% } %>
+                        
+                        
                     </div>
                 </div>
             </div>
         </div>
     </section>
-
+    
     <script src="/js/user/navbar.js"></script>
+    <script src="/js/user/profile.js"></script>
+
 
 
     

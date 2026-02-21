@@ -1,6 +1,6 @@
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded",function(){
 
-   const email = document.getElementById("email");
+  const email = document.getElementById("email");
   const passwordInput = document.getElementById("password");
   const toggleBtn = document.getElementById("togglePassword");
   const eyeIcon = document.getElementById("eyeIcon");
@@ -28,19 +28,23 @@ document.addEventListener("DOMContentLoaded", function () {
       isValid = false;
     }
 
-    if (password.value.trim() === "") {
+    if(password.value.trim() === "") {
       passwordError.textContent = "Password is required";
       password.classList.add("input-error");
       isValid = false;
     }
-    // Password length check
+    
     else if (password.value.trim().length < 6) {
       passwordError.textContent = "Password must be at least 6 characters";
       password.classList.add("input-error");
       isValid = false;
+    }else if (password.value.includes(" ")) {
+      showError(password, "Password cannot contain spaces");
+      isValid = false;
     }
 
-    if (!isValid) {
+
+    if(!isValid){
       e.preventDefault();
     }
 
@@ -63,11 +67,11 @@ document.addEventListener("DOMContentLoaded", function () {
   //Toggle password visibility
   toggleBtn.addEventListener("click", function () {
 
-    if (passwordInput.type === "password") {
+    if (passwordInput.type === "password"){
       passwordInput.type = "text";
       eyeIcon.classList.remove("fa-eye-slash");
       eyeIcon.classList.add("fa-eye");
-    } else {
+    }else{
       passwordInput.type = "password";
       eyeIcon.classList.remove("fa-eye");
       eyeIcon.classList.add("fa-eye-slash");

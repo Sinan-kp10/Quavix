@@ -1,0 +1,149 @@
+<body>
+    <% if (typeof toastMessage !== "undefined") { %>
+    <div id="toast" class="toast <%= toastType %>">
+         <%= toastMessage %>
+    </div>
+    <% } %>
+
+
+    <div class="admin-layout">
+        <!-- Mobile Header -->
+        <div class="mobile-header">
+            <div class="mobile-logo">
+                <i class="fa-solid fa-bolt"></i> Quavix
+            </div>
+            <button class="menu-toggle" onclick="toggleSidebar()">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+        </div>
+
+        <!-- Sidebar Overlay -->
+        <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo">
+                <i class="fa-solid fa-bolt"></i> Quavix Admin
+            </div>
+
+            <nav>
+                <a href="index.html" class="sidebar-link active"><i class="fa-solid fa-chart-line"></i>
+                    Dashboard</a>
+                <a href="products.html" class="sidebar-link"><i class="fa-solid fa-box"></i>
+                    Products</a>
+                <a href="orders.html" class="sidebar-link"><i class="fa-solid fa-clipboard-list"></i> Orders</a>
+                <a href="coupons.html" class="sidebar-link"><i class="fa-solid fa-ticket"></i> Coupons</a>
+                <a href="categories.html" class="sidebar-link"><i class="fa-solid fa-tags"></i>
+                    Categories</a>
+                <a href="/admin/users" class="sidebar-link"><i class="fa-solid fa-users"></i>
+                    Users</a>
+                <a href="banner.html" class="sidebar-link"><i class="fa-solid fa-image"></i>
+                    Banner</a>
+
+                <a href="reports.html" class="sidebar-link"><i class="fa-solid fa-chart-pie"></i>
+                    Reports</a>
+
+            </nav>
+
+            <div class="sidebar-footer">
+                <a href="/admin/logout" class="sidebar-link"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="content">
+            <header class="flex justify-between items-center mb-4">
+                <h2>Dashboard Overview</h2>
+
+            </header>
+
+            <!-- Stats Grid -->
+            <div class="grid gap-4 mb-4 grid-cols-4">
+                <div class="stat-card">
+                    <div class="stat-icon bg-indigo-100 text-primary">
+                        <i class="fa-solid fa-rupee-sign"></i>
+                    </div>
+                    <div class="text-sm text-muted">Total Revenue</div>
+                    <div class="text-2xl font-bold">₹45,231</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon bg-green-100 text-success">
+                        <i class="fa-solid fa-shopping-cart"></i>
+                    </div>
+                    <div class="text-sm text-muted">Total Orders</div>
+                    <div class="text-2xl font-bold">328</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon bg-rose-100 text-accent">
+                        <i class="fa-solid fa-box"></i>
+                    </div>
+                    <div class="text-sm text-muted">Total Products</div>
+                    <div class="text-2xl font-bold">1,423</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon bg-amber-100 text-warning">
+                        <i class="fa-solid fa-users"></i>
+                    </div>
+                    <div class="text-sm text-muted">Total Customers</div>
+                    <div class="text-2xl font-bold">892</div>
+                </div>
+            </div>
+
+
+
+            <!-- Recent Orders -->
+            <div class="card p-4 mb-4">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="font-semibold text-lg">Recent Orders</h3>
+                </div>
+                <div class="table-responsive">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Customer</th>
+                                <th>Date</th>
+                                <th class="text-center">Total</th>
+                                <th class="text-center">Status</th>
+
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>#ORD-1024</td>
+                                <td>John Doe</td>
+                                <td>Jan 24, 2026</td>
+                                <td class="text-center">₹299.00</td>
+                                <td class="text-center"><span class="status-badge status-warning">Pending</span></td>
+
+                            </tr>
+                            <tr>
+                                <td>#ORD-1022</td>
+                                <td>Tom Hardy</td>
+                                <td>Jan 15, 2026</td>
+                                <td class="text-center">₹89.00</td>
+                                <td class="text-center"><span class="status-badge status-blue">Shipped</span></td>
+
+                            </tr>
+                            <tr>
+                                <td>#ORD-1023</td>
+                                <td>Alice Wonderland</td>
+                                <td>Jan 23, 2026</td>
+                                <td class="text-center">₹1,199.00</td>
+                                <td class="text-center"><span class="status-badge status-success">Completed</span></td>
+
+                            </tr>
+
+                        </tbody>
+                    </table>
+                </div>
+                <div class="flex justify-end mt-4">
+                    <a href="orders.html" class="btn btn-primary btn-sm px-8">View All Orders</a>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="/js/admin/dashboard.js"></script>
+
+</body>
+

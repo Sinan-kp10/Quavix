@@ -1,6 +1,23 @@
-export const isLogin = (req, res, next) => {
-    if (!req.session.user) {
+import users from "../models/userModal.js"
+export const isLogin = async(req, res, next) => {
+
+    try {
+        if(!req.session.user){
         return res.redirect("/login");
     }
-    next();
-};
+    
+    const user=await users.findById(req.session.user.id)
+
+
+    if(!user||user.status==="blocked"){
+        req.session.user=null
+        return res.redirect("/login")
+    }
+
+    next()
+
+    }catch(error) {
+        console.log(error)
+    }
+}
+

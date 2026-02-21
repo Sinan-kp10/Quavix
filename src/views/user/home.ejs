@@ -73,7 +73,7 @@
 
                 <% if (user) { %>
                         <a href="/profile" class="nav-profile-icon">
-                            <%= user.email.charAt(0).toUpperCase() %>
+                            <%= user.name.charAt(0).toUpperCase() %>
                         </a>
                     <% } else { %>
                         <a href="/login" class="btn btn-primary btn-sm">

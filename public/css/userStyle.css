@@ -3455,3 +3455,67 @@ footer a:hover {
   margin-right: 8px;
 }
 
+.otp-timer {
+  margin-top: 10px;
+  font-size: 14px;
+  color: #e60023;
+  font-weight: 500;
+}
+
+.resend-btn {
+    background: none;
+    border: none;
+    padding: 0;
+    color: #0d6efd;
+    cursor: pointer;
+    text-decoration: none;
+}
+.link-resend:hover {
+    text-decoration: none;
+}
+
+
+.email-update-group {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.email-update-group .form-input {
+    flex: 1;
+}
+
+/* Make button smaller */
+.update-email-btn {
+    padding: 8px 14px;
+    font-size: 14px;
+}
+
+/* 📱 Mobile */
+@media (max-width: 576px) {
+    .email-update-group {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .update-email-btn {
+        width: auto;          /* remove full width */
+        align-self: flex-end; /* move button to right */
+    }
+}
+
+.address-badge {
+    background: #eef2ff;
+    color: #4f46e5;
+    font-size: 12px;
+    padding: 3px 8px;
+    border-radius: 20px;
+    font-weight: 600;
+}
+.address-header {
+    display: flex;
+    justify-content: space-between;  /* pushes items to left & right */
+    align-items: center;             /* vertical alignment */
+}
+
+

@@ -1,46 +1,63 @@
-<link rel="stylesheet" href="/css/adminStyle.css">
+
+<body class="auth-body">
+    <% if (typeof toastMessage !== "undefined") { %>
+    <div id="toast" class="toast <%= toastType %>">
+         <%= toastMessage %>
+    </div>
+    <% } %>
+
+    <!-- Dark overlay for background image readability -->
+    <div class="auth-overlay">
+    </div>
 
 
-<body class="login-body">
-    <div class="login-card card">
-        <div class="text-center mb-8">
-            <h1 class="text-2xl font-bold mb-2">Admin Login</h1>
-            <p class="text-muted">Enter your credentials to access the panel</p>
-        </div>
-
-        <form>
-            <div class="mb-4">
-                <label class="form-label">Email Address</label>
-                <div class="relative">
-                    <i
-                        class="fa-solid fa-envelope absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500"></i>
-                    <input type="email" class="form-input pl-10" placeholder="Enter your email" required>
-                </div>
+    <!-- Login Section -->
+    <div class="auth-container">
+        <div class="card auth-card">
+            <div class="text-center mb-4">
+                <h2 class="mb-2">Admin Login</h2>
+                
             </div>
 
-            <div class="mb-6">
-                <div class="flex justify-between items-center mb-1">
-                    <label class="form-label mb-0">Password</label>
-                </div>
-                <div class="relative">
-                    <i class="fa-solid fa-lock absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500"></i>
-                    <input type="password" id="passwordInput" class="form-input pl-10 pr-10"
-                        placeholder="Enter your password" required>
-                    <i id="passwordIcon"
-                        class="fa-solid fa-eye-slash absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 cursor-pointer"
-                        onclick="togglePassword()"></i>
-                </div>
-            </div>
 
-            <button type="submit" class="btn btn-primary w-full py-3 font-semibold mb-4">
-                Sign In <i class="fa-solid fa-arrow-right ml-2"></i>
-            </button>
-        </form>
+            <form id="adminLoginForm" method="post" action="/admin/login">
 
-        <div class="text-center text-sm text-muted">
-            <p>&copy; 2026 Quavix Admin System</p>
+
+                <div class="form-group mb-5">
+                    <label class="form-label">Email Address</label>
+                    <input type="email" id="email" class="form-input" name="email"
+                        placeholder="Enter your email address">
+                    <small class="error-message" ></small>
+                </div>
+
+
+                <div class="form-group auth-input-group">
+                    <label class="form-label flex justify-between items-center">
+                        Password
+                    </label>
+                    <div class="password-group relative">
+                        <input type="password" id="password" name="password" class="form-input"
+                            placeholder="Enter your password">
+                        <button type="button" id="togglePassword" class="password-toggle">
+                            <i id="eyeIcon" class="fa-regular fa-eye-slash"></i>
+                        </button>
+                        <small class="error-message" ></small>
+
+                    </div>
+
+                </div>
+                
+                <button type="submit" class="btn btn-primary w-full text-1rem mt-4">Sign In</button>
+
+            </form>
+
+            <p class="text-center text-muted text-sm mt-4">&copy; 2026 Quavix Admin System</p>
+
         </div>
     </div>
+    <script src="/js/admin/login.js"></script>
+
+
 
 </body>
 

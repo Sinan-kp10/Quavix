@@ -1,5 +1,12 @@
 
 <body class="auth-body">
+    <% if (typeof toastMessage !== "undefined") { %>
+        <div id="toast" class="toast <%= toastType %> show">
+            <%= toastMessage %>
+        </div>
+    <% } %>
+
+    <div id="customToast" class="toast"></div>
 
 
 
@@ -14,9 +21,12 @@
                 </a>
                 <h2 class="mb-2">Enter OTP</h2>
                 <p class="text-muted text-sm">We have sent a OTP to your mobile number</p>
+                <p class="otp-timer" data-expiry="<%= expiryTime %>">OTP expires in <span id="otpTimer"></span></p>
             </div>
 
-            <form>
+            
+
+            <form id="otpForm"  action="<%= formAction || '/loginVerify' %>" method="post">
                 <div class="otp-input-group">
                     <input type="text" class="form-input otp-digit" maxlength="1">
                     <div class="otp-dash">-</div>
@@ -26,15 +36,28 @@
                     <div class="otp-dash">-</div>
                     <input type="text" class="form-input otp-digit" maxlength="1">
                 </div>
+                <input type="hidden" name="otp" id="finalOtp">
 
-                <button type="button" onclick="window.location.href='/newPassword'" class="btn btn-verify w-full mb-4">Verify</button>
+
+                <button type="submit" class="btn btn-verify w-full mb-4">Verify</button>
             </form>
 
-            <p class="text-sm text-muted">
-                Didn't receive code? <a href="#" class="link-resend">Resend OTP</a>
-            </p>
+            <p class="text-sm text-muted"> Didn't receive code?</p>
+
+            <form action="/resend-otp" method="post">
+                <button type="submit" class="link-resend resend-btn">
+                    Resend OTP
+                </button>
+            </form>
+
+            
         </div>
     </div>
+
+  
+
+    
+    <script src="/js/user/otp.js"></script>
 
 </body>
 

@@ -18,22 +18,24 @@
                 <p class="text-muted text-sm">Email Verification Successfull</p>
             </div>
 
-            <form>
+            <form id="newPasswordForm" method="post" action="/newPassword">
                 <div class="form-group mb-6 text-left">
                     <label class="form-label">Password</label>
                     <div class="password-group">
-                        <input type="password" class="form-input" placeholder="Enter new password" required>
-                        <button type="button" class="password-toggle">
-                            <i class="fa-regular fa-eye-slash"></i>
+                        <input type="password" id="password" name="password" class="form-input" placeholder="Enter new password" >
+                        <button type="button" id="togglePassword" class="password-toggle">
+                            <i id="eyeIcon" class="fa-regular fa-eye-slash"></i>
                         </button>
                     </div>
+                    <small class="error-message" id="passwordError"></small>
                 </div>
 
-                <button type="submit"  onclick="window.location.href='/login'" class="btn btn-verify w-full mb-6 text-uppercase">Confirm</button>
+                <button type="submit" class="btn btn-verify w-full mb-6 text-uppercase">Confirm</button>
             </form>
 
         </div>
     </div>
+    <script src="/js/user/newpass.js"></script>
 
     
 </body>
