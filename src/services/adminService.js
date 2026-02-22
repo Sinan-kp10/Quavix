@@ -155,7 +155,7 @@ export const updateCategory=async(categoryId,name,file)=>{
     if(category.name==name && !file){
         throw new Error("No changes were made")
     }
-    if (file) {
+    if(file){
 
         
         await cloudinary.uploader.destroy(category.categoryImageId);

@@ -125,6 +125,7 @@
 
 
     <!-- Trending Categories -->
+    <!-- Shop by Department -->
     <section class="container section-padding overflow-hidden">
         <div class="filter-header border-0 mb-4 p-0">
             <h2>Shop by Department</h2>
@@ -132,51 +133,39 @@
 
         <div class="category-marquee">
             <div class="category-marquee-inner">
-                <!-- Original Categories -->
-                <div class="category-card-lg">
-                    <div class="overlay-gradient"></div>
-                    <img src="images/phone.avif" alt="Mobiles" class="w-full h-full object-cover">
-                    <div class="category-content-abs">
-                        <h3 class="text-white text-2xl">Mobiles</h3>
-                    </div>
-                </div>
-                <div class="category-card-lg">
-                    <div class="overlay-gradient"></div>
-                    <img src="images/audio.avif" alt="Audio" class="w-full h-full object-cover">
-                    <div class="category-content-abs">
-                        <h3 class="text-white text-2xl">Audio</h3>
-                    </div>
-                </div>
-                <div class="category-card-lg">
-                    <div class="overlay-gradient"></div>
-                    <img src="images/smartwatch.png" alt="Smart Watches" class="w-full h-full object-cover">
-                    <div class="category-content-abs">
-                        <h3 class="text-white text-2xl">Smart Watches</h3>
-                    </div>
-                </div>
 
-                <!-- Duplicate for Seamless Scroll -->
-                <div class="category-card-lg">
-                    <div class="overlay-gradient"></div>
-                    <img src="images/phone.avif" alt="Mobiles" class="w-full h-full object-cover">
-                    <div class="category-content-abs">
-                        <h3 class="text-white text-2xl">Mobiles</h3>
-                    </div>
-                </div>
-                <div class="category-card-lg">
-                    <div class="overlay-gradient"></div>
-                    <img src="images/audio.avif" alt="Audio" class="w-full h-full object-cover">
-                    <div class="category-content-abs">
-                        <h3 class="text-white text-2xl">Audio</h3>
-                    </div>
-                </div>
-                <div class="category-card-lg">
-                    <div class="overlay-gradient"></div>
-                    <img src="images/smartwatch.png" alt="Smart Watches" class="w-full h-full object-cover">
-                    <div class="category-content-abs">
-                        <h3 class="text-white text-2xl">Smart Watches</h3>
-                    </div>
-                </div>
+                <% if (categories && categories.length > 0) { %>
+
+                    <% categories.forEach(category => { %>
+                        <div class="category-card-lg">
+                            <div class="overlay-gradient"></div>
+                            <img src="<%= category.categoryImage %>" 
+                                alt="<%= category.name %>" 
+                                class="w-full h-full object-cover">
+                            <div class="category-content-abs">
+                                <h3 class="text-white text-2xl">
+                                    <%= category.name %>
+                                </h3>
+                            </div>
+                        </div>
+                    <% }) %>
+
+                    <% categories.forEach(category => { %>
+                        <div class="category-card-lg">
+                            <div class="overlay-gradient"></div>
+                            <img src="<%= category.categoryImage %>" 
+                                alt="<%= category.name %>" 
+                                class="w-full h-full object-cover">
+                            <div class="category-content-abs">
+                                <h3 class="text-white text-2xl">
+                                    <%= category.name %>
+                                </h3>
+                            </div>
+                        </div>
+                    <% }) %>
+
+                <% } %>
+
             </div>
         </div>
     </section>

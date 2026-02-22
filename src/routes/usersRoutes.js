@@ -74,12 +74,7 @@ router.post("/updateProfile",  updateProfile)
 router.post("/verifyEmailResetOtp", emailChange);
 router.post("/verifyEmailOtp", verifyEmailOtp)
 
-router.post(
-  "/upload-profile",
-  isLogin,
-  profileUploadValidation,
-  uploadProfileImage
-);
+router.post("/upload-profile",isLogin,profileUploadValidation,uploadProfileImage);
 router.post("/remove-profile-image", isLogin, removeProfileImage);
 
 router.get("/auth/google",passport.authenticate("google", {scope: ["profile", "email"]}))

@@ -1,3 +1,4 @@
+import category from "../models/category.js"
 import userModel from "../models/userModal.js"
 import {
     loginUser,
@@ -11,7 +12,8 @@ import {
     updateUserAddress,
     deleteUserAddress,
     updateUserProfileImage,
-    removeUserProfileImage
+    removeUserProfileImage,
+    getActiveCategories
 
 } from "../services/userService.js"
 
@@ -586,9 +588,16 @@ export const deleteAddress=async(req,res)=>{
     }
 }
 
-export const loadHome=(req,res)=>{
+export const loadHome=async(req,res)=>{
 
-    res.render("user/home",{ title: "Home-Quavix",css:"userStyle" })
+    try {
+        const categories= await getActiveCategories()
+
+        res.render("user/home",{ title: "Home-Quavix",css:"userStyle",categories })
+        
+    }catch(err){
+        res.redirect("/");
+    }
 }
 
 export const loadLogin=(req,res)=>{

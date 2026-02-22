@@ -3,7 +3,7 @@ import cloudinary from "../config/cloudinary.js"
 import bcrypt from "bcrypt"
 import nodemailer from "nodemailer"
 import dotenv from "dotenv"
-import { profile } from "node:console"
+import categoryModal from "../models/category.js"
 dotenv.config();
 const saltround=10
 
@@ -374,3 +374,7 @@ export const deleteUserAddress=async(userId,addressId)=>{
 
 }
 
+export const getActiveCategories=async()=>{
+    
+    return await categoryModal.find({status:"Active"}).sort({createdAt:-1})
+}
