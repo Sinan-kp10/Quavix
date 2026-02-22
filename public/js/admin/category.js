@@ -1,3 +1,4 @@
+let cropper;
 document.addEventListener("DOMContentLoaded", function () {
 
     const form = document.getElementById("form");
@@ -9,7 +10,6 @@ document.addEventListener("DOMContentLoaded", function () {
     const changeImageBtn = document.getElementById("changeImageBtn");
     const errorElement = uploadArea.parentElement.querySelector(".error-message");
 
-    let cropper;
 
     uploadArea.addEventListener("click", () => fileInput.click());
     changeImageBtn.addEventListener("click", () => fileInput.click());
@@ -72,7 +72,11 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         // Image required validation
-        if (!fileInput.files.length) {
+        if (
+            form.action.includes("/admin/category") &&
+            !form.action.includes("/edit") &&
+            !fileInput.files.length
+        ) {
             errorElement.textContent = "Please select an image";
             isValid = false;
         }
@@ -80,7 +84,7 @@ document.addEventListener("DOMContentLoaded", function () {
         if (!isValid) return;
 
         // If cropper exists → crop image first
-        if (cropper) {
+        if (cropper && fileInput.files.length > 0) {
 
             cropper.getCroppedCanvas().toBlob((blob) => {
 
@@ -124,36 +128,82 @@ document.addEventListener("DOMContentLoaded", function () {
 
     document.querySelectorAll(".delete-btn").forEach(button => {
 
-    button.addEventListener("click", function () {
+        button.addEventListener("click", function () {
 
-        const categoryId = this.dataset.id;
+            const categoryId = this.dataset.id;
+            const currentStatus = this.dataset.status;
 
-        Swal.fire({
-            title: "Are you sure?",
-            text: "This category will be deleted!",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#d33",
-            cancelButtonColor: "#3085d6",
-            confirmButtonText: "Yes, delete it!",
-            reverseButtons: true
-        }).then((result) => {
+            const isActive = currentStatus === "Active";
 
-            if (result.isConfirmed) {
+            Swal.fire({
+                title: "Are you sure?",
+                text: isActive 
+                    ? "This category will be set to Inactive!"
+                    : "This category will be restored!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: isActive ? "#d33" : "#28a745",
+                cancelButtonColor: "#3085d6",
+                confirmButtonText: isActive 
+                    ? "Yes, deactivate!"
+                    : "Yes, restore!",
+                reverseButtons: true
+            }).then((result) => {
 
-      
-                const form = document.createElement("form");
-                form.method = "POST";
-                form.action = `/admin/category/delete/${categoryId}`;
+                if (result.isConfirmed) {
 
-                document.body.appendChild(form);
-                form.submit();
-            }
+                    const form = document.createElement("form");
+                    form.method = "POST";
+                    form.action = `/admin/category/delete/${categoryId}`;
+
+                    document.body.appendChild(form);
+                    form.submit();
+                }
+
+            });
 
         });
 
     });
 
-});
+    const editButtons = document.querySelectorAll(".edit-btn");
+    const statusSelect = document.querySelector("select[name='status']");
+
+    editButtons.forEach(button => {
+
+        button.addEventListener("click", function () {
+
+            const id = this.dataset.id;
+            const nameValue = this.dataset.name;
+            const statusValue = this.dataset.status;
+            const imageUrl = this.dataset.image;
+
+            form.action = `/admin/category/edit/${id}`;
+            name.value = nameValue;
+            statusSelect.value = statusValue;
+
+            previewImage.src = imageUrl;
+            previewImage.classList.remove("hidden");
+            uploadArea.classList.add("hidden");
+            changeImageBtn.classList.remove("hidden");
+
+            if (cropper) {
+                cropper.destroy();
+            }
+
+            cropper = new Cropper(previewImage, {
+                aspectRatio: 1,
+                viewMode: 1,
+                autoCropArea: 1,
+            });
+
+            modalTitle.innerText = "Edit Category";
+
+            openModal("categoryModal");
+        });
+
+    });
+
+    
 
 });

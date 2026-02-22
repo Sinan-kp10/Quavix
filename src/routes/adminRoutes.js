@@ -13,7 +13,8 @@ import {
     adminLogout,
     loadCategory,
     addCategory,
-    removeCategory
+    removeCategory,
+    editCategory
 } from "../controllers/adminController.js"
 
 
@@ -26,6 +27,7 @@ router.get("/admin/unblock/:id",isLogin, activeUsers)
 
 router.get("/admin/category",isLogin, loadCategory)
 router.post("/admin/category",isLogin,upload.single("categoryImage"),addCategory);
+router.post("/admin/category/edit/:id",isLogin,upload.single("categoryImage"),editCategory)
 router.post("/admin/category/delete/:id", isLogin, removeCategory);
 
 router.get("/admin/logout",adminLogout)

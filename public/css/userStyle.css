@@ -5566,3 +5566,71 @@ footer a:hover {
 .cropper-face {
     border-radius: 50%;
 }
+
+/* Category Marquee Animation */
+.category-marquee {
+    width: 100%;
+    overflow: hidden;
+    padding: 2rem 0;
+    position: relative;
+}
+
+.category-marquee-inner {
+    display: flex;
+    gap: 1.5rem;
+    width: max-content;
+    animation: marquee-scroll 30s linear infinite;
+}
+
+.category-marquee:hover .category-marquee-inner {
+    animation-play-state: paused;
+}
+
+.category-card-lg {
+    flex: 0 0 350px;
+    height: 450px;
+    position: relative;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-md);
+    transition: transform 0.3s ease;
+}
+
+.category-card-lg:hover {
+    transform: translateY(-10px);
+}
+
+.overlay-gradient {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.8) 0%, transparent 60%);
+    z-index: 1;
+}
+
+.category-content-abs {
+    position: absolute;
+    bottom: 2rem;
+    left: 2rem;
+    z-index: 2;
+}
+
+@keyframes marquee-scroll {
+    0% {
+        transform: translateX(0);
+    }
+
+    100% {
+        transform: translateX(calc(-50% - 0.75rem));
+    }
+}
+
+@media (max-width: 768px) {
+    .category-card-lg {
+        flex: 0 0 280px;
+        height: 380px;
+    }
+
+    .category-marquee-inner {
+        animation-duration: 20s;
+    }
+}

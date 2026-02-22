@@ -62,7 +62,7 @@ export const allActiveUsers=async(id)=>{
 
 export const getAllCategory=async(search="",status="all",page=1,limit=10)=>{
 
-    let query ={ isDeleted: false };
+    let query ={}
 
     if(search){
         query.name={$regex:search , $options:"i" } 
@@ -83,7 +83,7 @@ export const getAllCategory=async(search="",status="all",page=1,limit=10)=>{
 
 }
 
-export const createCategory=async(name,status,file)=>{
+export const createCategory=async(name,file)=>{
 
     if (!name || name.trim().length < 3) {
         throw new Error("Category name must be at least 3 characters");
@@ -106,7 +106,6 @@ export const createCategory=async(name,status,file)=>{
     const newCategory = new categoryModal({
         name,
         slug,
-        status,
         categoryImage: result.secure_url,
         categoryImageId: result.public_id,
     });
@@ -117,16 +116,64 @@ export const createCategory=async(name,status,file)=>{
 
 }
 
-export const deleteCategory=async(id)=>{
-    const category=await categoryModal.findById(id)
+export const deleteCategory = async (categoryId) => {
+
+    const category = await categoryModal.findById(categoryId);
+
     if (!category) {
         throw new Error("Category not found");
     }
-    if(category.isDeleted){
-        throw new Error("Category already deleted");
+
+    if (category.status === "Active") {
+        category.status = "Inactive";
+    } else {
+        category.status = "Active";
+    }
+
+    await category.save();
+    return true;
+};
+
+export const updateCategory=async(categoryId,name,file)=>{
+
+    const category=await categoryModal.findById(categoryId)
+    if(!category){
+        throw new Error("Category not found")
+    }
+    let imageUpdated = false;
+
+    if(!name||name.trim().length<3){
+        throw new Error("Category name must be at least 3 characters")
+    }
+
+    const existing = await categoryModal.findOne({name: name.trim(),_id: { $ne: categoryId }})
+
+    if (existing) {
+        throw new Error("Category already exists");
     }
     
-    category.isDeleted=true
-    await category.save()
-    return true
+    if(category.name==name && !file){
+        throw new Error("No changes were made")
+    }
+    if (file) {
+
+        
+        await cloudinary.uploader.destroy(category.categoryImageId);
+
+        const result = await cloudinary.uploader.upload(
+            `data:${file.mimetype};base64,${file.buffer.toString("base64")}`,
+            { folder: "category_images" }
+        );
+
+        category.categoryImage = result.secure_url;
+        category.categoryImageId = result.public_id;
+
+        imageUpdated = true;
+    }
+
+    category.name = name.trim();
+    category.slug = slugify(name, { lower: true });
+
+    await category.save();
+    return category;
 }

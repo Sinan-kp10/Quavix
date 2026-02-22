@@ -1912,3 +1912,15 @@ img {
 .upload-area:hover {
     border-color: #007bff;
 }
+.image-preview-wrapper {
+    width: 100%;
+    max-width: 400px;
+    margin: auto;
+}
+
+.preview-img {
+    width: 100%;
+    height: 300px;       /* same visual size always */
+    object-fit: cover;   /* crop nicely */
+    border-radius: 12px;
+}

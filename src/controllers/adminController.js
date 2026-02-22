@@ -7,7 +7,8 @@ import {
     allActiveUsers,
     getAllCategory,
     createCategory,
-    deleteCategory
+    deleteCategory,
+    updateCategory
 } from "../services/adminService.js"
 
 
@@ -137,8 +138,8 @@ export const loadCategory=async(req,res)=>{
 export const addCategory=async(req,res)=>{
     try {
         
-        const {name,status}=req.body
-        const result=await createCategory(name,status,req.file)
+        const {name}=req.body
+        const result=await createCategory(name,req.file)
         if (!result) {
             req.session.toastMessage = "Please select an image.";
             req.session.toastType = "error";
@@ -157,17 +158,41 @@ export const addCategory=async(req,res)=>{
     }
 }
 
-export const removeCategory=async(req,res)=>{
+export const removeCategory = async (req, res) => {
     try {
-        
-        const {id}=req.params
 
-        await deleteCategory(id)
-        req.session.toastMessage = "Category deleted successfully!";
+        const { id } = req.params;
+
+        const updatedCategory = await deleteCategory(id);
+
+        if (updatedCategory.status === "Active") {
+            req.session.toastMessage = "Category restored successfully!";
+        } else {
+            req.session.toastMessage = "Category deactivated successfully!";
+        }
+
         req.session.toastType = "success";
         res.redirect("/admin/category");
+
+    } catch (err) {
+        req.session.toastMessage = err.message || "Action failed";
+        req.session.toastType = "error";
+        res.redirect("/admin/category");
+    }
+};
+
+export const editCategory=async(req,res)=>{
+    try {
+        const {id}=req.params
+        const {name}=req.body
+        await updateCategory(id,name,req.file)
+        req.session.toastMessage = "Category updated successfully!";
+        req.session.toastType = "success";
+        res.redirect("/admin/category");
+
+
     }catch(err){
-        req.session.toastMessage = err.message || "Delete failed";
+        req.session.toastMessage = err.message || "Updation failed";
         req.session.toastType = "error";
 
         res.redirect("/admin/category");
