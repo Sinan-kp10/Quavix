@@ -1,0 +1,285 @@
+<body>
+    <% if (typeof toastMessage !== "undefined") { %>
+    <div id="toast" class="toast <%= toastType %>">
+        <%= toastMessage %>
+    </div>
+    <% } %>
+
+    <div class="admin-layout">
+        <!-- Mobile Header -->
+        <div class="mobile-header">
+            <div class="mobile-logo">
+                <i class="fa-solid fa-bolt"></i> Quavix
+            </div>
+            <button class="menu-toggle" onclick="toggleSidebar()">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+        </div>
+
+        <!-- Sidebar Overlay -->
+        <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo">
+                <i class="fa-solid fa-bolt"></i> Quavix Admin
+            </div>
+
+            <nav>
+                <a href="/admin/dashboard" class="sidebar-link"><i class="fa-solid fa-chart-line"></i>
+                    Dashboard</a>
+                <a href="/admin/products" class="sidebar-link active"><i class="fa-solid fa-box"></i>
+                    Products</a>
+                <a href="orders.html" class="sidebar-link"><i class="fa-solid fa-clipboard-list"></i> Orders</a>
+                <a href="coupons.html" class="sidebar-link"><i class="fa-solid fa-ticket"></i> Coupons</a>
+                <a href="/admin/category" class="sidebar-link"><i class="fa-solid fa-tags"></i>
+                    Categories</a>
+                <a href="/admin/users" class="sidebar-link"><i class="fa-solid fa-users"></i>
+                    Users</a>
+                <a href="banner.html" class="sidebar-link"><i class="fa-solid fa-image"></i>
+                    Banner</a>
+
+                <a href="reports.html" class="sidebar-link"><i class="fa-solid fa-chart-pie"></i>
+                    Reports</a>
+
+            </nav>
+
+            <div class="sidebar-footer">
+                <a href="/admin/logout" class="sidebar-link"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+            </div>
+        </aside>
+
+        <!-- Product Content -->
+        <main class="content">
+            <header class="flex justify-between items-center mb-4">
+                <div class="flex items-center gap-4">
+                    <a href="/admin/products" class="btn btn-outline btn-sm"><i class="fa-solid fa-arrow-left"></i>
+                        Back</a>
+                    <h2 class="mb-0">Add New Product</h2>
+                </div>
+            </header>
+
+            <div class="card p-6">
+                <form id="addProductForm" method="post" action="/admin/products/add">
+                    <div class="form-group">
+                        <label>Product Name</label>
+                        <input type="text" id="name" name="name" class="form-input" placeholder="e.g. Wireless Headphones">
+                        <small class="error-message"></small>
+
+                    </div>
+                    <div class="form-grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="form-group">
+                            <label>Category</label>
+                            <select id="categories" name="categories" class="form-select">
+                                <option value="">Select Category</option>
+                                <option>Smartwatches</option>
+                                <option>Mobiles</option>
+                                <option>Audio</option>
+                            </select>
+                            <small class="error-message"></small>
+
+                        </div>
+                        <div class="form-group">
+                            <label>Offer (%)</label>
+                            <input type="number" id="offer" name="offer" class="form-input" placeholder="0" min="0">
+                            <small class="error-message"></small>
+                        </div>
+                        <div class="form-group">
+                            <label>Show on Homepage</label>
+                            <select class="form-select">
+                                <option>No</option>
+                                <option>Yes</option>
+                            </select>
+                            <small class="error-message"></small>
+
+                        </div>
+                    </div>
+
+                    <!-- Product Variants Section -->
+                    <div class="form-group mt-6">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-semibold mb-0">Product Variants</h3>
+                            <button type="button" class="btn btn-outline btn-sm" onclick="addVariant()"><i
+                                    class="fa-solid fa-plus"></i> Add Variant</button>
+                        </div>
+                        <div id="variantsContainer">
+                            <div
+                                class="form-grid grid-cols-1 md:grid-cols-3 mb-4 variant-row relative border p-6 rounded bg-gray-50">
+                                <h4 class="variant-title">Variant 1</h4>
+
+                                <!-- Unified 3-Column Grid -->
+                                <div class="form-group">
+                                    <label>Color</label>
+                                    <input type="text" class="form-input" placeholder="e.g. Red">
+                                </div>
+                                <div class="form-group">
+                                    <label>RAM</label>
+                                    <input type="text" class="form-input" placeholder="e.g. 8GB">
+                                </div>
+                                <div class="form-group">
+                                    <label>ROM</label>
+                                    <input type="text" class="form-input" placeholder="e.g. 128GB">
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Price</label>
+                                    <input type="number" id="price" name="price" class="form-input" placeholder="0.00" min="1">
+                                    <small class="error-message" ></small>
+
+                                </div>
+                                <div class="form-group">
+                                    <label>Stock</label>
+                                    <input type="number" id="stock" name="stock" class="form-input" placeholder="0" min="1">
+                                    <small class="error-message" ></small>
+
+                                </div>
+                                <div class="form-group">
+                                    <label>Status</label>
+                                <select id="Status" name="Status" class="form-select">
+                                    <option>Active</option>
+                                    <option>Inactive</option>
+                                </select>
+                                </div>
+
+                                <div class="form-group text-center">
+                                    <label class="custom-file-upload">
+                                        <input type="file" id="primary-image" hidden>
+                                        <i class="fa-regular fa-image"></i>
+                                        <span>Primary Photo</span>
+                                    </label>
+                                    <small class="error-message"></small>
+
+                                </div>
+                                <div class="form-group text-center">
+                                    <label class="custom-file-upload">
+                                        <input type="file" id="secondary-image" hidden>
+                                        <i class="fa-regular fa-image"></i>
+                                        <span>Secondary Photo</span>
+                                    </label>
+                                    <small class="error-message"></small>
+
+                                </div>
+                                <div class="form-group text-center">
+                                    <label class="custom-file-upload">
+                                        <input type="file" hidden>
+                                        <i class="fa-regular fa-image"></i>
+                                        <span>Other Photo</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- New Fields for Highlights and Services -->
+                    <div class="form-grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="form-group">
+                            <label>Highlights (One per line)</label>
+                            <textarea class="form-textarea" id="highlights" name="highlights" rows="4" placeholder="- With Mic: Yes&#10;- Bluetooth version: 5.2"></textarea>
+                            <small class="error-message" id="emailError"></small>
+
+                        </div>
+                        <div class="form-group">
+                            <label>Services (One per line)</label>
+                            <textarea class="form-textarea" id="services" name="services" rows="4" placeholder="- 7 Days Return & Replacement Policy (Details)&#10;- Cash on Delivery available"></textarea>
+                            <small class="error-message" id="emailError"></small>
+
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Description</label>
+                        <textarea class="form-textarea" id="description" name="description" rows="6" placeholder="Enter product description..."></textarea>
+                        <small class="error-message" id="emailError"></small>
+                    </div>
+
+                    <div class="flex gap-4 mt-6">
+                        <button type="submit" class="btn btn-primary flex-1">Save Product</button>
+                        <button type="button" class="btn btn-outline flex-1"
+                            onclick="window.location.href='/admin/products'">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </main>
+    </div>
+    <script src="/js/admin/addProduct.js"></script>
+
+    <script>
+        function toggleSidebar() {
+            document.querySelector('.sidebar').classList.toggle('active');
+            document.getElementById('sidebarOverlay').classList.toggle('active');
+        }
+
+        function addVariant() {
+            const container = document.getElementById('variantsContainer');
+            const variantCount = container.querySelectorAll('.variant-row').length + 1;
+            const newRow = document.createElement('div');
+            newRow.className = 'form-grid grid-cols-1 md:grid-cols-3 mb-4 variant-row relative border p-6 rounded bg-gray-50';
+            newRow.innerHTML = `
+                <h4 class="variant-title">Variant ${variantCount}</h4>
+                <div class="form-group">
+                    <label>Color</label>
+                    <input type="text" class="form-input" placeholder="e.g. Red">
+                </div>
+                <div class="form-group">
+                    <label>RAM</label>
+                    <input type="text" class="form-input" placeholder="e.g. 8GB">
+                </div>
+                <div class="form-group">
+                    <label>ROM</label>
+                    <input type="text" class="form-input" placeholder="e.g. 128GB">
+                </div>
+
+                <div class="form-group">
+                    <label>Price</label>
+                    <input type="number" class="form-input" placeholder="0.00">
+                </div>
+                <div class="form-group">
+                    <label>Stock</label>
+                    <input type="number" class="form-input" placeholder="0">
+                </div>
+                <div class="form-group">
+                    <label>Status</label>
+                    <div class="flex gap-2">
+                        <select class="form-select" style="flex: 1;">
+                            <option>Active</option>
+                            <option>Inactive</option>
+                        </select>
+                        <button type="button" class="btn btn-danger" style="flex-shrink: 0;" onclick="removeVariant(this)"><i class="fa-solid fa-trash"></i></button>
+                    </div>
+                </div>
+
+                <div class="form-group text-center">
+                    <label class="custom-file-upload">
+                        <input type="file" hidden>
+                        <i class="fa-regular fa-image"></i>
+                        <span>Primary Photo</span>
+                    </label>
+                </div>
+                <div class="form-group text-center">
+                    <label class="custom-file-upload">
+                        <input type="file" hidden>
+                        <i class="fa-regular fa-image"></i>
+                        <span>Secondary Photo</span>
+                    </label>
+                </div>
+                <div class="form-group text-center">
+                    <label class="custom-file-upload">
+                        <input type="file" hidden>
+                        <i class="fa-regular fa-image"></i>
+                        <span>Other Photo</span>
+                    </label>
+                </div>
+            `;
+            container.appendChild(newRow);
+        }
+
+        function removeVariant(button) {
+            button.closest('.variant-row').remove();
+            // Optional: Renumber variants after removal
+            const rows = document.querySelectorAll('.variant-row');
+            rows.forEach((row, index) => {
+                row.querySelector('.variant-title').textContent = `Variant ${index + 1}`;
+            });
+        }
+    </script>
+
+</body>

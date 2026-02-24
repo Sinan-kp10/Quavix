@@ -14,7 +14,9 @@ import {
     loadCategory,
     addCategory,
     removeCategory,
-    editCategory
+    editCategory,
+    loadProducts,
+    loadAddProducts
 } from "../controllers/adminController.js"
 
 
@@ -28,7 +30,15 @@ router.get("/admin/unblock/:id",isLogin, activeUsers)
 router.get("/admin/category",isLogin, loadCategory)
 router.post("/admin/category",isLogin,upload.single("categoryImage"),addCategory);
 router.post("/admin/category/edit/:id",isLogin,upload.single("categoryImage"),editCategory)
-router.post("/admin/category/delete/:id", isLogin, removeCategory);
+router.post("/admin/category/delete/:id", isLogin, removeCategory)
+
+
+router.get("/admin/products",isLogin,loadProducts)
+router.get("/admin/products/add",isLogin,loadAddProducts)
+router.post("/admin/products/add",isLogin,loadAddProducts)
+
+
+
 
 router.get("/admin/logout",adminLogout)
 

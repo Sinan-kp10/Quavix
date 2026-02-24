@@ -1,3 +1,4 @@
+import category from "../models/category.js"
 import categoryModal from "../models/category.js"
 
 import {
@@ -8,7 +9,8 @@ import {
     getAllCategory,
     createCategory,
     deleteCategory,
-    updateCategory
+    updateCategory,
+    getAllProducts
 } from "../services/adminService.js"
 
 
@@ -198,3 +200,48 @@ export const editCategory=async(req,res)=>{
         res.redirect("/admin/category");
     }
 }
+
+export const loadProducts=async(req,res)=>{
+ 
+    try {
+
+        const search=req.query.search || ""
+        const status=req.query.status || "all"
+        const stock =req.query.stock || ""
+        const categories=req.query.category || ""
+        const page=parseInt(req.query.page) || 1
+        const limit = 10
+        
+        const {productsList,totalProducts}=await getAllProducts(search,status,stock,categories,page,limit)
+
+        const totalPages=Math.ceil(totalProducts/limit)
+
+        res.render("admin/products", {
+            title: "Products Admin - Quavix",
+            css: "adminStyle",
+            products: productsList, 
+            search,
+            status,
+            stock,
+            categories,
+            currentPage: page,
+            totalPages,
+            noProducts: productsList.length === 0
+        });
+
+    }catch(err){
+        console.log(err);
+        res.redirect("/admin/dashboard");
+    }
+}
+
+export const loadAddProducts=async(req,res)=>{
+    try {
+        
+        res.render("admin/addProducts",{ title: "Add products Admin-Quavix",css: "adminStyle" })
+
+    }catch(err){
+        res.redirect("/admin/products")
+    }
+}
+

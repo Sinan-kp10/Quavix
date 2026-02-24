@@ -1,4 +1,5 @@
 import categoryModal from "../models/category.js"
+import productModal from "../models/productModal.js"
 import cloudinary from "../config/cloudinary.js";
 import slugify from "slugify";
 import dotenv from "dotenv"
@@ -176,4 +177,40 @@ export const updateCategory=async(categoryId,name,file)=>{
 
     await category.save();
     return category;
+}
+
+
+export const getAllProducts=async(search="",status="all",stock="",categories="",page=1,limit=10)=>{
+
+    let query ={isDeleted:false}
+
+    if(search){
+        query.name={$regex:search , $options:"i" } 
+    }
+
+    if(categories){
+        query.category=categories
+    }
+
+    if(status!="all"){
+        query["variants.status"]=status
+    }
+
+    if(stock==="in"){
+        query["variants.stock"]= {$gt:0}
+    }
+
+    if(stock=="out"){
+        query["variants.stock"]={$not:{$gt:0}}
+    }
+
+    const skip=(page-1)*limit
+    const productsList=await productModal.find(query).sort({createdAt:-1}).skip(skip).limit(limit)
+
+    const totalProducts=await productModal.countDocuments(query)
+
+    return {
+        productsList,totalProducts
+    }
+
 }
