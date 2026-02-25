@@ -277,7 +277,6 @@
     <div class="crop-modal-content">
         <div class="crop-header">
             <h3>Crop Image</h3>
-            <button id="cropCancelTop" class="crop-close">&times;</button>
         </div>
 
         <div class="crop-body">
@@ -285,7 +284,7 @@
         </div>
 
         <div class="crop-footer">
-            <button id="cropConfirm" class="btn btn-primary">Crop</button>
+            <button id="cropConfirm" class="btn btn-primary">Save</button>
             <button id="cropCancel" class="btn btn-outline">Cancel</button>
         </div>
     </div>
@@ -313,7 +312,7 @@
                 cropper = new Cropper(image, {
                     aspectRatio: 1,
                     viewMode: 1,
-                    dragMode: "move",        // move image instead of crop box
+                    dragMode: "move",        
                     cropBoxResizable: false, 
                     cropBoxMovable: false,   
                     zoomable: true,

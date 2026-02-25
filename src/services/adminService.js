@@ -276,3 +276,57 @@ export const createProducts = async (data) => {
 
   return await newProduct.save();
 };
+export const updateProduct = async (id, data) => {
+
+  const {
+    name,
+    category,
+    offerPercentage,
+    highlights,
+    services,
+    description,
+    variants
+  } = data;
+
+  const formattedVariants = variants.map(v => ({
+    attributes: Array.isArray(v.attributes)
+      ? v.attributes
+          .filter(attr => attr.name && attr.value)
+          .map(attr => ({
+            name: attr.name.trim(),
+            value: attr.value.trim()
+          }))
+      : [],
+
+    price: Number(v.price),
+    stock: Number(v.stock),
+
+    images: {
+      primary: {
+        url: v.images?.primary?.url || "",
+        publicId: v.images?.primary?.publicId || ""
+      },
+      gallery: v.images?.gallery || []
+    },
+
+    status: v.status || "Active"
+  }));
+
+  const prices = formattedVariants.map(v => v.price);
+  const minPrice = prices.length ? Math.min(...prices) : 0;
+
+  return await productModel.findByIdAndUpdate(
+    id,
+    {
+      name,
+      category,
+      offerPercentage,
+      highlights,
+      services,
+      description,
+      variants: formattedVariants,
+      minPrice
+    },
+    { new: true }
+  );
+};

@@ -55,15 +55,16 @@
                 <div class="flex items-center gap-4">
                     <a href="/admin/products" class="btn btn-outline btn-sm"><i class="fa-solid fa-arrow-left"></i>
                         Back</a>
-                    <h2 class="mb-0">Add New Product</h2>
+                    <h2 class="mb-0"><%= product ? "Edit Product" : "Add New Product" %></h2>
+                    
                 </div>
             </header>
 
             <div class="card p-6">
-                <form id="addProductForm" method="post" action="/admin/products/add" enctype="multipart/form-data">
+                <form id="addProductForm" method="post" action="<%= product ? '/admin/products/edit/' + product._id : '/admin/products/add' %>" enctype="multipart/form-data">
                     <div class="form-group">
                         <label>Product Name</label>
-                        <input type="text" id="name" name="name" class="form-input" placeholder="e.g. Wireless Headphones">
+                        <input type="text" id="name" name="name" class="form-input" placeholder="e.g. Wireless Headphones" value="<%= product ? product.name : '' %>">
                         <small class="error-message"></small>
 
                     </div>
@@ -72,27 +73,32 @@
                             <label>Category</label>
                             <select id="categories" name="category" class="form-select">
                                 <option value="">Select Category</option>
-
                                 <% categories.forEach(cat => { %>
-                                    <option value="<%= cat._id %>">
+                                    <option value="<%= cat._id %>"
+                                        <%= product && product.category._id.toString() === cat._id.toString() ? 'selected' : '' %>>
                                         <%= cat.name %>
                                     </option>
                                 <% }) %>
 
                             </select>
                             <small class="error-message"></small>
-
                         </div>
                         <div class="form-group">
                             <label>Offer (%)</label>
-                            <input type="number" id="offer" name="offerPercentage" class="form-input" placeholder="0" min="0">
+                            <input type="number" id="offer" name="offerPercentage" class="form-input" placeholder="0" min="0" value="<%= product ? product.offerPercentage : 0 %>">
                             <small class="error-message"></small>
                         </div>
                         <div class="form-group">
                             <label>Show on Homepage</label>
                             <select name="showOnHomepage" class="form-select">
-                                <option>No</option>
-                                <option>Yes</option>
+                                <option value="No"
+                                    <%= product && !product.showOnHomepage ? "selected" : "" %>>
+                                    No
+                                </option>
+                                <option value="Yes"
+                                    <%= product && product.showOnHomepage ? "selected" : "" %>>
+                                    Yes
+                                </option>
                             </select>
                             <small class="error-message"></small>
 
@@ -103,140 +109,202 @@
                     <div class="form-group mt-6">
                         <div class="flex justify-between items-center mb-4">
                             <h3 class="text-lg font-semibold mb-0">Product Variants</h3>
-                            <button type="button" class="btn btn-outline btn-sm" onclick="addVariant()"><i
-                                    class="fa-solid fa-plus"></i> Add Variant</button>
+                            <% if (!product) { %>
+                                <button type="button" class="btn btn-outline btn-sm" onclick="addVariant()">
+                                    <i class="fa-solid fa-plus"></i> Add Variant
+                                </button>
+                                <% } %>
                         </div>
                         <div id="variantsContainer">
-                            <div
-                                class="form-grid grid-cols-1 md:grid-cols-3 mb-4 variant-row relative border p-6 rounded bg-gray-50">
-                                <h4 class="variant-title">Variant 1</h4>
 
-                                <!-- Unified 3-Column Grid -->
+                            <% const variantList = product ? product.variants : [{}]; %>
+
+                            <% variantList.forEach((variant, index) => { %>
+
+                            <div class="form-grid grid-cols-1 md:grid-cols-3 mb-4 variant-row relative border p-6 rounded bg-gray-50">
+
+                                <h4 class="variant-title">Variant <%= index + 1 %></h4>
+
+                                <!-- Color -->
                                 <div class="form-group">
                                     <label>Color</label>
-                                    <input type="hidden"  name="variants[0][attributes][0][name]"  value="Color">
-                                    <input type="text" class="form-input" name="variants[0][attributes][0][value]" placeholder="e.g. Red">
+                                    <input type="hidden" name="variants[<%= index %>][attributes][0][name]" value="Color">
+                                    <input type="text"
+                                        class="form-input"
+                                        name="variants[<%= index %>][attributes][0][value]"
+                                        value="<%= variant.attributes?.[0]?.value || '' %>" placeholder="eg. Red">
                                 </div>
+
+                                <!-- RAM -->
                                 <div class="form-group">
                                     <label>RAM</label>
-                                    <input type="hidden"  name="variants[0][attributes][1][name]" value="RAM">
-                                    <input type="text" class="form-input"  name="variants[0][attributes][1][value]" placeholder="e.g. 8GB">
+                                    <input type="hidden" name="variants[<%= index %>][attributes][1][name]" value="RAM">
+                                    <input type="text"
+                                        class="form-input"
+                                        name="variants[<%= index %>][attributes][1][value]"
+                                        value="<%= variant.attributes?.[1]?.value || '' %>" placeholder="eg. 16GB">
                                 </div>
+
+                                <!-- ROM -->
                                 <div class="form-group">
                                     <label>ROM</label>
-                                    <input type="hidden" name="variants[0][attributes][2][name]" value="ROM">
-                                    <input type="text" class="form-input"  name="variants[0][attributes][2][value]" placeholder="e.g. 128GB">
+                                    <input type="hidden" name="variants[<%= index %>][attributes][2][name]" value="ROM">
+                                    <input type="text"
+                                        class="form-input"
+                                        name="variants[<%= index %>][attributes][2][value]"
+                                        value="<%= variant.attributes?.[2]?.value || '' %>" placeholder="eg. 128GB">
                                 </div>
 
+                                <!-- Price -->
                                 <div class="form-group">
                                     <label>Price</label>
-                                    <input type="number"  class="form-input" placeholder="0.00" min="1" name="variants[0][price]">
-                                    <small class="error-message" ></small>
-
+                                    <input type="number"
+                                        class="form-input"
+                                        name="variants[<%= index %>][price]"
+                                        value="<%= variant.price || '' %>" placeholder="0.00">
                                 </div>
+
+                                <!-- Stock -->
                                 <div class="form-group">
                                     <label>Stock</label>
-                                    <input type="number" class="form-input" placeholder="0" min="1" name="variants[0][stock]">
-                                    <small class="error-message" ></small>
-
+                                    <input type="number"
+                                        class="form-input"
+                                        name="variants[<%= index %>][stock]"
+                                        value="<%= variant.stock || '' %>" placeholder="0">
                                 </div>
+
+                                <!-- Status -->
                                 <div class="form-group">
                                     <label>Status</label>
-                                <select id="Status" name="variants[0][status]" class="form-select">
-                                    <option>Active</option>
-                                    <option>Inactive</option>
-                                </select>
-                                </div>
+                                    <div class="flex items-center gap-2">
+                                        <select name="variants[<%= index %>][status]" class="form-select flex-1">
+                                            <option value="Active"
+                                                <%= variant.status === "Active" ? "selected" : "" %>>
+                                                Active
+                                            </option>
+                                            <option value="Inactive"
+                                                <%= variant.status === "Inactive" ? "selected" : "" %>>
+                                                Inactive
+                                            </option>
+                                        </select>
 
+                                        <% if(index !== 0){ %>
+                                        <button type="button"
+                                                class="btn btn-danger btn-icon"
+                                                onclick="removeVariant(this)">
+                                            <i class="fa-solid fa-trash"></i>
+                                        </button>
+                                        <% } %>
+                                    </div>
+                                </div>
+                                <!-- Images (Edit Mode Safe) -->
                                 <div class="variant-images">
 
                                     <!-- Primary -->
                                     <div class="image-item">
                                         <div class="image-upload">
-                                            <input type="file" name="variants[0][images][primary]" class="image-input hidden" accept="image/*">
-                                            <div class="upload-area">
-                                                <span>Primary Photo</span>
-                                            </div>
+                                            <input type="file"
+                                                name="variants[<%= index %>][images][primary]"
+                                                class="image-input hidden"
+                                                accept="image/*">
 
-                                            <img class="preview-img hidden">
+                                            <% if (variant.images?.primary?.url) { %>
+                                                <img class="preview-img" 
+                                                    src="<%= variant.images.primary.url %>">
+                                            <% } else { %>
+                                                <div class="upload-area">
+                                                    <span>Primary Photo</span>
+                                                </div>
+                                                <img class="preview-img hidden">
+                                            <% } %>
                                         </div>
 
-                                        <button type="button" class="change-image-btn hidden">
+                                        <button type="button"
+                                                class="change-image-btn <%= variant.images?.primary?.url ? '' : 'hidden' %>">
                                             Change
                                         </button>
-
                                         <small class="error-message text-danger"></small>
                                     </div>
-
 
                                     <!-- Secondary -->
                                     <div class="image-item">
                                         <div class="image-upload">
                                             <input type="file"
-                                                name="variants[0][images][gallery][]"
+                                                name="variants[<%= index %>][images][gallery][]"
                                                 class="image-input hidden"
                                                 accept="image/*">
 
-                                            <div class="upload-area">
-                                                <span>Secondary Photo</span>
-                                            </div>
-
-                                            <img class="preview-img hidden">
+                                            <% if (variant.images?.gallery?.[0]?.url) { %>
+                                                <img class="preview-img"
+                                                    src="<%= variant.images.gallery[0].url %>">
+                                            <% } else { %>
+                                                <div class="upload-area">
+                                                    <span>Secondary Photo</span>
+                                                </div>
+                                                <img class="preview-img hidden">
+                                            <% } %>
                                         </div>
 
-                                        <button type="button" class="change-image-btn hidden">
+                                        <button type="button"
+                                                class="change-image-btn <%= variant.images?.gallery?.[0]?.url ? '' : 'hidden' %>">
                                             Change
                                         </button>
-
                                         <small class="error-message text-danger"></small>
                                     </div>
-
 
                                     <!-- Other -->
                                     <div class="image-item">
                                         <div class="image-upload">
                                             <input type="file"
-                                                name="variants[0][images][gallery][]"
+                                                name="variants[<%= index %>][images][gallery][]"
                                                 class="image-input hidden"
                                                 accept="image/*">
 
-                                            <div class="upload-area">
-                                                <span>Other Photo</span>
-                                            </div>
-
-                                            <img class="preview-img hidden">
+                                            <% if (variant.images?.gallery?.[1]?.url) { %>
+                                                <img class="preview-img"
+                                                    src="<%= variant.images.gallery[1].url %>">
+                                            <% } else { %>
+                                                <div class="upload-area">
+                                                    <span>Other Photo</span>
+                                                </div>
+                                                <img class="preview-img hidden">
+                                            <% } %>
                                         </div>
 
-                                        <button type="button" class="change-image-btn hidden">
+                                        <button type="button"
+                                                class="change-image-btn <%= variant.images?.gallery?.[1]?.url ? '' : 'hidden' %>">
                                             Change
                                         </button>
-
                                         <small class="error-message text-danger"></small>
                                     </div>
 
                                 </div>
+
                             </div>
-                        </div>
+
+                            <% }) %>
+
+                            </div>
                     </div>
 
                     <!-- New Fields for Highlights and Services -->
                     <div class="form-grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div class="form-group">
                             <label>Highlights (One per line)</label>
-                            <textarea class="form-textarea" id="highlights" name="highlights" rows="4" placeholder="- With Mic: Yes&#10;- Bluetooth version: 5.2"></textarea>
+                            <textarea class="form-textarea" id="highlights" name="highlights" rows="4" placeholder="- With Mic: Yes&#10;- Bluetooth version: 5.2"><%= product ? product.highlights.join('\n') : '' %></textarea>
                             <small class="error-message" id="emailError"></small>
 
                         </div>
                         <div class="form-group">
                             <label>Services (One per line)</label>
-                            <textarea class="form-textarea" id="services" name="services" rows="4" placeholder="- 7 Days Return & Replacement Policy (Details)&#10;- Cash on Delivery available"></textarea>
+                            <textarea class="form-textarea" id="services" name="services" rows="4" placeholder="- 7 Days Return & Replacement Policy"><%= product ? product.services.join('\n') : '' %></textarea>
                             <small class="error-message" id="emailError"></small>
 
                         </div>
                     </div>
                     <div class="form-group">
                         <label>Description</label>
-                        <textarea class="form-textarea" id="description" name="description" rows="6" placeholder="Enter product description..."></textarea>
+                        <textarea id="description" class="form-textarea" placeholder="Enter product description" name="description" rows="6"><%= product ? product.description : '' %></textarea>
                         <small class="error-message" id="emailError"></small>
                     </div>
 

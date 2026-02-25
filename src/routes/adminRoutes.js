@@ -17,7 +17,10 @@ import {
     editCategory,
     loadProducts,
     loadAddProducts,
-    addProduct
+    addProduct,
+    loadEditProduct,
+    editProduct
+    
 } from "../controllers/adminController.js"
 
 
@@ -36,7 +39,11 @@ router.post("/admin/category/delete/:id", isLogin, removeCategory)
 
 router.get("/admin/products",isLogin,loadProducts)
 router.get("/admin/products/add",isLogin,loadAddProducts)
-router.post("/admin/products/add",upload.any(),addProduct);
+router.post("/admin/products/add",isLogin,upload.any(),addProduct);
+router.get("/admin/products/edit/:id",isLogin,loadEditProduct)
+router.post("/admin/products/edit/:id",isLogin, upload.any(), editProduct);
+
+
 
 
 

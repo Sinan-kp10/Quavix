@@ -1894,7 +1894,7 @@ img {
 .preview-img {
     width: 100%;
     max-height: 250px;
-    object-fit: cover;
+    object-fit: contain;
     border-radius: 8px;
     margin-bottom: 10px;
 }
