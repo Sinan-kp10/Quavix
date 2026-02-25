@@ -1,5 +1,9 @@
-import category from "../models/category.js"
+
 import categoryModal from "../models/category.js"
+import slugify from "slugify";
+import productModel from "../models/productModal.js"
+import cloudinary from "../config/cloudinary.js";
+
 
 import {
     adminLoginAccess,
@@ -10,7 +14,8 @@ import {
     createCategory,
     deleteCategory,
     updateCategory,
-    getAllProducts
+    getAllProducts,
+    createProducts
 } from "../services/adminService.js"
 
 
@@ -237,11 +242,88 @@ export const loadProducts=async(req,res)=>{
 
 export const loadAddProducts=async(req,res)=>{
     try {
-        
-        res.render("admin/addProducts",{ title: "Add products Admin-Quavix",css: "adminStyle" })
+        const categories=await categoryModal.find({status:"Active"})
+        res.render("admin/addProducts",{ title: "Add products Admin-Quavix",css: "adminStyle", categories })
 
     }catch(err){
         res.redirect("/admin/products")
     }
+}
+
+
+export const addProduct = async (req, res) => {
+  try {
+
+    const {
+      name,
+      category,
+      offer,
+      highlights,
+      services,
+      description,
+      variants
+    } = req.body;
+
+    if (!name || !category || !description) {
+      throw new Error("Required fields missing")
+    }
+
+    const slug = slugify(name, { lower: true, strict: true });
+
+    const existingProduct = await productModel.findOne({ slug });
+    if (existingProduct) {
+      throw new Error("Product already exists")
+    }
+
+    let parsedVariants = Array.isArray(variants)? variants: JSON.parse(variants);
+
+    for (let i = 0; i < parsedVariants.length; i++) {
+      const primaryFile = req.files.find(file =>
+        file.fieldname === `variants[${i}][images][primary]`
+      );
+
+      if (!primaryFile) {
+        throw new Error("Primary image required for each variant");
+      }
+
+      const result = await cloudinary.uploader.upload(
+        `data:${primaryFile.mimetype};base64,${primaryFile.buffer.toString("base64")}`,
+        { folder: "product_images" }
+      );
+
+      parsedVariants[i].images = {
+        primary: {
+          url: result.secure_url,
+          publicId: result.public_id
+        },
+        gallery: []
+      };
+    }
+
+    const formattedHighlights = highlights ? highlights.split("\n").map(i => i.trim()).filter(Boolean): [];
+
+    const formattedServices = services ? services.split("\n").map(i => i.trim()).filter(Boolean): [];
+
+    await createProducts({
+      name,
+      slug,
+      category,
+      offerPercentage: Number(offer) || 0,
+      showOnHomepage: false,
+      highlights: formattedHighlights,
+      services: formattedServices,
+      description,
+      variants: parsedVariants
+    });
+
+    res.redirect("/admin/products");
+
+  } catch (err) {
+
+    req.session.toastMessage = err.message || "Something went wrong.";
+    req.session.toastType = "error"
+  
+    res.redirect("/admin/products/add")
+  }
 }
 

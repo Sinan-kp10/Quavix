@@ -230,7 +230,7 @@
                 <div class="pagination">
 
                     <% if(currentPage > 1){ %>
-                        <a href="?search=<%= search %>&status=<%= status %>&stock=<%= stock %>&category=<%= category || '' %>&page=<%= currentPage - 1 %>"
+                        <a href="?search=<%= search %>&status=<%= status %>&stock=<%= stock %>&category=<%= categories || '' %>&page=<%= currentPage - 1 %>"
                         class="page-link">
                             <i class="fa-solid fa-chevron-left"></i>
                         </a>
@@ -245,14 +245,14 @@
                     %>
 
                     <% for(let i = startPage; i <= endPage; i++){ %>
-                        <a href="?search=<%= search %>&status=<%= status %>&stock=<%= stock %>&category=<%= category || '' %>&page=<%= i %>"
+                        <a href="?search=<%= search %>&status=<%= status %>&stock=<%= stock %>&category=<%= categories || '' %>&page=<%= i %>"
                         class="page-link <%= currentPage === i ? 'active' : '' %>">
                             <%= i %>
                         </a>
                     <% } %>
 
                     <% if(currentPage < totalPages){ %>
-                        <a href="?search=<%= search %>&status=<%= status %>&stock=<%= stock %>&category=<%= category || '' %>&page=<%= currentPage + 1 %>"
+                        <a href="?search=<%= search %>&status=<%= status %>&stock=<%= stock %>&category=<%= categories || '' %>&page=<%= currentPage + 1 %>"
                         class="page-link">
                             <i class="fa-solid fa-chevron-right"></i>
                         </a>

@@ -2,23 +2,23 @@ import mongoose from "mongoose";
 
 const variantSchema = new mongoose.Schema({
 
-  color: {
-    type: String,
-    required: true
-  },
+  attributes: [
+    {
+      name: {
+        type: String,
+        required: true
+      },
+      value: {
+        type: String,
+        required: true
+      }
+    }
+  ],
 
-  ram: {
-    type: String,
-  },
-
-  rom: {
-    type: String,
-  },
-  
   price: {
     type: Number,
     required: true,
-    min:0
+    min: 0
   },
 
   stock: {
@@ -30,22 +30,22 @@ const variantSchema = new mongoose.Schema({
 
   images: {
     primary: {
-        url: {
-            type: String,
-            required: true
-        },
-        publicId: {
-            type: String,
-            required: true
-        }
+      url: {
+        type: String,
+        required: true
+      },
+      publicId: {
+        type: String,
+        required: true
+      }
     },
     gallery: [
-        {
-            url: String,
-            publicId: String
-        }
+      {
+        url: String,
+        publicId: String
+      }
     ]
-   },
+  },
 
   status: {
     type: String,
@@ -54,7 +54,6 @@ const variantSchema = new mongoose.Schema({
   }
 
 }, { _id: true });
-
 
 const productSchema = new mongoose.Schema({
 

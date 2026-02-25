@@ -60,7 +60,7 @@
             </header>
 
             <div class="card p-6">
-                <form id="addProductForm" method="post" action="/admin/products/add">
+                <form id="addProductForm" method="post" action="/admin/products/add" enctype="multipart/form-data">
                     <div class="form-group">
                         <label>Product Name</label>
                         <input type="text" id="name" name="name" class="form-input" placeholder="e.g. Wireless Headphones">
@@ -70,23 +70,27 @@
                     <div class="form-grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div class="form-group">
                             <label>Category</label>
-                            <select id="categories" name="categories" class="form-select">
+                            <select id="categories" name="category" class="form-select">
                                 <option value="">Select Category</option>
-                                <option>Smartwatches</option>
-                                <option>Mobiles</option>
-                                <option>Audio</option>
+
+                                <% categories.forEach(cat => { %>
+                                    <option value="<%= cat._id %>">
+                                        <%= cat.name %>
+                                    </option>
+                                <% }) %>
+
                             </select>
                             <small class="error-message"></small>
 
                         </div>
                         <div class="form-group">
                             <label>Offer (%)</label>
-                            <input type="number" id="offer" name="offer" class="form-input" placeholder="0" min="0">
+                            <input type="number" id="offer" name="offerPercentage" class="form-input" placeholder="0" min="0">
                             <small class="error-message"></small>
                         </div>
                         <div class="form-group">
                             <label>Show on Homepage</label>
-                            <select class="form-select">
+                            <select name="showOnHomepage" class="form-select">
                                 <option>No</option>
                                 <option>Yes</option>
                             </select>
@@ -110,61 +114,106 @@
                                 <!-- Unified 3-Column Grid -->
                                 <div class="form-group">
                                     <label>Color</label>
-                                    <input type="text" class="form-input" placeholder="e.g. Red">
+                                    <input type="hidden"  name="variants[0][attributes][0][name]"  value="Color">
+                                    <input type="text" class="form-input" name="variants[0][attributes][0][value]" placeholder="e.g. Red">
                                 </div>
                                 <div class="form-group">
                                     <label>RAM</label>
-                                    <input type="text" class="form-input" placeholder="e.g. 8GB">
+                                    <input type="hidden"  name="variants[0][attributes][1][name]" value="RAM">
+                                    <input type="text" class="form-input"  name="variants[0][attributes][1][value]" placeholder="e.g. 8GB">
                                 </div>
                                 <div class="form-group">
                                     <label>ROM</label>
-                                    <input type="text" class="form-input" placeholder="e.g. 128GB">
+                                    <input type="hidden" name="variants[0][attributes][2][name]" value="ROM">
+                                    <input type="text" class="form-input"  name="variants[0][attributes][2][value]" placeholder="e.g. 128GB">
                                 </div>
 
                                 <div class="form-group">
                                     <label>Price</label>
-                                    <input type="number" id="price" name="price" class="form-input" placeholder="0.00" min="1">
+                                    <input type="number"  class="form-input" placeholder="0.00" min="1" name="variants[0][price]">
                                     <small class="error-message" ></small>
 
                                 </div>
                                 <div class="form-group">
                                     <label>Stock</label>
-                                    <input type="number" id="stock" name="stock" class="form-input" placeholder="0" min="1">
+                                    <input type="number" class="form-input" placeholder="0" min="1" name="variants[0][stock]">
                                     <small class="error-message" ></small>
 
                                 </div>
                                 <div class="form-group">
                                     <label>Status</label>
-                                <select id="Status" name="Status" class="form-select">
+                                <select id="Status" name="variants[0][status]" class="form-select">
                                     <option>Active</option>
                                     <option>Inactive</option>
                                 </select>
                                 </div>
 
-                                <div class="form-group text-center">
-                                    <label class="custom-file-upload">
-                                        <input type="file" id="primary-image" hidden>
-                                        <i class="fa-regular fa-image"></i>
-                                        <span>Primary Photo</span>
-                                    </label>
-                                    <small class="error-message"></small>
+                                <div class="variant-images">
 
-                                </div>
-                                <div class="form-group text-center">
-                                    <label class="custom-file-upload">
-                                        <input type="file" id="secondary-image" hidden>
-                                        <i class="fa-regular fa-image"></i>
-                                        <span>Secondary Photo</span>
-                                    </label>
-                                    <small class="error-message"></small>
+                                    <!-- Primary -->
+                                    <div class="image-item">
+                                        <div class="image-upload">
+                                            <input type="file" name="variants[0][images][primary]" class="image-input hidden" accept="image/*">
+                                            <div class="upload-area">
+                                                <span>Primary Photo</span>
+                                            </div>
 
-                                </div>
-                                <div class="form-group text-center">
-                                    <label class="custom-file-upload">
-                                        <input type="file" hidden>
-                                        <i class="fa-regular fa-image"></i>
-                                        <span>Other Photo</span>
-                                    </label>
+                                            <img class="preview-img hidden">
+                                        </div>
+
+                                        <button type="button" class="change-image-btn hidden">
+                                            Change
+                                        </button>
+
+                                        <small class="error-message text-danger"></small>
+                                    </div>
+
+
+                                    <!-- Secondary -->
+                                    <div class="image-item">
+                                        <div class="image-upload">
+                                            <input type="file"
+                                                name="variants[0][images][gallery][]"
+                                                class="image-input hidden"
+                                                accept="image/*">
+
+                                            <div class="upload-area">
+                                                <span>Secondary Photo</span>
+                                            </div>
+
+                                            <img class="preview-img hidden">
+                                        </div>
+
+                                        <button type="button" class="change-image-btn hidden">
+                                            Change
+                                        </button>
+
+                                        <small class="error-message text-danger"></small>
+                                    </div>
+
+
+                                    <!-- Other -->
+                                    <div class="image-item">
+                                        <div class="image-upload">
+                                            <input type="file"
+                                                name="variants[0][images][gallery][]"
+                                                class="image-input hidden"
+                                                accept="image/*">
+
+                                            <div class="upload-area">
+                                                <span>Other Photo</span>
+                                            </div>
+
+                                            <img class="preview-img hidden">
+                                        </div>
+
+                                        <button type="button" class="change-image-btn hidden">
+                                            Change
+                                        </button>
+
+                                        <small class="error-message text-danger"></small>
+                                    </div>
+
                                 </div>
                             </div>
                         </div>
@@ -210,71 +259,168 @@
 
         function addVariant() {
             const container = document.getElementById('variantsContainer');
-            const variantCount = container.querySelectorAll('.variant-row').length + 1;
+            const index = container.querySelectorAll('.variant-row').length;
+
             const newRow = document.createElement('div');
             newRow.className = 'form-grid grid-cols-1 md:grid-cols-3 mb-4 variant-row relative border p-6 rounded bg-gray-50';
+
             newRow.innerHTML = `
-                <h4 class="variant-title">Variant ${variantCount}</h4>
+                <h4 class="variant-title">Variant ${index + 1}</h4>
+
+                <!-- Attributes -->
                 <div class="form-group">
                     <label>Color</label>
-                    <input type="text" class="form-input" placeholder="e.g. Red">
-                </div>
-                <div class="form-group">
-                    <label>RAM</label>
-                    <input type="text" class="form-input" placeholder="e.g. 8GB">
-                </div>
-                <div class="form-group">
-                    <label>ROM</label>
-                    <input type="text" class="form-input" placeholder="e.g. 128GB">
+                    <input type="hidden" 
+                        name="variants[${index}][attributes][0][name]" 
+                        value="Color">
+                    <input type="text" 
+                        name="variants[${index}][attributes][0][value]" 
+                        class="form-input"
+                        placeholder="e.g. Red">
+                    <small class="error-message"></small>
                 </div>
 
                 <div class="form-group">
-                    <label>Price</label>
-                    <input type="number" class="form-input" placeholder="0.00">
+                    <label>RAM</label>
+                    <input type="hidden" 
+                        name="variants[${index}][attributes][1][name]" 
+                        value="RAM">
+                    <input type="text" 
+                        name="variants[${index}][attributes][1][value]" 
+                        class="form-input"
+                        placeholder="e.g. 8GB">
                 </div>
+
+                <div class="form-group">
+                    <label>ROM</label>
+                    <input type="hidden" 
+                        name="variants[${index}][attributes][2][name]" 
+                        value="ROM">
+                    <input type="text" 
+                        name="variants[${index}][attributes][2][value]" 
+                        class="form-input"
+                        placeholder="e.g. 128GB">
+                </div>
+
+                <!-- Price -->
+                <div class="form-group">
+                    <label>Price</label>
+                    <input type="number"
+                        name="variants[${index}][price]"
+                        class="form-input"
+                        placeholder="0.00"
+                        min="1">
+                    <small class="error-message"></small>
+                </div>
+
+                <!-- Stock -->
                 <div class="form-group">
                     <label>Stock</label>
-                    <input type="number" class="form-input" placeholder="0">
+                    <input type="number"
+                        name="variants[${index}][stock]"
+                        class="form-input"
+                        placeholder="0"
+                        min="0">
+                    <small class="error-message"></small>
                 </div>
+
+                <!-- Status -->
                 <div class="form-group">
                     <label>Status</label>
-                    <div class="flex gap-2">
-                        <select class="form-select" style="flex: 1;">
-                            <option>Active</option>
-                            <option>Inactive</option>
+
+                    <div class="flex items-center gap-2">
+                        <select name="variants[${index}][status]" class="form-select flex-1">
+                            <option value="Active">Active</option>
+                            <option value="Inactive">Inactive</option>
                         </select>
-                        <button type="button" class="btn btn-danger" style="flex-shrink: 0;" onclick="removeVariant(this)"><i class="fa-solid fa-trash"></i></button>
+
+                        <button type="button"
+                            class="btn btn-danger btn-icon"
+                            onclick="removeVariant(this)">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
                     </div>
                 </div>
 
-                <div class="form-group text-center">
-                    <label class="custom-file-upload">
-                        <input type="file" hidden>
-                        <i class="fa-regular fa-image"></i>
-                        <span>Primary Photo</span>
-                    </label>
-                </div>
-                <div class="form-group text-center">
-                    <label class="custom-file-upload">
-                        <input type="file" hidden>
-                        <i class="fa-regular fa-image"></i>
-                        <span>Secondary Photo</span>
-                    </label>
-                </div>
-                <div class="form-group text-center">
-                    <label class="custom-file-upload">
-                        <input type="file" hidden>
-                        <i class="fa-regular fa-image"></i>
-                        <span>Other Photo</span>
-                    </label>
+                <!-- Images -->
+                <div class="variant-images">
+
+                    <!-- Primary -->
+                    <div class="image-item">
+                        <div class="image-upload">
+                            <input type="file"
+                                name="variants[${index}][images][primary]"
+                                class="image-input hidden"
+                                accept="image/*">
+
+                            <div class="upload-area">
+                                <span>Primary Photo</span>
+                            </div>
+
+                            <img class="preview-img hidden">
+                        </div>
+
+                        <button type="button" class="change-image-btn hidden">
+                            Change
+                        </button>
+
+                        <small class="error-message text-danger"></small>
+                    </div>
+
+                    <!-- Gallery 1 -->
+                    <div class="image-item">
+                        <div class="image-upload">
+                            <input type="file"
+                                name="variants[${index}][images][gallery][]"
+                                class="image-input hidden"
+                                accept="image/*">
+
+                            <div class="upload-area">
+                                <span>Gallery Photo</span>
+                            </div>
+
+                            <img class="preview-img hidden">
+                        </div>
+
+                        <button type="button" class="change-image-btn hidden">
+                            Change
+                        </button>
+
+                        <small class="error-message text-danger"></small>
+                    </div>
+
+                    <!-- Gallery 2 -->
+                    <div class="image-item">
+                        <div class="image-upload">
+                            <input type="file"
+                                name="variants[${index}][images][gallery][]"
+                                class="image-input hidden"
+                                accept="image/*">
+
+                            <div class="upload-area">
+                                <span>Gallery Photo</span>
+                            </div>
+
+                            <img class="preview-img hidden">
+                        </div>
+
+                        <button type="button" class="change-image-btn hidden">
+                            Change
+                        </button>
+
+                        <small class="error-message text-danger"></small>
+                    </div>
+
                 </div>
             `;
+
             container.appendChild(newRow);
+
+            initializeImageUpload(newRow);
         }
 
         function removeVariant(button) {
             button.closest('.variant-row').remove();
-            // Optional: Renumber variants after removal
             const rows = document.querySelectorAll('.variant-row');
             rows.forEach((row, index) => {
                 row.querySelector('.variant-title').textContent = `Variant ${index + 1}`;

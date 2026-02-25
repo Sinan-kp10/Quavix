@@ -65,13 +65,13 @@ document.addEventListener("DOMContentLoaded", function () {
 
         let isValid = true;
 
-        // Name validation
+
         if (name.value.trim().length < 3) {
             showError(name, "Category name must be at least 3 characters");
             isValid = false;
         }
 
-        // Image required validation
+
         if (
             form.action.includes("/admin/category") &&
             !form.action.includes("/edit") &&
@@ -83,7 +83,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
         if (!isValid) return;
 
-        // If cropper exists → crop image first
         if (cropper && fileInput.files.length > 0) {
 
             cropper.getCroppedCanvas().toBlob((blob) => {

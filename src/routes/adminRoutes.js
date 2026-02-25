@@ -16,7 +16,8 @@ import {
     removeCategory,
     editCategory,
     loadProducts,
-    loadAddProducts
+    loadAddProducts,
+    addProduct
 } from "../controllers/adminController.js"
 
 
@@ -35,14 +36,12 @@ router.post("/admin/category/delete/:id", isLogin, removeCategory)
 
 router.get("/admin/products",isLogin,loadProducts)
 router.get("/admin/products/add",isLogin,loadAddProducts)
-router.post("/admin/products/add",isLogin,loadAddProducts)
+router.post("/admin/products/add",upload.any(),addProduct);
 
 
 
 
 router.get("/admin/logout",adminLogout)
 
-
-
-
+   
 export default router;

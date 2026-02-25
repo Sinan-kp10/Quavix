@@ -1,5 +1,5 @@
 import categoryModal from "../models/category.js"
-import productModal from "../models/productModal.js"
+import productModel from "../models/productModal.js"
 import cloudinary from "../config/cloudinary.js";
 import slugify from "slugify";
 import dotenv from "dotenv"
@@ -93,8 +93,8 @@ export const createCategory=async(name,file)=>{
     if(!file){
         return null
     }
-
-    const existing = await categoryModal.findOne({ name: name.trim() });
+    const slug = slugify(name, { lower: true, strict: true });
+    const existing = await categoryModal.findOne({slug});
     if(existing){
         throw new Error("Category already exist")
     }
@@ -102,7 +102,7 @@ export const createCategory=async(name,file)=>{
         `data:${file.mimetype};base64,${file.buffer.toString("base64")}`,
         { folder: "category_images" }
     );
-    const slug = slugify(name, { lower: true });
+
 
     const newCategory = new categoryModal({
         name,
@@ -205,12 +205,74 @@ export const getAllProducts=async(search="",status="all",stock="",categories="",
     }
 
     const skip=(page-1)*limit
-    const productsList=await productModal.find(query).sort({createdAt:-1}).skip(skip).limit(limit)
+    const productsList=await productModel.find(query).populate("category").sort({createdAt:-1}).skip(skip).limit(limit)
 
-    const totalProducts=await productModal.countDocuments(query)
+    const totalProducts=await productModel.countDocuments(query)
 
     return {
         productsList,totalProducts
     }
 
 }
+
+
+export const createProducts = async (data) => {
+
+  const {
+    name,
+    slug,
+    category,
+    offerPercentage,
+    showOnHomepage,
+    highlights,
+    services,
+    description,
+    variants
+  } = data;
+
+
+    const formattedVariants = variants.map(v => {
+
+        return {
+        attributes: Array.isArray(v.attributes)
+            ? v.attributes
+                .filter(attr => attr.name && attr.value)
+                .map(attr => ({
+                    name: attr.name.trim(),
+                    value: attr.value.trim()
+                }))
+            : [],
+
+            price: Number(v.price),
+            stock: Number(v.stock),
+
+            images: {
+                primary: {
+                    url: v.images?.primary?.url || "",
+                    publicId: v.images?.primary?.publicId || ""
+                },
+                gallery: v.images?.gallery || []
+            },
+
+            status: v.status || "Active"
+        };
+    });
+
+    const prices = formattedVariants.map(v => v.price);
+    const minPrice = prices.length ? Math.min(...prices) : 0;
+
+    const newProduct = new productModel({
+        name,
+        slug,
+        category,
+        offerPercentage: Number(offerPercentage) || 0,
+        showOnHomepage,
+        highlights,
+        services,
+        description,
+        variants: formattedVariants,
+        minPrice
+    });
+
+  return await newProduct.save();
+};
