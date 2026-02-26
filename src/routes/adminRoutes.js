@@ -19,7 +19,8 @@ import {
     loadAddProducts,
     addProduct,
     loadEditProduct,
-    editProduct
+    editProduct,
+    removeProduct
     
 } from "../controllers/adminController.js"
 
@@ -42,6 +43,8 @@ router.get("/admin/products/add",isLogin,loadAddProducts)
 router.post("/admin/products/add",isLogin,upload.any(),addProduct);
 router.get("/admin/products/edit/:id",isLogin,loadEditProduct)
 router.post("/admin/products/edit/:id",isLogin, upload.any(), editProduct);
+router.post("/admin/products/delete/:id", removeProduct);
+
 
 
 

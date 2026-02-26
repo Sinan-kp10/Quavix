@@ -161,7 +161,7 @@
                                     <input type="number"
                                         class="form-input"
                                         name="variants[<%= index %>][price]"
-                                        value="<%= variant.price || '' %>" placeholder="0.00">
+                                        value="<%= variant.price || '' %>" placeholder="0.00" min="1">
                                 </div>
 
                                 <!-- Stock -->
@@ -170,7 +170,7 @@
                                     <input type="number"
                                         class="form-input"
                                         name="variants[<%= index %>][stock]"
-                                        value="<%= variant.stock || '' %>" placeholder="0">
+                                        value="<%= variant.stock || '' %>" placeholder="0" min="1">
                                 </div>
 
                                 <!-- Status -->
@@ -230,7 +230,7 @@
                                     <div class="image-item">
                                         <div class="image-upload">
                                             <input type="file"
-                                                name="variants[<%= index %>][images][gallery][]"
+                                                name="variants[<%= index %>][images][gallery][0]"
                                                 class="image-input hidden"
                                                 accept="image/*">
 
@@ -256,7 +256,7 @@
                                     <div class="image-item">
                                         <div class="image-upload">
                                             <input type="file"
-                                                name="variants[<%= index %>][images][gallery][]"
+                                                name="variants[<%= index %>][images][gallery][1]"
                                                 class="image-input hidden"
                                                 accept="image/*">
 

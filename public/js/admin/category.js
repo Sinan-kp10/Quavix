@@ -105,11 +105,9 @@ document.addEventListener("DOMContentLoaded", function () {
 
     });
     function clearErrors() {
-        document.querySelectorAll(".error-message")
-            .forEach(el => el.textContent = "");
+        document.querySelectorAll(".error-message").forEach(el => el.textContent = "");
 
-        document.querySelectorAll(".input-error")
-            .forEach(el => el.classList.remove("input-error"));
+        document.querySelectorAll(".input-error").forEach(el => el.classList.remove("input-error"));
     }
 
     function showError(input, message) {

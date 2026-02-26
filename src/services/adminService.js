@@ -180,20 +180,23 @@ export const updateCategory=async(categoryId,name,file)=>{
 }
 
 
-export const getAllProducts=async(search="",status="all",stock="",categories="",page=1,limit=10)=>{
+export const getAllProducts=async(search="",status="all",stock="",selectedCategory="",page=1,limit=10)=>{
 
-    let query ={isDeleted:false}
+    let query ={}
 
     if(search){
         query.name={$regex:search , $options:"i" } 
     }
 
-    if(categories){
-        query.category=categories
+    if(selectedCategory){
+        query.category=selectedCategory
     }
 
-    if(status!="all"){
-        query["variants.status"]=status
+    if (status === "Active") {
+        query.isDeleted = false;
+    }
+    else if (status === "Inactive") {
+        query.isDeleted = true;
     }
 
     if(stock==="in"){
@@ -218,28 +221,41 @@ export const getAllProducts=async(search="",status="all",stock="",categories="",
 
 export const createProducts = async (data) => {
 
-  const {
-    name,
-    slug,
-    category,
-    offerPercentage,
-    showOnHomepage,
-    highlights,
-    services,
-    description,
-    variants
-  } = data;
-
+    const {
+        name,
+        slug,
+        category,
+        offerPercentage,
+        showOnHomepage,
+        highlights,
+        services,
+        description,
+        variants
+    } = data;
 
     const formattedVariants = variants.map(v => {
+
+        const safePrimary = {
+            url: v.images?.primary?.url || "",
+            publicId: v.images?.primary?.publicId || ""
+        };
+
+        const safeGallery = Array.isArray(v.images?.gallery)
+        ? v.images.gallery
+            .filter(img => img && img.url && img.publicId)
+            .map(img => ({
+                url: img.url,
+                publicId: img.publicId
+            }))
+        : [];
 
         return {
         attributes: Array.isArray(v.attributes)
             ? v.attributes
                 .filter(attr => attr.name && attr.value)
                 .map(attr => ({
-                    name: attr.name.trim(),
-                    value: attr.value.trim()
+                name: attr.name.trim(),
+                value: attr.value.trim()
                 }))
             : [],
 
@@ -247,14 +263,11 @@ export const createProducts = async (data) => {
             stock: Number(v.stock),
 
             images: {
-                primary: {
-                    url: v.images?.primary?.url || "",
-                    publicId: v.images?.primary?.publicId || ""
-                },
-                gallery: v.images?.gallery || []
+                primary: safePrimary,
+                gallery: safeGallery
             },
 
-            status: v.status || "Active"
+        status: v.status || "Active"
         };
     });
 
@@ -276,41 +289,57 @@ export const createProducts = async (data) => {
 
   return await newProduct.save();
 };
+
 export const updateProduct = async (id, data) => {
 
-  const {
-    name,
-    category,
-    offerPercentage,
-    highlights,
-    services,
-    description,
-    variants
-  } = data;
+    const {
+        name,
+        slug,
+        category,
+        offerPercentage,
+        highlights,
+        services,
+        description,
+        variants
+    } = data;
 
-  const formattedVariants = variants.map(v => ({
-    attributes: Array.isArray(v.attributes)
-      ? v.attributes
-          .filter(attr => attr.name && attr.value)
-          .map(attr => ({
-            name: attr.name.trim(),
-            value: attr.value.trim()
+  const formattedVariants = variants.map(v => {
+
+    const safePrimary = {
+      url: v.images?.primary?.url || "",
+      publicId: v.images?.primary?.publicId || ""
+    };
+
+    const safeGallery = Array.isArray(v.images?.gallery)
+      ? v.images.gallery
+          .filter(img => img && img.url && img.publicId)
+          .map(img => ({
+            url: img.url,
+            publicId: img.publicId
           }))
-      : [],
+      : [];
 
-    price: Number(v.price),
-    stock: Number(v.stock),
+        return {
+        attributes: Array.isArray(v.attributes)
+            ? v.attributes
+                .filter(attr => attr.name && attr.value)
+                .map(attr => ({
+                name: attr.name.trim(),
+                value: attr.value.trim()
+                }))
+            : [],
 
-    images: {
-      primary: {
-        url: v.images?.primary?.url || "",
-        publicId: v.images?.primary?.publicId || ""
-      },
-      gallery: v.images?.gallery || []
-    },
+        price: Number(v.price),
+        stock: Number(v.stock),
 
-    status: v.status || "Active"
-  }));
+        images: {
+            primary: safePrimary,
+            gallery: safeGallery
+        },
+
+        status: v.status || "Active"
+    };
+  });
 
   const prices = formattedVariants.map(v => v.price);
   const minPrice = prices.length ? Math.min(...prices) : 0;
@@ -319,6 +348,7 @@ export const updateProduct = async (id, data) => {
     id,
     {
       name,
+      slug,
       category,
       offerPercentage,
       highlights,
@@ -330,3 +360,16 @@ export const updateProduct = async (id, data) => {
     { new: true }
   );
 };
+export const deleteProduct =async(id)=>{
+
+    const product =await productModel.findById(id)
+
+    if(!product){
+        throw new Error("Product not found")
+    }
+
+    product.isDeleted = !product.isDeleted;
+
+    await product.save()
+    return true
+}

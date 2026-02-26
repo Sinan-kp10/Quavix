@@ -16,7 +16,8 @@ import {
     updateCategory,
     getAllProducts,
     createProducts,
-    updateProduct
+    updateProduct,
+    deleteProduct
 } from "../services/adminService.js"
 import { title } from "node:process";
 
@@ -215,13 +216,15 @@ export const loadProducts=async(req,res)=>{
         const search=req.query.search || ""
         const status=req.query.status || "all"
         const stock =req.query.stock || ""
-        const categories=req.query.category || ""
+        const selectedCategory=req.query.category || ""
         const page=parseInt(req.query.page) || 1
         const limit = 10
+
         
-        const {productsList,totalProducts}=await getAllProducts(search,status,stock,categories,page,limit)
+        const {productsList,totalProducts}=await getAllProducts(search,status,stock,selectedCategory,page,limit)
 
         const totalPages=Math.ceil(totalProducts/limit)
+        const categories = await categoryModal.find({ status: "Active" });
 
         res.render("admin/products", {
             title: "Products Admin - Quavix",
@@ -231,6 +234,7 @@ export const loadProducts=async(req,res)=>{
             status,
             stock,
             categories,
+            selectedCategory,
             currentPage: page,
             totalPages,
             noProducts: productsList.length === 0
@@ -254,101 +258,104 @@ export const loadAddProducts=async(req,res)=>{
 
 
 export const addProduct = async (req, res) => {
-  try {
+    try{
 
-    const {
-        name,
-        category,
-        offer,
-        highlights,
-        services,
-        description,
-        variants
-    } = req.body;
+        const {
+            name,
+            category,
+            offer,
+            highlights,
+            services,
+            description,
+            variants
+        } = req.body;
 
-    if (!name || !category || !description) {
-        throw new Error("Required fields missing")
-    }
-
-    const slug = slugify(name, { lower: true, strict: true });
-
-    const existingProduct = await productModel.findOne({ slug });
-    if (existingProduct) {
-        throw new Error("Product already exists")
-    }
-
-    let parsedVariants = Array.isArray(variants)? variants: JSON.parse(variants);
-
-    for (let i = 0; i < parsedVariants.length; i++) {
-
-
-        const primaryFile = req.files.find(file =>
-            file.fieldname === `variants[${i}][images][primary]`
-        );
-
-        if (!primaryFile) {
-            throw new Error("Primary image required for each variant");
+        if (!name || !category || !description) {
+            throw new Error("Required fields missing");
         }
 
-        const primaryUpload = await cloudinary.uploader.upload(
-            `data:${primaryFile.mimetype};base64,${primaryFile.buffer.toString("base64")}`,
-            { folder: "product_images" }
-        );
+        const slug = slugify(name, { lower: true, strict: true });
 
-        const galleryFiles = req.files.filter(file =>
-            file.fieldname === `variants[${i}][images][gallery][]`
-        );
+        const existingProduct = await productModel.findOne({ slug });
+        if (existingProduct) {
+            throw new Error("Product already exists");
+        }
 
-        const galleryImages = [];
+        const parsedVariants = Array.isArray(variants) ? variants: JSON.parse(variants);
 
-        for (let file of galleryFiles) {
-            const upload = await cloudinary.uploader.upload(
-                `data:${file.mimetype};base64,${file.buffer.toString("base64")}`,
+
+        for (let i = 0; i < parsedVariants.length; i++) {
+
+ 
+            const primaryFile = req.files.find(file =>
+                file.fieldname === `variants[${i}][images][primary]`
+            );
+
+            if (!primaryFile) {
+                throw new Error(`Primary image required for variant ${i + 1}`);
+            }
+
+            const primaryUpload = await cloudinary.uploader.upload(
+                `data:${primaryFile.mimetype};base64,${primaryFile.buffer.toString("base64")}`,
                 { folder: "product_images" }
             );
 
-            galleryImages.push({
-                url: upload.secure_url,
-                publicId: upload.public_id
-            });
+            const galleryFiles = req.files.filter(file =>
+                file.fieldname.startsWith(`variants[${i}][images][gallery]`)
+            );
+
+            const gallery = [];
+
+            for (const file of galleryFiles) {
+
+                const upload = await cloudinary.uploader.upload(
+                    `data:${file.mimetype};base64,${file.buffer.toString("base64")}`,
+                    { folder: "product_images" }
+                );
+
+                gallery.push({
+                    url: upload.secure_url,
+                    publicId: upload.public_id
+                });
+            }
+
+
+            parsedVariants[i].images = {
+                primary: {
+                    url: primaryUpload.secure_url,
+                    publicId: primaryUpload.public_id
+                },
+                gallery: gallery
+            };
         }
 
-        parsedVariants[i].images = {
-            primary: {
-                url: primaryUpload.secure_url,
-                publicId: primaryUpload.public_id
-            },
-            gallery: galleryImages
-        };
-    }
+        const formattedHighlights = highlights ? highlights.split("\n").map(i => i.trim()).filter(Boolean): [];
 
-    const formattedHighlights = highlights ? highlights.split("\n").map(i => i.trim()).filter(Boolean): [];
+        const formattedServices = services ? services.split("\n").map(i => i.trim()).filter(Boolean): [];
 
-    const formattedServices = services ? services.split("\n").map(i => i.trim()).filter(Boolean): [];
+        await createProducts({
+            name,
+            slug,
+            category,
+            offerPercentage: Number(offer) || 0,
+            showOnHomepage: false,
+            highlights: formattedHighlights,
+            services: formattedServices,
+            description,
+            variants: parsedVariants
+        });
 
-    await createProducts({
-        name,
-        slug,
-        category,
-        offerPercentage: Number(offer) || 0,
-        showOnHomepage: false,
-        highlights: formattedHighlights,
-        services: formattedServices,
-        description,
-        variants: parsedVariants
-    });
-    req.session.toastMessage = "Product added successfully!";
-    req.session.toastType = "success";
+        req.session.toastMessage = "Product added successfully!";
+        req.session.toastType = "success";
 
-    res.redirect("/admin/products");
+        res.redirect("/admin/products");
 
-  } catch (err) {
+    }catch(err) {
         req.session.toastMessage = err.message || "Something went wrong.";
-        req.session.toastType = "error"
-    
-        res.redirect("/admin/products/add")
+        req.session.toastType = "error";
+        res.redirect("/admin/products/add");
     }
-}
+};
 
 export const loadEditProduct = async(req,res)=>{
     try {
@@ -375,137 +382,207 @@ export const loadEditProduct = async(req,res)=>{
 }
 
 export const editProduct = async (req, res) => {
-  try {
-    const { id } = req.params;
+    try{
+        const { id } = req.params;
 
-    const {
-      name,
-      category,
-      offerPercentage,
-      highlights,
-      services,
-      description,
-      variants
-    } = req.body;
+        const {
+            name,
+            category,
+            offerPercentage,
+            highlights,
+            services,
+            description,
+            variants
+        } = req.body;
 
-    const product = await productModel.findById(id);
-    if (!product) throw new Error("Product not found");
+        const product = await productModel.findById(id);
+        if (!product) throw new Error("Product not found");
+        const newSlug = slugify(name, { lower: true, strict: true })
 
-    const parsedVariants = Array.isArray(variants) ? variants: JSON.parse(variants);
+        const parsedVariants = Array.isArray(variants) ? variants: JSON.parse(variants);
 
-    const formattedHighlights = highlights ? highlights.split("\n").map(i => i.trim()).filter(Boolean): [];
+        const formattedHighlights = highlights ? highlights.split("\n").map(i => i.trim()).filter(Boolean): [];
 
-    const formattedServices = services ? services.split("\n").map(i => i.trim()).filter(Boolean): [];
+        const formattedServices = services ? services.split("\n").map(i => i.trim()).filter(Boolean): [];
 
-    const baseFieldsSame =
-      product.name === name &&
-      product.category.equals(category) && 
-      product.offerPercentage === Number(offerPercentage) &&
-      product.description === description &&
-      JSON.stringify(product.highlights) === JSON.stringify(formattedHighlights) &&
-      JSON.stringify(product.services) === JSON.stringify(formattedServices);
+        const baseFieldsSame =
+        product.name === name && product.slug === newSlug &&
+        product.category.equals(category) && 
+        product.offerPercentage === Number(offerPercentage) &&
+        product.description === description &&
+        JSON.stringify(product.highlights) === JSON.stringify(formattedHighlights) &&
+        JSON.stringify(product.services) === JSON.stringify(formattedServices);
 
-    const getVariantSignature = (v) => {
+        const getVariantSignature = (v) => {
 
-        const attrs = (v.attributes || [])
-        .filter(a => a.name?.trim() && a.value?.trim())
-        .map(a => `${a.name.trim()}-${a.value.trim()}`)
-        .sort()
-        .join("|");
+            const attrs = (v.attributes || [])
+            .filter(a => a.name?.trim() && a.value?.trim())
+            .map(a => `${a.name.trim()}-${a.value.trim()}`)
+            .sort()
+            .join("|");
 
-        return `${attrs}_${Number(v.price)}_${Number(v.stock)}_${v.status}`;
-    };
+            return `${attrs}_${Number(v.price)}_${Number(v.stock)}_${v.status}`;
+        };
 
-    const existingSignatures = product.variants
-    .map(getVariantSignature)
-    .sort();
+        const existingSignatures = product.variants.map(getVariantSignature).sort();
 
-    const incomingSignatures = parsedVariants
-    .map(getVariantSignature)
-    .sort();
+        const incomingSignatures = parsedVariants.map(getVariantSignature).sort();
 
-    const variantsSame =
-    JSON.stringify(existingSignatures) ===
-    JSON.stringify(incomingSignatures);
+        const variantsSame =JSON.stringify(existingSignatures) === JSON.stringify(incomingSignatures);
 
-    const imagesUploaded = req.files?.length > 0;
+        const imagesUploaded = req.files?.length > 0;
 
-    if (baseFieldsSame && variantsSame && !imagesUploaded) {
-      req.session.toastMessage = "No changes were made";
-      req.session.toastType = "error";
-      return res.redirect(`/admin/products/edit/${id}`);
-    }
+        if (baseFieldsSame && variantsSame && !imagesUploaded) {
+            req.session.toastMessage = "No changes were made";
+            req.session.toastType = "error";
+            return res.redirect(`/admin/products/edit/${id}`);
+        }
+
+        const existingProduct = await productModel.findOne({
+            slug: newSlug,
+            _id: { $ne: id }
+        });
+
+        if(existingProduct) {
+            req.session.toastMessage = "Product with this name already exists.";
+            req.session.toastType = "error";
+            return res.redirect("back");
+        }
 
 
-    for (let i = 0; i < parsedVariants.length; i++) {
-      const existingVariant = product.variants[i];
-      const updatedVariant = parsedVariants[i];
+        for (let i = 0; i < parsedVariants.length; i++) {
 
-      if (!updatedVariant.images) {
-        updatedVariant.images = {};
-      }
+        const updatedVariant = parsedVariants[i];
+        const existingVariant = product.variants[i];
 
-      const primaryFile = req.files?.find(file =>
-        file.fieldname === `variants[${i}][images][primary]`
-      );
+        if (!updatedVariant.images) {
+            updatedVariant.images = {};
+        }
 
-      if (primaryFile) {
-        const result = await cloudinary.uploader.upload(
-          `data:${primaryFile.mimetype};base64,${primaryFile.buffer.toString("base64")}`,
-          { folder: "product_images" }
+
+        const primaryField = `variants[${i}][images][primary]`;
+
+        const primaryFile = req.files?.find(file =>
+            file.fieldname === primaryField
         );
 
-        updatedVariant.images.primary = {
-          url: result.secure_url,
-          publicId: result.public_id
-        };
-      } else {
-        updatedVariant.images.primary =
-          existingVariant.images?.primary || {};
-      }
+        if (primaryFile) {
 
-      const galleryFiles = req.files?.filter(file =>
-        file.fieldname === `variants[${i}][images][gallery][]`
-      ) || [];
-
-      if (galleryFiles.length > 0) {
-        updatedVariant.images.gallery = [];
-
-        for (let file of galleryFiles) {
-          const upload = await cloudinary.uploader.upload(
-            `data:${file.mimetype};base64,${file.buffer.toString("base64")}`,
+            const result = await cloudinary.uploader.upload(
+            `data:${primaryFile.mimetype};base64,${primaryFile.buffer.toString("base64")}`,
             { folder: "product_images" }
-          );
+            );
 
-          updatedVariant.images.gallery.push({
-            url: upload.secure_url,
-            publicId: upload.public_id
-          });
+            updatedVariant.images.primary = {
+                url: result.secure_url,
+                publicId: result.public_id
+            };
+
+        } else {
+
+            updatedVariant.images.primary =
+            existingVariant?.images?.primary || {};
         }
-      } else {
+
+
+
+        let gallery = [];
+
+        if (Array.isArray(existingVariant?.images?.gallery)) {
+            gallery = existingVariant.images.gallery.map(img => ({
+                url: img.url,
+                publicId: img.publicId
+            }));
+        }
+
+        if (!gallery[0]) gallery[0] = null;
+        if (!gallery[1]) gallery[1] = null;
+
+
+        const secondaryField = `variants[${i}][images][gallery][0]`;
+
+        const secondaryFile = req.files?.find(file =>
+            file.fieldname === secondaryField
+        );
+
+        if (secondaryFile) {
+
+            const upload = await cloudinary.uploader.upload(
+            `data:${secondaryFile.mimetype};base64,${secondaryFile.buffer.toString("base64")}`,
+            { folder: "product_images" }
+            );
+
+            gallery[0] = {
+                url: upload.secure_url,
+                publicId: upload.public_id
+            };
+        }
+
+        const otherField = `variants[${i}][images][gallery][1]`;
+
+        const otherFile = req.files?.find(file =>
+            file.fieldname === otherField
+        );
+
+        if (otherFile) {
+
+            const upload = await cloudinary.uploader.upload(
+            `data:${otherFile.mimetype};base64,${otherFile.buffer.toString("base64")}`,
+            { folder: "product_images" }
+            );
+
+            gallery[1] = {
+                url: upload.secure_url,
+                publicId: upload.public_id
+            };
+        }
+
         updatedVariant.images.gallery =
-          existingVariant.images?.gallery || [];
-      }
+            gallery.filter(img => img && img.url && img.publicId);
+        }
+
+        await updateProduct(id, {
+            name,
+            slug:newSlug,
+            category,
+            offerPercentage: Number(offerPercentage) || 0,
+            highlights: formattedHighlights,
+            services: formattedServices,
+            description,
+            variants: parsedVariants
+        });
+
+        req.session.toastMessage = "Product updated successfully!";
+        req.session.toastType = "success";
+
+        res.redirect("/admin/products");
+
+    } catch (err) {
+        req.session.toastMessage = err.message || "Something went wrong.";
+        req.session.toastType = "error";
+        res.redirect("back");
     }
-
-    await updateProduct(id, {
-      name,
-      category,
-      offerPercentage: Number(offerPercentage) || 0,
-      highlights: formattedHighlights,
-      services: formattedServices,
-      description,
-      variants: parsedVariants
-    });
-
-    req.session.toastMessage = "Product updated successfully!";
-    req.session.toastType = "success";
-
-    res.redirect("/admin/products");
-
-  } catch (err) {
-    req.session.toastMessage = err.message || "Something went wrong.";
-    req.session.toastType = "error";
-    res.redirect("back");
-  }
 };
+
+export const removeProduct=async(req,res)=>{
+    try {
+
+        const {id}=req.params
+
+        const updatedProduct=await deleteProduct(id) 
+        if (updatedProduct.isDeleted) {
+            req.session.toastMessage = "Product restored successfully!";
+        } else {
+            req.session.toastMessage = "Product deactivated successfully!";
+        }
+
+        req.session.toastType = "success";
+        res.redirect("/admin/products")
+        
+    }catch(err){
+        req.session.toastMessage = err.message || "Action failed";
+        req.session.toastType = "error";
+        res.redirect("/admin/products");
+    }
+}
+

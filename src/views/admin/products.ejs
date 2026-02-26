@@ -69,8 +69,13 @@
                                     value="<%= search || '' %>"
                                     class="form-input"
                                     placeholder="Search products..."
-                                    style="width: 300px;">
-
+                                    style="width: 150px;">
+                                <% if (search) { %>
+                                    <a href="/admin/products?status=<%= status %>" 
+                                    class="search-clear active">
+                                        <i class="fa-solid fa-xmark"></i>
+                                    </a>
+                                <% } %>
                                 <button type="submit"
                                         class="btn btn-primary"
                                         style="height: 50px;">
@@ -110,6 +115,22 @@
                                 </option>
                             </select>
 
+                            
+                            <select name="category"
+                                    onchange="this.form.submit()"
+                                    class="form-select" style="width: 150px;">
+
+                                <option value="">All Categories</option>
+
+                                <% categories.forEach(cat => { %>
+                                    <option value="<%= cat._id %>"
+                                        <%= selectedCategory == cat._id.toString() ? "selected" : "" %>>
+                                        <%= cat.name %>
+                                    </option>
+                                <% }) %>
+
+                            </select>
+                        
                         </form>
                     </div>
                 </div>
@@ -187,13 +208,14 @@
 
                                 <!-- Status -->
                                 <td>
-                                    <% if (activeVariants > 0) { %>
+                                    <% if(product.isDeleted){ %>
+                                        <span class="status-badge status-danger">Deleted</span>
+                                    <% } else if (activeVariants > 0) { %>
                                         <span class="status-badge status-success">Active</span>
                                     <% } else { %>
-                                        <span class="status-badge status-danger">Inactive</span>
+                                        <span class="status-badge status-warning">Inactive</span>
                                     <% } %>
                                 </td>
-
                                 <!-- Stock -->
                                 <td class="text-center">
                                     <% if (totalStock > 0) { %>
@@ -213,9 +235,20 @@
                                         <i class="fa-solid fa-pen"></i>
                                     </a>
 
-                                    <button class="btn btn-danger btn-sm">
-                                        <i class="fa-solid fa-trash"></i>
-                                    </button>
+                                    <form action="/admin/products/delete/<%= product._id %>" method="POST" style="display:inline;">
+                                        <button type="button" 
+                                            class="btn btn-sm delete-btn <%= product.isDeleted ? 'btn-success' : 'btn-danger' %>"
+                                            data-id="<%= product._id %>"
+                                            data-status="<%= product.isDeleted %>">
+
+                                            <% if(!product.isDeleted){ %>
+                                                <i class="fa-solid fa-trash"></i>
+                                            <% } else { %>
+                                                <i class="fa-solid fa-rotate-left"></i>
+                                            <% } %>
+
+                                        </button>
+                                    </form>
                                 </td>
 
                             </tr>
@@ -230,7 +263,7 @@
                 <div class="pagination">
 
                     <% if(currentPage > 1){ %>
-                        <a href="?search=<%= search %>&status=<%= status %>&stock=<%= stock %>&category=<%= categories || '' %>&page=<%= currentPage - 1 %>"
+                        <a href="?search=<%= search %>&status=<%= status %>&stock=<%= stock %>&category=<%= selectedCategory || '' %>&page=<%= currentPage - 1 %>"
                         class="page-link">
                             <i class="fa-solid fa-chevron-left"></i>
                         </a>
@@ -245,14 +278,14 @@
                     %>
 
                     <% for(let i = startPage; i <= endPage; i++){ %>
-                        <a href="?search=<%= search %>&status=<%= status %>&stock=<%= stock %>&category=<%= categories || '' %>&page=<%= i %>"
+                        <a href="?search=<%= search %>&status=<%= status %>&stock=<%= stock %>&category=<%= selectedCategory || '' %>&page=<%= i %>"
                         class="page-link <%= currentPage === i ? 'active' : '' %>">
                             <%= i %>
                         </a>
                     <% } %>
 
                     <% if(currentPage < totalPages){ %>
-                        <a href="?search=<%= search %>&status=<%= status %>&stock=<%= stock %>&category=<%= categories || '' %>&page=<%= currentPage + 1 %>"
+                        <a href="?search=<%= search %>&status=<%= status %>&stock=<%= stock %>&category=<%= selectedCategory || '' %>&page=<%= currentPage + 1 %>"
                         class="page-link">
                             <i class="fa-solid fa-chevron-right"></i>
                         </a>
@@ -279,6 +312,45 @@
             toast.classList.remove("show");
             }, 3000);
         }
+
+        document.querySelectorAll(".delete-btn").forEach(button => {
+
+        button.addEventListener("click", function () {
+
+            const productId = this.dataset.id;
+            const isDeleted = this.dataset.status=="false";
+
+
+            Swal.fire({
+                title: "Are you sure?",
+                text: isDeleted 
+                    ? "This Product will be set to Inactive!"
+                    : "This Product will be restored!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: isDeleted ? "#d33" : "#28a745",
+                cancelButtonColor: "#3085d6",
+                confirmButtonText: isDeleted
+                    ? "Yes, deactivate!"
+                    : "Yes, restore!",
+                reverseButtons: true
+            }).then((result) => {
+
+                if (result.isConfirmed) {
+
+                    const form = document.createElement("form");
+                    form.method = "POST";
+                    form.action = `/admin/products/delete/${productId}`;
+
+                    document.body.appendChild(form);
+                    form.submit();
+                }
+
+            });
+
+        });
+
+    });
     </script>
 
 </body>
