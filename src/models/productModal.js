@@ -84,6 +84,10 @@ const productSchema = new mongoose.Schema({
   minPrice: {
     type: Number
   },
+  maxPrice: {
+    type: Number,
+
+  },
 
   showOnHomepage: {
     type: Boolean,

@@ -1883,16 +1883,88 @@ textarea.form-input {
     margin: 0;
 }
 
+.clear-filters-btn {
+    background: none;
+    border: none;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--primary-color);
+    cursor: pointer;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    transition: all 0.2s;
+    margin-left: auto;
+    margin-right: 0.5rem;
+}
+
+.clear-filters-btn:hover {
+    background: rgba(79, 70, 229, 0.05);
+}
+
 .filter-category-title {
     font-size: 0.95rem;
 }
 
+.radio-primary,
+.checkbox-primary {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 16px;
+    height: 16px;
+    border: 2px solid #cbd5e1;
+    border-radius: 4px;
+    background: white;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    vertical-align: middle;
+}
+
 .radio-primary {
-    accent-color: var(--primary-color);
+    border-radius: 50%;
+}
+
+.radio-primary:checked,
+.checkbox-primary:checked {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+}
+
+.radio-primary::after,
+.checkbox-primary::after {
+    content: "\f00c";
+    font-family: "Font Awesome 6 Free";
+    font-weight: 900;
+    color: white;
+    font-size: 9px;
+    opacity: 0;
+    transform: scale(0.5);
+    transition: all 0.2s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.radio-primary:checked::after,
+.checkbox-primary:checked::after {
+    opacity: 1;
+    transform: scale(1);
 }
 
 .btn-filter-apply {
     font-size: 0.9rem;
+    background: white;
+    border: 1px solid var(--primary-color);
+    color: var(--primary-color);
+}
+
+.btn-filter-apply:hover {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.4);
 }
 
 .price-old {
@@ -2009,22 +2081,55 @@ textarea.form-input {
     color: var(--text-muted);
 }
 
-.checkbox-primary {
-    accent-color: var(--primary-color);
+/* Global Checkbox/Radio overrides fallback */
+input[type="radio"]:not(.radio-primary),
+input[type="checkbox"]:not(.checkbox-primary) {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 15px;
+    height: 15px;
+    border: 2px solid #cbd5e1;
+    background: white;
     cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    vertical-align: middle;
+    position: relative;
 }
 
-.filter-list {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    font-size: 0.95rem;
-    color: var(--text-muted);
+input[type="radio"]:not(.radio-primary) {
+    border-radius: 50%;
 }
 
-.checkbox-primary {
-    accent-color: var(--primary-color);
-    cursor: pointer;
+input[type="checkbox"]:not(.checkbox-primary) {
+    border-radius: 4px;
+}
+
+input[type="radio"]:not(.radio-primary):checked,
+input[type="checkbox"]:not(.checkbox-primary):checked {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+input[type="radio"]:not(.radio-primary)::after,
+input[type="checkbox"]:not(.checkbox-primary)::after {
+    content: "\f00c";
+    font-family: "Font Awesome 6 Free";
+    font-weight: 900;
+    color: white;
+    font-size: 8px;
+    opacity: 0;
+    transform: scale(0.5);
+    transition: all 0.2s;
+    position: absolute;
+}
+
+input[type="radio"]:not(.radio-primary):checked::after,
+input[type="checkbox"]:not(.checkbox-primary):checked::after {
+    opacity: 1;
+    transform: scale(1);
 }
 
 /* Breadcrumbs */
@@ -3861,15 +3966,21 @@ footer a:hover {
         /* Left align everything */
         text-align: left;
         gap: 1rem;
-        padding: 1rem;
+        padding: 1rem 0;
+        background: transparent;
+        border: none;
+        border-radius: 0;
+        box-shadow: none;
+        border-bottom: 1px solid #e2e8f0;
+        margin: 0;
     }
 
     .product-card-img-container {
         width: 100%;
         max-width: 200px;
         margin-bottom: 0.5rem;
-        align-self: center;
-        /* Center image */
+        align-self: flex-start;
+        /* Align image container to top */
     }
 
     .product-card-content {
@@ -4136,13 +4247,24 @@ footer a:hover {
         gap: 0 0.75rem !important;
         align-items: start !important;
         text-align: left !important;
-        padding: 0.75rem !important;
+        padding: 0.75rem 0 !important;
+        /* Vertical padding, no horizontal */
         width: 100% !important;
         max-width: 100% !important;
         box-sizing: border-box !important;
-        margin: 0 auto 0.3rem auto !important;
+        margin: 0 !important;
         position: relative !important;
         flex-direction: unset !important;
+        background: transparent !important;
+        /* Remove card background */
+        border: none !important;
+        /* Remove card border */
+        border-radius: 0 !important;
+        /* Remove card radius */
+        box-shadow: none !important;
+        /* Remove card shadow */
+        border-bottom: 1px solid #e2e8f0 !important;
+        /* Add separator */
     }
 
     .product-card-img-container {
@@ -4153,7 +4275,8 @@ footer a:hover {
         /* Reduced height to match width ratio */
         margin: 0 !important;
         display: flex !important;
-        align-items: center !important;
+        align-items: flex-start !important;
+        /* Align to top within grid area */
         justify-content: center !important;
         background: #f8fafc;
         border-radius: 8px;
@@ -4275,6 +4398,12 @@ footer a:hover {
         margin-bottom: 0 !important;
         gap: 0.25rem !important;
         font-size: 0.65rem !important;
+    }
+
+    .price-old {
+        font-size: 0.6rem !important;
+        /* Reduced old price size */
+        color: var(--text-muted) !important;
     }
 
     .discount-text {

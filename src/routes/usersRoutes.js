@@ -31,11 +31,11 @@ import {
   updateAddress,
   deleteAddress,
   uploadProfileImage,
-  removeProfileImage
+  removeProfileImage,
 
 } from "../controllers/userController.js"
 
-import { loadShop } from "../controllers/userProductController.js"
+import { loadProducts,filterProducts,searchProducts} from "../controllers/userProductController.js"
 
 
 
@@ -91,7 +91,9 @@ router.get("/auth/google/callback",passport.authenticate("google",{ failureRedir
   }
 )
 
-router.get("/products",loadShop)
+router.get("/products",loadProducts)
+router.get("/products/filter", filterProducts)
+router.get("/products/search", searchProducts);
 
 router.get("/logout", logout)
 

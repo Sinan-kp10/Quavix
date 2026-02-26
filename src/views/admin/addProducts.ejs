@@ -135,25 +135,27 @@
                                         value="<%= variant.attributes?.[0]?.value || '' %>" placeholder="eg. Red">
                                 </div>
 
-                                <!-- RAM -->
-                                <div class="form-group">
-                                    <label>RAM</label>
-                                    <input type="hidden" name="variants[<%= index %>][attributes][1][name]" value="RAM">
-                                    <input type="text"
-                                        class="form-input"
-                                        name="variants[<%= index %>][attributes][1][value]"
-                                        value="<%= variant.attributes?.[1]?.value || '' %>" placeholder="eg. 16GB">
-                                </div>
-
                                 <!-- ROM -->
                                 <div class="form-group">
-                                    <label>ROM</label>
-                                    <input type="hidden" name="variants[<%= index %>][attributes][2][name]" value="ROM">
+                                    <label>RAM</label>
+                                    <input type="hidden" name="variants[<%= index %>][attributes][2][name]" value="RAM">
                                     <input type="text"
                                         class="form-input"
                                         name="variants[<%= index %>][attributes][2][value]"
-                                        value="<%= variant.attributes?.[2]?.value || '' %>" placeholder="eg. 128GB">
+                                        value="<%= variant.attributes?.[2]?.value || '' %>" placeholder="eg. 8GB">
                                 </div>
+
+                                <!-- RAM -->
+                                <div class="form-group">
+                                    <label>ROM</label>
+                                    <input type="hidden" name="variants[<%= index %>][attributes][1][name]" value="ROM">
+                                    <input type="text"
+                                        class="form-input"
+                                        name="variants[<%= index %>][attributes][1][value]"
+                                        value="<%= variant.attributes?.[1]?.value || '' %>" placeholder="eg. 128GB">
+                                </div>
+
+                                
 
                                 <!-- Price -->
                                 <div class="form-group">
@@ -290,21 +292,21 @@
                     <!-- New Fields for Highlights and Services -->
                     <div class="form-grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div class="form-group">
-                            <label>Highlights (One per line)</label>
-                            <textarea class="form-textarea" id="highlights" name="highlights" rows="4" placeholder="- With Mic: Yes&#10;- Bluetooth version: 5.2"><%= product ? product.highlights.join('\n') : '' %></textarea>
+                            <label>Highlights</label>
+                            <textarea class="form-textarea" id="highlights" name="highlights" rows="4" style="height: 150px;" placeholder="- With Mic: Yes&#10;- Bluetooth version: 5.2"><%= product ? product.highlights.join('\n') : '' %></textarea>
                             <small class="error-message" id="emailError"></small>
 
                         </div>
                         <div class="form-group">
-                            <label>Services (One per line)</label>
-                            <textarea class="form-textarea" id="services" name="services" rows="4" placeholder="- 7 Days Return & Replacement Policy"><%= product ? product.services.join('\n') : '' %></textarea>
+                            <label>Services</label>
+                            <textarea class="form-textarea" id="services" name="services" rows="4" style="height: 150px;" placeholder="- 7 Days Return & Replacement Policy"><%= product ? product.services.join('\n') : '' %></textarea>
                             <small class="error-message" id="emailError"></small>
 
                         </div>
                     </div>
                     <div class="form-group">
                         <label>Description</label>
-                        <textarea id="description" class="form-textarea" placeholder="Enter product description" name="description" rows="6"><%= product ? product.description : '' %></textarea>
+                        <textarea id="description" class="form-textarea" style="height: 150px;" placeholder="Enter product description" name="description" rows="6"><%= product ? product.description : '' %></textarea>
                         <small class="error-message" id="emailError"></small>
                     </div>
 

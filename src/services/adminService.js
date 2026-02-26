@@ -74,14 +74,19 @@ export const getAllCategory=async(search="",status="all",page=1,limit=10)=>{
     }
 
     const skip=(page-1)*limit
-    const categoryList=await categoryModal.find(query).sort({createdAt:-1}).skip(skip).limit(limit)
+    const categories=await categoryModal.find(query).sort({createdAt:-1}).skip(skip).limit(limit)
 
-    const totalCategory=await categoryModal.countDocuments(query)
+    for (let category of categories) {
+        const count = await productModel.countDocuments({category: category._id,isDeleted: false});
 
-    return {
-        categoryList,totalCategory
+        category.productCount = count;
     }
 
+    const totalCategory=await categoryModal.countDocuments(query)
+    return {
+        categoryList: categories,
+        totalCategory
+    }
 }
 
 export const createCategory=async(name,file)=>{
@@ -273,6 +278,7 @@ export const createProducts = async (data) => {
 
     const prices = formattedVariants.map(v => v.price);
     const minPrice = prices.length ? Math.min(...prices) : 0;
+    const maxPrice = prices.length ? Math.max(...prices) : 0;
 
     const newProduct = new productModel({
         name,
@@ -284,7 +290,8 @@ export const createProducts = async (data) => {
         services,
         description,
         variants: formattedVariants,
-        minPrice
+        minPrice,
+        maxPrice
     });
 
   return await newProduct.save();

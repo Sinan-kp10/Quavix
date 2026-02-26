@@ -1,0 +1,506 @@
+<body>
+    <% if (typeof toastMessage !== "undefined") { %>
+        <div id="toast" class="toast <%= toastType %>">
+            <%= toastMessage %>
+        </div>
+    <% } %>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="container nav-container">
+            <a href="/" class="logo">
+                <i class="fa-solid fa-bolt text-gradient-clip"></i>
+                <span class="text-gradient">Quavix</span>
+            </a>
+
+            <div class="mobile-search-container">
+                <div class="hamburger-menu">
+                    <i class="fa-solid fa-bars"></i>
+                </div>
+                <div class="mobile-search">
+                    <input type="text" placeholder="Search gadgets...">
+                    <button><i class="fa-solid fa-magnifying-glass"></i></button>
+                </div>
+            </div>
+
+            <!-- Mobile Sidebar (Hidden by default) -->
+            <aside class="mobile-sidebar">
+                <div class="sidebar-header">
+                    <a href="/" class="logo">
+                        <i class="fa-solid fa-bolt text-gradient-clip"></i>
+                        <span class="text-gradient">Quavix</span>
+                    </a>
+                    <button class="close-btn"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <div class="sidebar-content">
+                    <a href="/products"><i class="fa-solid fa-shop"></i> Shop</a>
+                    <a href="order-history.html"><i class="fa-solid fa-box"></i> Orders</a>
+                    <a href="wishlist.html"><i class="fa-regular fa-heart"></i> Wishlist</a>
+                    <a href="cart.html"><i class="fa-solid fa-cart-shopping"></i> Cart</a>
+                    <% if (user) { %>
+                            <a href="/profile"><i class="fa-solid fa-user"></i> Profile</a>
+                            <a href="/logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+                        <% } else { %>
+                            <a href="/login"><i class="fa-solid fa-right-to-bracket"></i> Sign In</a>
+                    <% } %>
+                </div>
+            </aside>
+
+            <!-- Overlay -->
+            <div class="mobile-overlay"></div>
+
+            <!-- Desktop Menu -->
+            <div class="nav-menu">
+                <a href="/">Home</a>
+                <a href="/products" class="text-primary">Shop</a>
+                <a href="order-history.html">Orders</a>
+            </div>
+
+            <div class="nav-icons">
+                <!-- Search Bar -->
+
+                <form class="nav-search" action="/products/search" method="GET">
+                    <input type="text" name="q" placeholder="Search gadgets...">
+                    <button type="submit">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </button>
+                </form>
+ 
+                <a href="wishlist.html" class="relative">
+                    <i class="fa-regular fa-heart nav-icon-lg"></i>
+                </a>
+                <a href="cart.html" class="relative">
+                    <i class="fa-solid fa-cart-shopping nav-icon-lg"></i>
+                </a>
+                <% if (user) { %>
+                    <a href="/profile" class="nav-profile-icon">
+
+                        <% if (user.profileImage) { %>
+                            <img src="<%= user.profileImage %>" 
+                                alt="Profile"
+                                class="nav-profile-img">
+                        <% } else { %>
+                            <div class="nav-default-avatar">
+                                <%= user.name.charAt(0).toUpperCase() %>
+                            </div>
+                        <% } %>
+
+                    </a>
+                <% } else { %>
+                    <a href="/login" class="btn btn-primary btn-sm">
+                        <i class="fa-solid fa-right-to-bracket"></i> Sign In
+                    </a>
+                <% } %>
+
+            </div>
+        </div>
+    </nav>
+
+    <!-- Page Header -->
+    <header class="hero-section">
+        <div class="container">
+            <h1 class="text-white mb-2">Tech Collection</h1>
+            <p class="text-light-white text-lg">Latest gadgets and accessories.</p>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="container shop-layout">
+
+        <!-- Filter Overlay -->
+        <div class="filter-overlay"></div>
+
+        <!-- Mobile Filter Toggle Button -->
+        <button class="btn-filter-toggle" id="filterToggle">
+            <i class="fa-solid fa-filter"></i> Filters
+        </button>
+
+        <!-- Sidebar Filters -->
+        <aside id="filterSidebar" class="filter-sidebar">
+            <div class="card filter-card">
+                <div class="filter-header">
+                    <h3 class="filter-header-title">Filters</h3>
+                    <button id="clearFilters" class="clear-filters-btn">Clear All</button>
+                    <button class="filter-close-btn" id="filterClose">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+
+                <div class="mb-8">
+                    <h4 class="mb-4 text-main filter-category-title">Categories</h4>
+                    <ul class="filter-list">
+                        <% categories.forEach(category => { %>
+                            <li>
+                                <label class="items-center flex gap-2 cursor-pointer">
+                                    <input  type="checkbox"  class="checkbox-primary category-filter" value="<%= category._id %>">
+                                    <%= category.name %>
+                                </label>
+                            </li>
+                        <% }) %>
+                    </ul>
+                </div>
+
+                <div class="mb-8">
+                    <h4 class="mb-4 text-main filter-category-title">Sort By</h4>
+                    <ul class="filter-list">
+                        <li><label class="items-center flex gap-2 cursor-pointer"><input type="radio" name="sortPrice" value="priceLow" class="radio-primary"> Price: Low to High</label></li>
+                        <li><label class="items-center flex gap-2 cursor-pointer"><input type="radio" name="sortPrice" value="priceHigh" class="radio-primary"> Price: High to Low</label></li>
+                        <li><label class="items-center flex gap-2 cursor-pointer"><input type="radio" name="sortName" value="nameAZ" class="radio-primary"> Name: A to Z</label></li>
+                        <li><label class="items-center flex gap-2 cursor-pointer"><input type="radio" name="sortName" value="nameZA" class="radio-primary"> Name: Z to A</label></li>
+                    </ul>
+                </div>
+
+
+
+
+
+                <button class="btn  w-full rounded btn-filter-apply">Apply
+                    Filters</button>
+            </div>
+        </aside>
+
+        <!-- Product Grid -->
+        <main>
+
+            <div class="product-grid">
+
+                <% products.forEach(product => { %>
+
+                    <% product.variants
+                        .filter(variant => variant.status === "Active")
+                        .forEach(activeVariant => { 
+
+                        const price = activeVariant.price;
+                        const offer = product.offerPercentage || 0;
+
+                        const discountedPrice = offer > 0
+                            ? Math.round(price - (price * offer / 100))
+                            : price;
+
+                        // ===== ATTRIBUTE EXTRACTION =====
+                        const attributes = activeVariant.attributes || [];
+
+                        const colorAttr = attributes.find(a => a.name.toLowerCase() === "color");
+                        const ramAttr   = attributes.find(a => a.name.toLowerCase() === "ram");
+                        const romAttr   = attributes.find(a => a.name.toLowerCase() === "rom");
+
+                        const color = colorAttr ? colorAttr.value : "";
+                        const ram   = ramAttr ? ramAttr.value : "";
+                        const rom   = romAttr ? romAttr.value : "";
+
+                    %>
+
+                    <div class="product-card-horizontal">
+
+                        <!-- Image -->
+                        <div class="product-card-img-container">
+                            <a href="/product/<%= product.slug %>?variant=<%= activeVariant._id %>" 
+                            class="product-card-link">
+                                <img src="<%= activeVariant.images?.primary?.url %>" 
+                                    alt="<%= product.name %>" 
+                                    class="product-card-img">
+                            </a>
+                        </div>
+
+                        <!-- Content -->
+                        <div class="product-card-content">
+
+                            <div class="product-info-main">
+
+                                <!-- TITLE -->
+                                <h3 class="product-title-card">
+                                    <%= product.name %>
+                                    <% if (color || rom) { %>
+                                        (<%= [color, rom].filter(Boolean).join(", ") %>)
+                                    <% } %>
+                                </h3>
+
+                                <span class="rating-badge rating-mobile ms-1">
+                                    <%= product.rating.toFixed(1) %>
+                                    <i class="fa-solid fa-star"></i>
+                                </span>
+
+                                <!-- HIGHLIGHTS -->
+                                <ul class="product-highlights">
+                                    <% 
+                                        let highlightLimit = 4;
+                                        let extraUsed = 0;
+                                        if (ram || rom) { 
+                                            highlightLimit = 3;   // because 1 slot used by memory%>
+                                        <li>
+                                            <%= [ram, rom].filter(Boolean).join(" | ") %>
+                                        </li>
+                                    <% } %>
+                                    <% product.highlights.slice(0, highlightLimit).forEach(h => { %>
+                                        <li><%= h %></li>
+                                    <% }) %>
+                                </ul>
+                            </div>
+
+                            <!-- PRICE SECTION -->
+                            <div class="product-info-price">
+
+                                <div class="product-price-row">
+                                    <span class="price-lg">
+                                        ₹<%= discountedPrice.toLocaleString() %>
+                                    </span>
+
+                                    <span class="rating-badge ms-2">
+                                        <%= product.rating.toFixed(1) %>
+                                        <i class="fa-solid fa-star"></i>
+                                    </span>
+                                </div>
+
+                                <% if (offer > 0) { %>
+                                <div class="product-price-discount-row">
+                                    <span class="price-old">
+                                        ₹<%= price.toLocaleString() %>
+                                    </span>
+                                    <span class="discount-text">
+                                        <%= offer %>% off
+                                    </span>
+                                </div>
+                                <% } %>
+
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <% }) %>
+
+                <% }) %>
+
+                </div>
+
+            <!-- Pagination -->
+            <!-- <div class="pagination-container"
+                style="justify-content: center; margin-top: 3rem; padding-top: 2rem; border-top: 1px solid #e2e8f0;">
+                <div class="pagination-controls">
+                    <button class="btn-page">
+                        <i class="fa-solid fa-chevron-left"></i>
+                    </button>
+                    <button class="btn-page active">1</button>
+                    <button class="btn-page">2</button>
+                    <button class="btn-page">3</button>
+                    <button class="btn-page">
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div> -->
+
+        </main>
+    </div>
+
+    </div>
+    <script src="/js/user/navbar.js"></script>
+    
+    <script>
+        
+        
+        const filterToggleBtn = document.getElementById('filterToggle');
+        const filterSidebar = document.getElementById('filterSidebar');
+        const filterCloseBtn = document.getElementById('filterClose');
+        const filterOverlay = document.querySelector('.filter-overlay');
+
+        if (filterToggleBtn && filterSidebar && filterOverlay && filterCloseBtn) {
+
+            const openFilters = () => {
+                filterSidebar.classList.add('active');
+                filterOverlay.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            };
+
+            const closeFilters = () => {
+                filterSidebar.classList.remove('active');
+                filterOverlay.classList.remove('active');
+                document.body.style.overflow = '';
+            };
+
+            filterToggleBtn.addEventListener('click', openFilters);
+            filterCloseBtn.addEventListener('click', closeFilters);
+            filterOverlay.addEventListener('click', closeFilters);
+        }
+        
+
+
+        document.querySelector(".btn-filter-apply")
+        .addEventListener("click", async () => {
+
+            const categories = [...document.querySelectorAll(".category-filter:checked")].map(cb => cb.value);
+
+            const sortPrice = document.querySelector("input[name='sortPrice']:checked")?.value;
+            const sortName  = document.querySelector("input[name='sortName']:checked")?.value;
+
+            const params = new URLSearchParams();
+
+            if (categories.length > 0) {
+                params.append("categories", categories.join(","));
+            }
+
+            if (sortPrice) params.append("sortPrice", sortPrice);
+            if (sortName)  params.append("sortName", sortName);
+
+            const response = await fetch("/products/filter?" + params.toString());
+            const data = await response.json();
+
+            if (data.success) {
+                renderProducts(data.products);
+            }
+        });
+
+
+        function renderProducts(products) {
+
+            const grid = document.querySelector(".product-grid");
+            grid.innerHTML = "";
+
+            products.forEach(product => {
+
+                product.variants
+                    .filter(v => v.status === "Active")
+                    .forEach(variant => {
+
+                        const price = variant.price;
+                        const offer = product.offerPercentage || 0;
+
+                        const discountedPrice = offer > 0
+                            ? Math.round(price - (price * offer / 100))
+                            : price;
+
+                        const attributes = variant.attributes || [];
+
+                        const colorAttr = attributes.find(a => a.name.toLowerCase() === "color");
+                        const ramAttr   = attributes.find(a => a.name.toLowerCase() === "ram");
+                        const romAttr   = attributes.find(a => a.name.toLowerCase() === "rom");
+
+                        const color = colorAttr ? colorAttr.value : "";
+                        const ram   = ramAttr ? ramAttr.value : "";
+                        const rom   = romAttr ? romAttr.value : "";
+
+                        const titleExtra = [color, rom].filter(Boolean).join(", ");
+
+                        let memoryHTML = "";
+                        let highlightLimit = 4;  
+
+                        if (ram && rom) {
+                            memoryHTML = `<li>${ram} | ${rom}</li>`;
+                            highlightLimit = 3;   
+                        } else if (ram) {
+                            memoryHTML = `<li>${ram}</li>`;
+                            highlightLimit = 3;
+                        } else if (rom) {
+                            memoryHTML = `<li>${rom}</li>`;
+                            highlightLimit = 3;
+                        }
+
+                        const highlightsHTML = `
+                            ${memoryHTML}
+                            ${product.highlights
+                                ? product.highlights.slice(0, highlightLimit)
+                                    .map(h => `<li>${h}</li>`).join("")
+                                : ""
+                            }
+                        `;
+
+                        const oldPriceHTML = offer > 0
+                            ? `<span class="price-old">₹${price.toLocaleString()}</span>
+                            <span class="discount-text">${offer}% off</span>`
+                            : "";
+
+                        grid.innerHTML += `
+                        <div class="product-card-horizontal">
+
+                            <div class="product-card-img-container">
+                                <a href="/product/${product.slug}?variant=${variant._id}">
+                                    <img src="${variant.images?.primary?.url}" 
+                                        class="product-card-img">
+                                </a>
+                            </div>
+
+                            <div class="product-card-content">
+
+                                <div class="product-info-main">
+
+                                    <h3 class="product-title-card">
+                                        ${product.name}
+                                        ${titleExtra ? `(${titleExtra})` : ""}
+                                    </h3>
+
+                                    <span class="rating-badge rating-mobile ms-1">
+                                        ${(product.rating ?? 0).toFixed(1)}
+                                        <i class="fa-solid fa-star"></i>
+                                    </span>
+
+                                    <ul class="product-highlights">
+                                        ${highlightsHTML}
+                                    </ul>
+
+                                </div>
+
+                                <div class="product-info-price">
+
+                                    <div class="product-price-row">
+                                        <span class="price-lg">
+                                            ₹${discountedPrice.toLocaleString()}
+                                        </span>
+
+                                        <span class="rating-badge ms-2">
+                                            ${(product.rating ?? 0).toFixed(1)}
+                                            <i class="fa-solid fa-star"></i>
+                                        </span>
+                                    </div>
+
+                                    <div class="product-price-discount-row">
+                                        ${oldPriceHTML}
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+                        `;
+                    });
+            });
+        }
+
+        document.getElementById("clearFilters")
+        .addEventListener("click", async () => {
+
+            document.querySelectorAll(".category-filter")
+                .forEach(cb => cb.checked = false);
+
+            document.querySelectorAll("input[name='sortPrice']")
+                .forEach(rb => rb.checked = false);
+
+            document.querySelectorAll("input[name='sortName']")
+                .forEach(rb => rb.checked = false);
+
+            const response = await fetch("/products/filter");
+            const data = await response.json();
+
+            if (data.success) {
+                renderProducts(data.products);
+            }
+        });
+
+        document.getElementById("navbarSearch").addEventListener("keypress",async function(e){
+            if(e.key==="Enter"){
+                const query=this.value.trim()
+
+                const response=await fetch("/products/search?q="+query)
+
+                const result=await response.json()
+
+                if(data.success){
+                    renderProducts(data.products)
+                }
+            }
+        })
+
+
+    </script>
+
+</body>
+

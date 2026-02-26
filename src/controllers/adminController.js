@@ -263,7 +263,7 @@ export const addProduct = async (req, res) => {
         const {
             name,
             category,
-            offer,
+            offerPercentage,
             highlights,
             services,
             description,
@@ -337,7 +337,7 @@ export const addProduct = async (req, res) => {
             name,
             slug,
             category,
-            offerPercentage: Number(offer) || 0,
+            offerPercentage: Number(offerPercentage) || 0,
             showOnHomepage: false,
             highlights: formattedHighlights,
             services: formattedServices,

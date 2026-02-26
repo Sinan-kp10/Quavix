@@ -1,0 +1,249 @@
+<body>
+    <% if (typeof toastMessage !== "undefined") { %>
+        <div id="toast" class="toast <%= toastType %> show">
+            <%= toastMessage %>
+        </div>
+    <% } %>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="container nav-container">
+            <a href="index.html" class="logo">
+                <i class="fa-solid fa-bolt text-gradient-clip"></i>
+                <span class="text-gradient">Quavix</span>
+            </a>
+
+            <div class="mobile-search-container">
+                <div class="hamburger-menu">
+                    <i class="fa-solid fa-bars"></i>
+                </div>
+                <div class="mobile-search">
+                    <input type="text" placeholder="Search gadgets...">
+                    <button><i class="fa-solid fa-magnifying-glass"></i></button>
+                </div>
+            </div>
+
+            <!-- Mobile Sidebar (Hidden by default) -->
+            <aside class="mobile-sidebar">
+                <div class="sidebar-header">
+                    <a href="index.html" class="logo">
+                        <i class="fa-solid fa-bolt text-gradient-clip"></i>
+                        <span class="text-gradient">Quavix</span>
+                    </a>
+                    <button class="close-btn"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <div class="sidebar-content">
+                    <a href="products.html"><i class="fa-solid fa-shop"></i> Shop</a>
+                    <a href="order-history.html"><i class="fa-solid fa-box"></i> Orders</a>
+                    <a href="wishlist.html"><i class="fa-regular fa-heart"></i> Wishlist</a>
+                    <a href="cart.html"><i class="fa-solid fa-cart-shopping"></i> Cart</a>
+                    <a href="profile.html"><i class="fa-solid fa-user"></i> Profile</a>
+                    <a href="login.html"><i class="fa-solid fa-right-to-bracket"></i> Sign In</a>
+                </div>
+            </aside>
+
+            <!-- Overlay -->
+            <div class="mobile-overlay"></div>
+
+            <!-- Desktop Menu -->
+            <div class="nav-menu">
+                <a href="index.html">Home</a>
+                <a href="products.html" class="text-primary">Shop</a>
+                <a href="order-history.html">Orders</a>
+            </div>
+
+            <div class="nav-icons">
+                <div class="nav-search">
+                    <input type="text" placeholder="Search gadgets...">
+                    <button><i class="fa-solid fa-magnifying-glass"></i></button>
+                </div>
+
+                <a href="wishlist.html" class="relative">
+                    <i class="fa-regular fa-heart nav-icon-lg"></i>
+                </a>
+                <a href="cart.html" class="relative">
+                    <i class="fa-solid fa-cart-shopping nav-icon-lg"></i>
+                </a>
+                <a href="login.html" class="btn btn-primary btn-sm">Sign In</a>
+
+                <a href="profile.html" class="nav-profile-icon">
+                    J
+                </a>
+            </div>
+        </div>
+    </nav>
+
+
+
+    <!-- Product Details Main -->
+    <div class="container product-details-container">
+        <!-- Breadcrumbs -->
+        <nav class="breadcrumb-nav mb-4 text-sm text-muted">
+            <a href="index.html" class="hover:text-primary">Home</a>
+            <span class="mx-1">/</span>
+            <a href="products.html" class="hover:text-primary">Mobiles</a>
+            <span class="mx-1">/</span>
+            <span>Apple</span>
+        </nav>
+
+        <div class="product-details-grid">
+
+            <!-- Left Column: Image Gallery & Actions -->
+            <div class="product-sticky-sidebar">
+                <div class="image-gallery">
+                    <!-- Left Column: Thumbnails -->
+                    <div class="thumbnail-list">
+                        <div class="thumbnail-item active">
+                            <img src="images/iphone 13.jpg" alt="Front View">
+                        </div>
+
+                        <div class="thumbnail-item">
+                            <img src="images/iphone 13.jpg" alt="Back View">
+                        </div>
+
+                    </div>
+
+                    <!-- Right Column: Main Image + Buttons -->
+                    <div class="gallery-right-column">
+                        <div class="main-image-container">
+                            <img src="images/iphone 13.jpg" alt="iPhone 13">
+                            <button class="wishlist-remove-btn">
+                                <i class="fa-regular fa-heart"></i>
+                            </button>
+                        </div>
+
+                        <div class="action-buttons">
+                            <button class="btn btn-cart btn-lg">
+                                <i class="fa-solid fa-cart-shopping mr-2"></i> Add to Cart
+                            </button>
+                            <button class="btn btn-buy btn-lg">
+                                <i class="fa-solid fa-bolt mr-2"></i> Buy Now
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Product Info -->
+            <div>
+
+
+                <h1 class="product-title product-title-main">Apple iPhone 13 (Blue, 128 GB)</h1>
+
+                <div class="price-section mb-2">
+                    <span class="current-price">₹49,900</span>
+                    <span class="original-price">₹59,900</span>
+                    <span class="text-green font-bold ml-2 text-sm">17% OFF</span>
+                </div>
+
+                <div class="flex items-center gap-4 mb-4">
+                    <span class="rating-badge rating-badge-lg">4.6 <i class="fa-solid fa-star text-xs"></i></span>
+                    <span class="stock-status text-green font-bold text-sm">In Stock (120)</span>
+                </div>
+
+                <!-- Color Selection -->
+                <div class="color-selection-container">
+                    <h4 class="color-label">Color</h4>
+                    <div class="color-options">
+                        <!-- Blue (Active) -->
+                        <button class="color-swatch bg-blue active" title="Blue"></button>
+                        <!-- Green -->
+                        <button class="color-swatch bg-green" title="Green"></button>
+                        <!-- Red -->
+                        <button class="color-swatch bg-red" title="Red"></button>
+                    </div>
+                </div>
+
+                <!-- Highlights -->
+                <div class="details-section mb-4">
+                    <div class="highlight-row">
+                        <h4>Highlights</h4>
+                        <div class="highlight-content">
+                            <span>128 GB ROM</span>
+                            <span>15.49 cm (6.1 inch) Super Retina XDR Display</span>
+                            <span>12MP + 12MP | 12MP Front Camera</span>
+                            <span>A15 Bionic Chip Processor</span>
+
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Services -->
+                <div class="details-section">
+                    <div class="service-row">
+                        <h4>Services</h4>
+                        <div class="service-content">
+
+                            <span class="flex items-center"><i class="fa-solid fa-money-bill-wave"></i> Cash on Delivery
+                                available</span>
+                            <span class="flex items-center"><i class="fa-solid fa-rotate-left mr-2"></i>
+                                7 Days Return & Replacement Policy <a href="return-policy.html"
+                                    class="text-primary text-xs ml-2">(Details)</a></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Description -->
+                <div class="mt-8">
+                    <div class="p-4 font-bold text-lg">
+                        Product Description
+                    </div>
+                    <div class="p-6 text-muted text-sm">
+                        <p class="product-desc-text">
+                            Your new superpower. A super-bright display in a durable design. Hollywood-worthy video
+                            shooting made easy. A lightning-fast chip. And a big boost in battery life checking out
+                            everyday.
+                            <br>
+                            OLED display that gets 28% brighter, up to 800 nits, so it’s easier to see in full sunlight.
+                            And it goes up to 1200 nits for HDR content. You’ll notice bright whites, true blacks and
+                            every shade in between. Yet the display conserves power better than ever.
+                            <br>
+                            Filmmakers use a technique called rack focus — shifting focus from one subject to another —
+                            to guide the audience’s attention in their movies. Now iPhone makes it easy for you to bring
+                            the same storytelling technique to your videos.
+                        </p>
+
+                    </div>
+                </div>
+
+                <!-- User Reviews -->
+                <div class="mt-8">
+                    <h3 class="font-bold text-lg mb-4">User Reviews</h3>
+
+                    <!-- Review 1 -->
+                    <div class="review-card mb-4 p-4 border rounded-lg bg-white">
+                        <div class="flex items-center justify-between mb-2">
+                            <div class="flex items-center gap-2">
+                                <span class="rating-badge text-xs px-1">5 <i class="fa-solid fa-star"></i></span>
+                                <span class="font-bold text-sm">Amazing Phone!</span>
+                            </div>
+                            <span class="text-muted text-xs">James D. - Oct 12, 2023</span>
+                        </div>
+                        <p class="text-sm text-gray-700">The battery life is incredible and the camera quality is
+                            top-notch. Highly recommend!</p>
+                    </div>
+
+                    <!-- Review 2 -->
+                    <div class="review-card mb-4 p-4 border rounded-lg bg-white">
+                        <div class="flex items-center justify-between mb-2">
+                            <div class="flex items-center gap-2">
+                                <span class="rating-badge text-xs px-1">4 <i class="fa-solid fa-star"></i></span>
+                                <span class="font-bold text-sm">Value for money</span>
+                            </div>
+                            <span class="text-muted text-xs">Sarah L. - Sept 28, 2023</span>
+                        </div>
+                        <p class="text-sm text-gray-700">Great performance, but I wish the charging text speed was a bit
+                            faster. Overall very satisfied.</p>
+                    </div>
+
+                    <button class="btn btn-outline text-primary text-sm w-full">View All Reviews</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+
+   
+</body>
+
