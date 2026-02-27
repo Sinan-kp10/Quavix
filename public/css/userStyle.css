@@ -5156,14 +5156,14 @@ footer a:hover {
 }
 
 .wishlist-btn-group .btn {
-    width: 42px;
-    height: 42px;
+    width: 33px;
+    height: 33px;
     padding: 0;
     display: flex;
     align-items: center;
     justify-content: center;
     border-radius: 8px;
-    font-size: 1.1rem;
+    font-size: 1rem;
 }
 
 /* Mobile Responsiveness for Wishlist */
@@ -5243,6 +5243,12 @@ footer a:hover {
 
     .wishlist-btn-group {
         justify-content: flex-end;
+    }
+
+    .wishlist-btn-group .btn {
+        width: 36px !important;
+        height: 36px !important;
+        padding: 0 !important;
     }
 
     .btn {

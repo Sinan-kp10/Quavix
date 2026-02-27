@@ -264,13 +264,14 @@ export const addProduct = async (req, res) => {
             name,
             category,
             offerPercentage,
+            showOnHomepage,
             highlights,
             services,
             description,
             variants
         } = req.body;
 
-        if (!name || !category || !description) {
+        if (!name || !category || !description ||!highlights ||!services) {
             throw new Error("Required fields missing");
         }
 
@@ -280,6 +281,8 @@ export const addProduct = async (req, res) => {
         if (existingProduct) {
             throw new Error("Product already exists");
         }
+
+        const homepageValue = showOnHomepage === "Yes";
 
         const parsedVariants = Array.isArray(variants) ? variants: JSON.parse(variants);
 
@@ -338,7 +341,7 @@ export const addProduct = async (req, res) => {
             slug,
             category,
             offerPercentage: Number(offerPercentage) || 0,
-            showOnHomepage: false,
+            showOnHomepage: homepageValue, 
             highlights: formattedHighlights,
             services: formattedServices,
             description,
@@ -389,6 +392,7 @@ export const editProduct = async (req, res) => {
             name,
             category,
             offerPercentage,
+            showOnHomepage,
             highlights,
             services,
             description,
@@ -397,6 +401,7 @@ export const editProduct = async (req, res) => {
 
         const product = await productModel.findById(id);
         if (!product) throw new Error("Product not found");
+        const homepageValue = showOnHomepage === "Yes";
         const newSlug = slugify(name, { lower: true, strict: true })
 
         const parsedVariants = Array.isArray(variants) ? variants: JSON.parse(variants);
@@ -408,7 +413,7 @@ export const editProduct = async (req, res) => {
         const baseFieldsSame =
         product.name === name && product.slug === newSlug &&
         product.category.equals(category) && 
-        product.offerPercentage === Number(offerPercentage) &&
+        product.offerPercentage === Number(offerPercentage) &&product.showOnHomepage === homepageValue && 
         product.description === description &&
         JSON.stringify(product.highlights) === JSON.stringify(formattedHighlights) &&
         JSON.stringify(product.services) === JSON.stringify(formattedServices);
@@ -546,6 +551,7 @@ export const editProduct = async (req, res) => {
             slug:newSlug,
             category,
             offerPercentage: Number(offerPercentage) || 0,
+            showOnHomepage: homepageValue,
             highlights: formattedHighlights,
             services: formattedServices,
             description,
@@ -562,7 +568,7 @@ export const editProduct = async (req, res) => {
         req.session.toastType = "error";
         res.redirect("back");
     }
-};
+}
 
 export const removeProduct=async(req,res)=>{
     try {

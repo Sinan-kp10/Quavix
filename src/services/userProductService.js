@@ -1,8 +1,15 @@
 import productModel from "../models/productModal.js"
 
 
-export const getAllProducts=async()=>{
-    const products = await productModel.find({ isDeleted: false}).populate("category").sort({createdAt:-1})
+export const getAllProducts=async(category=null)=>{
+
+    let filter = {isDeleted:false};
+
+    if(category){
+        filter.category = category;
+    }
+
+    const products = await productModel.find(filter).populate("category").sort({createdAt:-1})
 
     return products
 }

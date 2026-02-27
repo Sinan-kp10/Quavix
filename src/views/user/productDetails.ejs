@@ -1,249 +1,497 @@
 <body>
-    <% if (typeof toastMessage !== "undefined") { %>
+
+    <% if (typeof toastMessage !=="undefined" ) { %>
         <div id="toast" class="toast <%= toastType %> show">
             <%= toastMessage %>
         </div>
-    <% } %>
+        <% } %>
 
-    <!-- Navbar -->
-    <nav class="navbar">
-        <div class="container nav-container">
-            <a href="index.html" class="logo">
-                <i class="fa-solid fa-bolt text-gradient-clip"></i>
-                <span class="text-gradient">Quavix</span>
-            </a>
-
-            <div class="mobile-search-container">
-                <div class="hamburger-menu">
-                    <i class="fa-solid fa-bars"></i>
-                </div>
-                <div class="mobile-search">
-                    <input type="text" placeholder="Search gadgets...">
-                    <button><i class="fa-solid fa-magnifying-glass"></i></button>
-                </div>
-            </div>
-
-            <!-- Mobile Sidebar (Hidden by default) -->
-            <aside class="mobile-sidebar">
-                <div class="sidebar-header">
+            <!-- Navbar -->
+            <nav class="navbar">
+                <div class="container nav-container">
                     <a href="index.html" class="logo">
                         <i class="fa-solid fa-bolt text-gradient-clip"></i>
                         <span class="text-gradient">Quavix</span>
                     </a>
-                    <button class="close-btn"><i class="fa-solid fa-xmark"></i></button>
-                </div>
-                <div class="sidebar-content">
-                    <a href="products.html"><i class="fa-solid fa-shop"></i> Shop</a>
-                    <a href="order-history.html"><i class="fa-solid fa-box"></i> Orders</a>
-                    <a href="wishlist.html"><i class="fa-regular fa-heart"></i> Wishlist</a>
-                    <a href="cart.html"><i class="fa-solid fa-cart-shopping"></i> Cart</a>
-                    <a href="profile.html"><i class="fa-solid fa-user"></i> Profile</a>
-                    <a href="login.html"><i class="fa-solid fa-right-to-bracket"></i> Sign In</a>
-                </div>
-            </aside>
 
-            <!-- Overlay -->
-            <div class="mobile-overlay"></div>
-
-            <!-- Desktop Menu -->
-            <div class="nav-menu">
-                <a href="index.html">Home</a>
-                <a href="products.html" class="text-primary">Shop</a>
-                <a href="order-history.html">Orders</a>
-            </div>
-
-            <div class="nav-icons">
-                <div class="nav-search">
-                    <input type="text" placeholder="Search gadgets...">
-                    <button><i class="fa-solid fa-magnifying-glass"></i></button>
-                </div>
-
-                <a href="wishlist.html" class="relative">
-                    <i class="fa-regular fa-heart nav-icon-lg"></i>
-                </a>
-                <a href="cart.html" class="relative">
-                    <i class="fa-solid fa-cart-shopping nav-icon-lg"></i>
-                </a>
-                <a href="login.html" class="btn btn-primary btn-sm">Sign In</a>
-
-                <a href="profile.html" class="nav-profile-icon">
-                    J
-                </a>
-            </div>
-        </div>
-    </nav>
-
-
-
-    <!-- Product Details Main -->
-    <div class="container product-details-container">
-        <!-- Breadcrumbs -->
-        <nav class="breadcrumb-nav mb-4 text-sm text-muted">
-            <a href="index.html" class="hover:text-primary">Home</a>
-            <span class="mx-1">/</span>
-            <a href="products.html" class="hover:text-primary">Mobiles</a>
-            <span class="mx-1">/</span>
-            <span>Apple</span>
-        </nav>
-
-        <div class="product-details-grid">
-
-            <!-- Left Column: Image Gallery & Actions -->
-            <div class="product-sticky-sidebar">
-                <div class="image-gallery">
-                    <!-- Left Column: Thumbnails -->
-                    <div class="thumbnail-list">
-                        <div class="thumbnail-item active">
-                            <img src="images/iphone 13.jpg" alt="Front View">
+                    <div class="mobile-search-container">
+                        <div class="hamburger-menu">
+                            <i class="fa-solid fa-bars"></i>
                         </div>
-
-                        <div class="thumbnail-item">
-                            <img src="images/iphone 13.jpg" alt="Back View">
-                        </div>
-
-                    </div>
-
-                    <!-- Right Column: Main Image + Buttons -->
-                    <div class="gallery-right-column">
-                        <div class="main-image-container">
-                            <img src="images/iphone 13.jpg" alt="iPhone 13">
-                            <button class="wishlist-remove-btn">
-                                <i class="fa-regular fa-heart"></i>
-                            </button>
-                        </div>
-
-                        <div class="action-buttons">
-                            <button class="btn btn-cart btn-lg">
-                                <i class="fa-solid fa-cart-shopping mr-2"></i> Add to Cart
-                            </button>
-                            <button class="btn btn-buy btn-lg">
-                                <i class="fa-solid fa-bolt mr-2"></i> Buy Now
-                            </button>
+                        <div class="mobile-search">
+                            <input type="text" placeholder="Search gadgets...">
+                            <button><i class="fa-solid fa-magnifying-glass"></i></button>
                         </div>
                     </div>
-                </div>
-            </div>
 
-            <!-- Right Column: Product Info -->
-            <div>
-
-
-                <h1 class="product-title product-title-main">Apple iPhone 13 (Blue, 128 GB)</h1>
-
-                <div class="price-section mb-2">
-                    <span class="current-price">₹49,900</span>
-                    <span class="original-price">₹59,900</span>
-                    <span class="text-green font-bold ml-2 text-sm">17% OFF</span>
-                </div>
-
-                <div class="flex items-center gap-4 mb-4">
-                    <span class="rating-badge rating-badge-lg">4.6 <i class="fa-solid fa-star text-xs"></i></span>
-                    <span class="stock-status text-green font-bold text-sm">In Stock (120)</span>
-                </div>
-
-                <!-- Color Selection -->
-                <div class="color-selection-container">
-                    <h4 class="color-label">Color</h4>
-                    <div class="color-options">
-                        <!-- Blue (Active) -->
-                        <button class="color-swatch bg-blue active" title="Blue"></button>
-                        <!-- Green -->
-                        <button class="color-swatch bg-green" title="Green"></button>
-                        <!-- Red -->
-                        <button class="color-swatch bg-red" title="Red"></button>
-                    </div>
-                </div>
-
-                <!-- Highlights -->
-                <div class="details-section mb-4">
-                    <div class="highlight-row">
-                        <h4>Highlights</h4>
-                        <div class="highlight-content">
-                            <span>128 GB ROM</span>
-                            <span>15.49 cm (6.1 inch) Super Retina XDR Display</span>
-                            <span>12MP + 12MP | 12MP Front Camera</span>
-                            <span>A15 Bionic Chip Processor</span>
-
+                    <!-- Mobile Sidebar (Hidden by default) -->
+                    <aside class="mobile-sidebar">
+                        <div class="sidebar-header">
+                            <a href="index.html" class="logo">
+                                <i class="fa-solid fa-bolt text-gradient-clip"></i>
+                                <span class="text-gradient">Quavix</span>
+                            </a>
+                            <button class="close-btn"><i class="fa-solid fa-xmark"></i></button>
                         </div>
-                    </div>
-                </div>
-
-                <!-- Services -->
-                <div class="details-section">
-                    <div class="service-row">
-                        <h4>Services</h4>
-                        <div class="service-content">
-
-                            <span class="flex items-center"><i class="fa-solid fa-money-bill-wave"></i> Cash on Delivery
-                                available</span>
-                            <span class="flex items-center"><i class="fa-solid fa-rotate-left mr-2"></i>
-                                7 Days Return & Replacement Policy <a href="return-policy.html"
-                                    class="text-primary text-xs ml-2">(Details)</a></span>
+                        <div class="sidebar-content">
+                            <a href="products.html"><i class="fa-solid fa-shop"></i> Shop</a>
+                            <a href="order-history.html"><i class="fa-solid fa-box"></i> Orders</a>
+                            <a href="/wishlist"><i class="fa-regular fa-heart"></i> Wishlist</a>
+                            <a href="cart.html"><i class="fa-solid fa-cart-shopping"></i> Cart</a>
+                            <% if (user) { %>
+                                <a href="/profile"><i class="fa-solid fa-user"></i> Profile</a>
+                                <a href="/logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+                                <% } else { %>
+                                    <a href="/login"><i class="fa-solid fa-right-to-bracket"></i> Sign In</a>
+                            <% } %>
                         </div>
+                    </aside>
+
+                    <!-- Overlay -->
+                    <div class="mobile-overlay"></div>
+
+                    <!-- Desktop Menu -->
+                    <div class="nav-menu">
+                        <a href="/">Home</a>
+                        <a href="/products" class="text-primary">Shop</a>
+                        <a href="order-history.html">Orders</a>
+                    </div>
+
+                    <div class="nav-icons">
+                        <div class="nav-search">
+                            <input type="text" placeholder="Search gadgets...">
+                            <button><i class="fa-solid fa-magnifying-glass"></i></button>
+                        </div>
+
+                        <a href="/wishlist" class="relative">
+                            <i class="fa-regular fa-heart nav-icon-lg"></i>
+                        </a>
+                        <a href="cart.html" class="relative">
+                            <i class="fa-solid fa-cart-shopping nav-icon-lg"></i>
+                        </a>
+                        <% if (user) { %>
+                            <a href="/profile" class="nav-profile-icon">
+
+                                <% if (user.profileImage) { %>
+                                    <img src="<%= user.profileImage %>" alt="Profile" class="nav-profile-img">
+                                    <% } else { %>
+                                        <div class="nav-default-avatar">
+                                            <%= user.name.charAt(0).toUpperCase() %>
+                                        </div>
+                                        <% } %>
+
+                            </a>
+                            <% } else { %>
+                                <a href="/login" class="btn btn-primary btn-sm">
+                                    <i class="fa-solid fa-right-to-bracket"></i> Sign In
+                                </a>
+                                <% } %>
                     </div>
                 </div>
+            </nav>
 
-                <!-- Description -->
-                <div class="mt-8">
-                    <div class="p-4 font-bold text-lg">
-                        Product Description
-                    </div>
-                    <div class="p-6 text-muted text-sm">
-                        <p class="product-desc-text">
-                            Your new superpower. A super-bright display in a durable design. Hollywood-worthy video
-                            shooting made easy. A lightning-fast chip. And a big boost in battery life checking out
-                            everyday.
-                            <br>
-                            OLED display that gets 28% brighter, up to 800 nits, so it’s easier to see in full sunlight.
-                            And it goes up to 1200 nits for HDR content. You’ll notice bright whites, true blacks and
-                            every shade in between. Yet the display conserves power better than ever.
-                            <br>
-                            Filmmakers use a technique called rack focus — shifting focus from one subject to another —
-                            to guide the audience’s attention in their movies. Now iPhone makes it easy for you to bring
-                            the same storytelling technique to your videos.
-                        </p>
 
-                    </div>
-                </div>
+            <!-- ================= PRODUCT DETAILS ================= -->
+            <div class="container product-details-container">
 
-                <!-- User Reviews -->
-                <div class="mt-8">
-                    <h3 class="font-bold text-lg mb-4">User Reviews</h3>
+                <!-- Breadcrumb -->
+                <nav class="breadcrumb-nav mb-4 text-sm text-muted">
 
-                    <!-- Review 1 -->
-                    <div class="review-card mb-4 p-4 border rounded-lg bg-white">
-                        <div class="flex items-center justify-between mb-2">
-                            <div class="flex items-center gap-2">
-                                <span class="rating-badge text-xs px-1">5 <i class="fa-solid fa-star"></i></span>
-                                <span class="font-bold text-sm">Amazing Phone!</span>
+                    <!-- Home -->
+                    <a href="/" class="hover:text-primary">Home</a>
+                    <span class="mx-1">/</span>
+
+                    <!-- Products -->
+                    <a href="/products" class="hover:text-primary">Products</a>
+                    <span class="mx-1">/</span>
+
+                    <!-- Category -->
+                    <a href="/products?category=<%= product.category._id %>" class="hover:text-primary">
+                        <%= product.category.name %>
+                    </a>
+                    <span class="mx-1">/</span>
+
+                    <!-- Product Name -->
+                    <span class="text-dark font-medium">
+                        <%= product.name %>
+                    </span>
+
+                </nav>
+
+
+                <div class="product-details-grid">
+
+                    <!-- ================= LEFT SIDE (IMAGES) ================= -->
+                    <div class="product-sticky-sidebar">
+
+                        <div class="image-gallery">
+
+                            <!-- Thumbnails -->
+                            <div class="thumbnail-list">
+
+                                <!-- Primary Image -->
+                                <div class="thumbnail-item active">
+                                    <img src="<%= activeVariant.images.primary.url %>" alt="">
+                                </div>
+
+                                <!-- Gallery Images -->
+                                <% activeVariant.images.gallery.forEach(img=> { %>
+                                    <div class="thumbnail-item">
+                                        <img src="<%= img.url %>" alt="">
+                                    </div>
+                                    <% }) %>
+
                             </div>
-                            <span class="text-muted text-xs">James D. - Oct 12, 2023</span>
-                        </div>
-                        <p class="text-sm text-gray-700">The battery life is incredible and the camera quality is
-                            top-notch. Highly recommend!</p>
-                    </div>
 
-                    <!-- Review 2 -->
-                    <div class="review-card mb-4 p-4 border rounded-lg bg-white">
-                        <div class="flex items-center justify-between mb-2">
-                            <div class="flex items-center gap-2">
-                                <span class="rating-badge text-xs px-1">4 <i class="fa-solid fa-star"></i></span>
-                                <span class="font-bold text-sm">Value for money</span>
+
+                            <!-- Main Image -->
+                            <div class="gallery-right-column">
+                                <div class="main-image-container">
+                                    <img src="<%= activeVariant.images.primary.url %>" alt="<%= product.name %>">
+
+                                    <button class="wishlist-remove-btn">
+                                        <i class="fa-regular fa-heart"></i>
+                                    </button>
+                                </div>
+
+                                <div class="action-buttons">
+                                    <button class="btn btn-cart btn-lg">
+                                        <i class="fa-solid fa-cart-shopping mr-2"></i> Add to Cart
+                                    </button>
+                                    <button class="btn btn-buy btn-lg">
+                                        <i class="fa-solid fa-bolt mr-2"></i> Buy Now
+                                    </button>
+                                </div>
                             </div>
-                            <span class="text-muted text-xs">Sarah L. - Sept 28, 2023</span>
+
                         </div>
-                        <p class="text-sm text-gray-700">Great performance, but I wish the charging text speed was a bit
-                            faster. Overall very satisfied.</p>
                     </div>
 
-                    <button class="btn btn-outline text-primary text-sm w-full">View All Reviews</button>
+
+                    <!-- ================= RIGHT SIDE (PRODUCT INFO) ================= -->
+                    <div>
+
+                        <!-- Product Title + Attributes -->
+                        <h1 class="product-title product-title-main">
+                            <%= product.name %>
+                                (
+                                <% activeVariant.attributes.forEach((attr, index)=> { %>
+                                    <%= attr.value %>
+                                        <%= index < activeVariant.attributes.length - 1 ? ', ' : '' %>
+                                            <% }) %>
+                                                )
+                        </h1>
+
+
+                        <!-- ===== PRICE CALCULATION ===== -->
+                        <% const originalPrice=activeVariant.price; const offer=product.offerPercentage || 0; const
+                            discount=(originalPrice * offer) / 100; const finalPrice=Math.round(originalPrice -
+                            discount); %>
+
+                            <div class="price-section mb-2">
+                                <span class="current-price">
+                                    ₹<%= finalPrice.toLocaleString() %>
+                                </span>
+
+                                <% if (offer> 0) { %>
+                                    <span class="original-price">
+                                        ₹<%= originalPrice.toLocaleString() %>
+                                    </span>
+                                    <span class="text-green font-bold ml-2 text-sm">
+                                        <%= offer %>% OFF
+                                    </span>
+                                    <% } %>
+                            </div>
+
+
+                            <!-- Rating + Stock -->
+                            <div class="flex items-center gap-4 mb-4">
+
+                                <span class="rating-badge rating-badge-lg">
+                                    <%= product.rating.toFixed(1) %>
+                                        <i class="fa-solid fa-star text-xs"></i>
+                                </span>
+
+                                <span
+                                    class="stock-status <%= activeVariant.stock > 0 ? 'text-green' : 'text-red' %> font-bold text-sm">
+                                    <%= activeVariant.stock> 0 ? `In Stock (${activeVariant.stock})` : 'Out of Stock' %>
+                                </span>
+
+                            </div>
+                            <!-- Colour -->
+                             
+                            <div class="color-selection-container">
+                                <h4 class="color-label">Color</h4>
+                                <div class="color-options">
+
+                                    <% colorVariants.forEach(variant => { 
+                                        const colorAttr = variant.attributes.find(attr =>
+                                            attr.name && attr.name.toLowerCase() === "color"
+                                        );
+
+                                        const isActive = variant._id.toString() === activeVariant._id.toString();
+
+                                        if (colorAttr && variant.status === "Active") { %>
+
+                                            <a href="?variant=<%= variant._id %>">
+                                                <button
+                                                    class="color-swatch <%= isActive ? 'active' : '' %>"
+                                                    data-color="<%= colorAttr.value %>"
+                                                    title="<%= colorAttr.value %>">
+                                                </button>
+                                            </a>
+
+                                    <% } }); %>
+
+                                </div>
+                            </div>
+
+                            <!-- ===== HIGHLIGHTS ===== -->
+                            <% if (product.highlights.length> 0) { %>
+                                <div class="details-section mb-4">
+                                    <div class="highlight-row">
+                                        <h4>Highlights</h4>
+                                        <div class="highlight-content">
+                                            <% product.highlights.forEach(item=> { %>
+                                                <span>
+                                                    <%= item %>
+                                                </span>
+                                                <% }) %>
+                                        </div>
+                                    </div>
+                                </div>
+                                <% } %>
+
+
+                                <!-- ===== SERVICES ===== -->
+                                <% if (product.services.length> 0) { %>
+                                    <div class="details-section">
+                                        <div class="service-row">
+                                            <h4>Services</h4>
+                                            <div class="service-content">
+                                                <% product.services.forEach(service=> { %>
+                                                    <span class="flex items-center">
+                                                        <i class="fa-solid fa-check mr-2"></i>
+                                                        <%= service %>
+                                                    </span>
+                                                    <% }) %>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <% } %>
+
+
+                                        <!-- ===== DESCRIPTION ===== -->
+                                        <div class="mt-8">
+                                            <div class="p-4 font-bold text-lg">
+                                                Product Description
+                                            </div>
+                                            <div class="p-6 text-muted text-sm">
+                                                <p class="product-desc-text">
+                                                    <%= product.description %>
+                                                </p>
+                                            </div>
+                                        </div>
+
+
+                                        <!-- User Reviews -->
+                                        <!-- <div class="mt-8">
+                                            <h3 class="font-bold text-lg mb-4">User Reviews</h3>
+
+                                            Review 1 -->
+                                            <!-- <div class="review-card mb-4 p-4 border rounded-lg bg-white">
+                                                <div class="flex items-center justify-between mb-2">
+                                                    <div class="flex items-center gap-2">
+                                                        <span class="rating-badge text-xs px-1">5 <i
+                                                                class="fa-solid fa-star"></i></span>
+                                                        <span class="font-bold text-sm">Amazing Phone!</span>
+                                                    </div>
+                                                    <span class="text-muted text-xs">James D. - Oct 12, 2023</span>
+                                                </div>
+                                                <p class="text-sm text-gray-700">The battery life is incredible and
+                                                    the camera quality is
+                                                    top-notch. Highly recommend!</p>
+                                            </div> -->
+
+                                            <!-- Review 2 -->
+                                            <!-- <div class="review-card mb-4 p-4 border rounded-lg bg-white">
+                                                <div class="flex items-center justify-between mb-2">
+                                                    <div class="flex items-center gap-2">
+                                                        <span class="rating-badge text-xs px-1">4 <i
+                                                                class="fa-solid fa-star"></i></span>
+                                                        <span class="font-bold text-sm">Value for money</span>
+                                                    </div>
+                                                    <span class="text-muted text-xs">Sarah L. - Sept 28, 2023</span>
+                                                </div>
+                                                <p class="text-sm text-gray-700">Great performance, but I wish the
+                                                    charging text speed was a bit
+                                                    faster. Overall very satisfied.</p>
+                                            </div> -->
+
+                                            <!-- <button class="btn btn-outline text-primary text-sm w-full">View All
+                                                Reviews</button>
+                                        </div> -->
+
+
+
+
+                                        <!-- ===== REVIEWS COUNT ===== -->
+                                        <div class="mt-8">
+                                            <h3 class="font-bold text-lg mb-4">
+                                                User Reviews (<%= product.numReviews %>)
+                                            </h3>
+
+                                            <!-- <button class="btn btn-outline text-primary text-sm w-full">
+                                                View All Reviews
+                                            </button>
+                                        </div> -->
+
+                        </div>
+                    </div>
+            </div>
+
+    <% if (relatedProducts && relatedProducts.length > 0) { %>
+
+        <section class="container section-padding">
+            <h2 class="text-center mb-8">Related Products</h2>
+
+            <div class="home-product-grid">
+
+                <% relatedProducts.forEach(rp => { 
+
+                    const firstVariant = rp.variants.find(v => v.status === "Active") || rp.variants[0];
+
+                    if (!firstVariant) return;
+
+                    const originalPrice = firstVariant.price || 0;
+                    const offer = rp.offerPercentage || 0;
+                    const discount = (originalPrice * offer) / 100;
+                    const finalPrice = Math.round(originalPrice - discount);
+
+                %>
+
+                <div class="home-product-card">
+
+                    <!-- Image Section -->
+                    <div class="home-card-img-box">
+
+                        <% if (offer > 0) { %>
+                            <span class="home-card-offer">
+                                <%= offer %>% OFF
+                            </span>
+                        <% } %>
+
+                        <a href="/product/<%= rp.slug %>">
+                            <img 
+                                src="<%= firstVariant.images?.primary?.url %>" 
+                                alt="<%= rp.name %>">
+                        </a>
+
+                    </div>
+
+                    <!-- Content Section -->
+                    <div class="home-card-content">
+
+                        <!-- Category + Rating -->
+                        <div class="card-cat-rating">
+
+                            <span class="product-cat-sm">
+                                <%= rp.category?.name %>
+                            </span>
+
+                            <% if (rp.rating !== undefined) { %>
+                                <span class="home-card-rating">
+                                    <%= rp.rating.toFixed(1) %>
+                                    <i class="fa-solid fa-star"></i>
+                                </span>
+                            <% } %>
+
+                        </div>
+
+                        <!-- Product Name -->
+                        <h3 class="home-card-title">
+                            <%= rp.name %>
+                        </h3>
+
+                        <!-- Highlights (max 3) -->
+                        <% if (rp.highlights && rp.highlights.length > 0) { %>
+                            <ul class="home-card-highlights">
+                                <% rp.highlights.slice(0, 3).forEach(h => { %>
+                                    <li><%= h %></li>
+                                <% }) %>
+                            </ul>
+                        <% } %>
+
+                        <!-- Price Section -->
+                        <div class="home-card-bottom">
+                            <div class="price-box">
+
+                                <% if (offer > 0) { %>
+                                    <span class="price-old-sm">
+                                        ₹<%= originalPrice.toLocaleString() %>
+                                    </span>
+                                <% } %>
+
+                                <span class="price-new-sm">
+                                    ₹<%= finalPrice.toLocaleString() %>
+                                </span>
+                            </div>
+                        </div>
+
+                    </div>
                 </div>
 
+                <% }) %>
+
             </div>
-        </div>
-    </div>
+        </section>
+
+        <% } else { %>
+
+        <section class="container section-padding">
+            <h2 class="text-center mb-8">Related Products</h2>
+            <p class="text-center text-muted">
+                No related products available.
+            </p>
+        </section>
+
+        <% } %>
+
+    <script>
+        const mainImageContainer = document.querySelector('.main-image-container');
+
+        if (mainImageContainer) {
+            const mainImage = mainImageContainer.querySelector('img');
+
+            if (mainImage) {
+                mainImageContainer.addEventListener('mousemove', (e) => {
+                    const { left, top, width, height } = mainImageContainer.getBoundingClientRect();
+                    const x = e.clientX - left;
+                    const y = e.clientY - top;
+
+                    const xPercent = (x / width) * 100;
+                    const yPercent = (y / height) * 100;
+
+                    mainImage.style.transformOrigin = `${xPercent}% ${yPercent}%`;
+                    mainImage.style.transform = 'scale(3)'; 
+                });
+
+                mainImageContainer.addEventListener('mouseleave', () => {
+
+                    mainImage.style.transformOrigin = 'center center';
+                    mainImage.style.transform = 'scale(1)';
+                });
+            }
+        }
 
 
-   
+        document.querySelectorAll(".color-swatch").forEach(btn => {
+            const color = btn.getAttribute("data-color");
+            if (color) {
+                btn.style.backgroundColor = color;
+            }
+        });
+
+    </script>
+
 </body>
-

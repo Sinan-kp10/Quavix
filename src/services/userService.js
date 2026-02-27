@@ -4,6 +4,7 @@ import bcrypt from "bcrypt"
 import nodemailer from "nodemailer"
 import dotenv from "dotenv"
 import categoryModal from "../models/category.js"
+import productModel from "../models/productModal.js"
 dotenv.config();
 const saltround=10
 
@@ -378,3 +379,7 @@ export const getActiveCategories=async()=>{
     
     return await categoryModal.find({status:"Active"}).sort({createdAt:-1})
 }
+
+export const getHomepageProducts = async () => {
+    return await productModel.find({  isDeleted: false,showOnHomepage: true   }).populate("category").sort({ createdAt: -1 });
+};

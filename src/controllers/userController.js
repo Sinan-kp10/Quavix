@@ -13,7 +13,8 @@ import {
     deleteUserAddress,
     updateUserProfileImage,
     removeUserProfileImage,
-    getActiveCategories
+    getActiveCategories,
+    getHomepageProducts
 
 } from "../services/userService.js"
 
@@ -372,7 +373,6 @@ export const updateProfile=async(req,res)=>{
 }
 
 
-
 export const uploadProfileImage=async(req,res)=>{
 
   try{
@@ -592,11 +592,15 @@ export const loadHome=async(req,res)=>{
 
     try {
         const categories= await getActiveCategories()
+        const products = await getHomepageProducts();
 
-        res.render("user/home",{ title: "Home-Quavix",css:"userStyle",categories })
+        
+
+        res.render("user/home",{ title: "Home-Quavix",css:"userStyle",categories,products })
         
     }catch(err){
-        res.redirect("/");
+        console.log(err)
+        res.status(500).send("Something went wrong");
     }
 }
 

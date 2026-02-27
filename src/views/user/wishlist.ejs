@@ -1,0 +1,172 @@
+<body>
+    <% if (typeof toastMessage !=="undefined" ) { %>
+        <div id="toast" class="toast <%= toastType %> show">
+            <%= toastMessage %>
+        </div>
+    <% } %>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="container nav-container">
+            <a href="index.html" class="logo">
+                <i class="fa-solid fa-bolt text-gradient-clip"></i>
+                <span class="text-gradient">Quavix</span>
+            </a>
+
+            <div class="mobile-search-container">
+                <div class="hamburger-menu">
+                    <i class="fa-solid fa-bars"></i>
+                </div>
+                <div class="mobile-search">
+                    <input type="text" placeholder="Search gadgets...">
+                    <button><i class="fa-solid fa-magnifying-glass"></i></button>
+                </div>
+            </div>
+
+            <!-- Mobile Sidebar (Hidden by default) -->
+            <aside class="mobile-sidebar">
+                <div class="sidebar-header">
+                    <a href="index.html" class="logo">
+                        <i class="fa-solid fa-bolt text-gradient-clip"></i>
+                        <span class="text-gradient">Quavix</span>
+                    </a>
+                    <button class="close-btn"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <div class="sidebar-content">
+                    <a href="products.html"><i class="fa-solid fa-shop"></i> Shop</a>
+                    <a href="order-history.html"><i class="fa-solid fa-box"></i> Orders</a>
+                    <a href="wishlist.html"><i class="fa-regular fa-heart"></i> Wishlist</a>
+                    <a href="cart.html"><i class="fa-solid fa-cart-shopping"></i> Cart</a>
+                    <a href="profile.html"><i class="fa-solid fa-user"></i> Profile</a>
+                    <a href="login.html"><i class="fa-solid fa-right-to-bracket"></i> Sign In</a>
+                </div>
+            </aside>
+
+            <!-- Overlay -->
+            <div class="mobile-overlay"></div>
+
+            <!-- Desktop Menu -->
+            <div class="nav-menu">
+                <a href="index.html">Home</a>
+                <a href="products.html">Shop</a>
+                <a href="order-history.html">Orders</a>
+            </div>
+
+            <div class="nav-icons">
+                <!-- Search Bar -->
+                <div class="nav-search">
+                    <input type="text" placeholder="Search gadgets...">
+                    <button><i class="fa-solid fa-magnifying-glass"></i></button>
+                </div>
+
+                <a href="wishlist.html" class="text-danger">
+                    <i class="fa-solid fa-heart nav-icon-lg"></i>
+                </a>
+                <a href="cart.html" class="relative">
+                    <i class="fa-solid fa-cart-shopping nav-icon-lg"></i>
+                </a>
+                <a href="login.html" class="btn btn-primary btn-sm">Sign In</a>
+                <a href="profile.html" class="nav-profile-icon">
+                    J
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container py-16">
+        <h1 class="mb-4">My Wishlist</h1>
+
+        <% if (wishlist && wishlist.items.length > 0) { %>
+
+        <div class="product-grid wishlist-container">
+
+            <% wishlist.items.forEach(item => { 
+
+                const product = item.product;
+
+                if (!product) return;
+
+                const variant = product.variants.find(v => 
+                    v._id.toString() === item.variant.toString()
+                ) || product.variants[0];
+
+                const originalPrice = variant.price;
+                const offer = product.offerPercentage || 0;
+                const discount = (originalPrice * offer) / 100;
+                const finalPrice = Math.round(originalPrice - discount);
+
+            %>
+
+            <div class="wishlist-item">
+
+                <!-- Image -->
+                <div class="wishlist-image-box">
+                    <a href="/product/<%= product.slug %>?variant=<%= variant._id %>">
+                        <img src="<%= variant.images.primary.url %>" alt="<%= product.name %>">
+                    </a>
+                </div>
+
+                <!-- Info -->
+                <div class="wishlist-info">
+                    <h2 class="wishlist-title"><%= product.name %></h2>
+
+                    <% if (product.highlights && product.highlights.length > 0) { %>
+                    <ul class="wishlist-highlights">
+                        <% product.highlights.slice(0,3).forEach(h => { %>
+                            <li><%= h %></li>
+                        <% }) %>
+                    </ul>
+                    <% } %>
+                </div>
+
+                <!-- Price & Actions -->
+                <div class="wishlist-actions">
+                    <div class="wishlist-price-block">
+                        <span class="price-new">
+                            ₹<%= finalPrice.toLocaleString() %>
+                        </span>
+
+                        <% if (offer > 0) { %>
+                        <div class="flex items-center justify-end gap-2 mt-1">
+                            <span class="price-old">
+                                ₹<%= originalPrice.toLocaleString() %>
+                            </span>
+                            <span class="discount-badge">
+                                <%= offer %>% OFF
+                            </span>
+                        </div>
+                        <% } %>
+                    </div>
+
+                    <div class="wishlist-btn-group">
+                        <button class="btn btn-primary">
+                            <i class="fa-solid fa-cart-shopping"></i>
+                        </button>
+
+                        <button 
+                            class="btn btn-remove"
+                            data-product="<%= product._id %>"
+                            data-variant="<%= variant._id %>">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+
+            <% }) %>
+
+        </div>
+
+        <% } else { %>
+
+            <p class="text-muted text-center">
+                Your wishlist is empty.
+            </p>
+
+        <% } %>
+    </div>
+
+    <script src="js/script.js"></script>
+</body>
+
