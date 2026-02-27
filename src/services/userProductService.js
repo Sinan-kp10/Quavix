@@ -1,5 +1,6 @@
 import productModel from "../models/productModal.js"
-import wishlistModel from "../models/wishlistModel.js";
+import wishlistModel from "../models/wishlistModel.js"
+import cartModel from "../models/cartModel.js";
 
 
 export const getAllProducts=async(category=null)=>{
@@ -117,8 +118,6 @@ export const findProducts = async (search) => {
     return products;
 }
 
-
-
 export const addWishlistService = async (userId, productId, variantId) => {
 
     let wishlist = await wishlistModel.findOne({ user: userId });
@@ -151,4 +150,72 @@ export const addWishlistService = async (userId, productId, variantId) => {
 
     await wishlist.save();
     return { added: true };
+}
+
+export const addToCartService = async (userId, productId, variantId) => {
+
+    const product = await productModel.findById(productId)
+    if (!product) {
+        throw new Error("Product not found");
+    }
+
+    const variant = product.variants.find(v =>
+        v._id.toString() === variantId.toString()
+    );
+
+    if (!variant) {
+        throw new Error("Variant not found")
+    }
+
+    if (variant.stock <= 0) {
+        throw new Error("Product is out of stock")
+    }
+
+    let cart = await cartModel.findOne({ user: userId })
+
+    if (!cart) {
+        cart = new cartModel({
+            user: userId,
+            items: []
+        });
+    }
+
+    const existingItem = cart.items.find(item =>
+        item.product.toString() === productId && item.variant.toString() === variantId
+    );
+
+    if (existingItem) {
+
+        if (existingItem.quantity + 1 > variant.stock) {
+            throw new Error(`Only ${variant.stock} items available in stock`);
+        }
+
+        existingItem.quantity += 1;
+
+    } else {
+
+        cart.items.push({
+            product: productId,
+            variant: variantId,
+            quantity: 1
+        });
+    }
+
+    await cart.save();
+
+    return true;
+}
+
+export const removeFromCartService = async (userId, productId, variantId) => {
+
+    const cart = await cartModel.findOne({ user: userId });
+    if (!cart) return false;
+
+    cart.items = cart.items.filter(item =>
+        !(item.product.toString() === productId && item.variant.toString() === variantId)
+    );
+
+    await cart.save();
+
+    return true;
 };

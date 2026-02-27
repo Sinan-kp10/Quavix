@@ -2268,6 +2268,7 @@ input[type="checkbox"]:not(.checkbox-primary):checked::after {
     .mobile-search-container {
         display: flex !important;
     }
+
     .mobile-overlay {
         display: none;
         position: fixed;
@@ -3637,9 +3638,12 @@ footer a:hover {
 .toast i {
     margin-right: 8px;
 }
+
 .toast {
-    pointer-events: none;   /* 🔥 This fixes everything */
+    pointer-events: none;
+    /* 🔥 This fixes everything */
 }
+
 .otp-timer {
     margin-top: 10px;
     font-size: 14px;
@@ -4794,19 +4798,170 @@ footer a:hover {
 }
 
 /* Cart Page Styles */
+.cart-grid {
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    gap: 2rem;
+    align-items: start;
+}
+
 .cart-items-container {
     display: flex;
     flex-direction: column;
 }
 
-.cart-item {
-    padding: 1.5rem;
+/* Price Details Card Styles */
+.cart-summary {
+    position: -webkit-sticky !important;
+    position: sticky !important;
+    top: 100px !important;
+    align-self: start;
+    z-index: 100;
+}
+
+.price-details-card {
+    padding: 2rem;
+    border-radius: 20px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+}
+
+.price-details-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: 1.5rem;
+}
+
+.price-row {
     display: flex;
-    gap: 2rem;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    font-size: 1rem;
+    color: var(--text-main);
+}
+
+.price-divider {
+    height: 1px;
+    background: #f1f5f9;
+    margin: 1.5rem 0;
+}
+
+.total-row {
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+}
+
+.savings-badge {
+    background: #f0fdf4;
+    color: #16a34a;
+    padding: 0.8rem;
+    border-radius: 12px;
+    font-weight: 600;
+    text-align: center;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+}
+
+.btn-place-order {
+    display: block;
+    width: 100%;
+    background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+    color: white;
+    text-align: center;
+    padding: 0.8rem;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 700;
+    text-decoration: none;
+    box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.3);
+    transition: all 0.3s ease;
+}
+
+.btn-place-order:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 20px 25px -5px rgba(99, 102, 241, 0.4);
+    color: white;
+}
+
+.text-success {
+    color: #16a34a;
+}
+
+.btn-block {
+    display: block;
+    width: 100%;
+}
+.btn-qty:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+@media (max-width: 1100px) {
+    .cart-grid {
+        grid-template-columns: 1fr 320px;
+        gap: 1.5rem;
+    }
+}
+
+@media (max-width: 992px) {
+    .cart-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .cart-summary {
+        position: -webkit-sticky;
+        position: sticky;
+        top: 1rem;
+        margin-top: 2rem;
+        order: 2;
+    }
+
+    .cart-items-container {
+        order: 1;
+    }
+}
+
+.cart-item {
+    padding: 1rem;
+    display: flex;
+    gap: 1.25rem;
     align-items: center;
     flex-direction: row;
     border-bottom: 1px solid #f3f4f6;
     background: white;
+}
+
+.cart-price-block {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    margin-top: 0.4rem;
+}
+
+.price-row-inner {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.cart-item .price-old {
+    font-size: 0.8rem;
+    text-decoration: line-through;
+    color: #94a3b8;
+}
+
+.cart-item .price-new {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text-main);
+}
+
+.cart-item .discount-badge {
+    font-size: 0.8rem;
+    color: #16a34a;
+    font-weight: 600;
 }
 
 .cart-item:last-child {
@@ -4835,9 +4990,9 @@ footer a:hover {
     flex-grow: 1;
 }
 
-.product-title-card {
-    font-size: 1.25rem;
-    margin-bottom: 0.5rem;
+.cart-item .product-title-card {
+    font-size: 1.1rem;
+    margin-bottom: 0.3rem;
     font-weight: 600;
 }
 
@@ -4847,9 +5002,9 @@ footer a:hover {
     align-items: center;
 }
 
-.cart-price-total {
+.cart-item .cart-price-total {
     font-weight: 700;
-    font-size: 1.1rem;
+    font-size: 0.97rem;
     min-width: 80px;
     text-align: right;
     color: var(--text-main);
@@ -5074,9 +5229,11 @@ footer a:hover {
     flex-direction: column;
     gap: 1.5rem;
 }
+
 .wishlist-active {
     color: red !important;
 }
+
 .wishlist-item {
     padding: 1.5rem;
     display: flex;
@@ -5784,4 +5941,3 @@ footer a:hover {
         animation-duration: 20s;
     }
 }
-

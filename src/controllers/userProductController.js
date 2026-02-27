@@ -2,15 +2,19 @@ import userModel from "../models/userModal.js"
 import productModel from "../models/productModal.js"
 import categoryModel from "../models/category.js"
 import wishlistModel from "../models/wishlistModel.js"
+import cartModel from "../models/cartModel.js"
 
 import {
 
     getAllProducts,
     getFilterdProduct,
     findProducts,
-    addWishlistService
+    addWishlistService,
+    addToCartService,
+    removeFromCartService
 
 } from "../services/userProductService.js"
+
 
 
 export const loadProducts = async (req, res) => {
@@ -245,4 +249,69 @@ export const removeFromWishlist = async (req, res) => {
         console.error(error);
         res.status(500).json({ success: false });
     }
-};
+}
+
+export const loadCart = async (req, res) => {
+
+    try {
+
+        const userId = req.session.user.id;
+
+        const cart = await cartModel.findOne({ user: userId }).populate("items.product");
+
+        res.render("user/cart", {
+            title: "My Cart - Quavix",
+            css: "userStyle",
+            cart
+        })
+
+    } catch (err) {
+ 
+        res.redirect("/");
+    }
+
+}
+
+export const addToCart=async(req,res)=>{
+    try {
+        if(!req.session.user){
+            return res.status(401).json({success:false})
+        }
+
+        const userId=req.session.user.id
+        const {productId,variantId}=req.body
+
+        await addToCartService(userId,productId,variantId)
+
+        res.json({success:true,message:"Product added to cart!"})
+
+    }catch(err){
+        res.status(400).json({ success: false });
+    }
+}
+
+export const removeFromCart = async (req, res) => {
+    try {
+
+        if (!req.session.user) {
+            return res.status(401).json({success: false,message: "Login required"})
+        }
+
+        const userId = req.session.user.id;
+        const { productId, variantId } = req.body;
+
+        await removeFromCartService(userId, productId, variantId);
+
+        res.json({
+            success: true,
+            message: "Product removed from cart"
+        });
+
+    } catch (err) {
+        console.error("Remove Cart Error:", err);
+        res.status(500).json({
+            success: false,
+            message: "Failed to remove product"
+        });
+    }
+}

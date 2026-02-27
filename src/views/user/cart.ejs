@@ -1,3 +1,4 @@
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@400;500;600;700;800&display=swap">
 <body class="cart-page">
         <% if (typeof toastMessage !=="undefined" ) { %>
         <div id="toast" class="toast <%= toastType %> show">
@@ -26,19 +27,23 @@
             <!-- Mobile Sidebar (Hidden by default) -->
             <aside class="mobile-sidebar">
                 <div class="sidebar-header">
-                    <a href="index.html" class="logo">
+                    <a href="/" class="logo">
                         <i class="fa-solid fa-bolt text-gradient-clip"></i>
                         <span class="text-gradient">Quavix</span>
                     </a>
                     <button class="close-btn"><i class="fa-solid fa-xmark"></i></button>
                 </div>
                 <div class="sidebar-content">
-                    <a href="products.html"><i class="fa-solid fa-shop"></i> Shop</a>
+                    <a href="/products"><i class="fa-solid fa-shop"></i> Shop</a>
                     <a href="order-history.html"><i class="fa-solid fa-box"></i> Orders</a>
-                    <a href="wishlist.html"><i class="fa-regular fa-heart"></i> Wishlist</a>
-                    <a href="cart.html"><i class="fa-solid fa-cart-shopping"></i> Cart</a>
-                    <a href="profile.html"><i class="fa-solid fa-user"></i> Profile</a>
-                    <a href="login.html"><i class="fa-solid fa-right-to-bracket"></i> Sign In</a>
+                    <a href="/wishlist"><i class="fa-regular fa-heart"></i> Wishlist</a>
+                    <a href="/cart"><i class="fa-solid fa-cart-shopping"></i> Cart</a>
+                    <% if (user) { %>
+                            <a href="/profile"><i class="fa-solid fa-user"></i> Profile</a>
+                            <a href="/logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+                        <% } else { %>
+                            <a href="/login"><i class="fa-solid fa-right-to-bracket"></i> Sign In</a>
+                    <% } %>
                 </div>
             </aside>
 
@@ -47,8 +52,8 @@
 
             <!-- Desktop Menu -->
             <div class="nav-menu">
-                <a href="index.html" style="color: var(--text-muted);">Home</a>
-                <a href="products.html" style="color: var(--text-muted);">Shop</a>
+                <a href="/" style="color: var(--text-muted);">Home</a>
+                <a href="/products" style="color: var(--text-muted);">Shop</a>
                 <a href="order-history.html" style="color: var(--text-muted);">Orders</a>
             </div>
 
@@ -59,16 +64,31 @@
                     <button><i class="fa-solid fa-magnifying-glass"></i></button>
                 </div>
 
-                <a href="wishlist.html" class="relative">
+                <a href="/wishlist" class="relative">
                     <i class="fa-regular fa-heart nav-icon-lg"></i>
                 </a>
-                <a href="cart.html" class="relative">
+                <a href="/cart" class="relative">
                     <i class="fa-solid fa-cart-shopping nav-icon-lg text-primary"></i>
                 </a>
-                <a href="login.html" class="btn btn-primary btn-sm">Sign In</a>
-                <a href="profile.html" class="nav-profile-icon">
-                    J
-                </a>
+                <% if (user) { %>
+                    <a href="/profile" class="nav-profile-icon">
+
+                        <% if (user.profileImage) { %>
+                            <img src="<%= user.profileImage %>" 
+                                alt="Profile"
+                                class="nav-profile-img">
+                        <% } else { %>
+                            <div class="nav-default-avatar">
+                                <%= user.name.charAt(0).toUpperCase() %>
+                            </div>
+                        <% } %>
+
+                    </a>
+                <% } else { %>
+                    <a href="/login" class="btn btn-primary btn-sm">
+                        <i class="fa-solid fa-right-to-bracket"></i> Sign In
+                    </a>
+                <% } %>
             </div>
         </div>
     </nav>
@@ -76,85 +96,311 @@
     <div class="container py-16">
         <h1 class="mb-8">Shopping Cart</h1>
 
-        <div class="">
-            <!-- Cart Items List -->
-            <div class="card cart-items-container" style="padding: 0;">
+        <div class="cart-grid">
 
-                <!-- Item 1: Headphones -->
+            <!-- ================= LEFT SIDE ================= -->
+            <div class="card cart-items-container" style="padding:0;">
+
+            <% 
+                let totalMRP = 0;
+                let totalDiscount = 0;
+                let grandTotal = 0;
+                let totalItems = 0;
+            %>
+
+            <% if (cart && cart.items.length > 0) { %>
+
+                <% cart.items.forEach(item => { 
+
+                    const product = item.product;
+                    if (!product) return;
+
+                    const variant = product.variants.find(v => 
+                        v._id.toString() === item.variant.toString()
+                    );
+                    if (!variant) return;
+
+                    const originalPrice = variant.price;
+                    const offer = product.offerPercentage || 0;
+
+                    const discountPerUnit = (originalPrice * offer) / 100;
+                    const finalPrice = Math.round(originalPrice - discountPerUnit);
+
+                    const itemMRP = originalPrice * item.quantity;
+                    const itemDiscount = discountPerUnit * item.quantity;
+                    const itemTotal = finalPrice * item.quantity;
+
+                    totalMRP += itemMRP;
+                    totalDiscount += itemDiscount;
+                    grandTotal += itemTotal;
+                    totalItems += item.quantity;
+                %>
+
                 <div class="cart-item">
-                    <!-- Left: Image -->
+
+                    <!-- Image -->
                     <div class="cart-image-box">
-                        <a href="#">
-                            <img src="images/Audio.avif" alt="Headphones">
+                        <a href="/product/<%= product.slug %>">
+                            <img src="<%= variant.images.primary.url %>" alt="<%= product.name %>">
                         </a>
                     </div>
 
-                    <!-- Middle: Info -->
+                    <!-- Info -->
                     <div class="cart-info">
-                        <h3 class="product-title-card">Wireless Headphones</h3>
-                        <p class="text-muted text-sm mb-1">Color: Black</p>
-                        <p class="text-muted">Unit Price: ₹299.00</p>
+                        <%
+                            const attributes = variant.attributes || [];
+
+                            const attributeValues = attributes.map(attr => attr.value);
+                        %>
+
+                        <h3 class="product-title-card">
+                            <%= product.name %>
+                            <% if (attributeValues.length > 0) { %>
+                                (
+                                <%= attributeValues.join(", ") %>
+                                )
+                            <% } %>
+                        </h3>
+
+                        <div class="cart-price-block">
+                            <div class="price-row-inner">
+
+                                <% if (offer > 0) { %>
+                                    <span class="price-old">
+                                        ₹<%= originalPrice.toLocaleString() %>
+                                    </span>
+                                <% } %>
+
+                                <span class="price-new">
+                                    ₹<%= finalPrice.toLocaleString() %>
+                                </span>
+                            </div>
+
+                            <% if (offer > 0) { %>
+                                <span class="discount-badge">
+                                    <%= offer %>% Off
+                                </span>
+                            <% } %>
+                        </div>
                     </div>
 
-                    <!-- Right: Quantity, Total & Action -->
+                    <!-- Actions -->
                     <div class="cart-actions">
-                        <!-- Quantity -->
-                        <div class="quantity-wrapper">
-                            <button class="btn-qty"><i class="fa-solid fa-minus"></i></button>
-                            <input type="text" value="1" class="qty-input">
-                            <button class="btn-qty"><i class="fa-solid fa-plus"></i></button>
+
+                        <div class="quantity-wrapper"
+                            data-original="<%= originalPrice %>"
+                            data-final="<%= finalPrice %>"
+                            data-discount="<%= discountPerUnit %>">
+
+                            <button class="btn-qty qty-minus"
+                                <%= item.quantity <= 1 ? "disabled" : "" %>>
+                                <i class="fa-solid fa-minus"></i>
+                            </button>
+
+                            <input type="text"
+                                value="<%= item.quantity %>"
+                                class="qty-input"
+                                readonly>
+
+                            <button class="btn-qty qty-plus"
+                                <%= item.quantity >= 10 ? "disabled" : "" %>>
+                                <i class="fa-solid fa-plus"></i>
+                            </button>
                         </div>
 
-                        <!-- Total -->
-                        <div class="cart-price-total">₹299.00</div>
+                        <div class="cart-price-total item-total">
+                            ₹<%= itemTotal.toLocaleString() %>
+                        </div>
 
-                        <!-- Remove -->
-                        <button class="btn btn-remove"><i class="fa-solid fa-trash"></i></button>
+                        <button 
+                            class="btn btn-remove remove-cart-item"
+                            data-product="<%= product._id %>"
+                            data-variant="<%= variant._id %>">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+
                     </div>
                 </div>
 
+                <% }) %>
 
-                <!-- Item 3: iPhone 13 -->
-                <div class="cart-item">
-                    <!-- Left: Image -->
-                    <div class="cart-image-box">
-                        <a href="#">
-                            <img src="images/iphone 13.jpg" alt="Apple iPhone 13">
-                        </a>
-                    </div>
+            <% } else { %>
 
-                    <!-- Middle: Info -->
-                    <div class="cart-info">
-                        <h3 class="product-title-card">Apple iPhone 13 (Blue, 128 GB)</h3>
-                        <p class="text-muted text-sm mb-1">Storage: 128 GB</p>
-                        <p class="text-muted text-sm mb-1">Color: Blue</p>
-                        <p class="text-muted">Unit Price: ₹49,900</p>
-                    </div>
-
-                    <!-- Right: Quantity, Total & Action -->
-                    <div class="cart-actions">
-                        <!-- Quantity -->
-                        <div class="quantity-wrapper">
-                            <button class="btn-qty"><i class="fa-solid fa-minus"></i></button>
-                            <input type="text" value="1" class="qty-input">
-                            <button class="btn-qty"><i class="fa-solid fa-plus"></i></button>
-                        </div>
-
-                        <!-- Total -->
-                        <div class="cart-price-total">₹49,900</div>
-
-                        <!-- Remove -->
-                        <button class="btn btn-remove"><i class="fa-solid fa-trash"></i></button>
-                    </div>
+                <div class="p-8 text-center text-muted">
+                    Your cart is empty.
                 </div>
-                <!-- Footer Actions -->
-                <div class="cart-footer-actions">
-                    <a href="checkout.html" class="btn btn-primary">Proceed to Checkout</a>
+
+            <% } %>
+
+            </div>
+
+            <!-- ================= RIGHT SIDE SUMMARY ================= -->
+            <% if (cart && cart.items.length > 0) { %>
+
+            <div class="cart-summary">
+                <div class="card price-details-card">
+
+                    <h2 class="price-details-title">Price details</h2>
+
+                    <div class="price-row">
+                        <span class="price-label">
+                            MRP (<span id="summary-items"><%= totalItems %></span> items)
+                        </span>
+                        <span class="price-value">
+                            ₹<span id="summary-mrp"><%= totalMRP.toLocaleString() %></span>
+                        </span>
+                    </div>
+
+                    <div class="price-row">
+                        <span class="price-label">Discount</span>
+                        <span class="price-value text-success">
+                            - ₹<span id="summary-discount"><%= Math.round(totalDiscount).toLocaleString() %></span>
+                        </span>
+                    </div>
+
+                    <div class="price-divider"></div>
+
+                    <div class="price-row total-row">
+                        <span class="total-label">Total Amount</span>
+                        <span class="total-value">
+                            ₹<span id="summary-total"><%= grandTotal.toLocaleString() %></span>
+                        </span>
+                    </div>
+
+                    <div class="savings-badge">
+                        You will save ₹<span id="summary-save"><%= Math.round(totalDiscount).toLocaleString() %></span> on this order
+                    </div>
+
+                    <a href="/checkout" class="btn-place-order">
+                        Place Order
+                    </a>
+
                 </div>
             </div>
+
+            <% } %>
+
         </div>
     </div>
-    </div>
+
+    <script>
+        document.addEventListener("click", function (e) {
+
+            const btn = e.target.closest(".remove-cart-item");
+            if (!btn) return;
+
+            const productId = btn.dataset.product;
+            const variantId = btn.dataset.variant;
+
+            Swal.fire({
+                title: "Are you sure?",
+                text: "This product will be removed from cart!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#6366f1",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Yes, remove it"
+            }).then(async (result) => {
+
+                if (!result.isConfirmed) return;
+
+                try {
+
+                    const response = await fetch("/cart/remove", {
+                        method: "DELETE",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({ productId, variantId })
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+
+                        Swal.fire({
+                            icon: "success",
+                            title: "Removed!",
+                            text: data.message,
+                            timer: 1500,
+                            showConfirmButton: false
+                        });
+
+                        setTimeout(() => {
+                            location.reload();
+                        }, 1200);
+
+                    } else {
+                        Swal.fire("Error", data.message, "error");
+                    }
+
+                } catch (err) {
+                    Swal.fire("Error", "Something went wrong", "error");
+                }
+
+            });
+        });
+
+        document.addEventListener("click", function (e) {
+
+            const plusBtn = e.target.closest(".qty-plus");
+            const minusBtn = e.target.closest(".qty-minus");
+
+            if (!plusBtn && !minusBtn) return;
+
+            const button = plusBtn || minusBtn;
+            const wrapper = button.closest(".quantity-wrapper");
+            const input = wrapper.querySelector(".qty-input");
+            const cartItem = button.closest(".cart-item");
+            const totalElement = cartItem.querySelector(".item-total");
+
+            const originalPrice = parseFloat(wrapper.dataset.original);
+            const finalPrice = parseFloat(wrapper.dataset.final);
+            const discountPerUnit = parseFloat(wrapper.dataset.discount);
+
+            let qty = parseInt(input.value);
+
+            if (plusBtn && qty < 10) qty++;
+            if (minusBtn && qty > 1) qty--;
+
+            input.value = qty;
+
+            // Disable buttons
+            wrapper.querySelector(".qty-minus").disabled = qty <= 1;
+            wrapper.querySelector(".qty-plus").disabled = qty >= 10;
+
+            // Update item total
+            const itemTotal = finalPrice * qty;
+            totalElement.innerText = "₹" + itemTotal.toLocaleString();
+
+            // 🔥 Recalculate whole summary
+            let totalMRP = 0;
+            let totalDiscount = 0;
+            let grandTotal = 0;
+            let totalItems = 0;
+
+            document.querySelectorAll(".quantity-wrapper").forEach(w => {
+
+                const q = parseInt(w.querySelector(".qty-input").value);
+                const o = parseFloat(w.dataset.original);
+                const f = parseFloat(w.dataset.final);
+                const d = parseFloat(w.dataset.discount);
+
+                totalMRP += o * q;
+                totalDiscount += d * q;
+                grandTotal += f * q;
+                totalItems += q;
+            });
+
+            document.getElementById("summary-items").innerText = totalItems;
+            document.getElementById("summary-mrp").innerText = totalMRP.toLocaleString();
+            document.getElementById("summary-discount").innerText = Math.round(totalDiscount).toLocaleString();
+            document.getElementById("summary-total").innerText = grandTotal.toLocaleString();
+            document.getElementById("summary-save").innerText = Math.round(totalDiscount).toLocaleString();
+
+        });
+
+    </script>
 
     
 </body>

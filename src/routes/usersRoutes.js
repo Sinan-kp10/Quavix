@@ -43,7 +43,10 @@ import {
   loadProductDetials,
   loadWishlist,
   AddToWishlist,
-  removeFromWishlist
+  removeFromWishlist,
+  loadCart,
+  addToCart,
+  removeFromCart
 
 } from "../controllers/userProductController.js"
 
@@ -104,11 +107,14 @@ router.get("/auth/google/callback", passport.authenticate("google", { failureRed
 router.get("/products", loadProducts)
 router.get("/products/filter", filterProducts)
 router.get("/products/search", searchProducts)
-
 router.get("/product/:slug",loadProductDetials)
 router.get("/wishlist",isLogin, loadWishlist);
 router.post("/wishlist",isLogin, AddToWishlist)
 router.delete("/wishlist/remove", removeFromWishlist);
+
+router.get("/cart",isLogin, loadCart)
+router.post("/cart",isLogin, addToCart)
+router.delete("/cart/remove", removeFromCart);
 
 router.get("/logout", logout)
 

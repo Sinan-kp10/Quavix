@@ -8,7 +8,7 @@ export const isLogin = async(req, res, next) => {
                 return res.status(401).json({
                     success: false,
                     loginRequired: true,
-                    message: "Login required"
+                   
                 });
             }
         return res.redirect("/login");

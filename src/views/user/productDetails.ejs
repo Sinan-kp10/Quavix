@@ -27,7 +27,7 @@
                     <!-- Mobile Sidebar (Hidden by default) -->
                     <aside class="mobile-sidebar">
                         <div class="sidebar-header">
-                            <a href="index.html" class="logo">
+                            <a href="/" class="logo">
                                 <i class="fa-solid fa-bolt text-gradient-clip"></i>
                                 <span class="text-gradient">Quavix</span>
                             </a>
@@ -37,7 +37,7 @@
                             <a href="products.html"><i class="fa-solid fa-shop"></i> Shop</a>
                             <a href="order-history.html"><i class="fa-solid fa-box"></i> Orders</a>
                             <a href="/wishlist"><i class="fa-regular fa-heart"></i> Wishlist</a>
-                            <a href="cart.html"><i class="fa-solid fa-cart-shopping"></i> Cart</a>
+                            <a href="/cart"><i class="fa-solid fa-cart-shopping"></i> Cart</a>
                             <% if (user) { %>
                                 <a href="/profile"><i class="fa-solid fa-user"></i> Profile</a>
                                 <a href="/logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
@@ -66,7 +66,7 @@
                         <a href="/wishlist" class="relative">
                             <i class="fa-regular fa-heart nav-icon-lg"></i>
                         </a>
-                        <a href="cart.html" class="relative">
+                        <a href="/cart" class="relative">
                             <i class="fa-solid fa-cart-shopping nav-icon-lg"></i>
                         </a>
                         <% if (user) { %>
@@ -164,7 +164,11 @@
                                 </div>
 
                                 <div class="action-buttons">
-                                    <button class="btn btn-cart btn-lg">
+                                    <button 
+                                        class="btn btn-cart btn-lg add-to-cart-btn"
+                                        data-product="<%= product._id %>"
+                                        data-variant="<%= activeVariant._id %>">
+
                                         <i class="fa-solid fa-cart-shopping mr-2"></i> Add to Cart
                                     </button>
 
@@ -563,7 +567,7 @@
                 const data = await response.json();
 
                 if (response.status === 401) {
-                    triggerToast(data.message || "Login required", "error");
+                    triggerToast(data.message || "Please login to use wishlist", "error");
                     return;
                 }
 
@@ -592,6 +596,53 @@
                 triggerToast("Server error", "error");
             }
         });
+
+
+        //cart
+        document.addEventListener("click", async function (e) {
+
+            const button = e.target.closest(".add-to-cart-btn");
+            if (!button) return;
+
+            const productId = button.dataset.product;
+            const variantId = button.dataset.variant;
+
+            try {
+
+                const response = await fetch("/cart", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ productId, variantId })
+                });
+
+                const data = await response.json();
+
+
+                if (response.status === 401) {
+                    triggerToast(data.message || "Please login to access your cart", "error");
+                    return;
+                }
+                if (response.status === 400) {
+                    triggerToast(data.message || "This product is currently out of stock.", "error");
+                    return;
+                }
+
+                if (!data.success) {
+                    triggerToast(data.message || "Fialed to add to cart", "error");
+                    return;
+                }
+
+                triggerToast(data.message, "success");
+
+            } catch (error) {
+                triggerToast("Something went wrong", "error");
+            }
+
+        });
+
+
         const toast = document.getElementById("toast");
 
         if (toast) {
@@ -648,5 +699,6 @@
             element.classList.add("active");
         }
     </script>
+
 
 </body>
