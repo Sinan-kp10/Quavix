@@ -37,8 +37,12 @@
                     <a href="order-history.html"><i class="fa-solid fa-box"></i> Orders</a>
                     <a href="wishlist.html"><i class="fa-regular fa-heart"></i> Wishlist</a>
                     <a href="cart.html"><i class="fa-solid fa-cart-shopping"></i> Cart</a>
-                    <a href="profile.html"><i class="fa-solid fa-user"></i> Profile</a>
-                    <a href="login.html"><i class="fa-solid fa-right-to-bracket"></i> Sign In</a>
+                    <% if(user){ %>
+                            <a href="/profile"><i class="fa-solid fa-user"></i> Profile</a>
+                            <a href="/logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+                        <%} else{ %>
+                            <a href="/login"><i class="fa-solid fa-right-to-bracket"></i> Sign In</a>
+                    <% } %>
                 </div>
             </aside>
 
@@ -47,8 +51,8 @@
 
             <!-- Desktop Menu -->
             <div class="nav-menu">
-                <a href="index.html">Home</a>
-                <a href="products.html">Shop</a>
+                <a href="/">Home</a>
+                <a href="/products">Shop</a>
                 <a href="order-history.html">Orders</a>
             </div>
 
@@ -59,16 +63,31 @@
                     <button><i class="fa-solid fa-magnifying-glass"></i></button>
                 </div>
 
-                <a href="wishlist.html" class="text-danger">
+                <a href="/wishlist" class="text-danger">
                     <i class="fa-solid fa-heart nav-icon-lg"></i>
                 </a>
                 <a href="cart.html" class="relative">
                     <i class="fa-solid fa-cart-shopping nav-icon-lg"></i>
                 </a>
-                <a href="login.html" class="btn btn-primary btn-sm">Sign In</a>
-                <a href="profile.html" class="nav-profile-icon">
-                    J
-                </a>
+                <% if (user) { %>
+                    <a href="/profile" class="nav-profile-icon">
+
+                        <% if (user.profileImage) { %>
+                            <img src="<%= user.profileImage %>" 
+                                alt="Profile"
+                                class="nav-profile-img">
+                        <% } else { %>
+                            <div class="nav-default-avatar">
+                                <%= user.name.charAt(0).toUpperCase() %>
+                            </div>
+                        <% } %>
+
+                    </a>
+                <% } else { %>
+                    <a href="/login" class="btn btn-primary btn-sm">
+                        <i class="fa-solid fa-right-to-bracket"></i> Sign In
+                    </a>
+                <% } %>
             </div>
         </div>
     </nav>
@@ -105,18 +124,56 @@
                         <img src="<%= variant.images.primary.url %>" alt="<%= product.name %>">
                     </a>
                 </div>
-
+                
                 <!-- Info -->
                 <div class="wishlist-info">
-                    <h2 class="wishlist-title"><%= product.name %></h2>
 
-                    <% if (product.highlights && product.highlights.length > 0) { %>
+                    <% 
+                        // ===== Extract Attributes Safely =====
+                        const attributes = variant.attributes || [];
+
+                        const colorAttr = attributes.find(a => 
+                            a.name.toLowerCase().includes("color") ||
+                            a.name.toLowerCase().includes("colour")
+                        );
+
+                        const ramAttr = attributes.find(a => 
+                            a.name.toLowerCase().includes("ram")
+                        );
+
+                        const storageAttr = attributes.find(a => 
+                            a.name.toLowerCase().includes("rom") ||
+                            a.name.toLowerCase().includes("storage")
+                        );
+
+                        const color = colorAttr ? colorAttr.value : "";
+                        const ram = ramAttr ? ramAttr.value : "";
+                        const storage = storageAttr ? storageAttr.value : "";
+                    %>
+
+                    <!-- PRODUCT TITLE WITH ATTRIBUTES -->
+                    <h2 class="wishlist-title">
+                        <%= product.name %>
+                        <% if (color || ram || storage) { %>
+                            (<%= [color, ram, storage].filter(Boolean).join(", ") %>)
+                        <% } %>
+                    </h2>
+
+                    <!-- HIGHLIGHTS -->
                     <ul class="wishlist-highlights">
-                        <% product.highlights.slice(0,3).forEach(h => { %>
-                            <li><%= h %></li>
-                        <% }) %>
+
+                        <% if (ram || storage) { %>
+                            <li><%= [ram, storage].filter(Boolean).join(" | ") %></li>
+                        <% } %>
+
+                        <% if (product.highlights && product.highlights.length > 0) { %>
+                            <% product.highlights.slice(0,3).forEach(h => { %>
+                                <li><%= h %></li>
+                            <% }) %>
+                        <% } %>
+
                     </ul>
-                    <% } %>
+
                 </div>
 
                 <!-- Price & Actions -->
@@ -168,5 +225,75 @@
     </div>
 
     <script src="js/script.js"></script>
+    
+    <script>
+        document.addEventListener("click", async function (e) {
+
+            const button = e.target.closest(".btn-remove");
+            if (!button) return;
+
+            const productId = button.dataset.product;
+            const variantId = button.dataset.variant;
+
+            const result = await Swal.fire({
+                title: "Remove from Wishlist?",
+                text: "This product will be removed from your wishlist.",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#6C5CE7",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Yes, remove it!",
+                cancelButtonText: "Cancel"
+            });
+
+            if (!result.isConfirmed) return;
+
+            try {
+
+                const response = await fetch("/wishlist/remove", {
+                    method: "DELETE",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        productId,
+                        variantId
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+
+                    const item = button.closest(".wishlist-item");
+
+                    // Smooth remove animation
+                    item.style.transition = "0.3s";
+                    item.style.opacity = "0";
+                    item.style.transform = "scale(0.95)";
+
+                    setTimeout(() => {
+                        item.remove();
+                    }, 300);
+
+                    Swal.fire({
+                        icon: "success",
+                        title: "Removed!",
+                        text: "Product removed from wishlist.",
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+
+                } else {
+                    Swal.fire("Error", "Failed to remove item", "error");
+                }
+
+            } catch (error) {
+                console.error(error);
+                Swal.fire("Error", "Something went wrong!", "error");
+            }
+
+        });
+        </script>
 </body>
 

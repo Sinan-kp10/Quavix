@@ -1,4 +1,5 @@
 import productModel from "../models/productModal.js"
+import wishlistModel from "../models/wishlistModel.js";
 
 
 export const getAllProducts=async(category=null)=>{
@@ -115,3 +116,39 @@ export const findProducts = async (search) => {
 
     return products;
 }
+
+
+
+export const addWishlistService = async (userId, productId, variantId) => {
+
+    let wishlist = await wishlistModel.findOne({ user: userId });
+
+    if (!wishlist) {
+        wishlist = new wishlistModel({
+            user: userId,
+            items: [{ product: productId, variant: variantId }]
+        });
+
+        await wishlist.save();
+        return { added: true };
+    }
+
+    const existingIndex = wishlist.items.findIndex(item =>
+        item.product.toString() === productId &&
+        item.variant?.toString() === variantId
+    )
+
+    if (existingIndex > -1) {
+        wishlist.items.splice(existingIndex, 1);
+        await wishlist.save();
+        return { added: false };
+    }
+
+    wishlist.items.push({
+        product: productId,
+        variant: variantId
+    });
+
+    await wishlist.save();
+    return { added: true };
+};

@@ -2265,9 +2265,19 @@ input[type="checkbox"]:not(.checkbox-primary):checked::after {
 
     /* Show Mobile Elements */
     .mobile-sidebar,
-    .mobile-overlay,
     .mobile-search-container {
         display: flex !important;
+    }
+    .mobile-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.4);
+        z-index: 1500;
+    }
+
+    .mobile-overlay.active {
+        display: block;
     }
 
     .mobile-search-container {
@@ -3604,6 +3614,7 @@ footer a:hover {
     transform: translateY(-20px) scale(0.95);
     transition: all 0.3s ease;
     z-index: 9999;
+    pointer-events: none;
 }
 
 /* Show animation */
@@ -3626,7 +3637,9 @@ footer a:hover {
 .toast i {
     margin-right: 8px;
 }
-
+.toast {
+    pointer-events: none;   /* 🔥 This fixes everything */
+}
 .otp-timer {
     margin-top: 10px;
     font-size: 14px;
@@ -5061,7 +5074,9 @@ footer a:hover {
     flex-direction: column;
     gap: 1.5rem;
 }
-
+.wishlist-active {
+    color: red !important;
+}
 .wishlist-item {
     padding: 1.5rem;
     display: flex;
@@ -5397,7 +5412,7 @@ footer a:hover {
 }
 
 .home-card-title {
-    font-size: 0.95rem;
+    font-size: 1.1rem;
     font-weight: 700;
     margin-bottom: 0.75rem;
     line-height: 1.4;
@@ -5424,9 +5439,9 @@ footer a:hover {
 }
 
 .price-old-sm {
-    font-size: 0.75rem;
+    font-size: 0.8rem;
     text-decoration: line-through;
-    color: #cbd5e1;
+    color: #4a4a4b;
     font-weight: 500;
 }
 
@@ -5769,3 +5784,4 @@ footer a:hover {
         animation-duration: 20s;
     }
 }
+

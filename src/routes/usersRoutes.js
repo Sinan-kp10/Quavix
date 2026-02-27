@@ -41,7 +41,9 @@ import {
   filterProducts,
   searchProducts,
   loadProductDetials,
-  loadWishlist
+  loadWishlist,
+  AddToWishlist,
+  removeFromWishlist
 
 } from "../controllers/userProductController.js"
 
@@ -105,6 +107,8 @@ router.get("/products/search", searchProducts)
 
 router.get("/product/:slug",loadProductDetials)
 router.get("/wishlist",isLogin, loadWishlist);
+router.post("/wishlist",isLogin, AddToWishlist)
+router.delete("/wishlist/remove", removeFromWishlist);
 
 router.get("/logout", logout)
 

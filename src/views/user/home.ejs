@@ -55,10 +55,12 @@
 
             <div class="nav-icons">
                 <!-- Search Bar -->
-                <div class="nav-search">
-                    <input type="text" placeholder="Search gadgets...">
-                    <button><i class="fa-solid fa-magnifying-glass"></i></button>
-                </div>
+                <form class="nav-search" action="/products/search" method="GET">
+                    <input type="text" name="q" placeholder="Search gadgets...">
+                    <button type="submit">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </button>
+                </form>
 
                 <a href="/wishlist" class="relative">
                     <i class="fa-regular fa-heart nav-icon-lg"></i>
@@ -194,8 +196,19 @@
                             <span class="home-card-offer"><%= offer %>% OFF</span>
                         <% } %>
 
-                        <button class="wishlist-btn-sm">
-                            <i class="fa-regular fa-heart"></i>
+                        <% const isWishlisted = wishlistItems?.some(item =>
+                            item.product === product._id.toString() &&
+                            item.variant === variant._id.toString()
+                        );
+                        %>
+
+                        <button 
+                            class="wishlist-btn-sm wishlist-toggle"
+                            data-product="<%= product._id %>"
+                            data-variant="<%= variant._id %>">
+
+                            <i class="fa-heart <%= isWishlisted ? 'fa-solid text-danger' : 'fa-regular' %>"></i>
+
                         </button>
 
                         <a href="/product/<%= product.slug %>">
@@ -216,15 +229,46 @@
                             </span>
                         </div>
 
-                        <h3 class="home-card-title">
-                            <%= product.name %>
-                        </h3>
+                        <%const attributes = variant.attributes || [];
 
-                        <ul class="home-card-highlights">
-                            <% product.highlights.slice(0,3).forEach(h => { %>
-                                <li><%= h %></li>
-                            <% }) %>
-                        </ul>
+                        const colorAttr = attributes.find(a =>
+                            a.name.toLowerCase().includes("color") ||
+                            a.name.toLowerCase().includes("colour")
+                        );
+
+                        const ramAttr = attributes.find(a =>
+                            a.name.toLowerCase().includes("ram")
+                        );
+
+                        const storageAttr = attributes.find(a =>
+                            a.name.toLowerCase().includes("rom") ||
+                            a.name.toLowerCase().includes("storage")
+                        );
+
+                        const color = colorAttr ? colorAttr.value : "";
+                        const ram = ramAttr ? ramAttr.value : "";
+                        const storage = storageAttr ? storageAttr.value : "";
+                    %>
+
+                    <h3 class="home-card-title">
+                        <%= product.name %>
+                        <% if (color || storage) { %>
+                            (<%= [color, storage].filter(Boolean).join(", ") %>)
+                        <% } %>
+                    </h3>
+
+                    <ul class="home-card-highlights">
+
+                        <% if (ram || storage) { %>
+                            <li><%= [ram, storage].filter(Boolean).join(" | ") %></li>
+                        <% } %>
+
+                        <% product.highlights.slice(0,2).forEach(h => { %>
+                            <li><%= h %></li>
+                        <% }) %>
+
+                    </ul>
+                        
 
                         <div class="home-card-bottom">
                             <div class="price-box">
@@ -240,10 +284,6 @@
                                 </span>
 
                             </div>
-
-                            <button class="btn-add-icon">
-                                <i class="fa-solid fa-plus"></i>
-                            </button>
                         </div>
 
                     </div>
@@ -309,6 +349,98 @@
     </footer>
 
     <script src="/js/user/navbar.js"></script>
+
+    <script>
+
+        //wishlist
+
+
+        document.addEventListener("click", async function (e) {
+
+            const btn = e.target.closest(".wishlist-toggle");
+            if (!btn) return;
+
+            e.preventDefault();
+
+            const productId = btn.dataset.product;
+            const variantId = btn.dataset.variant;
+
+            try {
+
+                const response = await fetch("/wishlist", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ productId, variantId })
+                });
+
+                const data = await response.json();
+
+                if (response.status === 401) {
+                    triggerToast(data.message || "Login required", "error");
+                    return;
+                }
+
+                if (!data.success) {
+                    triggerToast(data.message || "Something went wrong", "error");
+                    return;
+                }
+
+                const icon = btn.querySelector("i");
+
+                if (data.added) {
+                    icon.classList.remove("fa-regular");
+                    icon.classList.add("fa-solid");
+                    icon.style.color = "red";
+
+                    triggerToast(data.message, "success");
+                } else {
+                    icon.classList.remove("fa-solid");
+                    icon.classList.add("fa-regular");
+                    icon.style.color = "#cbd5e1";
+
+                    triggerToast(data.message, "error");
+                }
+
+            } catch (err) {
+                triggerToast("Server error", "error");
+            }
+        });
+        const toast = document.getElementById("toast");
+
+        if (toast) {
+            setTimeout(() => {
+                toast.classList.add("show");
+            }, 100);
+
+            setTimeout(() => {
+                toast.classList.remove("show");
+            }, 3000);
+        }
+
+        function triggerToast(message, type = "error") {
+
+            let toast = document.getElementById("toast");
+
+            if (!toast) {
+                toast = document.createElement("div");
+                toast.id = "toast";
+                document.body.appendChild(toast);
+            }
+
+            toast.className = `toast ${type}`;
+            toast.innerText = message;
+
+            setTimeout(() => {
+                toast.classList.add("show");
+            }, 100);
+
+            setTimeout(() => {
+                toast.classList.remove("show");
+            }, 3000);
+        }
+    </script>
     
 </body>
 

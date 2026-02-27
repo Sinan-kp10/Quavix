@@ -1,5 +1,7 @@
 import category from "../models/category.js"
 import userModel from "../models/userModal.js"
+import wishlistModel from "../models/wishlistModel.js"
+
 import {
     loginUser,
     registerUser,
@@ -594,9 +596,24 @@ export const loadHome=async(req,res)=>{
         const categories= await getActiveCategories()
         const products = await getHomepageProducts();
 
+        let wishlistItems = [];
+
+        if (req.session.user) {
+            const wishlist = await wishlistModel.findOne({
+                user: req.session.user.id
+            });
+
+            if (wishlist) {
+                wishlistItems = wishlist.items.map(item => ({
+                    product: item.product.toString(),
+                    variant: item.variant.toString()
+                }));
+            }
+        }
+
         
 
-        res.render("user/home",{ title: "Home-Quavix",css:"userStyle",categories,products })
+        res.render("user/home",{ title: "Home-Quavix",css:"userStyle",categories,products,wishlistItems })
         
     }catch(err){
         console.log(err)

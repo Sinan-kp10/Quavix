@@ -7,7 +7,8 @@ import {
 
     getAllProducts,
     getFilterdProduct,
-    findProducts
+    findProducts,
+    addWishlistService
 
 } from "../services/userProductService.js"
 
@@ -19,12 +20,29 @@ export const loadProducts = async (req, res) => {
 
         const categories = await categoryModel.find({ status: "Active" })
 
+        let wishlistItems = [];
+
+        if (req.session.user) {
+            const wishlist = await wishlistModel.findOne({
+                user: req.session.user.id
+            });
+
+            if (wishlist) {
+                wishlistItems = wishlist.items.map(item => ({
+                    product: item.product.toString(),
+                    variant: item.variant.toString()
+                }));
+            }
+        }
+
         res.render("user/products", {
             title: "products-Quavix",
             css: "userStyle",
             products,
-            categories
+            categories,
+            wishlistItems
         })
+
 
     } catch (err) {
         console.log(err)
@@ -58,14 +76,31 @@ export const searchProducts = async (req, res) => {
         if (!q || q.trim() === "") {
             return res.redirect("/products");
         }
-        const categories = await categoryModel.find({});
+        const categories = await categoryModel.find({})
+
+        let wishlistItems = [];
+
+        if (req.session.user) {
+            const wishlist = await wishlistModel.findOne({
+                user: req.session.user.id
+            });
+
+            if (wishlist) {
+                wishlistItems = wishlist.items.map(item => ({
+                    product: item.product.toString(),
+                    variant: item.variant.toString()
+                }));
+            }
+        }
+
 
         res.render("user/products", {
             title: "products-Quavix",
             css: "userStyle",
             products,
             categories,
-            searchQuery: q
+            searchQuery: q,
+            wishlistItems
         })
 
     } catch (err) {
@@ -99,13 +134,29 @@ export const loadProductDetials = async (req, res) => {
 
         const relatedProducts = await productModel.find({ _id: { $ne: product._id },category: product.category._id, isDeleted: false}).populate("category");
 
+        let isWishlisted = false;
+
+        if (req.session.user) {
+            const wishlist = await wishlistModel.findOne({
+                user: req.session.user.id
+            });
+
+            if (wishlist) {
+                isWishlisted = wishlist.items.some(item =>
+                    item.product.toString() === product._id.toString() &&
+                    item.variant.toString() === activeVariant._id.toString()
+                );
+            }
+        }
+
         res.render("user/productDetails", {
             title: `${product.name} - Quavix`,
             css: "userStyle",
             product,
             activeVariant,
             colorVariants,
-            relatedProducts
+            relatedProducts,
+            isWishlisted
         })
 
     } catch (err) {
@@ -135,5 +186,63 @@ export const loadWishlist = async (req, res) => {
     } catch (err) {
         console.log(err);
         res.redirect("/");
+    }
+}
+
+export const AddToWishlist = async (req, res) => {
+    try {
+
+        if (!req.session.user) {
+            return res.status(401).json({
+                success: false,
+                loginRequired: true,
+                message: "Please login to use wishlist"
+            });
+        }
+
+        const userId = req.session.user.id
+        const { productId, variantId } = req.body;
+
+        const result = await addWishlistService(
+            userId,
+            productId,
+            variantId
+        )
+
+        res.json({
+            success: true,
+            added: result.added,
+             message: result.added
+                ? "Added to wishlist"
+                : "Removed from wishlist"
+        });
+
+    } catch (err) {
+
+        res.status(500).json({ success: false, message:"Something Went Wrong" });
+    }
+}
+
+export const removeFromWishlist = async (req, res) => {
+    try {
+        const userId = req.session.user.id;
+        const { productId, variantId } = req.body;
+
+        await wishlistModel.updateOne(
+            { user: userId },
+            { $pull: {
+                    items: {
+                        product: productId,
+                        variant: variantId
+                    }
+                }
+            }
+        )
+
+        res.json({ success: true });
+
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ success: false });
     }
 };

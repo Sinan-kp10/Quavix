@@ -59,10 +59,12 @@
 
             <div class="nav-icons">
                 <!-- Search Bar -->
-                <div class="nav-search">
-                    <input type="text" placeholder="Search gadgets...">
-                    <button><i class="fa-solid fa-magnifying-glass"></i></button>
-                </div>
+                <form class="nav-search" action="/products/search" method="GET">
+                    <input type="text" name="q" placeholder="Search gadgets...">
+                    <button type="submit">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </button>
+                </form>
 
                 <a href="wishlist.html" class="relative">
                     <i class="fa-regular fa-heart nav-icon-lg"></i>
@@ -118,7 +120,7 @@
                                 <label for="profileInput" class="change-btn">
                                     <i class="fa-solid fa-camera"></i>
                                 </label>
-                                <input type="file" name="profileImage" id="profileInput" hidden >
+                                <input type="file" name="profileImage" id="profileInput" hidden accept="image/*">
                             </form>
                         </div>
 

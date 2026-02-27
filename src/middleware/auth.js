@@ -3,6 +3,14 @@ export const isLogin = async(req, res, next) => {
 
     try {
         if(!req.session.user){
+
+            if (req.headers["content-type"] === "application/json") {
+                return res.status(401).json({
+                    success: false,
+                    loginRequired: true,
+                    message: "Login required"
+                });
+            }
         return res.redirect("/login");
     }
     

@@ -1,0 +1,161 @@
+<body class="cart-page">
+        <% if (typeof toastMessage !=="undefined" ) { %>
+        <div id="toast" class="toast <%= toastType %> show">
+            <%= toastMessage %>
+        </div>
+    <% } %>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="container nav-container">
+            <a href="index.html" class="logo">
+                <i class="fa-solid fa-bolt text-gradient-clip"></i>
+                <span class="text-gradient">Quavix</span>
+            </a>
+
+            <div class="mobile-search-container">
+                <div class="hamburger-menu">
+                    <i class="fa-solid fa-bars"></i>
+                </div>
+                <div class="mobile-search">
+                    <input type="text" placeholder="Search gadgets...">
+                    <button><i class="fa-solid fa-magnifying-glass"></i></button>
+                </div>
+            </div>
+
+            <!-- Mobile Sidebar (Hidden by default) -->
+            <aside class="mobile-sidebar">
+                <div class="sidebar-header">
+                    <a href="index.html" class="logo">
+                        <i class="fa-solid fa-bolt text-gradient-clip"></i>
+                        <span class="text-gradient">Quavix</span>
+                    </a>
+                    <button class="close-btn"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <div class="sidebar-content">
+                    <a href="products.html"><i class="fa-solid fa-shop"></i> Shop</a>
+                    <a href="order-history.html"><i class="fa-solid fa-box"></i> Orders</a>
+                    <a href="wishlist.html"><i class="fa-regular fa-heart"></i> Wishlist</a>
+                    <a href="cart.html"><i class="fa-solid fa-cart-shopping"></i> Cart</a>
+                    <a href="profile.html"><i class="fa-solid fa-user"></i> Profile</a>
+                    <a href="login.html"><i class="fa-solid fa-right-to-bracket"></i> Sign In</a>
+                </div>
+            </aside>
+
+            <!-- Overlay -->
+            <div class="mobile-overlay"></div>
+
+            <!-- Desktop Menu -->
+            <div class="nav-menu">
+                <a href="index.html" style="color: var(--text-muted);">Home</a>
+                <a href="products.html" style="color: var(--text-muted);">Shop</a>
+                <a href="order-history.html" style="color: var(--text-muted);">Orders</a>
+            </div>
+
+            <div class="nav-icons">
+                <!-- Search Bar -->
+                <div class="nav-search">
+                    <input type="text" placeholder="Search gadgets...">
+                    <button><i class="fa-solid fa-magnifying-glass"></i></button>
+                </div>
+
+                <a href="wishlist.html" class="relative">
+                    <i class="fa-regular fa-heart nav-icon-lg"></i>
+                </a>
+                <a href="cart.html" class="relative">
+                    <i class="fa-solid fa-cart-shopping nav-icon-lg text-primary"></i>
+                </a>
+                <a href="login.html" class="btn btn-primary btn-sm">Sign In</a>
+                <a href="profile.html" class="nav-profile-icon">
+                    J
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container py-16">
+        <h1 class="mb-8">Shopping Cart</h1>
+
+        <div class="">
+            <!-- Cart Items List -->
+            <div class="card cart-items-container" style="padding: 0;">
+
+                <!-- Item 1: Headphones -->
+                <div class="cart-item">
+                    <!-- Left: Image -->
+                    <div class="cart-image-box">
+                        <a href="#">
+                            <img src="images/Audio.avif" alt="Headphones">
+                        </a>
+                    </div>
+
+                    <!-- Middle: Info -->
+                    <div class="cart-info">
+                        <h3 class="product-title-card">Wireless Headphones</h3>
+                        <p class="text-muted text-sm mb-1">Color: Black</p>
+                        <p class="text-muted">Unit Price: ₹299.00</p>
+                    </div>
+
+                    <!-- Right: Quantity, Total & Action -->
+                    <div class="cart-actions">
+                        <!-- Quantity -->
+                        <div class="quantity-wrapper">
+                            <button class="btn-qty"><i class="fa-solid fa-minus"></i></button>
+                            <input type="text" value="1" class="qty-input">
+                            <button class="btn-qty"><i class="fa-solid fa-plus"></i></button>
+                        </div>
+
+                        <!-- Total -->
+                        <div class="cart-price-total">₹299.00</div>
+
+                        <!-- Remove -->
+                        <button class="btn btn-remove"><i class="fa-solid fa-trash"></i></button>
+                    </div>
+                </div>
+
+
+                <!-- Item 3: iPhone 13 -->
+                <div class="cart-item">
+                    <!-- Left: Image -->
+                    <div class="cart-image-box">
+                        <a href="#">
+                            <img src="images/iphone 13.jpg" alt="Apple iPhone 13">
+                        </a>
+                    </div>
+
+                    <!-- Middle: Info -->
+                    <div class="cart-info">
+                        <h3 class="product-title-card">Apple iPhone 13 (Blue, 128 GB)</h3>
+                        <p class="text-muted text-sm mb-1">Storage: 128 GB</p>
+                        <p class="text-muted text-sm mb-1">Color: Blue</p>
+                        <p class="text-muted">Unit Price: ₹49,900</p>
+                    </div>
+
+                    <!-- Right: Quantity, Total & Action -->
+                    <div class="cart-actions">
+                        <!-- Quantity -->
+                        <div class="quantity-wrapper">
+                            <button class="btn-qty"><i class="fa-solid fa-minus"></i></button>
+                            <input type="text" value="1" class="qty-input">
+                            <button class="btn-qty"><i class="fa-solid fa-plus"></i></button>
+                        </div>
+
+                        <!-- Total -->
+                        <div class="cart-price-total">₹49,900</div>
+
+                        <!-- Remove -->
+                        <button class="btn btn-remove"><i class="fa-solid fa-trash"></i></button>
+                    </div>
+                </div>
+                <!-- Footer Actions -->
+                <div class="cart-footer-actions">
+                    <a href="checkout.html" class="btn btn-primary">Proceed to Checkout</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+
+    
+</body>
+

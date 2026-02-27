@@ -130,34 +130,44 @@
                             <div class="thumbnail-list">
 
                                 <!-- Primary Image -->
-                                <div class="thumbnail-item active">
+                                <div class="thumbnail-item active" onclick="changeImage(this)">
                                     <img src="<%= activeVariant.images.primary.url %>" alt="">
                                 </div>
 
                                 <!-- Gallery Images -->
-                                <% activeVariant.images.gallery.forEach(img=> { %>
-                                    <div class="thumbnail-item">
+                                <% activeVariant.images.gallery.forEach(img => { %>
+                                    <div class="thumbnail-item" onclick="changeImage(this)">
                                         <img src="<%= img.url %>" alt="">
                                     </div>
-                                    <% }) %>
+                                <% }) %>
 
                             </div>
-
 
                             <!-- Main Image -->
                             <div class="gallery-right-column">
                                 <div class="main-image-container">
-                                    <img src="<%= activeVariant.images.primary.url %>" alt="<%= product.name %>">
 
-                                    <button class="wishlist-remove-btn">
-                                        <i class="fa-regular fa-heart"></i>
+                                    <img 
+                                        id="mainProductImage"
+                                        src="<%= activeVariant.images.primary.url %>" 
+                                        alt="<%= product.name %>">
+
+                                    <button 
+                                        class="wishlist-btn-abs wishlist-toggle"
+                                        data-product="<%= product._id %>"
+                                        data-variant="<%= activeVariant._id %>">
+
+                                        <i class="fa-heart <%= isWishlisted ? 'fa-solid text-danger' : 'fa-regular' %>"></i>
+
                                     </button>
+
                                 </div>
 
                                 <div class="action-buttons">
                                     <button class="btn btn-cart btn-lg">
                                         <i class="fa-solid fa-cart-shopping mr-2"></i> Add to Cart
                                     </button>
+
                                     <button class="btn btn-buy btn-lg">
                                         <i class="fa-solid fa-bolt mr-2"></i> Buy Now
                                     </button>
@@ -295,11 +305,11 @@
 
 
                                         <!-- User Reviews -->
-                                        <!-- <div class="mt-8">
+                                        <div class="mt-8">
                                             <h3 class="font-bold text-lg mb-4">User Reviews</h3>
 
-                                            Review 1 -->
-                                            <!-- <div class="review-card mb-4 p-4 border rounded-lg bg-white">
+                                            <!-- Review 1 --> 
+                                            <div class="review-card mb-4 p-4 border rounded-lg bg-white">
                                                 <div class="flex items-center justify-between mb-2">
                                                     <div class="flex items-center gap-2">
                                                         <span class="rating-badge text-xs px-1">5 <i
@@ -311,10 +321,10 @@
                                                 <p class="text-sm text-gray-700">The battery life is incredible and
                                                     the camera quality is
                                                     top-notch. Highly recommend!</p>
-                                            </div> -->
+                                            </div>
 
                                             <!-- Review 2 -->
-                                            <!-- <div class="review-card mb-4 p-4 border rounded-lg bg-white">
+                                            <div class="review-card mb-4 p-4 border rounded-lg bg-white">
                                                 <div class="flex items-center justify-between mb-2">
                                                     <div class="flex items-center gap-2">
                                                         <span class="rating-badge text-xs px-1">4 <i
@@ -326,25 +336,24 @@
                                                 <p class="text-sm text-gray-700">Great performance, but I wish the
                                                     charging text speed was a bit
                                                     faster. Overall very satisfied.</p>
-                                            </div> -->
+                                            </div>
 
-                                            <!-- <button class="btn btn-outline text-primary text-sm w-full">View All
-                                                Reviews</button>
-                                        </div> -->
-
+                                            <button class="btn btn-outline text-primary text-sm w-full">View All Reviews</button>
+                                        
 
 
 
-                                        <!-- ===== REVIEWS COUNT ===== -->
-                                        <div class="mt-8">
+
+                                         <!--===== REVIEWS COUNT ===== -->
+                                        <!-- <div class="mt-8">
                                             <h3 class="font-bold text-lg mb-4">
                                                 User Reviews (<%= product.numReviews %>)
-                                            </h3>
+                                            </h3>-->
 
-                                            <!-- <button class="btn btn-outline text-primary text-sm w-full">
+                                            <!--<button class="btn btn-outline text-primary text-sm w-full">
                                                 View All Reviews
                                             </button>
-                                        </div> -->
+                                        </div> --> 
 
                         </div>
                     </div>
@@ -408,19 +417,51 @@
 
                         </div>
 
-                        <!-- Product Name -->
+                        <%
+                            const attributes = firstVariant.attributes || [];
+
+                            const colorAttr = attributes.find(a =>
+                                a.name.toLowerCase().includes("color") ||
+                                a.name.toLowerCase().includes("colour")
+                            );
+
+                            const ramAttr = attributes.find(a =>
+                                a.name.toLowerCase().includes("ram")
+                            );
+
+                            const storageAttr = attributes.find(a =>
+                                a.name.toLowerCase().includes("rom") ||
+                                a.name.toLowerCase().includes("storage")
+                            );
+
+                            const color = colorAttr ? colorAttr.value : "";
+                            const ram = ramAttr ? ramAttr.value : "";
+                            const storage = storageAttr ? storageAttr.value : "";
+                        %>
+
+                        <!-- Product Title With Attributes -->
                         <h3 class="home-card-title">
                             <%= rp.name %>
+                            <% if (color || storage) { %>
+                                (<%= [color, storage].filter(Boolean).join(", ") %>)
+                            <% } %>
                         </h3>
 
-                        <!-- Highlights (max 3) -->
-                        <% if (rp.highlights && rp.highlights.length > 0) { %>
-                            <ul class="home-card-highlights">
-                                <% rp.highlights.slice(0, 3).forEach(h => { %>
+                        <!-- Highlights -->
+                        <ul class="home-card-highlights">
+
+                            <% if (ram || storage) { %>
+                                <li><%= [ram, storage].filter(Boolean).join(" | ") %></li>
+                            <% } %>
+
+                            <% if (rp.highlights && rp.highlights.length > 0) { %>
+                                <% rp.highlights.slice(0,2).forEach(h => { %>
                                     <li><%= h %></li>
                                 <% }) %>
-                            </ul>
-                        <% } %>
+                            <% } %>
+
+                        </ul>
+                        
 
                         <!-- Price Section -->
                         <div class="home-card-bottom">
@@ -473,7 +514,7 @@
                     const yPercent = (y / height) * 100;
 
                     mainImage.style.transformOrigin = `${xPercent}% ${yPercent}%`;
-                    mainImage.style.transform = 'scale(3)'; 
+                    mainImage.style.transform = 'scale(2.5)'; 
                 });
 
                 mainImageContainer.addEventListener('mouseleave', () => {
@@ -492,6 +533,120 @@
             }
         });
 
+    </script>
+
+    <script>
+
+        //wishlist
+
+
+        document.addEventListener("click", async function (e) {
+
+            const btn = e.target.closest(".wishlist-toggle");
+            if (!btn) return;
+
+            e.preventDefault();
+
+            const productId = btn.dataset.product;
+            const variantId = btn.dataset.variant;
+
+            try {
+
+                const response = await fetch("/wishlist", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ productId, variantId })
+                });
+
+                const data = await response.json();
+
+                if (response.status === 401) {
+                    triggerToast(data.message || "Login required", "error");
+                    return;
+                }
+
+                if (!data.success) {
+                    triggerToast(data.message || "Something went wrong", "error");
+                    return;
+                }
+
+                const icon = btn.querySelector("i");
+
+                if (data.added) {
+                    icon.classList.remove("fa-regular");
+                    icon.classList.add("fa-solid");
+                    icon.style.color = "red";
+
+                    triggerToast(data.message, "success");
+                } else {
+                    icon.classList.remove("fa-solid");
+                    icon.classList.add("fa-regular");
+                    icon.style.color = "#cbd5e1";
+
+                    triggerToast(data.message, "error");
+                }
+
+            } catch (err) {
+                triggerToast("Server error", "error");
+            }
+        });
+        const toast = document.getElementById("toast");
+
+        if (toast) {
+            setTimeout(() => {
+                toast.classList.add("show");
+            }, 100);
+
+            setTimeout(() => {
+                toast.classList.remove("show");
+            }, 3000);
+        }
+
+        function triggerToast(message, type = "error") {
+
+            let toast = document.getElementById("toast");
+
+            if (!toast) {
+                toast = document.createElement("div");
+                toast.id = "toast";
+                document.body.appendChild(toast);
+            }
+
+            toast.className = `toast ${type}`;
+            toast.innerText = message;
+
+            setTimeout(() => {
+                toast.classList.add("show");
+            }, 100);
+
+            setTimeout(() => {
+                toast.classList.remove("show");
+            }, 3000);
+        }
+    </script>
+
+    <script>
+        function changeImage(element) {
+
+            const mainImage = document.getElementById("mainProductImage");
+            const newSrc = element.querySelector("img").src;
+
+            mainImage.style.opacity = 0;
+
+            setTimeout(() => {
+                mainImage.src = newSrc;
+                mainImage.style.opacity = 1;
+            }, 150);
+
+            document.querySelectorAll(".thumbnail-item").forEach(item => {
+                item.classList.remove("active");
+            });
+
+
+            element.classList.add("active");
+        }
     </script>
 
 </body>
