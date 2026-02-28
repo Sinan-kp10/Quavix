@@ -129,7 +129,7 @@ document.addEventListener("DOMContentLoaded", function () {
         let isValid = true;
 
         if (name.value.trim().length < 3) {
-            showError(name, "Name is required");
+            showError(name, "Name must contain at least 3 characters.");
             isValid = false;
         }
 
@@ -139,17 +139,17 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         if (highlights.value.trim().length < 5) {
-            showError(highlights, "Highlights is required");
+            showError(highlights, "Highlights must contain at least 5 characters");
             isValid = false;
         }
 
         if (services.value.trim().length < 5) {
-            showError(services, "Services is required");
+            showError(services, "Services must contain at least 5 characters.");
             isValid = false;
         }
 
         if (description.value.trim().length < 5) {
-            showError(description, "Description is required");
+            showError(description, "Description must contain at least 5 characters.");
             isValid = false;
         }
 
@@ -239,7 +239,7 @@ document.addEventListener("DOMContentLoaded", function () {
             form.submit(); 
         });
 
-    });
+    })
 
     const toast = document.getElementById("toast");
 

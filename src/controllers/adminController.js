@@ -19,7 +19,7 @@ import {
     updateProduct,
     deleteProduct
 } from "../services/adminService.js"
-import { title } from "node:process";
+
 
 
 export const adminLogin=async(req,res)=>{
@@ -256,7 +256,6 @@ export const loadAddProducts=async(req,res)=>{
     }
 }
 
-
 export const addProduct = async (req, res) => {
     try{
 
@@ -358,7 +357,7 @@ export const addProduct = async (req, res) => {
         req.session.toastType = "error";
         res.redirect("/admin/products/add");
     }
-};
+} 
 
 export const loadEditProduct = async(req,res)=>{
     try {
@@ -591,4 +590,3 @@ export const removeProduct=async(req,res)=>{
         res.redirect("/admin/products");
     }
 }
-

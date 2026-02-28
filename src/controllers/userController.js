@@ -375,29 +375,16 @@ export const updateProfile=async(req,res)=>{
 }
 
 
-export const uploadProfileImage=async(req,res)=>{
+export const uploadProfileImage = async (req, res) => {
+    try {
 
-  try{
+        const imageUrl = await updateUserProfileImage(req.session.user.id, req.file);
 
-    const imageUrl=await updateUserProfileImage(req.session.user.id,req.file)
-    if (!imageUrl) {
-      req.session.toastMessage = "Please select an image.";
-      req.session.toastType = "error";
-      return res.redirect("/profile");
+        return res.json({ success: true });
+
+    } catch (err) {
+        return res.status(500).json({ success: false, message: "Something went wrong" });
     }
-
-    req.session.user.profileImage = imageUrl;
-    req.session.toastMessage = "Profile image updated successfully!";
-    req.session.toastType = "success";
-    res.redirect("/profile")
-    
-  }catch(err){
-    console.log(err)
-    req.session.toastMessage = "Something went wrong.";
-    req.session.toastType = "error";
-    res.redirect("/profile")
-  }  
-
 }
 
 export const removeProfileImage =async (req,res)=>{
@@ -416,7 +403,6 @@ export const removeProfileImage =async (req,res)=>{
         res.redirect("/profile");
     }
 }
-
 
 export const emailChange=async(req,res)=>{
 

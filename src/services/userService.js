@@ -229,7 +229,7 @@ export const updateUserProfileImage = async(userId, file)=>{
 
     await user.save();
 
-    return result.secure_url;
+    return result.secure_url
 }
 
 export const removeUserProfileImage=async(userId)=>{

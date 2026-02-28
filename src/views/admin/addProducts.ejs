@@ -155,7 +155,6 @@
                                         value="<%= variant.attributes?.[1]?.value || '' %>" placeholder="eg. 128GB">
                                 </div>
 
-                                
 
                                 <!-- Price -->
                                 <div class="form-group">
@@ -164,7 +163,9 @@
                                         class="form-input"
                                         name="variants[<%= index %>][price]"
                                         value="<%= variant.price || '' %>" placeholder="0.00" min="1">
+                                    <small class="error-message"></small>
                                 </div>
+
 
                                 <!-- Stock -->
                                 <div class="form-group">
@@ -173,6 +174,7 @@
                                         class="form-input"
                                         name="variants[<%= index %>][stock]"
                                         value="<%= variant.stock || '' %>" placeholder="0" min="0">
+                                    <small class="error-message"></small>    
                                 </div>
 
                                 <!-- Status -->
@@ -490,10 +492,36 @@
         }
 
         function removeVariant(button) {
-            button.closest('.variant-row').remove();
-            const rows = document.querySelectorAll('.variant-row');
-            rows.forEach((row, index) => {
-                row.querySelector('.variant-title').textContent = `Variant ${index + 1}`;
+
+            Swal.fire({
+                title: "Are you sure?",
+                text: "This variant will be removed!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#6366f1",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Yes, delete it"
+            }).then((result) => {
+
+                if (!result.isConfirmed) return;
+
+                const row = button.closest('.variant-row');
+                row.remove();
+
+                const rows = document.querySelectorAll('.variant-row');
+                rows.forEach((row, index) => {
+                    row.querySelector('.variant-title').textContent =
+                        `Variant ${index + 1}`;
+                });
+
+                Swal.fire({
+                    icon: "success",
+                    title: "Deleted!",
+                    text: "Variant removed successfully",
+                    timer: 1200,
+                    showConfirmButton: false
+                });
+
             });
         }
     </script>
