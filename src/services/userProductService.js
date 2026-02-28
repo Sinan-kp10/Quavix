@@ -11,9 +11,9 @@ export const getAllProducts=async(category=null)=>{
         filter.category = category;
     }
 
-    const products = await productModel.find(filter).populate("category").sort({createdAt:-1})
+    const products = await productModel.find(filter).populate({ path: "category", match: { status: "Active"}}).sort({createdAt:-1})
 
-    return products
+    return products.filter(product => product.category !== null)
 }
 
 export const getFilterdProduct = async (categories, sortPrice, sortName) => {
@@ -218,4 +218,40 @@ export const removeFromCartService = async (userId, productId, variantId) => {
     await cart.save();
 
     return true;
-};
+}
+
+export const updateCartQuantityService = async (userId,productId,variantId,changeType) =>{
+
+    const cart = await cartModel.findOne({ user: userId });
+    if(!cart) throw new Error("Cart not found");
+
+    const item = cart.items.find(item => item.product.toString() === productId && item.variant.toString() === variantId)
+
+    if(!item) throw new Error("Item not found")
+
+    const product = await productModel.findById(productId);
+    const variant = product.variants.find(v =>
+        v._id.toString() === variantId
+    )
+
+    if(!variant) throw new Error("Variant not found");
+
+    if(changeType === "inc"){
+
+        if (item.quantity + 1 > variant.stock){
+            throw new Error(`Only ${variant.stock} items available`)
+        }
+
+        item.quantity += 1
+
+    }else if(changeType === "dec"){
+
+        if(item.quantity > 1){
+            item.quantity -= 1;
+        }
+    }
+
+    await cart.save()
+
+    return item.quantity
+}

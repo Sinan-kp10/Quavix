@@ -46,7 +46,8 @@ import {
   removeFromWishlist,
   loadCart,
   addToCart,
-  removeFromCart
+  removeFromCart,
+  updateCartQuantity
 
 } from "../controllers/userProductController.js"
 
@@ -114,7 +115,8 @@ router.delete("/wishlist/remove", removeFromWishlist);
 
 router.get("/cart",isLogin, loadCart)
 router.post("/cart",isLogin, addToCart)
-router.delete("/cart/remove", removeFromCart);
+router.delete("/cart/remove",isLogin, removeFromCart)
+router.patch("/cart/update-quantity",isLogin, updateCartQuantity);
 
 router.get("/logout", logout)
 

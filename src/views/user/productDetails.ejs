@@ -58,10 +58,13 @@
                     </div>
 
                     <div class="nav-icons">
-                        <div class="nav-search">
-                            <input type="text" placeholder="Search gadgets...">
-                            <button><i class="fa-solid fa-magnifying-glass"></i></button>
-                        </div>
+                        <!-- Search Bar -->
+                        <form class="nav-search" action="/products/search" method="GET">
+                            <input type="text" name="q" placeholder="Search gadgets...">
+                            <button type="submit">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                            </button>
+                        </form>
 
                         <a href="/wishlist" class="relative">
                             <i class="fa-regular fa-heart nav-icon-lg"></i>
@@ -85,7 +88,7 @@
                                 <a href="/login" class="btn btn-primary btn-sm">
                                     <i class="fa-solid fa-right-to-bracket"></i> Sign In
                                 </a>
-                                <% } %>
+                        <% } %>
                     </div>
                 </div>
             </nav>

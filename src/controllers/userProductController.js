@@ -11,7 +11,8 @@ import {
     findProducts,
     addWishlistService,
     addToCartService,
-    removeFromCartService
+    removeFromCartService,
+    updateCartQuantityService
 
 } from "../services/userProductService.js"
 
@@ -313,5 +314,20 @@ export const removeFromCart = async (req, res) => {
             success: false,
             message: "Failed to remove product"
         });
+    }
+}
+
+export const updateCartQuantity = async (req, res) => {
+    try {
+
+        const userId = req.session.user.id;
+        const { productId, variantId, type } = req.body;
+
+        const newQty = await updateCartQuantityService( userId, productId, variantId, type)
+
+        res.json({success: true,quantity: newQty})
+
+    } catch (err) {
+        res.status(400).json({ success: false,message: err.message});
     }
 }

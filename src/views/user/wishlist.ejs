@@ -196,7 +196,10 @@
                     </div>
 
                     <div class="wishlist-btn-group">
-                        <button class="btn btn-primary">
+                        <button 
+                            class="btn btn-primary move-to-cart"
+                            data-product="<%= product._id %>"
+                            data-variant="<%= variant._id %>">
                             <i class="fa-solid fa-cart-shopping"></i>
                         </button>
 
@@ -293,7 +296,105 @@
                 Swal.fire("Error", "Something went wrong!", "error");
             }
 
+        })
+
+
+
+        document.addEventListener("click", async function (e) {
+
+            const cartBtn = e.target.closest(".move-to-cart");
+            if (!cartBtn) return;
+
+            const productId = cartBtn.dataset.product;
+            const variantId = cartBtn.dataset.variant;
+
+            try {
+
+                cartBtn.disabled = true;
+
+                const response = await fetch("/cart", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ productId, variantId })
+                });
+
+                const data = await response.json();
+
+                if (response.status === 401) {
+                    triggerToast("Login required", "error");
+                    cartBtn.disabled = false;
+                    return;
+                }
+
+                if (response.status === 400) {
+                    triggerToast(data.message || "This product is currently out of stock.", "error");
+                    return;
+                }
+
+
+                if (!data.success) {
+                    triggerToast(data.message || "Failed to add to cart", "error");
+                    cartBtn.disabled = false;
+                    return;
+                }
+
+                triggerToast("Product moved to cart!", "success");
+
+                await fetch("/wishlist/remove", {
+                    method: "DELETE",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ productId, variantId })
+                });
+
+
+                const itemCard = cartBtn.closest(".wishlist-item");
+                if (itemCard) itemCard.remove();
+
+            } catch (err) {
+                triggerToast("Something went wrong", "error");
+                cartBtn.disabled = false;
+            }
+
         });
-        </script>
+
+
+        const toast = document.getElementById("toast");
+
+        if (toast) {
+            setTimeout(() => {
+                toast.classList.add("show");
+            }, 100);
+
+            setTimeout(() => {
+                toast.classList.remove("show");
+            }, 3000);
+        }
+
+        function triggerToast(message, type = "error") {
+
+            let toast = document.getElementById("toast");
+
+            if (!toast) {
+                toast = document.createElement("div");
+                toast.id = "toast";
+                document.body.appendChild(toast);
+            }
+
+            toast.className = `toast ${type}`;
+            toast.innerText = message;
+
+            setTimeout(() => {
+                toast.classList.add("show");
+            }, 100);
+
+            setTimeout(() => {
+                toast.classList.remove("show");
+            }, 3000);
+        }
+    </script>
 </body>
 

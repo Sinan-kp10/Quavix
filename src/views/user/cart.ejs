@@ -59,10 +59,12 @@
 
             <div class="nav-icons">
                 <!-- Search Bar -->
-                <div class="nav-search">
-                    <input type="text" placeholder="Search gadgets...">
-                    <button><i class="fa-solid fa-magnifying-glass"></i></button>
-                </div>
+                <form class="nav-search" action="/products/search" method="GET">
+                    <input type="text" name="q" placeholder="Search gadgets...">
+                    <button type="submit">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </button>
+                </form>
 
                 <a href="/wishlist" class="relative">
                     <i class="fa-regular fa-heart nav-icon-lg"></i>
@@ -200,7 +202,7 @@
                             <input type="text"
                                 value="<%= item.quantity %>"
                                 class="qty-input"
-                                readonly>
+                            readonly>
 
                             <button class="btn-qty qty-plus"
                                 <%= item.quantity >= 10 ? "disabled" : "" %>>
@@ -341,7 +343,7 @@
             });
         });
 
-        document.addEventListener("click", function (e) {
+        document.addEventListener("click", async function (e) {
 
             const plusBtn = e.target.closest(".qty-plus");
             const minusBtn = e.target.closest(".qty-minus");
@@ -349,56 +351,66 @@
             if (!plusBtn && !minusBtn) return;
 
             const button = plusBtn || minusBtn;
-            const wrapper = button.closest(".quantity-wrapper");
-            const input = wrapper.querySelector(".qty-input");
             const cartItem = button.closest(".cart-item");
-            const totalElement = cartItem.querySelector(".item-total");
 
-            const originalPrice = parseFloat(wrapper.dataset.original);
-            const finalPrice = parseFloat(wrapper.dataset.final);
-            const discountPerUnit = parseFloat(wrapper.dataset.discount);
+            const productId = cartItem.querySelector(".remove-cart-item").dataset.product;
+            const variantId = cartItem.querySelector(".remove-cart-item").dataset.variant;
 
-            let qty = parseInt(input.value);
+            const type = plusBtn ? "inc" : "dec";
 
-            if (plusBtn && qty < 10) qty++;
-            if (minusBtn && qty > 1) qty--;
+            try {
 
-            input.value = qty;
+                const response = await fetch("/cart/update-quantity", {
+                    method: "PATCH",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ productId, variantId, type })
+                });
 
-            // Disable buttons
-            wrapper.querySelector(".qty-minus").disabled = qty <= 1;
-            wrapper.querySelector(".qty-plus").disabled = qty >= 10;
+                const data = await response.json();
 
-            // Update item total
-            const itemTotal = finalPrice * qty;
-            totalElement.innerText = "₹" + itemTotal.toLocaleString();
+                if (!data.success) {
+                    return triggerToast(data.message, "error");
+                }
+                location.reload()
 
-            // 🔥 Recalculate whole summary
-            let totalMRP = 0;
-            let totalDiscount = 0;
-            let grandTotal = 0;
-            let totalItems = 0;
+            } catch (err) {
+                triggerToast("Something went wrong", "error");
+            }
+        })
 
-            document.querySelectorAll(".quantity-wrapper").forEach(w => {
+        const toast = document.getElementById("toast");
 
-                const q = parseInt(w.querySelector(".qty-input").value);
-                const o = parseFloat(w.dataset.original);
-                const f = parseFloat(w.dataset.final);
-                const d = parseFloat(w.dataset.discount);
+        if (toast) {
+            setTimeout(() => {
+                toast.classList.add("show");
+            }, 100);
 
-                totalMRP += o * q;
-                totalDiscount += d * q;
-                grandTotal += f * q;
-                totalItems += q;
-            });
+            setTimeout(() => {
+                toast.classList.remove("show");
+            }, 3000);
+        }
 
-            document.getElementById("summary-items").innerText = totalItems;
-            document.getElementById("summary-mrp").innerText = totalMRP.toLocaleString();
-            document.getElementById("summary-discount").innerText = Math.round(totalDiscount).toLocaleString();
-            document.getElementById("summary-total").innerText = grandTotal.toLocaleString();
-            document.getElementById("summary-save").innerText = Math.round(totalDiscount).toLocaleString();
+        function triggerToast(message, type = "error") {
 
-        });
+            let toast = document.getElementById("toast");
+
+            if (!toast) {
+                toast = document.createElement("div");
+                toast.id = "toast";
+                document.body.appendChild(toast);
+            }
+
+            toast.className = `toast ${type}`;
+            toast.innerText = message;
+
+            setTimeout(() => {
+                toast.classList.add("show");
+            }, 100);
+
+            setTimeout(() => {
+                toast.classList.remove("show");
+            }, 3000);
+        }
 
     </script>
 
