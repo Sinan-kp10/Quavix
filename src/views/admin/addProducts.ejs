@@ -124,6 +124,11 @@
                             <div class="form-grid grid-cols-1 md:grid-cols-3 mb-4 variant-row relative border p-6 rounded bg-gray-50">
 
                                 <h4 class="variant-title">Variant <%= index + 1 %></h4>
+                                <% if (variant._id) { %>
+                                    <input type="hidden"
+                                        name="variants[<%= index %>][_id]"
+                                        value="<%= variant._id %>">
+                                <% } %>
 
                                 <!-- Color -->
                                 <div class="form-group">
@@ -288,7 +293,7 @@
 
                             <% }) %>
 
-                            </div>
+                        </div>
                     </div>
 
                     <!-- New Fields for Highlights and Services -->
@@ -509,9 +514,22 @@
                 row.remove();
 
                 const rows = document.querySelectorAll('.variant-row');
-                rows.forEach((row, index) => {
+
+                rows.forEach((row, newIndex) => {
+
+
                     row.querySelector('.variant-title').textContent =
-                        `Variant ${index + 1}`;
+                        `Variant ${newIndex + 1}`;
+
+
+                    const inputs = row.querySelectorAll("input, select, textarea");
+
+                    inputs.forEach(input => {
+                        if (input.name) {
+                            input.name = input.name.replace(/variants\[\d+\]/, `variants[${newIndex}]`);
+                        }
+                    });
+
                 });
 
                 Swal.fire({

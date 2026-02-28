@@ -75,7 +75,7 @@ export const findProducts = async (search) => {
         if (!isNaN(word)) {
             priceFilter = Number(word);
         }
-        else if (word.includes("gb") || word.includes("tb")) {
+        else if (word.includes("gb")) {
             attributeFilter.push(word);
         }
 

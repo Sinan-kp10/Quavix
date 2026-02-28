@@ -20,6 +20,7 @@ import {
 
 export const loadProducts = async (req, res) => {
     try {
+
         const { category } = req.query;
         const products = await getAllProducts(category)
 
@@ -58,6 +59,8 @@ export const loadProducts = async (req, res) => {
     }
 }
 
+
+
 export const filterProducts = async (req, res) => {
     try {
 
@@ -78,9 +81,11 @@ export const searchProducts = async (req, res) => {
 
         const { q } = req.query
         const products = await findProducts(q)
+
         if (!q || q.trim() === "") {
             return res.redirect("/products");
         }
+
         const categories = await categoryModel.find({})
 
         let wishlistItems = [];

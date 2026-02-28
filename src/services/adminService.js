@@ -311,43 +311,44 @@ export const updateProduct = async (id, data) => {
         variants
     } = data;
 
-  const formattedVariants = variants.map(v => {
+    const formattedVariants = variants.map(v => {
 
-    const safePrimary = {
-      url: v.images?.primary?.url || "",
-      publicId: v.images?.primary?.publicId || ""
-    };
+        const safePrimary = {
+        url: v.images?.primary?.url || "",
+        publicId: v.images?.primary?.publicId || ""
+        };
 
-    const safeGallery = Array.isArray(v.images?.gallery)
-      ? v.images.gallery
-          .filter(img => img && img.url && img.publicId)
-          .map(img => ({
-            url: img.url,
-            publicId: img.publicId
-          }))
-      : [];
+        const safeGallery = Array.isArray(v.images?.gallery)
+        ? v.images.gallery
+            .filter(img => img && img.url && img.publicId)
+            .map(img => ({
+                url: img.url,
+                publicId: img.publicId
+            }))
+        : [];
 
-        return {
-        attributes: Array.isArray(v.attributes)
-            ? v.attributes
-                .filter(attr => attr.name && attr.value)
-                .map(attr => ({
-                name: attr.name.trim(),
-                value: attr.value.trim()
-                }))
-            : [],
+            return {
+                _id: v._id || undefined,  
+                attributes: Array.isArray(v.attributes)
+                ? v.attributes
+                    .filter(attr => attr.name && attr.value)
+                    .map(attr => ({
+                    name: attr.name.trim(),
+                    value: attr.value.trim()
+                    }))
+                : [],
 
-        price: Number(v.price),
-        stock: Number(v.stock),
+            price: Number(v.price),
+            stock: Number(v.stock),
 
-        images: {
-            primary: safePrimary,
-            gallery: safeGallery
-        },
+            images: {
+                primary: safePrimary,
+                gallery: safeGallery
+            },
 
-        status: v.status || "Active"
-    };
-  });
+            status: v.status || "Active"
+        };
+    });
 
   const prices = formattedVariants.map(v => v.price);
   const minPrice = prices.length ? Math.min(...prices) : 0;

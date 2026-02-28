@@ -425,7 +425,7 @@ export const editProduct = async (req, res) => {
             .sort()
             .join("|");
 
-            return `${attrs}_${Number(v.price)}_${Number(v.stock)}_${v.status}`;
+            return `${v._id || "new"}_${attrs}_${Number(v.price)}_${Number(v.stock)}_${v.status}`;
         };
 
         const existingSignatures = product.variants.map(getVariantSignature).sort();
@@ -457,7 +457,9 @@ export const editProduct = async (req, res) => {
         for (let i = 0; i < parsedVariants.length; i++) {
 
         const updatedVariant = parsedVariants[i];
-        const existingVariant = product.variants[i];
+        const existingVariant = product.variants.find(v =>
+            v._id?.toString() === updatedVariant._id?.toString()
+        );
 
         if (!updatedVariant.images) {
             updatedVariant.images = {};
