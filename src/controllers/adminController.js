@@ -218,7 +218,7 @@ export const loadProducts=async(req,res)=>{
         const stock =req.query.stock || ""
         const selectedCategory=req.query.category || ""
         const page=parseInt(req.query.page) || 1
-        const limit = 10
+        const limit = 6
 
         
         const {productsList,totalProducts}=await getAllProducts(search,status,stock,selectedCategory,page,limit)

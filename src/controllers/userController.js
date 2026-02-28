@@ -245,8 +245,6 @@ export const forgottenPass=async(req,res)=>{
         });
 
 
-
-
         
     } catch(err){
         let message = "Something went wrong!";
@@ -308,6 +306,8 @@ export const verifyResetOtp = async (req, res)=>{
             formAction: "/verifyResetOtp"
         });
     }
+
+    req.session.resetPasswordChecking="reseted"
 
     return res.redirect("/newPassword");
 };
@@ -642,6 +642,20 @@ export const loadForgottenPass=(req,res)=>{
     res.render("user/forgottenPass",{ title: "Login Verify-Quavix",css:"userStyle" })
 }
 export const loadNewPassword=(req,res)=>{
+
+    if(req.session.user){
+        return res.redirect("/")
+    }
+
+    let resetPassword=req.session.resetPasswordChecking
+    
+    req.session.resetPasswordChecking=null
+
+    if(!resetPassword){
+
+        return res.redirect("/login")
+    }
+    
     res.render("user/newPass",{ title: "New Password-Quavix",css:"userStyle" })
 }
 export const loadAddAddress=(req,res)=>{

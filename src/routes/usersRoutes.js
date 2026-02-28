@@ -66,7 +66,7 @@ router.post("/resend-otp", resendOtp);
 
 
 
-router.get("/newPassword", loadNewPassword)
+router.get("/newPassword",loadNewPassword)
 router.post("/newPassword", resetPassword)
 
 
