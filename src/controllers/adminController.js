@@ -409,6 +409,8 @@ export const editProduct = async (req, res) => {
 
         const formattedServices = services ? services.split("\n").map(i => i.trim()).filter(Boolean): [];
 
+        
+
         const baseFieldsSame =
         product.name === name && product.slug === newSlug &&
         product.category.equals(category) && 
@@ -448,9 +450,9 @@ export const editProduct = async (req, res) => {
         });
 
         if(existingProduct) {
-            req.session.toastMessage = "Product with this name already exists.";
+            req.session.toastMessage = "Product with this name already exists";
             req.session.toastType = "error";
-            return res.redirect("back");
+            return res.redirect(`/admin/products/edit/${id}`);
         }
 
 

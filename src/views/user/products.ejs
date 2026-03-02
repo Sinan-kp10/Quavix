@@ -141,16 +141,25 @@
                 </div>
 
                 <div class="mb-8">
-                    <h4 class="mb-4 text-main filter-category-title">Sort By</h4>
-                    <ul class="filter-list">
-                        <li><label class="items-center flex gap-2 cursor-pointer"><input type="radio" name="sortPrice" value="priceLow" class="radio-primary"> Price: Low to High</label></li>
-                        <li><label class="items-center flex gap-2 cursor-pointer"><input type="radio" name="sortPrice" value="priceHigh" class="radio-primary"> Price: High to Low</label></li>
-                        <li><label class="items-center flex gap-2 cursor-pointer"><input type="radio" name="sortName" value="nameAZ" class="radio-primary"> Name: A to Z</label></li>
-                        <li><label class="items-center flex gap-2 cursor-pointer"><input type="radio" name="sortName" value="nameZA" class="radio-primary"> Name: Z to A</label></li>
-                    </ul>
+                    <h4 class="mb-4 text-main filter-category-title">Price Range</h4>
+                    <div class="flex items-center gap-2">
+                        <input type="number" id="minPrice" class="form-input" placeholder="Min ₹" min="0"
+                            style="padding: 0.4rem 0.5rem; text-align: center;">
+                        <span class="text-muted font-bold">-</span>
+                        <input type="number" id="maxPrice" class="form-input" placeholder="Max ₹" min="0"
+                            style="padding: 0.4rem 0.5rem; text-align: center;">
+                    </div>
                 </div>
 
-
+                <div class="mb-8">
+                    <h4 class="mb-4 text-main filter-category-title">Sort By</h4>
+                    <ul class="filter-list">
+                        <li><label class="items-center flex gap-2 cursor-pointer"><input type="radio" name="sort" value="priceLow" class="radio-primary"> Price: Low to High</label></li>
+                        <li><label class="items-center flex gap-2 cursor-pointer"><input type="radio" name="sort" value="priceHigh" class="radio-primary"> Price: High to Low</label></li>
+                        <li><label class="items-center flex gap-2 cursor-pointer"><input type="radio" name="sort" value="nameAZ" class="radio-primary"> Name: A to Z</label></li>
+                        <li><label class="items-center flex gap-2 cursor-pointer"><input type="radio" name="sort" value="nameZA" class="radio-primary"> Name: Z to A</label></li>
+                    </ul>
+                </div>
 
 
 
@@ -286,23 +295,47 @@
 
                 <% }) %>
 
-                </div>
+            </div>
 
             <!-- Pagination -->
-            <!-- <div class="pagination-container"
-                style="justify-content: center; margin-top: 3rem; padding-top: 2rem; border-top: 1px solid #e2e8f0;">
-                <div class="pagination-controls">
-                    <button class="btn-page">
-                        <i class="fa-solid fa-chevron-left"></i>
-                    </button>
-                    <button class="btn-page active">1</button>
-                    <button class="btn-page">2</button>
-                    <button class="btn-page">3</button>
-                    <button class="btn-page">
-                        <i class="fa-solid fa-chevron-right"></i>
-                    </button>
-                </div>
-            </div> -->
+
+            <div class="pagination">
+
+                <% if (totalPages && totalPages > 1) { %>
+
+                    <% if (currentPage > 1) { %>
+                        <a href="?page=<%= currentPage - 1 %>" class="page-link">
+                            <i class="fa-solid fa-chevron-left"></i>
+                        </a>
+                    <% } %>
+
+                    <% 
+                        let startPage = Math.max(1, currentPage - 1);
+                        let endPage = Math.min(totalPages, startPage + 2);
+
+                        if (endPage - startPage < 2) {
+                            startPage = Math.max(1, endPage - 2);
+                        }
+                    %>
+
+                    <% for (let i = startPage; i <= endPage; i++) { %>
+                        <a href="?page=<%= i %>"
+                        class="page-link <%= currentPage === i ? 'active' : '' %>">
+                            <%= i %>
+                        </a>
+                    <% } %>
+
+                    <% if (currentPage < totalPages) { %>
+                        <a href="?page=<%= currentPage + 1 %>" class="page-link">
+                            <i class="fa-solid fa-chevron-right"></i>
+                        </a>
+                    <% } %>
+
+                <% } %>
+
+            </div>
+
+            </div>
 
         </main>
     </div>
@@ -338,189 +371,239 @@
         }
         
 
+        let currentPage = 1;
 
-        document.querySelector(".btn-filter-apply")
-        .addEventListener("click", async () => {
+        document.querySelector(".btn-filter-apply").addEventListener("click", () => {
+                currentPage = 1;
+                applyFilters();
+        });
 
-            const categories = [...document.querySelectorAll(".category-filter:checked")].map(cb => cb.value);
+        function applyFilters(page = 1) {
 
-            const sortPrice = document.querySelector("input[name='sortPrice']:checked")?.value;
-            const sortName  = document.querySelector("input[name='sortName']:checked")?.value;
+            currentPage = page;
+
+            const categories = [...document.querySelectorAll(".category-filter:checked")]
+                .map(cb => cb.value);
+
+            const sort = document.querySelector("input[name='sort']:checked")?.value;
+            const minPrice = document.getElementById("minPrice").value;
+            const maxPrice = document.getElementById("maxPrice").value;
 
             const params = new URLSearchParams();
 
-            if (categories.length > 0) {
+            if (categories.length > 0)
                 params.append("categories", categories.join(","));
-            }
 
-            if (sortPrice) params.append("sortPrice", sortPrice);
-            if (sortName)  params.append("sortName", sortName);
+            if (sort)
+                params.append("sort", sort);
 
-            const response = await fetch("/products/filter?" + params.toString());
-            const data = await response.json();
+            if (minPrice)
+                params.append("minPrice", minPrice);
 
-            if (data.success) {
-                renderProducts(data.products);
-            }
-        });
+            if (maxPrice)
+                params.append("maxPrice", maxPrice);
+
+            params.append("page", currentPage);
+
+            fetch("/products/filter?" + params.toString())
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        renderProducts(data.products);
+                        renderPagination(data.totalPages, data.currentPage);
+                    }
+                });
+        }
 
         function renderProducts(products) {
 
             const grid = document.querySelector(".product-grid");
             grid.innerHTML = "";
 
+            if (!products || products.length === 0) {
+                grid.innerHTML = `
+                    <div class="no-products">
+                        <h3>No products found</h3>
+                    </div>
+                `;
+                return;
+            }
+
             products.forEach(product => {
 
-                product.variants
-                    .filter(v => v.status === "Active")
-                    .forEach(variant => {
+                const variant = product.variants?.[0];
+                if (!variant) return;
 
-                        const price = variant.price;
-                        const offer = product.offerPercentage || 0;
+                const offer = product.offerPercentage || 0;
 
-                        const discountedPrice = offer > 0
-                            ? Math.round(price - (price * offer / 100))
-                            : price;
+                const finalPrice = product.finalPrice
+                    ? product.finalPrice
+                    : Math.round(variant.price - (variant.price * offer / 100));
 
-                        const attributes = variant.attributes || [];
+                const rating = Number(product.rating) || 0;
 
-                        const colorAttr = attributes.find(a => a.name.toLowerCase() === "color");
-                        const ramAttr   = attributes.find(a => a.name.toLowerCase() === "ram");
-                        const romAttr   = attributes.find(a => a.name.toLowerCase() === "rom");
+                const attributes = variant.attributes || [];
 
-                        const color = colorAttr ? colorAttr.value : "";
-                        const ram   = ramAttr ? ramAttr.value : "";
-                        const rom   = romAttr ? romAttr.value : "";
+                const colorAttr = attributes.find(a => a.name?.toLowerCase() === "color");
+                const ramAttr   = attributes.find(a => a.name?.toLowerCase() === "ram");
+                const romAttr   = attributes.find(a => a.name?.toLowerCase() === "rom");
 
-                        const titleExtra = [color, rom].filter(Boolean).join(", ");
+                const color = colorAttr?.value || "";
+                const ram   = ramAttr?.value || "";
+                const rom   = romAttr?.value || "";
 
-                        let memoryHTML = "";
-                        let highlightLimit = 4;
+                const titleExtra = [color, rom].filter(Boolean).join(", ");
+                let memoryHTML = "";
+                let highlightLimit = 4;
 
-                        if (ram && rom) {
-                            memoryHTML = `<li>${ram} | ${rom}</li>`;
-                            highlightLimit = 3;
-                        } else if (ram) {
-                            memoryHTML = `<li>${ram}</li>`;
-                            highlightLimit = 3;
-                        } else if (rom) {
-                            memoryHTML = `<li>${rom}</li>`;
-                            highlightLimit = 3;
-                        }
+                if (ram || rom) {
+                    memoryHTML = `<li>${[ram, rom].filter(Boolean).join(" | ")}</li>`;
+                    highlightLimit = 3;
+                }
 
-                        const highlightsHTML = `
-                            ${memoryHTML}
-                            ${
-                                product.highlights
-                                ? product.highlights
-                                    .slice(0, highlightLimit)
-                                    .map(h => `<li>${h}</li>`)
-                                    .join("")
-                                : ""
-                            }
-                        `;
+                const highlightsHTML = `
+                    ${memoryHTML}
+                    ${
+                        product.highlights?.slice(0, highlightLimit)
+                            .map(h => `<li>${h}</li>`)
+                            .join("") || ""
+                    }
+                `;
 
-                        const oldPriceHTML = offer > 0
-                            ? `
-                                <span class="price-old">
-                                    ₹${price.toLocaleString()}
-                                </span>
-                                <span class="discount-text">
-                                    ${offer}% off
-                                </span>
-                            `
-                            : "";
+                const oldPriceHTML = offer > 0
+                    ? `
+                        <div class="product-price-discount-row">
+                            <span class="price-old">
+                                ₹${variant.price.toLocaleString()}
+                            </span>
+                            <span class="discount-text">
+                                ${offer}% OFF
+                            </span>
+                        </div>
+                    `
+                    : "";
 
-                        grid.innerHTML += `
-                        <div class="product-card-horizontal">
+                grid.innerHTML += `
+                <div class="product-card-horizontal">
 
-                            <!-- Image -->
-                            <div class="product-card-img-container">
-                                <a href="/product/${product.slug}?variant=${variant._id}">
-                                    <img src="${variant.images?.primary?.url}" 
-                                        alt="${product.name}" 
-                                        class="product-card-img">
-                                </a>
+                    <div class="product-card-img-container">
+                        <a href="/product/${product.slug}?variant=${variant._id}">
+                            <img src="${variant.images?.primary?.url || '/images/default.png'}" 
+                                alt="${product.name}" 
+                                class="product-card-img">
+                        </a>
 
-                                <!-- WISHLIST BUTTON -->
-                                <button 
-                                    class="wishlist-btn-abs wishlist-toggle"
-                                    data-product="${product._id}"
-                                    data-variant="${variant._id}">
-                                    <i class="fa-regular fa-heart"></i>
-                                </button>
+                        <button 
+                            class="wishlist-btn-abs wishlist-toggle"
+                            data-product="${product._id}"
+                            data-variant="${variant._id}">
+                            <i class="fa-regular fa-heart"></i>
+                        </button>
+                    </div>
 
-                            </div>
+                    <div class="product-card-content">
 
-                            <!-- Content -->
-                            <div class="product-card-content">
+                        <div class="product-info-main">
 
-                                <div class="product-info-main">
+                            <h3 class="product-title-card">
+                                ${product.name}
+                                ${titleExtra ? `(${titleExtra})` : ""}
+                            </h3>
 
-                                    <h3 class="product-title-card">
-                                        ${product.name}
-                                        ${titleExtra ? `(${titleExtra})` : ""}
-                                    </h3>
+                            <span class="rating-badge rating-mobile ms-1">
+                                ${rating.toFixed(1)}
+                                <i class="fa-solid fa-star"></i>
+                            </span>
 
-                                    <span class="rating-badge rating-mobile ms-1">
-                                        ${(product.rating ?? 0).toFixed(1)}
-                                        <i class="fa-solid fa-star"></i>
-                                    </span>
-
-                                    <ul class="product-highlights">
-                                        ${highlightsHTML}
-                                    </ul>
-
-                                </div>
-
-                                <!-- Price -->
-                                <div class="product-info-price">
-
-                                    <div class="product-price-row">
-                                        <span class="price-lg">
-                                            ₹${discountedPrice.toLocaleString()}
-                                        </span>
-
-                                        <span class="rating-badge ms-2">
-                                            ${(product.rating ?? 0).toFixed(1)}
-                                            <i class="fa-solid fa-star"></i>
-                                        </span>
-                                    </div>
-
-                                    <div class="product-price-discount-row">
-                                        ${oldPriceHTML}
-                                    </div>
-
-                                </div>
-
-                            </div>
+                            <ul class="product-highlights">
+                                ${highlightsHTML}
+                            </ul>
 
                         </div>
-                        `;
 
-                    });
+                        <div class="product-info-price">
+
+                            <div class="product-price-row">
+                                <span class="price-lg">
+                                    ₹${finalPrice.toLocaleString()}
+                                </span>
+
+                                <span class="rating-badge ms-2">
+                                    ${rating.toFixed(1)}
+                                    <i class="fa-solid fa-star"></i>
+                                </span>
+                            </div>
+
+                            ${oldPriceHTML}
+
+                        </div>
+
+                    </div>
+
+                </div>
+                `;
             });
         }
+
+        function renderPagination(totalPages, currentPage) {
+
+            const container = document.querySelector(".pagination");
+            container.innerHTML = "";
+
+            if (totalPages <= 1) return;
+
+            if (currentPage > 1) {
+                container.innerHTML += `
+                    <a href="#" class="page-link" data-page="${currentPage - 1}">
+                        <i class="fa-solid fa-chevron-left"></i>
+                    </a>
+                `;
+            }
+
+            for (let i = 1; i <= totalPages; i++) {
+                container.innerHTML += `
+                    <a href="#" 
+                    class="page-link ${i === currentPage ? 'active' : ''}"
+                    data-page="${i}">
+                        ${i}
+                    </a>
+                `;
+            }
+
+            if (currentPage < totalPages) {
+                container.innerHTML += `
+                    <a href="#" class="page-link" data-page="${currentPage + 1}">
+                        <i class="fa-solid fa-chevron-right"></i>
+                    </a>
+                `;
+            }
+        }
+
+        document.addEventListener("click", function (e) {
+
+            const link = e.target.closest(".page-link");
+            if (!link) return;
+
+            e.preventDefault();
+
+            const page = link.dataset.page;
+            applyFilters(page);
+        });
         
 
-        document.getElementById("clearFilters")
-        .addEventListener("click", async () => {
+        document.getElementById("clearFilters").addEventListener("click", () => {
 
             document.querySelectorAll(".category-filter")
                 .forEach(cb => cb.checked = false);
 
-            document.querySelectorAll("input[name='sortPrice']")
+            document.querySelectorAll("input[name='sort']")
                 .forEach(rb => rb.checked = false);
 
-            document.querySelectorAll("input[name='sortName']")
-                .forEach(rb => rb.checked = false);
+            document.getElementById("minPrice").value = "";
+            document.getElementById("maxPrice").value = "";
 
-            const response = await fetch("/products/filter");
-            const data = await response.json();
+            window.location.href = "/products";
 
-            if (data.success) {
-                renderProducts(data.products);
-            }
         });
 
         const navbarSearch = document.getElementById("navbarSearch");

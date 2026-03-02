@@ -16,7 +16,14 @@ export const getAllProducts=async(category=null)=>{
     return products.filter(product => product.category !== null)
 }
 
-export const getFilterdProduct = async (categories, sortPrice, sortName) => {
+export const getFilterdProduct = async (
+    categories,
+    sort,
+    minPrice,
+    maxPrice,
+    page = 1,
+    limit = 6
+) => {
 
     let query = { isDeleted: false };
 
@@ -24,38 +31,67 @@ export const getFilterdProduct = async (categories, sortPrice, sortName) => {
         query.category = { $in: categories.split(",") };
     }
 
- 
-    let sortOption = { createdAt: -1 }; 
+    const products = await productModel.find(query).populate("category");
 
-    if (sortPrice === "priceLow") {
-        sortOption = { minPrice: 1 };    
-    } 
-    else if (sortPrice === "priceHigh") {
-        sortOption = { maxPrice: -1 };     
-    } 
-    else if (sortName === "nameAZ") {
-        sortOption = { name: 1 };
-    } 
-    else if (sortName === "nameZA") {
-        sortOption = { name: -1 };
+    const getFinalPrice = (price, offer = 0) =>
+        Math.round(price - (price * offer / 100));
+
+    let variantList = [];
+    products.forEach(product => {
+
+        const offer = product.offerPercentage || 0;
+
+        product.variants
+            .filter(v => v.status === "Active")
+            .forEach(variant => {
+
+                const finalPrice = getFinalPrice(variant.price, offer);
+
+                const minCheck = minPrice ? finalPrice >= Number(minPrice) : true;
+                const maxCheck = maxPrice ? finalPrice <= Number(maxPrice) : true;
+
+                if (minCheck && maxCheck) {
+                    variantList.push({
+                        ...product.toObject(),
+                        variants: [variant],
+                        finalPrice
+                    });
+                }
+
+            });
+    });
+
+    if (sort) {
+
+        variantList.sort((a, b) => {
+
+            if (sort === "priceLow")
+                return a.finalPrice - b.finalPrice;
+
+            if (sort === "priceHigh")
+                return b.finalPrice - a.finalPrice;
+
+            if (sort === "nameAZ")
+                return a.name.localeCompare(b.name);
+
+            if (sort === "nameZA")
+                return b.name.localeCompare(a.name);
+
+            return 0;
+        });
     }
 
-    const products = await productModel.find(query).populate("category").sort(sortOption);
+    const totalItems = variantList.length;
+    const totalPages = Math.ceil(totalItems / limit);
 
-    if (sortPrice === "priceLow") {
-        products.forEach(p =>
-            p.variants.sort((a, b) => a.price - b.price)
-        );
-    }
-    else if (sortPrice === "priceHigh") {
-        products.forEach(p =>
-            p.variants.sort((a, b) => b.price - a.price)
-        );
-    }
+    const start = (page - 1) * limit;
+    const paginated = variantList.slice(start, start + limit);
 
-    return products;
-}
-
+    return {
+        products: paginated,
+        totalPages
+    };
+};
 export const findProducts = async (search) => {
 
     let query = { isDeleted: false };

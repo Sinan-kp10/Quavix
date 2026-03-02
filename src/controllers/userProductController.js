@@ -17,14 +17,22 @@ import {
 } from "../services/userProductService.js"
 
 
-
 export const loadProducts = async (req, res) => {
     try {
 
-        const { category } = req.query;
-        const products = await getAllProducts(category)
+        const page = Number(req.query.page) || 1;
+        const limit = 6;  
 
-        const categories = await categoryModel.find({ status: "Active" })
+        const result = await getFilterdProduct(
+            null,
+            null,
+            null,
+            null,
+            page,
+            limit
+        );
+
+        const categories = await categoryModel.find({ status: "Active" });
 
         let wishlistItems = [];
 
@@ -44,37 +52,48 @@ export const loadProducts = async (req, res) => {
         res.render("user/products", {
             title: "products-Quavix",
             css: "userStyle",
-            products,
+            products: result.products,
             categories,
-            wishlistItems
-        })
-
+            wishlistItems,
+            totalPages: result.totalPages,
+            currentPage: page
+        });
 
     } catch (err) {
-        console.log(err)
-        req.session.toastMessage = "Something went wrong.";
-        req.session.toastType = "error";
-        res.redirect("/")
-
+        console.log(err);
+        res.redirect("/");
     }
-}
-
-
+};
 
 export const filterProducts = async (req, res) => {
     try {
 
-        const { categories, sortPrice, sortName } = req.query;
+        const { categories, sort, minPrice, maxPrice } = req.query;
 
-        const products = await getFilterdProduct(categories, sortPrice, sortName)
+        const page = Number(req.query.page) || 1;
+        const limit = 6;   
 
-        res.json({ success: true, products });
+        const result = await getFilterdProduct(
+            categories,
+            sort,
+            minPrice,
+            maxPrice,
+            page,
+            limit
+        );
+
+        res.json({
+            success: true,
+            products: result.products,
+            totalPages: result.totalPages,
+            currentPage: page
+        });
 
     } catch (err) {
-        console.log(err)
+        console.log(err);
         res.status(500).json({ success: false });
     }
-}
+};
 
 export const searchProducts = async (req, res) => {
     try {

@@ -307,6 +307,19 @@ textarea.form-input {
     box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
 }
 
+/* Hide spin buttons for number inputs */
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+input[type=number] {
+    -moz-appearance: textfield;
+    appearance: textfield;
+}
+
+
 /* Password Toggle */
 .password-group {
     position: relative;
@@ -1216,6 +1229,119 @@ textarea.form-input {
     color: white;
 }
 
+.btn-outline:hover {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+/* Checkout Page Specific Styles */
+.edit-address-btn {
+    position: relative;
+    z-index: 10;
+    transition: all 0.2s ease;
+    padding: 4px 8px;
+    border-radius: 4px;
+}
+
+.edit-address-btn:hover {
+    background-color: #e0e7ff;
+}
+
+.checkout-coupon-input {
+    padding: 0.5rem;
+    width: auto !important;
+    flex: 1;
+}
+
+.checkout-coupon-btn {
+    padding: 0.5rem 1rem;
+    flex-shrink: 0;
+}
+
+.checkout-item {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.checkout-item-img {
+    width: 64px;
+    height: 64px;
+    object-fit: contain;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 4px;
+    background: #fff;
+    flex-shrink: 0;
+}
+
+.checkout-item-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.checkout-item-title {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--text-color);
+}
+
+.checkout-item-details {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.8rem;
+}
+
+.checkout-item-qty {
+    color: var(--text-muted);
+}
+
+.checkout-item-price-block {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.checkout-item-new-price {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text-color);
+}
+
+.checkout-item-old-price {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    text-decoration: line-through;
+}
+
+.checkout-item-discount {
+    font-size: 0.75rem;
+    color: #16a34a;
+    background: #f0fdf4;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: 600;
+}
+
+.checkout-item-total {
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--primary-color);
+}
+
+.payment-icon-lg {
+    font-size: 1.5rem;
+}
+
+.payment-icon-green {
+    font-size: 1.5rem;
+    color: #16a34a;
+}
+
 /* Expired Coupon Styles */
 .coupon-card.expired {
     opacity: 0.8;
@@ -2040,8 +2166,8 @@ textarea.form-input {
 
 .checkout-grid {
     display: grid;
-    gap: 1rem;
-    grid-template-columns: 2fr 1fr;
+    gap: 2rem;
+    grid-template-columns: 1.5fr 1fr;
     align-items: start;
 }
 
@@ -3220,7 +3346,7 @@ footer a:hover {
     color: #16a34a;
 }
 
-/* Pagination Styles */
+/* Pagination Styles
 .pagination-container {
     display: flex;
     align-items: center;
@@ -3271,6 +3397,42 @@ footer a:hover {
     opacity: 0.5;
     cursor: not-allowed;
     background: #f1f5f9;
+} */
+
+/* Pagination */
+.pagination {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 1.5rem;
+    gap: 0.5rem;
+}
+
+.page-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: var(--radius-md);
+    border: 1px solid #e2e8f0;
+    background: white;
+    color: var(--text-main);
+    font-size: 0.875rem;
+    transition: all 0.2s;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.page-link:hover {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+    background: #eef2ff;
+}
+
+.page-link.active {
+    background-color: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
 }
 
 
@@ -4893,6 +5055,7 @@ footer a:hover {
     display: block;
     width: 100%;
 }
+
 .btn-qty:disabled {
     opacity: 0.5;
     cursor: not-allowed;
