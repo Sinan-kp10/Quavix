@@ -1,0 +1,400 @@
+<body>
+    <% if (typeof toastMessage !=="undefined" ) { %>
+        <div id="toast" class="toast <%= toastType %> show">
+            <%= toastMessage %>
+        </div>
+    <% } %>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="container nav-container">
+            <a href="index.html" class="logo">
+                <i class="fa-solid fa-bolt text-gradient-clip"></i>
+                <span class="text-gradient">Quavix</span>
+            </a>
+
+            <div class="mobile-search-container">
+                <div class="hamburger-menu">
+                    <i class="fa-solid fa-bars"></i>
+                </div>
+                <div class="mobile-search">
+                    <input type="text" placeholder="Search gadgets...">
+                    <button><i class="fa-solid fa-magnifying-glass"></i></button>
+                </div>
+            </div>
+
+            <!-- Mobile Sidebar (Hidden by default) -->
+            <aside class="mobile-sidebar">
+                <div class="sidebar-header">
+                    <a href="index.html" class="logo">
+                        <i class="fa-solid fa-bolt text-gradient-clip"></i>
+                        <span class="text-gradient">Quavix</span>
+                    </a>
+                    <button class="close-btn"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <div class="sidebar-content">
+                    <a href="products.html"><i class="fa-solid fa-shop"></i> Shop</a>
+                    <a href="order-history.html"><i class="fa-solid fa-box"></i> Orders</a>
+                    <a href="wishlist.html"><i class="fa-regular fa-heart"></i> Wishlist</a>
+                    <a href="cart.html"><i class="fa-solid fa-cart-shopping"></i> Cart</a>
+                    <% if(user){ %>
+                            <a href="/profile"><i class="fa-solid fa-user"></i> Profile</a>
+                            <a href="/logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+                        <%} else{ %>
+                            <a href="/login"><i class="fa-solid fa-right-to-bracket"></i> Sign In</a>
+                    <% } %>
+                </div>
+            </aside>
+
+            <!-- Overlay -->
+            <div class="mobile-overlay"></div>
+
+            <!-- Desktop Menu -->
+            <div class="nav-menu">
+                <a href="/">Home</a>
+                <a href="/products">Shop</a>
+                <a href="order-history.html">Orders</a>
+            </div>
+
+            <div class="nav-icons">
+                <!-- Search Bar -->
+                <div class="nav-search">
+                    <input type="text" placeholder="Search gadgets...">
+                    <button><i class="fa-solid fa-magnifying-glass"></i></button>
+                </div>
+
+                <a href="/wishlist" class="text-danger">
+                    <i class="fa-solid fa-heart nav-icon-lg"></i>
+                </a>
+                <a href="cart.html" class="relative">
+                    <i class="fa-solid fa-cart-shopping nav-icon-lg"></i>
+                </a>
+                <% if (user) { %>
+                    <a href="/profile" class="nav-profile-icon">
+
+                        <% if (user.profileImage) { %>
+                            <img src="<%= user.profileImage %>" 
+                                alt="Profile"
+                                class="nav-profile-img">
+                        <% } else { %>
+                            <div class="nav-default-avatar">
+                                <%= user.name.charAt(0).toUpperCase() %>
+                            </div>
+                        <% } %>
+
+                    </a>
+                <% } else { %>
+                    <a href="/login" class="btn btn-primary btn-sm">
+                        <i class="fa-solid fa-right-to-bracket"></i> Sign In
+                    </a>
+                <% } %>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container py-16">
+        <h1 class="mb-4">My Wishlist</h1>
+
+        <% if (wishlist && wishlist.items.length > 0) { %>
+
+        <div class="product-grid wishlist-container">
+
+            <% wishlist.items.forEach(item => { 
+
+                const product = item.product;
+
+                if (!product) return;
+
+                const variant = product.variants.find(v => 
+                    v._id.toString() === item.variant.toString()
+                ) || product.variants[0];
+
+                const originalPrice = variant.price;
+                const offer = product.offerPercentage || 0;
+                const discount = (originalPrice * offer) / 100;
+                const finalPrice = Math.round(originalPrice - discount);
+
+            %>
+
+            <div class="wishlist-item">
+
+                <!-- Image -->
+                <div class="wishlist-image-box">
+                    <a href="/product/<%= product.slug %>?variant=<%= variant._id %>">
+                        <img src="<%= variant.images.primary.url %>" alt="<%= product.name %>">
+                    </a>
+                </div>
+                
+                <!-- Info -->
+                <div class="wishlist-info">
+
+                    <% 
+                        // ===== Extract Attributes Safely =====
+                        const attributes = variant.attributes || [];
+
+                        const colorAttr = attributes.find(a => 
+                            a.name.toLowerCase().includes("color") ||
+                            a.name.toLowerCase().includes("colour")
+                        );
+
+                        const ramAttr = attributes.find(a => 
+                            a.name.toLowerCase().includes("ram")
+                        );
+
+                        const storageAttr = attributes.find(a => 
+                            a.name.toLowerCase().includes("rom") ||
+                            a.name.toLowerCase().includes("storage")
+                        );
+
+                        const color = colorAttr ? colorAttr.value : "";
+                        const ram = ramAttr ? ramAttr.value : "";
+                        const storage = storageAttr ? storageAttr.value : "";
+                    %>
+
+                    <!-- PRODUCT TITLE WITH ATTRIBUTES -->
+                    <h2 class="wishlist-title">
+                        <%= product.name %>
+                        <% if (color || ram || storage) { %>
+                            (<%= [color, ram, storage].filter(Boolean).join(", ") %>)
+                        <% } %>
+                    </h2>
+
+                    <!-- HIGHLIGHTS -->
+                    <ul class="wishlist-highlights">
+
+                        <% if (ram || storage) { %>
+                            <li><%= [ram, storage].filter(Boolean).join(" | ") %></li>
+                        <% } %>
+
+                        <% if (product.highlights && product.highlights.length > 0) { %>
+                            <% product.highlights.slice(0,3).forEach(h => { %>
+                                <li><%= h %></li>
+                            <% }) %>
+                        <% } %>
+
+                    </ul>
+
+                </div>
+
+                <!-- Price & Actions -->
+                <div class="wishlist-actions">
+                    <div class="wishlist-price-block">
+                        <span class="price-new">
+                            ₹<%= finalPrice.toLocaleString() %>
+                        </span>
+
+                        <% if (offer > 0) { %>
+                        <div class="flex items-center justify-end gap-2 mt-1">
+                            <span class="price-old">
+                                ₹<%= originalPrice.toLocaleString() %>
+                            </span>
+                            <span class="discount-badge">
+                                <%= offer %>% OFF
+                            </span>
+                        </div>
+                        <% } %>
+                    </div>
+
+                    <div class="wishlist-btn-group">
+                        <button 
+                            class="btn btn-primary move-to-cart"
+                            data-product="<%= product._id %>"
+                            data-variant="<%= variant._id %>">
+                            <i class="fa-solid fa-cart-shopping"></i>
+                        </button>
+
+                        <button 
+                            class="btn btn-remove"
+                            data-product="<%= product._id %>"
+                            data-variant="<%= variant._id %>">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+
+            <% }) %>
+
+        </div>
+
+        <% } else { %>
+
+            <p class="text-muted text-center">
+                Your wishlist is empty.
+            </p>
+
+        <% } %>
+    </div>
+
+    <script src="js/script.js"></script>
+    
+    <script>
+        document.addEventListener("click", async function (e) {
+
+            const button = e.target.closest(".btn-remove");
+            if (!button) return;
+
+            const productId = button.dataset.product;
+            const variantId = button.dataset.variant;
+
+            const result = await Swal.fire({
+                title: "Remove from Wishlist?",
+                text: "This product will be removed from your wishlist.",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#6C5CE7",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Yes, remove it!",
+                cancelButtonText: "Cancel"
+            });
+
+            if (!result.isConfirmed) return;
+
+            try {
+
+                const response = await fetch("/wishlist/remove", {
+                    method: "DELETE",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        productId,
+                        variantId
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+
+                    const item = button.closest(".wishlist-item");
+
+                    // Smooth remove animation
+                    item.style.transition = "0.3s";
+                    item.style.opacity = "0";
+                    item.style.transform = "scale(0.95)";
+
+                    setTimeout(() => {
+                        item.remove();
+                    }, 300);
+
+                    Swal.fire({
+                        icon: "success",
+                        title: "Removed!",
+                        text: "Product removed from wishlist.",
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+
+                } else {
+                    Swal.fire("Error", "Failed to remove item", "error");
+                }
+
+            } catch (error) {
+                console.error(error);
+                Swal.fire("Error", "Something went wrong!", "error");
+            }
+
+        })
+
+
+
+        document.addEventListener("click", async function (e) {
+
+            const cartBtn = e.target.closest(".move-to-cart");
+            if (!cartBtn) return;
+
+            const productId = cartBtn.dataset.product;
+            const variantId = cartBtn.dataset.variant;
+
+            try {
+
+                cartBtn.disabled = true;
+
+                const response = await fetch("/cart", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ productId, variantId })
+                });
+
+                const data = await response.json();
+
+                if (response.status === 401) {
+                    triggerToast("Login required", "error");
+                    cartBtn.disabled = false;
+                    return;
+                }
+
+                if (response.status === 400) {
+                    triggerToast(data.message || "This product is currently out of stock.", "error");
+                    return;
+                }
+
+
+                if (!data.success) {
+                    triggerToast(data.message || "Failed to add to cart", "error");
+                    cartBtn.disabled = false;
+                    return;
+                }
+
+                triggerToast("Product moved to cart!", "success");
+
+                await fetch("/wishlist/remove", {
+                    method: "DELETE",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ productId, variantId })
+                });
+
+
+                const itemCard = cartBtn.closest(".wishlist-item");
+                if (itemCard) itemCard.remove();
+
+            } catch (err) {
+                triggerToast("Something went wrong", "error");
+                cartBtn.disabled = false;
+            }
+
+        });
+
+
+        const toast = document.getElementById("toast");
+
+        if (toast) {
+            setTimeout(() => {
+                toast.classList.add("show");
+            }, 100);
+
+            setTimeout(() => {
+                toast.classList.remove("show");
+            }, 3000);
+        }
+
+        function triggerToast(message, type = "error") {
+
+            let toast = document.getElementById("toast");
+
+            if (!toast) {
+                toast = document.createElement("div");
+                toast.id = "toast";
+                document.body.appendChild(toast);
+            }
+
+            toast.className = `toast ${type}`;
+            toast.innerText = message;
+
+            setTimeout(() => {
+                toast.classList.add("show");
+            }, 100);
+
+            setTimeout(() => {
+                toast.classList.remove("show");
+            }, 3000);
+        }
+    </script>
+</body>
+

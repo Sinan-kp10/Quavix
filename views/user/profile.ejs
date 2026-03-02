@@ -59,16 +59,18 @@
 
             <div class="nav-icons">
                 <!-- Search Bar -->
-                <div class="nav-search">
-                    <input type="text" placeholder="Search gadgets...">
-                    <button><i class="fa-solid fa-magnifying-glass"></i></button>
-                </div>
+                <form class="nav-search" action="/products/search" method="GET">
+                    <input type="text" name="q" placeholder="Search gadgets...">
+                    <button type="submit">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </button>
+                </form>
 
-                <a href="wishlist.html" class="relative">
+                <a href="/wishlist" class="relative">
                     <i class="fa-regular fa-heart nav-icon-lg"></i>
                 </a>
 
-                <a href="cart.html" class="relative">
+                <a href="/cart" class="relative">
                     <i class="fa-solid fa-cart-shopping nav-icon-lg"></i>
                 </a>
 
@@ -118,7 +120,7 @@
                                 <label for="profileInput" class="change-btn">
                                     <i class="fa-solid fa-camera"></i>
                                 </label>
-                                <input type="file" name="profileImage" id="profileInput" hidden >
+                                <input type="file" name="profileImage" id="profileInput" hidden accept="image/*">
                             </form>
                         </div>
 
@@ -140,10 +142,10 @@
                         <a href="order-history.html" class="profile-nav-link">
                             <i class="fa-solid fa-box"></i> My Orders
                         </a>
-                        <a href="cart.html" class="profile-nav-link">
+                        <a href="/cart" class="profile-nav-link">
                             <i class="fa-solid fa-cart-shopping"></i> My Cart
                         </a>
-                        <a href="wishlist.html" class="profile-nav-link">
+                        <a href="/wishlist" class="profile-nav-link">
                             <i class="fa-regular fa-heart"></i> My Wishlist
                         </a>
                         <a href="coupons.html" class="profile-nav-link">
@@ -277,7 +279,6 @@
     <div class="crop-modal-content">
         <div class="crop-header">
             <h3>Crop Image</h3>
-            <button id="cropCancelTop" class="crop-close">&times;</button>
         </div>
 
         <div class="crop-body">
@@ -285,7 +286,7 @@
         </div>
 
         <div class="crop-footer">
-            <button id="cropConfirm" class="btn btn-primary">Crop</button>
+            <button id="cropConfirm" class="btn btn-primary">Save</button>
             <button id="cropCancel" class="btn btn-outline">Cancel</button>
         </div>
     </div>
@@ -296,26 +297,76 @@
 
     <script>
         let cropper;
+        let selectedFile = null;
+
         const input = document.getElementById("profileInput");
         const image = document.getElementById("cropImage");
         const modal = document.getElementById("cropModal");
         const cropConfirm = document.getElementById("cropConfirm");
         const cropCancel = document.getElementById("cropCancel");
 
+        function showToast(message, type = "error") {
+
+            let toast = document.getElementById("toast");
+
+            if (!toast) {
+                toast = document.createElement("div");
+                toast.id = "toast";
+                document.body.appendChild(toast);
+            }
+
+            toast.className = `toast ${type}`;
+            toast.innerText = message;
+
+            setTimeout(() => {
+                toast.classList.add("show");
+            }, 100);
+
+            setTimeout(() => {
+                toast.classList.remove("show");
+            }, 3000);
+        }
+
         input.addEventListener("change", function (e) {
+
             const file = e.target.files[0];
+            if (!file) return;
+
+            const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
+            const maxSize = 2 * 1024 * 1024; 
+
+
+            if (!allowedTypes.includes(file.type)) {
+                showToast("Only JPG, PNG, WEBP images are allowed", "error");
+                input.value = "";
+                return;
+            }
+
+            if (file.size > maxSize) {
+                showToast("File too large. Max size is 2MB.", "error");
+                input.value = "";
+                return;
+            }
+
+            selectedFile = file;
+
             const reader = new FileReader();
 
             reader.onload = function () {
+
                 image.src = reader.result;
                 modal.style.display = "flex";
+
+                if (cropper) {
+                    cropper.destroy();
+                }
 
                 cropper = new Cropper(image, {
                     aspectRatio: 1,
                     viewMode: 1,
-                    dragMode: "move",        // move image instead of crop box
-                    cropBoxResizable: false, 
-                    cropBoxMovable: false,   
+                    dragMode: "move",
+                    cropBoxResizable: false,
+                    cropBoxMovable: false,
                     zoomable: true,
                     scalable: false,
                     responsive: true
@@ -326,12 +377,16 @@
         });
 
         cropConfirm.addEventListener("click", function () {
+
+            if (!cropper) return;
+
             const canvas = cropper.getCroppedCanvas({
                 width: 300,
                 height: 300
             });
 
             canvas.toBlob(function (blob) {
+
                 const formData = new FormData();
                 formData.append("profileImage", blob, "profile.jpg");
 
@@ -339,21 +394,43 @@
                     method: "POST",
                     body: formData
                 })
-                .then(res => {
-                    if (res.ok) {
-                        window.location.href = "/profile";
+                .then(res => res.json())
+                .then(data => {
+
+                    if (!data.success) {
+                        showToast(data.message || "Upload failed", "error");
+                        return;
                     }
+
+                    showToast("Profile updated successfully!", "success");
+
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1000);
+
+                })
+                .catch(() => {
+                    showToast("Something went wrong. Please try again.", "error");
                 });
-            });
+
+            }, "image/jpeg");
 
             modal.style.display = "none";
         });
+
 
         cropCancel.addEventListener("click", function () {
+
             modal.style.display = "none";
-            cropper.destroy();
-        });
-        </script>
+
+            if (cropper) {
+                cropper.destroy();
+                cropper = null;
+            }
+
+            input.value = "";
+        })
+    </script>
 
     
 </body>

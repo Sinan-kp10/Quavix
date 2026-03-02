@@ -3,7 +3,8 @@ import cloudinary from "../config/cloudinary.js"
 import bcrypt from "bcrypt"
 import nodemailer from "nodemailer"
 import dotenv from "dotenv"
-import { profile } from "node:console"
+import categoryModal from "../models/category.js"
+import productModel from "../models/productModal.js"
 dotenv.config();
 const saltround=10
 
@@ -228,7 +229,7 @@ export const updateUserProfileImage = async(userId, file)=>{
 
     await user.save();
 
-    return result.secure_url;
+    return result.secure_url
 }
 
 export const removeUserProfileImage=async(userId)=>{
@@ -374,3 +375,11 @@ export const deleteUserAddress=async(userId,addressId)=>{
 
 }
 
+export const getActiveCategories=async()=>{
+    
+    return await categoryModal.find({status:"Active"}).sort({createdAt:-1})
+}
+
+export const getHomepageProducts = async () => {
+    return await productModel.find({  isDeleted: false,showOnHomepage: true   }).populate("category").sort({ createdAt: -1 });
+};

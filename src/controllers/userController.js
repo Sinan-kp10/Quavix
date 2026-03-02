@@ -1,4 +1,7 @@
+import category from "../models/category.js"
 import userModel from "../models/userModal.js"
+import wishlistModel from "../models/wishlistModel.js"
+
 import {
     loginUser,
     registerUser,
@@ -11,7 +14,9 @@ import {
     updateUserAddress,
     deleteUserAddress,
     updateUserProfileImage,
-    removeUserProfileImage
+    removeUserProfileImage,
+    getActiveCategories,
+    getHomepageProducts
 
 } from "../services/userService.js"
 
@@ -240,8 +245,6 @@ export const forgottenPass=async(req,res)=>{
         });
 
 
-
-
         
     } catch(err){
         let message = "Something went wrong!";
@@ -303,6 +306,8 @@ export const verifyResetOtp = async (req, res)=>{
             formAction: "/verifyResetOtp"
         });
     }
+
+    req.session.resetPasswordChecking="reseted"
 
     return res.redirect("/newPassword");
 };
@@ -370,30 +375,16 @@ export const updateProfile=async(req,res)=>{
 }
 
 
+export const uploadProfileImage = async (req, res) => {
+    try {
 
-export const uploadProfileImage=async(req,res)=>{
+        const imageUrl = await updateUserProfileImage(req.session.user.id, req.file);
 
-  try{
+        return res.json({ success: true });
 
-    const imageUrl=await updateUserProfileImage(req.session.user.id,req.file)
-    if (!imageUrl) {
-      req.session.toastMessage = "Please select an image.";
-      req.session.toastType = "error";
-      return res.redirect("/profile");
+    } catch (err) {
+        return res.status(500).json({ success: false, message: "Something went wrong" });
     }
-
-    req.session.user.profileImage = imageUrl;
-    req.session.toastMessage = "Profile image updated successfully!";
-    req.session.toastType = "success";
-    res.redirect("/profile")
-    
-  }catch(err){
-    console.log(err)
-    req.session.toastMessage = "Something went wrong.";
-    req.session.toastType = "error";
-    res.redirect("/profile")
-  }  
-
 }
 
 export const removeProfileImage =async (req,res)=>{
@@ -412,7 +403,6 @@ export const removeProfileImage =async (req,res)=>{
         res.redirect("/profile");
     }
 }
-
 
 export const emailChange=async(req,res)=>{
 
@@ -586,9 +576,35 @@ export const deleteAddress=async(req,res)=>{
     }
 }
 
-export const loadHome=(req,res)=>{
+export const loadHome=async(req,res)=>{
 
-    res.render("user/home",{ title: "Home-Quavix",css:"userStyle" })
+    try {
+        const categories= await getActiveCategories()
+        const products = await getHomepageProducts();
+
+        let wishlistItems = [];
+
+        if (req.session.user) {
+            const wishlist = await wishlistModel.findOne({
+                user: req.session.user.id
+            });
+
+            if (wishlist) {
+                wishlistItems = wishlist.items.map(item => ({
+                    product: item.product.toString(),
+                    variant: item.variant.toString()
+                }));
+            }
+        }
+
+        
+
+        res.render("user/home",{ title: "Home-Quavix",css:"userStyle",categories,products,wishlistItems })
+        
+    }catch(err){
+        console.log(err)
+        res.status(500).send("Something went wrong");
+    }
 }
 
 export const loadLogin=(req,res)=>{
@@ -626,6 +642,20 @@ export const loadForgottenPass=(req,res)=>{
     res.render("user/forgottenPass",{ title: "Login Verify-Quavix",css:"userStyle" })
 }
 export const loadNewPassword=(req,res)=>{
+
+    if(req.session.user){
+        return res.redirect("/")
+    }
+
+    let resetPassword=req.session.resetPasswordChecking
+    
+    req.session.resetPasswordChecking=null
+
+    if(!resetPassword){
+
+        return res.redirect("/login")
+    }
+    
     res.render("user/newPass",{ title: "New Password-Quavix",css:"userStyle" })
 }
 export const loadAddAddress=(req,res)=>{

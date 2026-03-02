@@ -1,0 +1,446 @@
+
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-fixed">
+        <div class="container nav-container">
+            <a href="/" class="logo">
+                <i class="fa-solid fa-bolt text-gradient-clip"></i>
+                <span class="text-gradient">Quavix</span>
+            </a>
+
+            <div class="mobile-search-container">
+                <div class="hamburger-menu">
+                    <i class="fa-solid fa-bars"></i>
+                </div>
+                <div class="mobile-search">
+                    <input type="text" placeholder="Search gadgets...">
+                    <button><i class="fa-solid fa-magnifying-glass"></i></button>
+                </div>
+            </div>
+
+            <!-- Mobile Sidebar (Hidden by default) -->
+            <aside class="mobile-sidebar">
+                <div class="sidebar-header">
+                    <a href="/" class="logo">
+                        <i class="fa-solid fa-bolt text-gradient-clip"></i>
+                        <span class="text-gradient">Quavix</span>
+                    </a>
+                    <button class="close-btn"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <div class="sidebar-content">
+                    <a href="/products"><i class="fa-solid fa-shop"></i> Shop</a>
+                    <a href="order-history.html"><i class="fa-solid fa-box"></i> Orders</a>
+                    <a href="/wishlist"><i class="fa-regular fa-heart"></i> Wishlist</a>
+                    <a href="cart.html"><i class="fa-solid fa-cart-shopping"></i> Cart</a>
+
+                    <% if (user) { %>
+                            <a href="/profile"><i class="fa-solid fa-user"></i> Profile</a>
+                            <a href="/logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+                        <% } else { %>
+                            <a href="/login"><i class="fa-solid fa-right-to-bracket"></i> Sign In</a>
+                    <% } %>
+                </div>
+            </aside>
+
+            <!-- Overlay -->
+            <div class="mobile-overlay"></div>
+
+            <!-- Desktop Menu -->
+            <div class="nav-menu">
+                <a href="index.html" class="text-primary">Home</a>
+                <a href="/products">Shop</a>
+                <a href="order-history.html">Orders</a>
+            </div>
+
+            <div class="nav-icons">
+                <!-- Search Bar -->
+                <form class="nav-search" action="/products/search" method="GET">
+                    <input type="text" name="q" placeholder="Search gadgets...">
+                    <button type="submit">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </button>
+                </form>
+
+                <a href="/wishlist" class="relative">
+                    <i class="fa-regular fa-heart nav-icon-lg"></i>
+                </a>
+
+                <a href="/cart" class="relative">
+                    <i class="fa-solid fa-cart-shopping nav-icon-lg"></i>
+                </a>
+
+                <% if (user) { %>
+                    <a href="/profile" class="nav-profile-icon">
+
+                        <% if (user.profileImage) { %>
+                            <img src="<%= user.profileImage %>" 
+                                alt="Profile"
+                                class="nav-profile-img">
+                        <% } else { %>
+                            <div class="nav-default-avatar">
+                                <%= user.name.charAt(0).toUpperCase() %>
+                            </div>
+                        <% } %>
+
+                    </a>
+                <% } else { %>
+                    <a href="/login" class="btn btn-primary btn-sm">
+                        <i class="fa-solid fa-right-to-bracket"></i> Sign In
+                    </a>
+                <% } %>
+            </div>
+        </div>
+    </nav>
+
+
+    <!-- Vibrant Hero Section -->
+    <header class="hero-large relative overflow-hidden">
+        <!-- Hero Background Image -->
+        <img src="images/banner.png" alt="Hero Banner" class="absolute inset-0 w-full h-full object-cover z-0">
+        <div class="absolute inset-0 bg-black/60 z-0"></div>
+
+        <div class="container relative z-10">
+            <br>
+
+
+            <h1 class="hero-title">
+
+                <span class="text-gradient-hero">Experience the <br>Next Gen Electronics.</span>
+            </h1>
+
+            <p class="hero-text">
+                Upgrade your life with cutting-edge gadgets and immersive audio gear.
+            </p>
+
+            <div class="flex gap-4 justify-center">
+                <a href="products.html" class="btn btn-hero">
+                    Shop Gadgets
+                </a>
+                <a href="" class="btn btn-hero-outline">
+                    View Deals
+                </a>
+            </div>
+        </div>
+    </header>
+
+
+
+    <!-- Trending Categories -->
+    <!-- Shop by Department -->
+    <section class="container section-padding overflow-hidden">
+        <div class="filter-header border-0 mb-4 p-0">
+            <h2>Shop by Department</h2>
+        </div>
+
+        <div class="category-marquee">
+            <div class="category-marquee-inner">
+
+                <% if (categories && categories.length > 0) { %>
+
+                    <% categories.forEach(category => { %>
+                        <div class="category-card-lg">
+                            <div class="overlay-gradient"></div>
+                            <img src="<%= category.categoryImage %>" 
+                                alt="<%= category.name %>" 
+                                class="w-full h-full object-cover">
+                            <div class="category-content-abs">
+                                <h3 class="text-white text-2xl">
+                                    <%= category.name %>
+                                </h3>
+                            </div>
+                        </div>
+                    <% }) %>
+
+                    <% categories.forEach(category => { %>
+                        <div class="category-card-lg">
+                            <div class="overlay-gradient"></div>
+                            <img src="<%= category.categoryImage %>" 
+                                alt="<%= category.name %>" 
+                                class="w-full h-full object-cover">
+                            <div class="category-content-abs">
+                                <h3 class="text-white text-2xl">
+                                    <%= category.name %>
+                                </h3>
+                            </div>
+                        </div>
+                    <% }) %>
+
+                <% } %>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Trending Products -->
+    <section class="container section-padding">
+        <h2 class="text-center mb-8">Products</h2>
+        <div class="home-product-grid">
+
+            <% if (products && products.length > 0) { %>
+
+                <% products.forEach(product => { 
+
+                    const variant = product.variants.find(v => v.status === "Active") || product.variants[0];
+
+                    const originalPrice = variant.price;
+                    const offer = product.offerPercentage || 0;
+                    const discount = (originalPrice * offer) / 100;
+                    const finalPrice = Math.round(originalPrice - discount);
+                %>
+
+                <div class="home-product-card">
+                    <div class="home-card-img-box">
+
+                        <% if (offer > 0) { %>
+                            <span class="home-card-offer"><%= offer %>% OFF</span>
+                        <% } %>
+
+                        <% const isWishlisted = wishlistItems?.some(item =>
+                            item.product === product._id.toString() &&
+                            item.variant === variant._id.toString()
+                        );
+                        %>
+
+                        <button 
+                            class="wishlist-btn-sm wishlist-toggle"
+                            data-product="<%= product._id %>"
+                            data-variant="<%= variant._id %>">
+
+                            <i class="fa-heart <%= isWishlisted ? 'fa-solid text-danger' : 'fa-regular' %>"></i>
+
+                        </button>
+
+                        <a href="/product/<%= product.slug %>">
+                            <img src="<%= variant.images.primary.url %>" alt="<%= product.name %>">
+                        </a>
+                    </div>
+
+                    <div class="home-card-content">
+
+                        <div class="card-cat-rating">
+                            <span class="product-cat-sm">
+                                <%= product.category.name %>
+                            </span>
+
+                            <span class="home-card-rating">
+                                <%= product.rating.toFixed(1) %>
+                                <i class="fa-solid fa-star"></i>
+                            </span>
+                        </div>
+
+                        <%const attributes = variant.attributes || [];
+
+                        const colorAttr = attributes.find(a =>
+                            a.name.toLowerCase().includes("color") ||
+                            a.name.toLowerCase().includes("colour")
+                        );
+
+                        const ramAttr = attributes.find(a =>
+                            a.name.toLowerCase().includes("ram")
+                        );
+
+                        const storageAttr = attributes.find(a =>
+                            a.name.toLowerCase().includes("rom") ||
+                            a.name.toLowerCase().includes("storage")
+                        );
+
+                        const color = colorAttr ? colorAttr.value : "";
+                        const ram = ramAttr ? ramAttr.value : "";
+                        const storage = storageAttr ? storageAttr.value : "";
+                    %>
+
+                    <h3 class="home-card-title">
+                        <%= product.name %>
+                        <% if (color || storage) { %>
+                            (<%= [color, storage].filter(Boolean).join(", ") %>)
+                        <% } %>
+                    </h3>
+
+                    <ul class="home-card-highlights">
+
+                        <% if (ram || storage) { %>
+                            <li><%= [ram, storage].filter(Boolean).join(" | ") %></li>
+                        <% } %>
+
+                        <% product.highlights.slice(0,2).forEach(h => { %>
+                            <li><%= h %></li>
+                        <% }) %>
+
+                    </ul>
+                        
+
+                        <div class="home-card-bottom">
+                            <div class="price-box">
+
+                                <% if (offer > 0) { %>
+                                    <span class="price-old-sm">
+                                        ₹<%= originalPrice.toLocaleString() %>
+                                    </span>
+                                <% } %>
+
+                                <span class="price-new-sm">
+                                    ₹<%= finalPrice.toLocaleString() %>
+                                </span>
+
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <% }) %>
+
+            <% } else { %>
+
+                <p class="text-center">No products available.</p>
+
+            <% } %>
+
+            </div>
+    </section>
+
+
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="grid footer-grid">
+                <div>
+                    <a href="index.html" class="logo mb-6 inline-block">
+                        <i class="fa-solid fa-bolt text-primary"></i>
+                        <span class="text-white">Quavix</span>
+                    </a>
+                    <br>
+                    <p class="text-muted">Your premium destination for the <br> latest in technology.</p>
+                </div>
+                <div>
+                    <h4 class="text-white mb-6">Shop</h4>
+                    <ul class="text-muted leading-loose">
+
+                        <li><a href="#">Phones</a></li>
+                        <li><a href="#">Audio</a></li>
+                        <li><a href="#">Smart Watches</a></li>
+
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="mb-6">Contact Us</h4>
+                    <ul class="text-muted leading-loose mb-6">
+                        <li><a href="mailto:quavixsupport@gmail.com">quavixsupport@gmail.com</a></li>
+                        <li><a href="tel:+918000090000">+91 80000 90000</a></li>
+                        <li><a href="#">Bengaluru, India</a></li>
+                    </ul>
+
+                </div>
+                <div>
+                    <h4 class="mb-6">Follow Us</h4>
+                    <div class="flex gap-4">
+                        <a target="_blank"  href="https://www.instagram.com/sin4n_x4?igsh=MWlvYzhzMTZsenl6aw%3D%3D&utm_source=qr" class="social-icon"><i class="fa-brands fa-instagram"></i></a>
+                        <a target="_blank"  href="https://www.linkedin.com/in/muhammed-sinan-kp-853057383/" class="social-icon"><i class="fa-brands fa-linkedin-in"></i></a>
+                        <a target="_blank" href="#" class="social-icon"><i class="fa-brands fa-facebook-f"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-copyright">
+                &copy; 2026 Quavix. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+    <script src="/js/user/navbar.js"></script>
+
+    <script>
+
+        //wishlist
+
+
+        document.addEventListener("click", async function (e) {
+
+            const btn = e.target.closest(".wishlist-toggle");
+            if (!btn) return;
+
+            e.preventDefault();
+
+            const productId = btn.dataset.product;
+            const variantId = btn.dataset.variant;
+
+            try {
+
+                const response = await fetch("/wishlist", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ productId, variantId })
+                });
+
+                const data = await response.json();
+
+                if (response.status === 401) {
+                    triggerToast(data.message || "Login required", "error");
+                    return;
+                }
+
+                if (!data.success) {
+                    triggerToast(data.message || "Something went wrong", "error");
+                    return;
+                }
+
+                const icon = btn.querySelector("i");
+
+                if (data.added) {
+                    icon.classList.remove("fa-regular");
+                    icon.classList.add("fa-solid");
+                    icon.style.color = "red";
+
+                    triggerToast(data.message, "success");
+                } else {
+                    icon.classList.remove("fa-solid");
+                    icon.classList.add("fa-regular");
+                    icon.style.color = "#cbd5e1";
+
+                    triggerToast(data.message, "error");
+                }
+
+            } catch (err) {
+                triggerToast("Server error", "error");
+            }
+        });
+        const toast = document.getElementById("toast");
+
+        if (toast) {
+            setTimeout(() => {
+                toast.classList.add("show");
+            }, 100);
+
+            setTimeout(() => {
+                toast.classList.remove("show");
+            }, 3000);
+        }
+
+        function triggerToast(message, type = "error") {
+
+            let toast = document.getElementById("toast");
+
+            if (!toast) {
+                toast = document.createElement("div");
+                toast.id = "toast";
+                document.body.appendChild(toast);
+            }
+
+            toast.className = `toast ${type}`;
+            toast.innerText = message;
+
+            setTimeout(() => {
+                toast.classList.add("show");
+            }, 100);
+
+            setTimeout(() => {
+                toast.classList.remove("show");
+            }, 3000);
+        }
+    </script>
+    
+</body>
+

@@ -1,0 +1,357 @@
+<body>
+    <% if (typeof toastMessage !== "undefined") { %>
+    <div id="toast" class="toast <%= toastType %>">
+        <%= toastMessage %>
+    </div>
+    <% } %>
+
+    <div class="admin-layout">
+        <!-- Mobile Header -->
+        <div class="mobile-header">
+            <div class="mobile-logo">
+                <i class="fa-solid fa-bolt"></i> Quavix
+            </div>
+            <button class="menu-toggle" onclick="toggleSidebar()">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+        </div>
+
+        <!-- Sidebar Overlay -->
+        <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo">
+                <i class="fa-solid fa-bolt"></i> Quavix Admin
+            </div>
+
+            <nav>
+                <a href="/admin/dashboard" class="sidebar-link"><i class="fa-solid fa-chart-line"></i>
+                    Dashboard</a>
+                <a href="/admin/products" class="sidebar-link active"><i class="fa-solid fa-box"></i>
+                    Products</a>
+                <a href="orders.html" class="sidebar-link"><i class="fa-solid fa-clipboard-list"></i> Orders</a>
+                <a href="coupons.html" class="sidebar-link"><i class="fa-solid fa-ticket"></i> Coupons</a>
+                <a href="/admin/category" class="sidebar-link"><i class="fa-solid fa-tags"></i>
+                    Categories</a>
+                <a href="/admin/users" class="sidebar-link"><i class="fa-solid fa-users"></i>
+                    Users</a>
+                <a href="banner.html" class="sidebar-link"><i class="fa-solid fa-image"></i>
+                    Banner</a>
+
+                <a href="reports.html" class="sidebar-link"><i class="fa-solid fa-chart-pie"></i>
+                    Reports</a>
+
+            </nav>
+
+            <div class="sidebar-footer">
+                <a href="/admin/logout" class="sidebar-link"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+            </div>
+        </aside>
+
+        <!-- Product Content -->
+        <main class="content">
+            <header class="flex justify-between items-center mb-4">
+                <h2>Product Management</h2>
+                <a href="/admin/products/add" class="btn btn-primary"><i class="fa-solid fa-plus"></i> Add
+                    New Product</a>
+            </header>
+
+            <div class="card p-4">
+                <div class="flex justify-between items-center mb-4">
+                    <div class="flex gap-2">
+                        <form method="GET" action="/admin/products" class="flex gap-2">
+
+                            <!-- Search -->
+                            <div class="search-group" style="position: relative;">
+                                <input type="text"
+                                    name="search"
+                                    value="<%= search || '' %>"
+                                    class="form-input"
+                                    placeholder="Search products..."
+                                    style="width: 150px;">
+                                <% if (search) { %>
+                                    <a href="/admin/products?status=<%= status %>" 
+                                    class="search-clear active">
+                                        <i class="fa-solid fa-xmark"></i>
+                                    </a>
+                                <% } %>
+                                <button type="submit"
+                                        class="btn btn-primary"
+                                        style="height: 50px;">
+                                    <i class="fa-solid fa-magnifying-glass"></i>
+                                </button>
+                            </div>
+
+                            <!-- Status Filter -->
+                            <select name="status"
+                                    onchange="this.form.submit()"
+                                    class="form-select"
+                                    style="width: 150px; height: 50px;">
+                                <option value="all" <%= status === "all" ? "selected" : "" %>>
+                                    All Status
+                                </option>
+                                <option value="Active" <%= status === "Active" ? "selected" : "" %>>
+                                    Active
+                                </option>
+                                <option value="Inactive" <%= status === "Inactive" ? "selected" : "" %>>
+                                    Inactive
+                                </option>
+                            </select>
+
+                            <!-- Stock Filter -->
+                            <select name="stock"
+                                    onchange="this.form.submit()"
+                                    class="form-select"
+                                    style="width: 150px;">
+                                <option value="" <%= !stock ? "selected" : "" %>>
+                                    All Stock
+                                </option>
+                                <option value="in" <%= stock === "in" ? "selected" : "" %>>
+                                    In Stock
+                                </option>
+                                <option value="out" <%= stock === "out" ? "selected" : "" %>>
+                                    Out of Stock
+                                </option>
+                            </select>
+
+                            
+                            <select name="category"
+                                    onchange="this.form.submit()"
+                                    class="form-select" style="width: 150px;">
+
+                                <option value="">All Categories</option>
+
+                                <% categories.forEach(cat => { %>
+                                    <option value="<%= cat._id %>"
+                                        <%= selectedCategory == cat._id.toString() ? "selected" : "" %>>
+                                        <%= cat.name %>
+                                    </option>
+                                <% }) %>
+
+                            </select>
+                        
+                        </form>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Category</th>
+                                <th>Variants</th>
+                                <th>Price</th>
+                                <th>Status</th>
+                                <th class="text-center">Stock</th>
+                                <th style="text-align: right;">Actions</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                        <% if (products.length === 0) { %>
+                            <tr>
+                                <td colspan="7" class="text-center">No Products Found</td>
+                            </tr>
+                        <% } %>
+
+                        <% products.forEach(product => { %>
+
+                            <%
+                                const totalStock = product.variants.reduce((sum, v) => sum + v.stock, 0);
+                                const activeVariants = product.variants.filter(v => v.status === "Active").length;
+                                const totalVariants = product.variants.length;
+
+                                const prices = product.variants.map(v => {
+                                    return product.offerPercentage > 0
+                                        ? v.price - (v.price * product.offerPercentage / 100)
+                                        : v.price;
+                                });
+
+                                const minPrice = Math.min(...prices);
+                                const maxPrice = Math.max(...prices);
+                            %>
+
+                            <tr>
+
+                                <!-- Name -->
+                                <td class="product-name">
+                                    <%= product.name %>
+                                </td>
+
+                                <!-- Category -->
+                                <td>
+                                    <%= product.category?.name || "N/A" %>
+                                </td>
+
+                                <!-- Variants -->
+                                <td>
+                                    <%= activeVariants %>/<%= totalVariants %> Active
+                                </td>
+
+                                <!-- Discounted Price Range -->
+                                <td>
+                                    <% if (minPrice === maxPrice) { %>
+                                        ₹<%= minPrice.toFixed(2) %>
+                                    <% } else { %>
+                                        ₹<%= minPrice.toFixed(2) %> – ₹<%= maxPrice.toFixed(2) %>
+                                    <% } %>
+
+                                    <% if (product.offerPercentage > 0) { %>
+                                        <br>
+                                        <small style="color: green;">
+                                            <%= product.offerPercentage %>% OFF
+                                        </small>
+                                    <% } %>
+                                </td>
+
+                                <!-- Status -->
+                                <td>
+                                    <% if(product.isDeleted){ %>
+                                        <span class="status-badge status-danger">Deleted</span>
+                                    <% } else if (activeVariants > 0) { %>
+                                        <span class="status-badge status-success">Active</span>
+                                    <% } else { %>
+                                        <span class="status-badge status-warning">Inactive</span>
+                                    <% } %>
+                                </td>
+                                <!-- Stock -->
+                                <td class="text-center">
+                                    <% if (totalStock > 0) { %>
+                                        <span class="text-success font-bold">
+                                            <%= totalStock %> Left
+                                        </span>
+                                    <% } else { %>
+                                        <span class="text-orange">
+                                            0 Left
+                                        </span>
+                                    <% } %>
+                                </td>
+
+                                <!-- Actions -->
+                                <td style="text-align: right;">
+                                    <a href="/admin/products/edit/<%= product._id %>" class="btn btn-outline btn-sm">
+                                        <i class="fa-solid fa-pen"></i>
+                                    </a>
+
+                                    <form action="/admin/products/delete/<%= product._id %>" method="POST" style="display:inline;">
+                                        <button type="button" 
+                                            class="btn btn-sm delete-btn <%= product.isDeleted ? 'btn-success' : 'btn-danger' %>"
+                                            data-id="<%= product._id %>"
+                                            data-status="<%= product.isDeleted %>">
+
+                                            <% if(!product.isDeleted){ %>
+                                                <i class="fa-solid fa-trash"></i>
+                                            <% } else { %>
+                                                <i class="fa-solid fa-rotate-left"></i>
+                                            <% } %>
+
+                                        </button>
+                                    </form>
+                                </td>
+
+                            </tr>
+
+                        <% }) %>
+
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                <div class="pagination">
+
+                    <% if(currentPage > 1){ %>
+                        <a href="?search=<%= search %>&status=<%= status %>&stock=<%= stock %>&category=<%= selectedCategory || '' %>&page=<%= currentPage - 1 %>"
+                        class="page-link">
+                            <i class="fa-solid fa-chevron-left"></i>
+                        </a>
+                    <% } %>
+
+                    <% 
+                        let startPage = Math.max(1, currentPage - 1);
+                        let endPage = Math.min(totalPages, startPage + 2);
+                        if(endPage - startPage < 2){
+                            startPage = Math.max(1, endPage - 2);
+                        }
+                    %>
+
+                    <% for(let i = startPage; i <= endPage; i++){ %>
+                        <a href="?search=<%= search %>&status=<%= status %>&stock=<%= stock %>&category=<%= selectedCategory || '' %>&page=<%= i %>"
+                        class="page-link <%= currentPage === i ? 'active' : '' %>">
+                            <%= i %>
+                        </a>
+                    <% } %>
+
+                    <% if(currentPage < totalPages){ %>
+                        <a href="?search=<%= search %>&status=<%= status %>&stock=<%= stock %>&category=<%= selectedCategory || '' %>&page=<%= currentPage + 1 %>"
+                        class="page-link">
+                            <i class="fa-solid fa-chevron-right"></i>
+                        </a>
+                    <% } %>
+
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        function toggleSidebar() {
+            document.querySelector('.sidebar').classList.toggle('active');
+            document.getElementById('sidebarOverlay').classList.toggle('active');
+        }
+        const toast = document.getElementById("toast");
+
+        if (toast) {
+            setTimeout(() => {
+            toast.classList.add("show");
+            }, 100);
+
+            setTimeout(() => {
+            toast.classList.remove("show");
+            }, 3000);
+        }
+
+        document.querySelectorAll(".delete-btn").forEach(button => {
+
+        button.addEventListener("click", function () {
+
+            const productId = this.dataset.id;
+            const isDeleted = this.dataset.status=="false";
+
+
+            Swal.fire({
+                title: "Are you sure?",
+                text: isDeleted 
+                    ? "This Product will be set to Inactive!"
+                    : "This Product will be restored!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: isDeleted ? "#d33" : "#28a745",
+                cancelButtonColor: "#3085d6",
+                confirmButtonText: isDeleted
+                    ? "Yes, deactivate!"
+                    : "Yes, restore!",
+                reverseButtons: true
+            }).then((result) => {
+
+                if (result.isConfirmed) {
+
+                    const form = document.createElement("form");
+                    form.method = "POST";
+                    form.action = `/admin/products/delete/${productId}`;
+
+                    document.body.appendChild(form);
+                    form.submit();
+                }
+
+            });
+
+        });
+
+    });
+    </script>
+
+</body>
+

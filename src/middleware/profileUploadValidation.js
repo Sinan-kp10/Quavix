@@ -6,22 +6,16 @@ export const profileUploadValidation = (req, res, next) => {
    const runMulter=upload.single("profileImage")
    runMulter(req, res, function (err) {
 
-    if (err instanceof multer.MulterError) {
-      req.session.toastMessage = "File too large. Max size is 2MB.";
-      req.session.toastType = "error";
-      return res.redirect("/profile");
+    if(err instanceof multer.MulterError) {
+      return res.status(400).json({ success: false, message: "File too large. Max size is 2MB." });
     }
 
-    if (err) {
-      req.session.toastMessage = err.message;
-      req.session.toastType = "error";
-      return res.redirect("/profile");
+    if(err) {
+      return res.status(400).json({ success: false, message: err.message });
     }
 
-    if (!req.file) {
-      req.session.toastMessage = "Please select an image.";
-      req.session.toastType = "error";
-      return res.redirect("/profile");
+    if(!req.file) {
+      return res.status(400).json({ success: false, message: "Please select an image." });
     }
 
     next();

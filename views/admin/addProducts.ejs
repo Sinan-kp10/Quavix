@@ -1,0 +1,547 @@
+<body>
+    <% if (typeof toastMessage !== "undefined") { %>
+    <div id="toast" class="toast <%= toastType %>">
+        <%= toastMessage %>
+    </div>
+    <% } %>
+
+    <div class="admin-layout">
+        <!-- Mobile Header -->
+        <div class="mobile-header">
+            <div class="mobile-logo">
+                <i class="fa-solid fa-bolt"></i> Quavix
+            </div>
+            <button class="menu-toggle" onclick="toggleSidebar()">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+        </div>
+
+        <!-- Sidebar Overlay -->
+        <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo">
+                <i class="fa-solid fa-bolt"></i> Quavix Admin
+            </div>
+
+            <nav>
+                <a href="/admin/dashboard" class="sidebar-link"><i class="fa-solid fa-chart-line"></i>
+                    Dashboard</a>
+                <a href="/admin/products" class="sidebar-link active"><i class="fa-solid fa-box"></i>
+                    Products</a>
+                <a href="orders.html" class="sidebar-link"><i class="fa-solid fa-clipboard-list"></i> Orders</a>
+                <a href="coupons.html" class="sidebar-link"><i class="fa-solid fa-ticket"></i> Coupons</a>
+                <a href="/admin/category" class="sidebar-link"><i class="fa-solid fa-tags"></i>
+                    Categories</a>
+                <a href="/admin/users" class="sidebar-link"><i class="fa-solid fa-users"></i>
+                    Users</a>
+                <a href="banner.html" class="sidebar-link"><i class="fa-solid fa-image"></i>
+                    Banner</a>
+
+                <a href="reports.html" class="sidebar-link"><i class="fa-solid fa-chart-pie"></i>
+                    Reports</a>
+
+            </nav>
+
+            <div class="sidebar-footer">
+                <a href="/admin/logout" class="sidebar-link"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+            </div>
+        </aside>
+
+        <!-- Product Content -->
+        <main class="content">
+            <header class="flex justify-between items-center mb-4">
+                <div class="flex items-center gap-4">
+                    <a href="/admin/products" class="btn btn-outline btn-sm"><i class="fa-solid fa-arrow-left"></i>
+                        Back</a>
+                    <h2 class="mb-0"><%= product ? "Edit Product" : "Add New Product" %></h2>
+                    
+                </div>
+            </header>
+
+            <div class="card p-6">
+                <form id="addProductForm" method="post" action="<%= product ? '/admin/products/edit/' + product._id : '/admin/products/add' %>" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label>Product Name</label>
+                        <input type="text" id="name" name="name" class="form-input" placeholder="e.g. Wireless Headphones" value="<%= product ? product.name : '' %>">
+                        <small class="error-message"></small>
+
+                    </div>
+                    <div class="form-grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="form-group">
+                            <label>Category</label>
+                            <select id="categories" name="category" class="form-select">
+                                <option value="">Select Category</option>
+                                <% categories.forEach(cat => { %>
+                                    <option value="<%= cat._id %>"
+                                        <%= product && product.category._id.toString() === cat._id.toString() ? 'selected' : '' %>>
+                                        <%= cat.name %>
+                                    </option>
+                                <% }) %>
+
+                            </select>
+                            <small class="error-message"></small>
+                        </div>
+                        <div class="form-group">
+                            <label>Offer (%)</label>
+                            <input type="number" id="offer" name="offerPercentage" class="form-input" placeholder="0" min="0" value="<%= product ? product.offerPercentage : 0 %>">
+                            <small class="error-message"></small>
+                        </div>
+                        <div class="form-group">
+                            <label>Show on Homepage</label>
+                            <select name="showOnHomepage" class="form-select">
+                                <option value="No"
+                                    <%= product && !product.showOnHomepage ? "selected" : "" %>>
+                                    No
+                                </option>
+                                <option value="Yes"
+                                    <%= product && product.showOnHomepage ? "selected" : "" %>>
+                                    Yes
+                                </option>
+                            </select>
+                            <small class="error-message"></small>
+
+                        </div>
+                    </div>
+
+                    <!-- Product Variants Section -->
+                    <div class="form-group mt-6">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-semibold mb-0">Product Variants</h3>
+                            <% if (!product) { %>
+                                <button type="button" class="btn btn-outline btn-sm" onclick="addVariant()">
+                                    <i class="fa-solid fa-plus"></i> Add Variant
+                                </button>
+                                <% } %>
+                        </div>
+                        <div id="variantsContainer">
+
+                            <% const variantList = product ? product.variants : [{}]; %>
+
+                            <% variantList.forEach((variant, index) => { %>
+
+                            <div class="form-grid grid-cols-1 md:grid-cols-3 mb-4 variant-row relative border p-6 rounded bg-gray-50">
+
+                                <h4 class="variant-title">Variant <%= index + 1 %></h4>
+                                <% if (variant._id) { %>
+                                    <input type="hidden"
+                                        name="variants[<%= index %>][_id]"
+                                        value="<%= variant._id %>">
+                                <% } %>
+
+                                <!-- Color -->
+                                <div class="form-group">
+                                    <label>Color</label>
+                                    <input type="hidden" name="variants[<%= index %>][attributes][0][name]" value="Color">
+                                    <input type="text"
+                                        class="form-input"
+                                        name="variants[<%= index %>][attributes][0][value]"
+                                        value="<%= variant.attributes?.[0]?.value || '' %>" placeholder="eg. Red">
+                                </div>
+
+                                <!-- ROM -->
+                                <div class="form-group">
+                                    <label>RAM</label>
+                                    <input type="hidden" name="variants[<%= index %>][attributes][2][name]" value="RAM">
+                                    <input type="text"
+                                        class="form-input"
+                                        name="variants[<%= index %>][attributes][2][value]"
+                                        value="<%= variant.attributes?.[2]?.value || '' %>" placeholder="eg. 8GB">
+                                </div>
+
+                                <!-- RAM -->
+                                <div class="form-group">
+                                    <label>ROM</label>
+                                    <input type="hidden" name="variants[<%= index %>][attributes][1][name]" value="ROM">
+                                    <input type="text"
+                                        class="form-input"
+                                        name="variants[<%= index %>][attributes][1][value]"
+                                        value="<%= variant.attributes?.[1]?.value || '' %>" placeholder="eg. 128GB">
+                                </div>
+
+
+                                <!-- Price -->
+                                <div class="form-group">
+                                    <label>Price</label>
+                                    <input type="number"
+                                        class="form-input"
+                                        name="variants[<%= index %>][price]"
+                                        value="<%= variant.price || '' %>" placeholder="0.00" min="1">
+                                    <small class="error-message"></small>
+                                </div>
+
+
+                                <!-- Stock -->
+                                <div class="form-group">
+                                    <label>Stock</label>
+                                    <input type="number"
+                                        class="form-input"
+                                        name="variants[<%= index %>][stock]"
+                                        value="<%= variant.stock || '' %>" placeholder="0" min="0">
+                                    <small class="error-message"></small>    
+                                </div>
+
+                                <!-- Status -->
+                                <div class="form-group">
+                                    <label>Status</label>
+                                    <div class="flex items-center gap-2">
+                                        <select name="variants[<%= index %>][status]" class="form-select flex-1">
+                                            <option value="Active"
+                                                <%= variant.status === "Active" ? "selected" : "" %>>
+                                                Active
+                                            </option>
+                                            <option value="Inactive"
+                                                <%= variant.status === "Inactive" ? "selected" : "" %>>
+                                                Inactive
+                                            </option>
+                                        </select>
+
+                                        <% if(index !== 0){ %>
+                                        <button type="button"
+                                                class="btn btn-danger btn-icon"
+                                                onclick="removeVariant(this)">
+                                            <i class="fa-solid fa-trash"></i>
+                                        </button>
+                                        <% } %>
+                                    </div>
+                                </div>
+                                <!-- Images (Edit Mode Safe) -->
+                                <div class="variant-images">
+
+                                    <!-- Primary -->
+                                    <div class="image-item">
+                                        <div class="image-upload">
+                                            <input type="file"
+                                                name="variants[<%= index %>][images][primary]"
+                                                class="image-input hidden"
+                                                accept="image/*">
+
+                                            <% if (variant.images?.primary?.url) { %>
+                                                <img class="preview-img" 
+                                                    src="<%= variant.images.primary.url %>">
+                                            <% } else { %>
+                                                <div class="upload-area">
+                                                    <span>Primary Photo</span>
+                                                </div>
+                                                <img class="preview-img hidden">
+                                            <% } %>
+                                        </div>
+
+                                        <button type="button"
+                                                class="change-image-btn <%= variant.images?.primary?.url ? '' : 'hidden' %>">
+                                            Change
+                                        </button>
+                                        <small class="error-message text-danger"></small>
+                                    </div>
+
+                                    <!-- Secondary -->
+                                    <div class="image-item">
+                                        <div class="image-upload">
+                                            <input type="file"
+                                                name="variants[<%= index %>][images][gallery][0]"
+                                                class="image-input hidden"
+                                                accept="image/*">
+
+                                            <% if (variant.images?.gallery?.[0]?.url) { %>
+                                                <img class="preview-img"
+                                                    src="<%= variant.images.gallery[0].url %>">
+                                            <% } else { %>
+                                                <div class="upload-area">
+                                                    <span>Secondary Photo</span>
+                                                </div>
+                                                <img class="preview-img hidden">
+                                            <% } %>
+                                        </div>
+
+                                        <button type="button"
+                                                class="change-image-btn <%= variant.images?.gallery?.[0]?.url ? '' : 'hidden' %>">
+                                            Change
+                                        </button>
+                                        <small class="error-message text-danger"></small>
+                                    </div>
+
+                                    <!-- Other -->
+                                    <div class="image-item">
+                                        <div class="image-upload">
+                                            <input type="file"
+                                                name="variants[<%= index %>][images][gallery][1]"
+                                                class="image-input hidden"
+                                                accept="image/*">
+
+                                            <% if (variant.images?.gallery?.[1]?.url) { %>
+                                                <img class="preview-img"
+                                                    src="<%= variant.images.gallery[1].url %>">
+                                            <% } else { %>
+                                                <div class="upload-area">
+                                                    <span>Other Photo</span>
+                                                </div>
+                                                <img class="preview-img hidden">
+                                            <% } %>
+                                        </div>
+
+                                        <button type="button"
+                                                class="change-image-btn <%= variant.images?.gallery?.[1]?.url ? '' : 'hidden' %>">
+                                            Change
+                                        </button>
+                                        <small class="error-message text-danger"></small>
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                            <% }) %>
+
+                        </div>
+                    </div>
+
+                    <!-- New Fields for Highlights and Services -->
+                    <div class="form-grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="form-group">
+                            <label>Highlights</label>
+                            <textarea class="form-textarea" id="highlights" name="highlights" rows="4" style="height: 150px;" placeholder="- With Mic: Yes&#10;- Bluetooth version: 5.2"><%= product ? product.highlights.join('\n') : '' %></textarea>
+                            <small class="error-message" id="emailError"></small>
+
+                        </div>
+                        <div class="form-group">
+                            <label>Services</label>
+                            <textarea class="form-textarea" id="services" name="services" rows="4" style="height: 150px;" placeholder="- 7 Days Return & Replacement Policy"><%= product ? product.services.join('\n') : '' %></textarea>
+                            <small class="error-message" id="emailError"></small>
+
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Description</label>
+                        <textarea id="description" class="form-textarea" style="height: 150px;" placeholder="Enter product description" name="description" rows="6"><%= product ? product.description : '' %></textarea>
+                        <small class="error-message" id="emailError"></small>
+                    </div>
+
+                    <div class="flex gap-4 mt-6">
+                        <button type="submit" class="btn btn-primary flex-1">Save Product</button>
+                        <button type="button" class="btn btn-outline flex-1"
+                            onclick="window.location.href='/admin/products'">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </main>
+    </div>
+    <script src="/js/admin/addProduct.js"></script>
+
+    <script>
+        function toggleSidebar() {
+            document.querySelector('.sidebar').classList.toggle('active');
+            document.getElementById('sidebarOverlay').classList.toggle('active');
+        }
+
+        function addVariant() {
+            const container = document.getElementById('variantsContainer');
+            const index = container.querySelectorAll('.variant-row').length;
+
+            const newRow = document.createElement('div');
+            newRow.className = 'form-grid grid-cols-1 md:grid-cols-3 mb-4 variant-row relative border p-6 rounded bg-gray-50';
+
+            newRow.innerHTML = `
+                <h4 class="variant-title">Variant ${index + 1}</h4>
+
+                <!-- Attributes -->
+                <div class="form-group">
+                    <label>Color</label>
+                    <input type="hidden" 
+                        name="variants[${index}][attributes][0][name]" 
+                        value="Color">
+                    <input type="text" 
+                        name="variants[${index}][attributes][0][value]" 
+                        class="form-input"
+                        placeholder="e.g. Red">
+                    <small class="error-message"></small>
+                </div>
+
+                <div class="form-group">
+                    <label>RAM</label>
+                    <input type="hidden" 
+                        name="variants[${index}][attributes][1][name]" 
+                        value="RAM">
+                    <input type="text" 
+                        name="variants[${index}][attributes][1][value]" 
+                        class="form-input"
+                        placeholder="e.g. 8GB">
+                </div>
+
+                <div class="form-group">
+                    <label>ROM</label>
+                    <input type="hidden" 
+                        name="variants[${index}][attributes][2][name]" 
+                        value="ROM">
+                    <input type="text" 
+                        name="variants[${index}][attributes][2][value]" 
+                        class="form-input"
+                        placeholder="e.g. 128GB">
+                </div>
+
+                <!-- Price -->
+                <div class="form-group">
+                    <label>Price</label>
+                    <input type="number"
+                        name="variants[${index}][price]"
+                        class="form-input"
+                        placeholder="0.00"
+                        min="1">
+                    <small class="error-message"></small>
+                </div>
+
+                <!-- Stock -->
+                <div class="form-group">
+                    <label>Stock</label>
+                    <input type="number"
+                        name="variants[${index}][stock]"
+                        class="form-input"
+                        placeholder="0"
+                        min="0">
+                    <small class="error-message"></small>
+                </div>
+
+                <!-- Status -->
+                <div class="form-group">
+                    <label>Status</label>
+
+                    <div class="flex items-center gap-2">
+                        <select name="variants[${index}][status]" class="form-select flex-1">
+                            <option value="Active">Active</option>
+                            <option value="Inactive">Inactive</option>
+                        </select>
+
+                        <button type="button"
+                            class="btn btn-danger btn-icon"
+                            onclick="removeVariant(this)">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Images -->
+                <div class="variant-images">
+
+                    <!-- Primary -->
+                    <div class="image-item">
+                        <div class="image-upload">
+                            <input type="file"
+                                name="variants[${index}][images][primary]"
+                                class="image-input hidden"
+                                accept="image/*">
+
+                            <div class="upload-area">
+                                <span>Primary Photo</span>
+                            </div>
+
+                            <img class="preview-img hidden">
+                        </div>
+
+                        <button type="button" class="change-image-btn hidden">
+                            Change
+                        </button>
+
+                        <small class="error-message text-danger"></small>
+                    </div>
+
+                    <!-- Gallery 1 -->
+                    <div class="image-item">
+                        <div class="image-upload">
+                            <input type="file"
+                                name="variants[${index}][images][gallery][]"
+                                class="image-input hidden"
+                                accept="image/*">
+
+                            <div class="upload-area">
+                                <span>Gallery Photo</span>
+                            </div>
+
+                            <img class="preview-img hidden">
+                        </div>
+
+                        <button type="button" class="change-image-btn hidden">
+                            Change
+                        </button>
+
+                        <small class="error-message text-danger"></small>
+                    </div>
+
+                    <!-- Gallery 2 -->
+                    <div class="image-item">
+                        <div class="image-upload">
+                            <input type="file"
+                                name="variants[${index}][images][gallery][]"
+                                class="image-input hidden"
+                                accept="image/*">
+
+                            <div class="upload-area">
+                                <span>Gallery Photo</span>
+                            </div>
+
+                            <img class="preview-img hidden">
+                        </div>
+
+                        <button type="button" class="change-image-btn hidden">
+                            Change
+                        </button>
+
+                        <small class="error-message text-danger"></small>
+                    </div>
+
+                </div>
+            `;
+
+            container.appendChild(newRow);
+
+            initializeImageUpload(newRow);
+        }
+
+        function removeVariant(button) {
+
+            Swal.fire({
+                title: "Are you sure?",
+                text: "This variant will be removed!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#6366f1",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Yes, delete it"
+            }).then((result) => {
+
+                if (!result.isConfirmed) return;
+
+                const row = button.closest('.variant-row');
+                row.remove();
+
+                const rows = document.querySelectorAll('.variant-row');
+
+                rows.forEach((row, newIndex) => {
+
+
+                    row.querySelector('.variant-title').textContent =
+                        `Variant ${newIndex + 1}`;
+
+
+                    const inputs = row.querySelectorAll("input, select, textarea");
+
+                    inputs.forEach(input => {
+                        if (input.name) {
+                            input.name = input.name.replace(/variants\[\d+\]/, `variants[${newIndex}]`);
+                        }
+                    });
+
+                });
+
+                Swal.fire({
+                    icon: "success",
+                    title: "Deleted!",
+                    text: "Variant removed successfully",
+                    timer: 1200,
+                    showConfirmButton: false
+                });
+
+            });
+        }
+    </script>
+
+</body>

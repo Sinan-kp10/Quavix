@@ -13,7 +13,15 @@ import {
     adminLogout,
     loadCategory,
     addCategory,
-    removeCategory
+    removeCategory,
+    editCategory,
+    loadProducts,
+    loadAddProducts,
+    addProduct,
+    loadEditProduct,
+    editProduct,
+    removeProduct
+    
 } from "../controllers/adminController.js"
 
 
@@ -26,11 +34,24 @@ router.get("/admin/unblock/:id",isLogin, activeUsers)
 
 router.get("/admin/category",isLogin, loadCategory)
 router.post("/admin/category",isLogin,upload.single("categoryImage"),addCategory);
-router.post("/admin/category/delete/:id", isLogin, removeCategory);
+router.post("/admin/category/edit/:id",isLogin,upload.single("categoryImage"),editCategory)
+router.post("/admin/category/delete/:id", isLogin, removeCategory)
+
+
+router.get("/admin/products",isLogin,loadProducts)
+router.get("/admin/products/add",isLogin,loadAddProducts)
+router.post("/admin/products/add",isLogin,upload.any(),addProduct);
+router.get("/admin/products/edit/:id",isLogin,loadEditProduct)
+router.post("/admin/products/edit/:id",isLogin, upload.any(), editProduct);
+router.post("/admin/products/delete/:id", removeProduct);
+
+
+
+
+
+
 
 router.get("/admin/logout",adminLogout)
 
-
-
-
+   
 export default router;
