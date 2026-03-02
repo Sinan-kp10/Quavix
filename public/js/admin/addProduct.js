@@ -60,9 +60,9 @@ function initializeImageUpload(scope = document) {
                 return;
             }
 
-            if (file.size > 2 * 1024 * 1024) {
+            if (file.size > 5 * 1024 * 1024) {
                 if (errorElement)
-                    errorElement.textContent = "Image must be below 2MB";
+                    errorElement.textContent = "Image must be below 5MB";
                 fileInput.value = "";
                 return;
             }

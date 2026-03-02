@@ -3,6 +3,7 @@ import categoryModal from "../models/category.js"
 import slugify from "slugify";
 import productModel from "../models/productModal.js"
 import cloudinary from "../config/cloudinary.js";
+import { compressImage } from "../utils/imageUpload.js";
 
 
 import {
@@ -296,9 +297,10 @@ export const addProduct = async (req, res) => {
             if (!primaryFile) {
                 throw new Error(`Primary image required for variant ${i + 1}`);
             }
+            const compressedPrimary = await compressImage(primaryFile.buffer);
 
             const primaryUpload = await cloudinary.uploader.upload(
-                `data:${primaryFile.mimetype};base64,${primaryFile.buffer.toString("base64")}`,
+                `data:image/webp;base64,${compressedPrimary.toString("base64")}`,
                 { folder: "product_images" }
             );
 
@@ -310,8 +312,10 @@ export const addProduct = async (req, res) => {
 
             for (const file of galleryFiles) {
 
+                const compressedGallery = await compressImage(file.buffer);
+
                 const upload = await cloudinary.uploader.upload(
-                    `data:${file.mimetype};base64,${file.buffer.toString("base64")}`,
+                    `data:image/webp;base64,${compressedGallery.toString("base64")}`,
                     { folder: "product_images" }
                 );
 
@@ -476,9 +480,11 @@ export const editProduct = async (req, res) => {
 
         if (primaryFile) {
 
+            const compressed = await compressImage(primaryFile.buffer);
+
             const result = await cloudinary.uploader.upload(
-            `data:${primaryFile.mimetype};base64,${primaryFile.buffer.toString("base64")}`,
-            { folder: "product_images" }
+                `data:image/webp;base64,${compressed.toString("base64")}`,
+                { folder: "product_images" }
             );
 
             updatedVariant.images.primary = {
@@ -515,9 +521,11 @@ export const editProduct = async (req, res) => {
 
         if (secondaryFile) {
 
+            const compressed = await compressImage(secondaryFile.buffer);
+
             const upload = await cloudinary.uploader.upload(
-            `data:${secondaryFile.mimetype};base64,${secondaryFile.buffer.toString("base64")}`,
-            { folder: "product_images" }
+                `data:image/webp;base64,${compressed.toString("base64")}`,
+                { folder: "product_images" }
             );
 
             gallery[0] = {
@@ -534,9 +542,11 @@ export const editProduct = async (req, res) => {
 
         if (otherFile) {
 
+            const compressed = await compressImage(otherFile.buffer);
+
             const upload = await cloudinary.uploader.upload(
-            `data:${otherFile.mimetype};base64,${otherFile.buffer.toString("base64")}`,
-            { folder: "product_images" }
+                `data:image/webp;base64,${compressed.toString("base64")}`,
+                { folder: "product_images" }
             );
 
             gallery[1] = {
