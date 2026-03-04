@@ -1,0 +1,136 @@
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<body class="bg-body">
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="container nav-container">
+            <a href="index.html" class="logo">
+                <i class="fa-solid fa-bolt text-gradient-clip"></i>
+                <span class="text-gradient">Quavix</span>
+            </a>
+            <div class="nav-menu">
+                <span class="text-muted">Order Confirmed</span>
+            </div>
+        </div>
+    </nav>
+
+    <main class="success-page-wrapper">
+        <!-- Animation Container -->
+        <div id="animation-container" class="animation-container">
+            <div class="road"></div>
+            <div class="truck-wrapper">
+                <div class="truck">
+                    <div class="truck-chassis"></div>
+                    <div class="truck-cargo">
+                        <div class="cargo-panel"></div>
+                        <div class="truck-door">
+                            <div class="truck-brand">Quavix</div>
+                            <div class="door-handle"></div>
+                        </div>
+                    </div>
+                    <div class="truck-cabin">
+                        <div class="cabin-window"></div>
+                        <div class="truck-grill"></div>
+                        <div class="truck-headlight"></div>
+                        <div class="truck-mirror"></div>
+                        <div class="truck-bumper"></div>
+                        <div class="truck-exhaust"></div>
+                    </div>
+                    <!-- Detailed wheel setup -->
+                    <div class="truck-wheel wheel-1"></div>
+                    <div class="truck-wheel wheel-2"></div>
+                    <div class="truck-wheel wheel-3"></div>
+                    <div class="truck-wheel wheel-4"></div>
+                </div>
+                <!-- Truck Shadow -->
+                <div class="truck-shadow"></div>
+                <div class="package"></div>
+            </div>
+        </div>
+
+        <!-- Success Animation (hidden initially) -->
+        <div id="success-content" class="success-content-wrapper hidden">
+            <div class="checkmark-wrapper">
+                <svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                    <circle class="checkmark__circle" cx="26" cy="26" r="25" fill="none" />
+                    <path class="checkmark__check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8" />
+                </svg>
+            </div>
+            <h1 class="success-title">Thank You for Your Order!</h1>
+            <p class="success-message">Your order has been placed successfully. We're getting it ready for delivery!</p>
+
+            <div class="order-info-card"
+                style="background: white; padding: 1.5rem; border-radius: 16px; margin-bottom: 2rem; border: 1px solid #e2e8f0; text-align: left; box-shadow: var(--shadow-sm);">
+                <div class="flex justify-between mb-2">
+                    <span class="text-muted text-sm">Order ID:</span>
+                    <span class="font-bold text-sm">#<%= order.orderId %></span>
+                </div>
+                <div class="flex justify-between mb-2">
+                    <span class="text-muted text-sm">Total Amount:</span>
+                    <span class="font-bold text-sm">₹<%= order.totalAmount.toLocaleString() %></span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="text-muted text-sm">Order Date:</span>
+                    <span class="font-bold text-sm">
+                        <%= new Date(order.createdAt).toLocaleDateString("en-IN", {
+                            year: "numeric",
+                            month: "long",
+                            day: "numeric"
+                        }) %>
+                    </span>
+                </div>
+
+            </div>
+
+            <div class="action-buttons">
+                <a href="order-details.html" class="btn btn-primary">Order Details</a>
+                <a href="/products" class="btn btn-shopping">Continue Shopping</a>
+            </div>
+        </div>
+    </main>
+
+
+    <script>
+
+
+        if (window.location.pathname.includes('order-success')) {
+            const body = document.body;
+            const animationContainer = document.getElementById('animation-container');
+            const successContent = document.getElementById('success-content');
+
+
+            setTimeout(() => {
+                body.classList.add('animate-truck-in');
+            }, 500);
+
+
+            setTimeout(() => {
+                body.classList.add('animate-door-open');
+            }, 1600);
+            setTimeout(() => {
+                body.classList.add('animate-package-in');
+            }, 2200);
+
+
+            setTimeout(() => {
+                body.classList.remove('animate-door-open');
+                body.classList.add('animate-door-close');
+                body.classList.add('animate-package-hidden');
+            }, 3200);
+
+
+            setTimeout(() => {
+                body.classList.add('animate-truck-out');
+            }, 4000);
+
+
+            setTimeout(() => {
+                animationContainer.classList.add('hidden');
+                successContent.classList.remove('hidden');
+            }, 5000);
+        }
+
+
+    </script>
+</body>

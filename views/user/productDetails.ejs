@@ -175,7 +175,7 @@
                                         <i class="fa-solid fa-cart-shopping mr-2"></i> Add to Cart
                                     </button>
 
-                                    <button class="btn btn-buy btn-lg">
+                                    <button class="btn btn-buy btn-lg" onclick="buyNow('<%= activeVariant._id %>')">
                                         <i class="fa-solid fa-bolt mr-2"></i> Buy Now
                                     </button>
                                 </div>
@@ -624,8 +624,8 @@
 
 
                 if (response.status === 401) {
-                    triggerToast(data.message || "Please login to access your cart", "error");
-                    return;
+                    
+                    return window.location.href="/login"
                 }
                 if (response.status === 400) {
                     triggerToast(data.message || "This product is currently out of stock.", "error");
@@ -645,6 +645,51 @@
 
         });
 
+
+        
+    </script>
+
+    <script>
+        function changeImage(element) {
+
+            const mainImage = document.getElementById("mainProductImage");
+            const newSrc = element.querySelector("img").src;
+
+            mainImage.style.opacity = 0;
+
+            setTimeout(() => {
+                mainImage.src = newSrc;
+                mainImage.style.opacity = 1;
+            }, 150);
+
+            document.querySelectorAll(".thumbnail-item").forEach(item => {
+                item.classList.remove("active");
+            });
+
+
+            element.classList.add("active");
+        }
+
+        async function buyNow(variantId){
+
+            const response = await fetch("/buy-now",{
+                method:"POST",
+                headers: { "Content-Type": "application/json" },
+                body:JSON.stringify({variantId})
+            });
+
+            if (response.status === 401) {
+                return window.location.href="/login";
+            }
+
+            const data = await response.json();
+
+            if(data.success){
+                window.location.href="/checkout";
+            }else{
+                triggerToast(data.message,"error");
+            }
+        }
 
         const toast = document.getElementById("toast");
 
@@ -678,28 +723,6 @@
             setTimeout(() => {
                 toast.classList.remove("show");
             }, 3000);
-        }
-    </script>
-
-    <script>
-        function changeImage(element) {
-
-            const mainImage = document.getElementById("mainProductImage");
-            const newSrc = element.querySelector("img").src;
-
-            mainImage.style.opacity = 0;
-
-            setTimeout(() => {
-                mainImage.src = newSrc;
-                mainImage.style.opacity = 1;
-            }, 150);
-
-            document.querySelectorAll(".thumbnail-item").forEach(item => {
-                item.classList.remove("active");
-            });
-
-
-            element.classList.add("active");
         }
     </script>
 

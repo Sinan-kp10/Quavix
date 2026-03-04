@@ -3,18 +3,20 @@ import productModel from "../models/productModal.js"
 import categoryModel from "../models/category.js"
 import wishlistModel from "../models/wishlistModel.js"
 import cartModel from "../models/cartModel.js"
+import orderModel from "../models/orderModel.js"
 
 import {
-
-    getAllProducts,
+    
     getFilterdProduct,
     findProducts,
     addWishlistService,
     addToCartService,
     removeFromCartService,
-    updateCartQuantityService
+    updateCartQuantityService,
+    createOrder
 
 } from "../services/userProductService.js"
+
 
 
 export const loadProducts = async (req, res) => {
@@ -355,3 +357,208 @@ export const updateCartQuantity = async (req, res) => {
         res.status(400).json({ success: false,message: err.message});
     }
 }
+
+export const buyNowProduct=async(req,res)=>{
+    try {
+
+        const {variantId}=req.body
+
+        if(!variantId){
+            return res.json({ success: false, message: "Variant required" });
+        }
+
+        const product= await productModel.findOne({"variants._id":variantId,isDeleted:false})
+
+        if (!product) {
+            return res.json({ success: false, message: "Product not found" });
+        }
+
+        const variant=product.variants.id(variantId)
+
+        if(!variant||variant.status!=="Active"){
+            return res.json({ success: false, message: "Variant not available" });
+        }
+
+        if (variant.stock <= 0) {
+            return res.json({ success: false, message: "Out of stock" });
+        }
+
+        req.session.buyNow = {
+            productId: product._id,
+            variantId: variant._id,
+            quantity: 1
+        };
+
+        res.json({ success: true });
+        
+    }catch(err){
+        res.json({ success: false, message: "Something went wrong" })
+    }
+}
+
+export const checkoutFromCart=async(req,res)=>{
+    try {
+        
+        const cart=await cartModel.findOne({user:req.session.user.id})
+
+        if(!cart || cart.items.length===0){
+            return res.json({success:false,message:"Cart empty"});
+        }
+
+        req.session.fromCart = true;
+        req.session.buyNow = null;
+        res.json({success:true});
+
+
+    } catch (err) {
+        console.log(err);
+        res.json({success:false,message:"Something went wrong while processing checkout."});
+    }
+}
+
+export const loadCheckout = async (req, res) => {
+    try {
+
+        const userId = req.session.user.id;
+
+        const user = await userModel.findById(userId);
+
+        if (req.session.buyNow) {
+
+            const { productId, variantId, quantity } = req.session.buyNow;
+
+            const product = await productModel.findById(productId);
+            const variant = product.variants.id(variantId);
+
+            const offer = product.offerPercentage || 0;
+            const discount = (variant.price * offer) / 100;
+            const finalPrice = Math.round(variant.price - discount);
+
+            const totalMRP = variant.price * quantity;
+            const totalDiscount = discount * quantity;
+            const subtotal = finalPrice * quantity;
+
+            return res.render("user/checkout", {
+                title: "Checkout - Quavix",
+                css: "userStyle",
+                user,
+                product,
+                variant,
+                quantity,
+                subtotal,
+                totalMRP,
+                totalDiscount,
+                cancelUrl: `/product/${product.slug}`
+            });
+        }
+
+        if (req.session.fromCart) {
+
+            const cart = await cartModel
+                .findOne({ user: userId })
+                .populate("items.product");
+
+            if (!cart || cart.items.length === 0) {
+                return res.redirect("/cart");
+            }
+
+            let totalMRP = 0;
+            let totalDiscount = 0;
+            let subtotal = 0;
+
+            cart.items.forEach(item => {
+
+                const product = item.product;
+                const variant = product.variants.id(item.variant);
+                if (!variant) return;
+
+                const offer = product.offerPercentage || 0;
+                const discount = (variant.price * offer) / 100;
+                const finalPrice = variant.price - discount;
+
+                totalMRP += variant.price * item.quantity;
+                totalDiscount += discount * item.quantity;
+                subtotal += finalPrice * item.quantity;
+            });
+
+            return res.render("user/checkout", {
+                title: "Checkout - Quavix",
+                css: "userStyle",
+                user,
+                cart,
+                subtotal,
+                totalMRP,
+                totalDiscount,
+                cancelUrl: "/cart" 
+            });
+        }
+
+        res.redirect("/cart");
+
+    } catch (err) {
+        res.redirect("/not-found");
+    }
+}
+
+export const placeOrder = async (req, res) => {
+
+    try {
+
+        const userId = req.user._id;
+        const { addressId, paymentMethod } = req.body;
+
+        if (!["cod", "wallet", "razorpay"].includes(paymentMethod)) {
+            throw new Error("Invalid payment method");
+        }
+
+        const buyNowData=req.session.buyNow || null
+        const result = await createOrder({
+            userId,
+            addressId,
+            paymentMethod,
+            buyNowData
+        });
+
+        res.json({
+            success: true,
+            orderId: result.orderId
+        })
+
+        req.session.buyNow = null;
+        req.session.fromCart = null;
+
+    } catch (error) {
+
+        console.error(error);
+
+        res.json({
+            success: false,
+            message: error.message
+        });
+    }
+
+}
+
+export const loadOrderSuccess=async(req,res)=>{
+    try{
+
+        const {id}=req.params
+        const order=await orderModel.findOne({ orderId:id })
+
+        if (!order) {
+            return res.redirect("/not-found");
+        }
+
+        res.render("user/orderSuccess", {
+            title: "My Orders - Quavix",
+            css: "userStyle",
+            order
+        });
+
+
+    }catch(err){
+        console.log(err)
+        res.redirect("/not-found")
+    }
+}
+

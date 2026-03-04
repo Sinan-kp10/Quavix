@@ -9,10 +9,11 @@
     <!-- Navbar -->
     <nav class="navbar">
         <div class="container nav-container">
-            <a href="index.html" class="logo">
+            <a href="/" class="logo">
                 <i class="fa-solid fa-bolt text-gradient-clip"></i>
                 <span class="text-gradient">Quavix</span>
             </a>
+            
 
             <div class="mobile-search-container">
                 <div class="hamburger-menu">
@@ -273,9 +274,9 @@
                         You will save ₹<span id="summary-save"><%= Math.round(totalDiscount).toLocaleString() %></span> on this order
                     </div>
 
-                    <a href="/checkout" class="btn-place-order">
+                    <button class="btn-place-order" onclick="goToCheckout()">
                         Place Order
-                    </a>
+                    </button>
 
                 </div>
             </div>
@@ -377,6 +378,26 @@
                 triggerToast("Something went wrong", "error");
             }
         })
+
+        async function goToCheckout(){
+
+            const response = await fetch("/checkout-from-cart",{
+                method:"POST",
+                
+            });
+
+            if (response.status === 401) {
+                return window.location.href="/login";
+            }
+
+            const data = await response.json();
+
+            if(data.success){
+                window.location.href="/checkout";
+            }else{
+                triggerToast(data.message || "Something went wrong","error");
+            }
+        }
 
         const toast = document.getElementById("toast");
 

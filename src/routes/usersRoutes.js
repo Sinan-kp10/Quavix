@@ -32,6 +32,7 @@ import {
   deleteAddress,
   uploadProfileImage,
   removeProfileImage,
+  notFound
 
 } from "../controllers/userController.js"
 
@@ -47,7 +48,12 @@ import {
   loadCart,
   addToCart,
   removeFromCart,
-  updateCartQuantity
+  updateCartQuantity,
+  buyNowProduct,
+  loadCheckout,
+  checkoutFromCart,
+  placeOrder,
+  loadOrderSuccess
 
 } from "../controllers/userProductController.js"
 
@@ -117,6 +123,14 @@ router.get("/cart",isLogin, loadCart)
 router.post("/cart",isLogin, addToCart)
 router.delete("/cart/remove",isLogin, removeFromCart)
 router.patch("/cart/update-quantity",isLogin, updateCartQuantity);
+
+router.post("/buy-now", isLogin, buyNowProduct)
+router.post("/checkout-from-cart", isLogin, checkoutFromCart)
+router.get("/checkout", isLogin, loadCheckout);
+router.post("/checkout", isLogin, placeOrder)
+router.get("/order-success/:id", isLogin, loadOrderSuccess)
+
+router.get("/not-found", notFound)
 
 router.get("/logout", logout)
 

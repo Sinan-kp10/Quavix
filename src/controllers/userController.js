@@ -342,7 +342,6 @@ export const resetPassword=async(req,res)=>{
 
 }
 
-
 export const updateProfile=async(req,res)=>{
 
     try {
@@ -373,7 +372,6 @@ export const updateProfile=async(req,res)=>{
     }
 
 }
-
 
 export const uploadProfileImage = async (req, res) => {
     try {
@@ -499,10 +497,13 @@ export const verifyEmailOtp=async(req, res)=>{
 
 export const addAddress = async (req, res) => {
     try {
-
+        const from = req.query.from || "profile";
         await addUserAddress(req.session.user.id, req.body);
         req.session.toastMessage = "Address added successfully!";
         req.session.toastType = "success";
+        if (from === "checkout") {
+            return res.redirect("/checkout");
+        }
         return res.redirect("/profile");
 
     } catch (err) {
@@ -510,7 +511,8 @@ export const addAddress = async (req, res) => {
             title: "Add Address-Quavix",
             css: "userStyle",
             toastMessage: err.message,
-            toastType: "error"
+            toastType: "error",
+            from: req.query.from
         });
     }
 };
@@ -520,6 +522,7 @@ export const loadEditAddress=async(req,res)=>{
     try{
         const user= await userModel.findById(req.session.user.id)
         const address= user.address.id(req.params.id)
+        const from=req.query.from || "profile"
 
         if(!address){
            res.redirect("/profile")
@@ -528,7 +531,8 @@ export const loadEditAddress=async(req,res)=>{
         res.render("user/addAddress",{
             title: "Edit Address - Quavix",
             css: "userStyle",
-            address: address
+            address: address,
+            from
         })
 
     }catch(err){
@@ -541,9 +545,14 @@ export const updateAddress=async(req,res)=>{
 
     try {
 
+        const from = req.query.from || "profile";
+
         await updateUserAddress(req.session.user.id,req.params.id,req.body)
         req.session.toastMessage = "Address updated successfully!"
         req.session.toastType = "success"
+        if (from === "checkout") {
+            return res.redirect("/checkout");
+        }
 
         res.redirect("/profile")
         
@@ -553,7 +562,8 @@ export const updateAddress=async(req,res)=>{
             css: "userStyle",
             address: {...req.body, _id: req.params.id},
             toastMessage: err.message,
-            toastType: "error"
+            toastType: "error",
+            from: req.query.from
         })
     }
 }
@@ -659,7 +669,8 @@ export const loadNewPassword=(req,res)=>{
     res.render("user/newPass",{ title: "New Password-Quavix",css:"userStyle" })
 }
 export const loadAddAddress=(req,res)=>{
-    res.render("user/addAddress",{ title: "Add Address-Quavix",css:"userStyle",address:null })
+    const from=req.query.from || "profile"
+    res.render("user/addAddress",{ title: "Add Address-Quavix",css:"userStyle",address:null,from })
 }
 export const loadProfile = async (req, res) => {
     try {
@@ -682,8 +693,18 @@ export const loadProfile = async (req, res) => {
     }
 }
 
+export const notFound = async (req, res) => {
 
+    res.render("user/404", {
+        title: "404 -Quavix",
+        css: "userStyle",
+
+    });
+
+    
+}
 export const logout = (req, res) => {
     req.session.destroy()
     res.redirect("/login")
 }
+

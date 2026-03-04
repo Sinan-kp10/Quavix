@@ -8,7 +8,7 @@
     <!-- Navbar -->
     <nav class="navbar">
         <div class="container nav-container">
-            <a href="index.html" class="logo">
+            <a href="/" class="logo">
                 <i class="fa-solid fa-bolt text-gradient-clip"></i>
                 <span class="text-gradient">Quavix</span>
             </a>
@@ -33,10 +33,10 @@
                     <button class="close-btn"><i class="fa-solid fa-xmark"></i></button>
                 </div>
                 <div class="sidebar-content">
-                    <a href="products.html"><i class="fa-solid fa-shop"></i> Shop</a>
+                    <a href="/products"><i class="fa-solid fa-shop"></i> Shop</a>
                     <a href="order-history.html"><i class="fa-solid fa-box"></i> Orders</a>
-                    <a href="wishlist.html"><i class="fa-regular fa-heart"></i> Wishlist</a>
-                    <a href="cart.html"><i class="fa-solid fa-cart-shopping"></i> Cart</a>
+                    <a href="/wishlist"><i class="fa-regular fa-heart"></i> Wishlist</a>
+                    <a href="/cart"><i class="fa-solid fa-cart-shopping"></i> Cart</a>
                     <% if(user){ %>
                             <a href="/profile"><i class="fa-solid fa-user"></i> Profile</a>
                             <a href="/logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
@@ -66,7 +66,7 @@
                 <a href="/wishlist" class="text-danger">
                     <i class="fa-solid fa-heart nav-icon-lg"></i>
                 </a>
-                <a href="cart.html" class="relative">
+                <a href="/cart" class="relative">
                     <i class="fa-solid fa-cart-shopping nav-icon-lg"></i>
                 </a>
                 <% if (user) { %>
