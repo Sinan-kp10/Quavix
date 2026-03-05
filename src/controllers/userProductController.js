@@ -13,7 +13,8 @@ import {
     addToCartService,
     removeFromCartService,
     updateCartQuantityService,
-    createOrder
+    createOrder,
+    getAllOrders
 
 } from "../services/userProductService.js"
 
@@ -504,7 +505,7 @@ export const placeOrder = async (req, res) => {
 
     try {
 
-        const userId = req.user._id;
+        const userId = req.session.user.id;
         const { addressId, paymentMethod } = req.body;
 
         if (!["cod", "wallet", "razorpay"].includes(paymentMethod)) {
@@ -550,7 +551,7 @@ export const loadOrderSuccess=async(req,res)=>{
         }
 
         res.render("user/orderSuccess", {
-            title: "My Orders - Quavix",
+            title: "Order Completed- Quavix",
             css: "userStyle",
             order
         });
@@ -561,4 +562,32 @@ export const loadOrderSuccess=async(req,res)=>{
         res.redirect("/not-found")
     }
 }
+export const loadOrderHistory=async(req,res)=>{
 
+    try {
+        const userId=req.session.user.id
+        const status=req.query.status || "all"
+        const page=parseInt(req.query.page) || 1
+        const limit =6
+
+        const {ordersList,totalOrders}=await getAllOrders(userId,status,page,limit)
+        
+        const totalPages= Math.ceil(totalOrders/limit)
+
+
+
+        res.render("user/orderHistory", {
+            title: "My Orders - Quavix",
+            css: "userStyle",
+            orders:ordersList,
+            status,
+            page,
+            totalPages
+            
+        })
+
+    }catch (err) {
+        console.log(err)
+        res.redirect("/")
+    }
+}

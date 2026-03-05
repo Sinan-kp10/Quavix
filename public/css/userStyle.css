@@ -6293,8 +6293,16 @@ footer a:hover {
 
 .order-header-info {
     display: flex;
-    gap: 2rem;
+    gap: 3rem;
     flex-wrap: wrap;
+}
+
+.order-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-grow: 1;
+    justify-content: flex-end;
 }
 
 .order-info-group p:first-child {
@@ -6382,7 +6390,7 @@ footer a:hover {
     }
 
     .order-header-info {
-        gap: 1rem;
+        gap: 1.5rem;
     }
 
     .order-product-item {
