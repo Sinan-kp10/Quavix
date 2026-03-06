@@ -419,20 +419,57 @@ export const createOrder = async ({ userId, addressId, paymentMethod, buyNowData
     };
 }
 
-export const getAllOrders=async(userId,status="all",page=1,limit)=>{
+export const getAllOrders = async (userId, status = "all", page = 1, limit = 6) => {
 
-    let query={user:userId}
+    let query = { user: userId }
 
     if (status !== "all") {
-        query.orderStatus = status
+        query["items.orderStatus"] = status
     }
-    
-    const skip=(page-1)*limit
-    const ordersList=await orderModel.find(query).sort({createdAt:-1}).skip(skip).limit(limit)
 
-    const totalOrders=await orderModel.countDocuments(query)
+    const skip = (page - 1) * limit
+
+    const ordersList = await orderModel.find(query).sort({ createdAt: -1 }).skip(skip).limit(limit)
+
+    const totalOrders = await orderModel.countDocuments(query)
 
     return {
-        ordersList,totalOrders
+        ordersList,
+        totalOrders
     }
+}
+
+export const getOrderRequest = (order) => {
+
+    const item = order.items[0]
+
+    let requestType = null
+    let requestAllowed = false
+
+    if(item.orderStatus === "pending" || item.orderStatus === "shipped" || item.orderStatus === "out_for_delivery"){
+        requestType = "cancel"
+        requestAllowed = true
+    }
+
+    if(item.orderStatus === "delivered" && item.deliveredAt){
+
+        const today = new Date()
+        const deliveredDate = new Date(item.deliveredAt)
+
+        const days = Math.floor(
+            (today - deliveredDate) / (1000 * 60 * 60 * 24)
+        )
+
+        if(days <= 7){
+            requestType = "return"
+            requestAllowed = true
+        }
+
+    }
+
+    return {
+        requestType,
+        requestAllowed
+    }
+
 }

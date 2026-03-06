@@ -138,6 +138,14 @@ img {
     color: var(--text-main);
 }
 
+.btn-icon {
+    width: 42px;
+    height: 42px;
+    padding: 0;
+    font-size: 1.1rem;
+    border-radius: 10px;
+}
+
 
 
 .btn-hero {
@@ -189,7 +197,7 @@ img {
 /* Cards */
 .card {
     background: white;
-    border: 1px solid white;
+    border: 1px solid #e2e8f0;
     border-radius: var(--radius-lg);
     padding: 1.5rem;
     box-shadow: var(--shadow-sm);
@@ -830,55 +838,7 @@ input[type=number] {
     transform: scale(1.02);
 }
 
-.status-badge {
-    padding: 0.25rem 0.75rem;
-    border-radius: 50px;
-    font-size: 0.85rem;
-    font-weight: 600;
-    display: inline-block;
-}
 
-.status-delivered {
-    background: #dcfce7;
-    color: #16a34a;
-}
-
-.status-processing {
-    background: #e0f2fe;
-    color: #0284c7;
-}
-
-.status-cancelled {
-    background: #fee2e2;
-    color: #dc2626;
-}
-
-.status-text {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-weight: 600;
-    color: var(--text-main);
-}
-
-.status-dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    display: inline-block;
-}
-
-.dot-delivered {
-    background-color: #16a34a;
-}
-
-.dot-processing {
-    background-color: #0284c7;
-}
-
-.dot-cancelled {
-    background-color: #dc2626;
-}
 
 /* Home / Landing Page */
 .hero-large {
@@ -1712,7 +1672,7 @@ input[type=number] {
 }
 
 .highlight-content span::before {
-    content: '•';
+    content: 'â€¢';
     color: #c2c2c2;
     margin-right: 0.5rem;
 }
@@ -3894,7 +3854,7 @@ footer a:hover {
 
 .toast {
     pointer-events: none;
-    /* 🔥 This fixes everything */
+    /* ðŸ”¥ This fixes everything */
 }
 
 .otp-timer {
@@ -3934,7 +3894,7 @@ footer a:hover {
     font-size: 14px;
 }
 
-/* 📱 Mobile */
+/* ðŸ“± Mobile */
 @media (max-width: 576px) {
     .email-update-group {
         flex-direction: column;
@@ -5947,7 +5907,7 @@ footer a:hover {
 }
 
 .home-card-highlights li::before {
-    content: "•";
+    content: "â€¢";
     color: #cbd5e1;
     font-size: 1rem;
 }
@@ -6359,29 +6319,29 @@ footer a:hover {
     gap: 0.5rem;
 }
 
-.badge-placed {
-    background: #e0f2fe;
-    color: #0369a1;
-}
 
-.badge-shipped {
-    background: #fef3c7;
-    color: #b45309;
-}
 
-.badge-delivered {
-    background: #dcfce7;
-    color: #16a34a;
-}
-
-.badge-cancelled {
-    background: #fee2e2;
-    color: #ef4444;
-}
-
-.badge-returned {
-    background: #f1f5f9;
+/* Status Filter and Dividers */
+.status-filter-select {
+    width: auto;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.85rem;
+    border: 1.5px solid #e2e8f0;
     color: #475569;
+    border-radius: 8px;
+    outline: none;
+}
+
+.order-product-divider {
+    height: 1px;
+    background: #e2e8f0;
+    margin: 1rem 0;
+}
+
+.pagination-clean {
+    border: none !important;
+    margin-top: 1rem !important;
+    padding: 0 !important;
 }
 
 @media (max-width: 640px) {
@@ -6469,7 +6429,7 @@ footer a:hover {
 
 .order-details-page .order-layout-grid {
     display: grid;
-    grid-template-columns: 1.2fr 1fr;
+    grid-template-columns: 2fr 1fr;
     gap: 2rem;
     align-items: start;
     margin-top: 2rem;
@@ -6510,7 +6470,7 @@ footer a:hover {
 
 .order-details-page .product-item-card {
     background-color: var(--bg-card);
-    border: 1px solid var(--border-color);
+    border: 1px solid #e2e8f0;
     border-radius: var(--radius-md);
     padding: 1.5rem;
     margin-bottom: 1rem;
@@ -6545,7 +6505,7 @@ footer a:hover {
 }
 
 .order-details-page .info-sidebar .card {
-    margin-bottom: 1.5rem;
+    margin-bottom: 0;
 }
 
 /* Order Header Summary */
@@ -6622,33 +6582,36 @@ footer a:hover {
 
 @media (max-width: 576px) {
     .order-details-page .order-status-banner {
-        flex-direction: column;
-        align-items: center;
-        gap: 1rem;
-        padding: 1rem;
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 1rem 0.75rem;
+        padding: 1rem 0.5rem;
         border-radius: 12px;
         background: #f8fafc;
-        text-align: center;
     }
 
     .order-details-page .order-status-banner>div {
-        width: 100%;
+        width: auto;
+        flex: 1 1 40%;
+        min-width: 110px;
         align-items: center;
     }
 
     .order-details-page .order-status-banner p.text-xs {
-        font-size: 0.65rem;
+        font-size: 0.6rem;
+        opacity: 0.8;
     }
 
     .order-details-page .order-status-banner p.font-bold {
-        font-size: 0.85rem;
+        font-size: 0.8rem;
     }
 
     .order-details-page .order-status-banner .btn-primary {
         width: auto;
-        padding: 0.4rem 1rem;
-        font-size: 0.75rem;
-        margin-top: 0.5rem;
+        padding: 0.4rem 0.8rem;
+        font-size: 0.7rem;
+        margin-top: 0.25rem;
     }
 
     .order-details-page .product-item-card {
@@ -7123,183 +7086,669 @@ footer a:hover {
 }
 
 /* --- Order Tracking Stepper --- */
-.order-tracking-stepper {
+/* --- Unified Layout Grid --- */
+.order-combined-layout {
+    display: grid;
+    grid-template-columns: 1fr 200px;
+    gap: 1.5rem;
+    align-items: start;
+    margin-top: 1.5rem;
+}
+
+@media (max-width: 768px) {
+    .order-combined-layout {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+        margin-top: 0.5rem;
+    }
+
+    .order-combined-layout aside {
+        order: -1;
+    }
+}
+
+
+
+/* --- Bottom Info Grid --- */
+.order-info-bottom-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.2fr;
+    gap: 1.5rem;
+    margin-top: 0.5rem;
+    padding-top: 0;
+}
+
+@media (max-width: 768px) {
+    .order-info-bottom-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+
+
+/* Order Details Refactoring */
+.order-details-py {
+    padding-top: 3rem;
+    padding-bottom: 4rem;
+}
+
+.opacity-50 {
+    opacity: 0.5;
+}
+
+.min-h-80 {
+    min-height: 80px;
+}
+
+.address-details-text {
+    line-height: 1.6;
+    color: #334155;
+}
+
+.address-name {
+    font-size: 0.95rem;
+}
+
+.phone-icon-sm {
+    font-size: 0.8rem;
+    margin-right: 6px;
+}
+
+.text-slate-500 {
+    color: #64748b;
+}
+
+.border-color-var {
+    border-color: var(--border-color);
+}
+
+
+/* --- Modal Styles --- */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: transparent;
+    backdrop-filter: blur(3px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+
+.modal-overlay.active {
+    display: flex;
+    opacity: 1;
+}
+
+.modal-container {
+    background: white;
+    width: 90%;
+    max-width: 550px;
+    max-height: 90vh;
+    border-radius: 20px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transform: translateY(20px);
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.modal-overlay.active .modal-container {
+    transform: translateY(0);
+}
+
+.modal-header {
+    padding: 1.5rem 2rem;
+    border-bottom: 1px solid #f1f5f9;
     display: flex;
     justify-content: space-between;
-    align-items: flex-start;
-    margin: 3rem 0;
-    padding: 2.5rem 2rem;
-    position: relative;
+    align-items: center;
+}
+
+.modal-header h3 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+.modal-close {
+    background: #f8fafc;
+    border: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #64748b;
+    transition: all 0.2s;
+}
+
+.modal-close:hover {
+    background: #f1f5f9;
+    color: #0f172a;
+}
+
+.modal-body {
+    padding: 2rem;
+    overflow-y: auto;
+    flex: 1;
+}
+
+/* Modal Body Scrollbar */
+.modal-body::-webkit-scrollbar {
+    width: 6px;
+}
+
+.modal-body::-webkit-scrollbar-track {
+    background: #f8fafc;
+}
+
+.modal-body::-webkit-scrollbar-thumb {
+    background: #e2e8f0;
+    border-radius: 10px;
+}
+
+.request-type-selector {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.type-chip {
+    flex: 1;
+    padding: 0.75rem;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 12px;
+    text-align: center;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s;
+}
+
+.type-chip.active {
+    border-color: #6366f1;
+    background: #f5f3ff;
+    color: #6366f1;
+}
+
+.modal-footer {
+    padding: 0.5rem 0.8rem;
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+}
+
+.help-text-sm {
+    font-size: 0.95rem;
+    line-height: 1.5;
+    max-width: 95%;
+}
+
+.radio-accent-indigo {
+    width: 18px;
+    height: 18px;
+    accent-color: #4f46e5;
+}
+
+.appearance-auto {
+    appearance: auto;
+}
+
+/* Quantity control inside modal product card */
+.modal-qty-control {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.6rem;
+}
+
+.modal-qty-btn {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    border: 1.5px solid #e2e8f0;
+    background: white;
+    color: #475569;
+    font-size: 0.7rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    flex-shrink: 0;
+}
+
+.modal-qty-btn:hover {
+    border-color: #6366f1;
+    color: #6366f1;
+    background: #f5f3ff;
+}
+
+.modal-qty-value {
+    min-width: 24px;
+    text-align: center;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+
+
+/* --- Modal Product Selection (Return) --- */
+.hidden-section {
+    display: none;
+}
+
+.modal-product-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    max-height: 280px;
+    overflow-y: auto;
+    padding-right: 8px;
+    margin-bottom: 0.5rem;
+}
+
+.modal-product-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.85rem 1rem;
+    background: #f8fafc;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 14px;
+    transition: all 0.2s ease;
+}
+
+.modal-product-card:hover {
+    border-color: #cbd5e1;
+    background: #f1f5f9;
+}
+
+
+.modal-product-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.modal-product-img {
+    width: 44px;
+    height: 44px;
+    background: white;
+    border-radius: 8px;
+    padding: 4px;
+    border: 1px solid #e2e8f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal-product-img img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+.modal-product-name {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #0f172a;
+    margin-bottom: 2px;
+}
+
+.modal-product-meta {
+    color: #64748b;
+}
+
+.modal-product-check {
+    pointer-events: none;
+}
+
+/* Scrollbar Style for the modal list */
+.modal-product-list::-webkit-scrollbar {
+    width: 5px;
+}
+
+.modal-product-list::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 10px;
+}
+
+.modal-product-list::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 10px;
+}
+
+@media (max-width: 480px) {
+    .modal-product-info {
+        gap: 0.75rem;
+    }
+
+    .modal-product-name {
+        font-size: 0.85rem;
+    }
+
+    .modal-body {
+        padding: 1.5rem;
+    }
+}
+
+/* =====================================================
+ORDER TRACKING & STATUS BADGES CSS
+===================================================== */
+
+.status-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 50px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    display: inline-block;
+}
+
+.status-delivered {
+    background: #dcfce7;
+    color: #16a34a;
+}
+
+.status-processing {
+    background: #e0f2fe;
+    color: #0284c7;
+}
+
+.status-cancelled {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+.status-text {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 600;
+    color: var(--text-main);
+}
+
+.status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.dot-delivered {
+    background-color: #16a34a;
+}
+
+.dot-processing {
+    background-color: #0284c7;
+}
+
+.dot-cancelled {
+    background-color: #dc2626;
+}
+
+.badge-pending {
+    background: #e0f2fe;
+    color: #0369a1;
+}
+
+.badge-shipped {
+    background: #fef3c7;
+    color: #b45309;
+}
+
+.badge-delivered {
+    background: #dcfce7;
+    color: #16a34a;
+}
+
+.badge-cancelled {
+    background: #fee2e2;
+    color: #ef4444;
+}
+
+.badge-returned {
+    background: #f7e7d5;
+    color: #ea580c;
+}
+
+/* --- Vertical Tracking Stepper --- */
+.order-tracking-stepper-vertical {
+    position: sticky;
+    top: 6rem;
+    padding: 1.5rem 1rem;
     background: white;
     border-radius: 16px;
     border: 1px solid #e2e8f0;
     box-shadow: var(--shadow-sm);
+    display: flex;
+    flex-direction: column;
+    gap: 3rem;
 }
 
-.stepper-line {
+.order-tracking-stepper-vertical .stepper-line {
     position: absolute;
-    top: 64px;
-    /* Center of icon (2.5rem padding + 24px half icon) */
-    left: 102px;
-    /* 32px padding + 70px half of step-item width */
-    right: 102px;
-    height: 4px;
+    top: 3rem;
+    right: calc(1rem + 17.5px);
+    bottom: 3rem;
+    width: 5px;
+    height: auto;
+    left: auto;
     background: #f1f5f9;
     z-index: 1;
+    border-radius: 10px;
 }
 
-.stepper-progress-bar {
+@keyframes fillProgress {
+    from {
+        transform: scaleY(0);
+    }
+    to {
+        transform: scaleY(1);
+    }
+}
+
+.order-tracking-stepper-vertical .stepper-progress-bar {
     position: absolute;
     top: 0;
     left: 0;
-    height: 100%;
+    width: 100%;
     background: var(--primary-gradient);
-    transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 10px;
+
+    transform-origin: top;
+    animation: fillProgress 1s ease forwards;
 }
 
-.step-item {
-    position: relative;
-    z-index: 2;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 140px;
-}
-
-.step-icon {
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    background: white;
-    border: 3px solid #f1f5f9;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.25rem;
-    color: #94a3b8;
-    margin-bottom: 1rem;
-    transition: all 0.4s ease;
-}
-
-.step-info {
-    text-align: center;
-}
-
-.step-label {
-    font-size: 0.85rem;
-    font-weight: 700;
-    color: #64748b;
-    margin-bottom: 0.25rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-}
-
-.step-date {
-    font-size: 0.75rem;
-    color: #94a3b8;
-}
-
-.step-item.active .step-icon {
-    border-color: var(--primary-color);
-    color: var(--primary-color);
-    box-shadow: 0 0 0 5px rgba(79, 70, 229, 0.1);
-}
-
-.step-item.active .step-label {
-    color: var(--primary-color);
-}
-
-.step-item.completed .step-icon {
-    background: var(--primary-color);
-    border-color: var(--primary-color);
-    color: white;
-}
-
-.step-item.completed .step-label {
-    color: var(--text-main);
-}
-
-.step-item.cancelled .step-icon {
+/* --- Added for 'Returned' 6th step logic --- */
+.order-tracking-stepper-vertical.has-returned .stepper-progress-bar {
     background: #ef4444;
-    border-color: #ef4444;
+}
+
+.order-tracking-stepper-vertical.has-returned .step-item.returned-step.completed .step-icon {
+    background: #ef4444;
+    border-color: transparent;
     color: white;
 }
 
-.step-item.cancelled .step-label {
+.order-tracking-stepper-vertical.has-returned .step-item.returned-step.completed.active .step-icon {
+    box-shadow: 0 0 0 8px rgba(239, 68, 68, 0.12);
+}
+
+.order-tracking-stepper-vertical.has-returned .step-item.returned-step.completed .step-label {
     color: #ef4444;
 }
 
-.progress-cancelled {
-    background: #ef4444;
-}
+/* ------------------------------------------- */
 
-.progress-h-cancelled {
-    background: #ef4444;
-}
-
-.progress-0 {
-    width: 0%;
-}
-
-.progress-50 {
-    width: 50%;
-}
-
-.progress-100 {
+.order-tracking-stepper-vertical .step-item {
+    display: flex;
+    flex-direction: row-reverse;
     width: 100%;
+    gap: 1.25rem;
+    align-items: center;
+    text-align: right;
+    z-index: 2;
+    position: relative;
+    justify-content: flex-start;
 }
 
+.order-tracking-stepper-vertical .step-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: white;
+    border: 3px solid #e2e8f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.95rem;
+    color: #94a3b8;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    flex-shrink: 0;
+}
+
+.order-tracking-stepper-vertical .step-item.completed .step-icon {
+    background: var(--primary-gradient);
+    border-color: transparent;
+    color: white;
+}
+
+.order-tracking-stepper-vertical .step-item.active .step-icon {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+    box-shadow: 0 0 0 8px rgba(79, 70, 229, 0.08);
+}
+
+.order-tracking-stepper-vertical .step-item.completed.active .step-icon {
+    color: white;
+}
+
+
+
+.order-tracking-stepper-vertical .step-label {
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    margin-top: 0;
+    flex-grow: 1;
+    text-align: right;
+}
+
+.order-tracking-stepper-vertical .step-item.completed .step-label {
+    color: var(--primary-color);
+}
+
+
+.order-tracking-stepper-vertical .step-item.active .step-label {
+    color: var(--primary-color);
+}
+
+/* --- Mobile Stepper Centering --- */
 @media (max-width: 768px) {
-    .order-tracking-stepper {
-        padding: 2rem 1.5rem;
+    .order-tracking-stepper-vertical {
+        position: relative;
+        max-width: 100%;
+        background: transparent;
+        border: none;
+        box-shadow: none;
+        display: flex;
         flex-direction: column;
-        align-items: flex-start;
-        gap: 2rem;
+        align-items: center;
+        padding: 0;
+        margin-top: -5rem;
+        /* Pulled up even further to eliminate remaining space */
+        margin-bottom: 3.5rem;
+        /* Increased significantly to add a clear gap before products */
+        gap: 0;
+        /* OVERRIDE DESKTOP 3REM GAP */
     }
 
-    .stepper-line {
-        top: 51px;
-        /* padding 2rem (32px) + 19px (half of 38px icon) */
-        left: 51px;
-        bottom: 51px;
-        width: 3px;
-        height: calc(100% - 102px);
-        right: auto;
-    }
-
-    .stepper-progress-bar {
-        width: 100% !important;
-        height: 0;
-        transition: height 0.6s ease;
-    }
-
-    .progress-h-33 {
-        height: 33.33%;
-    }
-
-    .progress-h-66 {
-        height: 66.66%;
-    }
-
-    .progress-h-100 {
-        height: 100%;
-    }
-
-    .step-item {
-        flex-direction: row;
+    .order-tracking-stepper-vertical .step-item {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 0.25rem;
+        padding: 0.8rem 0;
         width: 100%;
-        gap: 1.5rem;
-        text-align: left;
     }
 
-    .step-icon {
-        width: 38px;
-        height: 38px;
-        font-size: 1.1rem;
-        margin-bottom: 0;
+    .order-tracking-stepper-vertical .step-icon {
+        width: 30px;
+        height: 30px;
+        font-size: 0.7rem;
+        border-width: 2px;
     }
 
-    .step-info {
-        text-align: left;
+    .order-tracking-stepper-vertical .step-item.active .step-icon {
+        box-shadow: 0 0 0 6px rgba(79, 70, 229, 0.08);
     }
+
+    .order-tracking-stepper-vertical .step-label {
+        text-align: center;
+        font-size: 0.55rem;
+        background: white;
+        padding: 0.1rem 0.5rem;
+        border-radius: 20px;
+        z-index: 3;
+        box-shadow: 0 0 6px white;
+    }
+
+    .order-tracking-stepper-vertical .stepper-progress-bar {
+        animation-duration: 0.6s !important;
+    }
+
+    .order-tracking-stepper-vertical .stepper-line {
+        right: 50%;
+        left: 50%;
+        width: 3px;
+        transform: translateX(-50%);
+        top: 1.75rem;
+        bottom: 3.25rem;
+        /* Increased aggressively to force line to stop INSIDE the last icon */
+        margin: 0;
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* Progress heights */
+
+.progress-h-25{
+height:25%;
+}
+
+.progress-h-50{
+height:50%;
+}
+
+.progress-h-75{
+height:75%;
+}
+
+.progress-h-100{
+height:100%;
 }

@@ -111,8 +111,8 @@
                     Shipped
                 </option>
 
-                <option value="placed" <%= status === "placed" ? "selected" : "" %>>
-                    Placed
+                <option value="pending" <%= status === "pending" ? "selected" : "" %>>
+                    Pending
                 </option>
 
                 <option value="cancelled" <%= status === "cancelled" ? "selected" : "" %>>
@@ -128,7 +128,7 @@
 
         <div class="orders-list">
 
-            <% if (orders.length === 0) { %>
+            <% if (!orders || orders.length === 0) { %>
 
                 <div style="text-align:center;padding:40px">
                     <h3>No Orders Yet</h3>
@@ -140,123 +140,119 @@
 
             <% orders.forEach(order => { %>
 
-            <div class="order-history-card">
+                <% order.items.forEach(item => { %>
 
-                <!-- ORDER HEADER -->
-                <div class="order-card-header">
+                <div class="order-history-card">
 
-                    <div class="order-header-info">
+                    <!-- ORDER HEADER -->
+                    <div class="order-card-header">
 
-                        <div class="order-info-group">
-                            <p>Order Placed</p>
-                            <p>
-                                <%= new Date(order.createdAt).toLocaleDateString("en-IN", {
-                                    year:"numeric",
-                                    month:"long",
-                                    day:"numeric"
-                                }) %>
-                            </p>
-                        </div>
+                        <div class="order-header-info">
 
-                        <div class="order-info-group">
-                            <p>Total</p>
-                            <p>₹<%= order.totalAmount.toLocaleString() %></p>
-                        </div>
-
-                        <div class="order-info-group">
-                            <p>Order ID</p>
-                            <p><%= order.orderId %></p>
-                        </div>
-
-                    </div>
-
-
-                    <div class="order-header-actions">
-
-                        <div class="order-status-badge badge-<%= order.orderStatus %>">
-
-                            <% if(order.orderStatus === "placed"){ %>
-                                <i class="fa-solid fa-box"></i>
-                            <% } %>
-
-                            <% if(order.orderStatus === "shipped"){ %>
-                                <i class="fa-solid fa-truck"></i>
-                            <% } %>
-
-                            <% if(order.orderStatus === "delivered"){ %>
-                                <i class="fa-solid fa-circle-check"></i>
-                            <% } %>
-
-                            <% if(order.orderStatus === "cancelled"){ %>
-                                <i class="fa-solid fa-circle-xmark"></i>
-                            <% } %>
-
-                            <% if(order.orderStatus === "returned"){ %>
-                                <i class="fa-solid fa-rotate-left"></i>
-                            <% } %>
-
-                            <%= order.orderStatus.charAt(0).toUpperCase() + order.orderStatus.slice(1) %>
-
-                        </div>
-
-                        <a href="/order-details/<%= order.orderId %>" class="btn btn-outline btn-sm">
-                            View Details
-                        </a>
-
-                    </div>
-
-                </div>
-
-
-                <!-- ORDER ITEMS -->
-                <div class="order-card-body">
-
-                    <% order.items.forEach((item,index) => { %>
-
-                    <div class="order-product-item">
-
-                        <div class="order-product-img">
-                            <img src="<%= item.productImage %>" alt="<%= item.productName %>">
-                        </div>
-
-                        <div class="order-product-info">
-
-                            <div class="flex justify-between items-start mb-2">
-                                <h3 class="font-bold text-lg">
-                                    <%= item.productName %>
-                                </h3>
+                            <div class="order-info-group">
+                                <p>Order Placed</p>
+                                <p>
+                                    <%= new Date(order.createdAt).toLocaleDateString("en-IN",{
+                                        year:"numeric",
+                                        month:"long",
+                                        day:"numeric"
+                                    }) %>
+                                </p>
                             </div>
 
-                            <% if(item.attributes && item.attributes.length > 0){ %>
+                            <div class="order-info-group">
+                                <p>Total</p>
+                                <p>₹<%= item.total.toLocaleString() %></p>
+                            </div>
 
-                                <p class="text-sm text-muted">
+                            <div class="order-info-group">
+                                <p>Order ID</p>
+                                <p><%= order.orderId %></p>
+                            </div>
 
-                                    <%= item.attributes.map(a => a.value).join(" | ") %>
+                        </div>
 
-                                </p>
 
-                            <% } %>
+                        <div class="order-header-actions">
 
-                            <p class="text-sm text-muted">
-                                Qty: <%= item.quantity %>
-                            </p>
+                            <div class="status-badge badge-<%= item.orderStatus %>">
+
+                                <% if(item.orderStatus === "pending"){ %>
+                                    <i class="fa-solid fa-box"></i>
+                                <% } %>
+
+                                <% if(item.orderStatus === "shipped"){ %>
+                                    <i class="fa-solid fa-truck"></i>
+                                <% } %>
+
+                                <% if(item.orderStatus === "out_for_delivery"){ %>
+                                    <i class="fa-solid fa-truck-fast"></i>
+                                <% } %>
+
+                                <% if(item.orderStatus === "delivered"){ %>
+                                    <i class="fa-solid fa-circle-check"></i>
+                                <% } %>
+
+                                <% if(item.orderStatus === "cancelled"){ %>
+                                    <i class="fa-solid fa-circle-xmark"></i>
+                                <% } %>
+
+                                <% if(item.orderStatus === "returned"){ %>
+                                    <i class="fa-solid fa-rotate-left"></i>
+                                <% } %>
+
+                                <%= item.orderStatus.replace("_"," ").toUpperCase() %>
+
+                            </div>
+
+                            <a href="/order-details/<%= order.orderId %>?item=<%= item.variantId %>" 
+                            class="btn btn-outline btn-sm">
+                            View Details
+                            </a>
 
                         </div>
 
                     </div>
 
 
-                    <% if(index !== order.items.length - 1){ %>
+                    <!-- PRODUCT ITEM -->
+                    <div class="order-card-body">
 
-                    <div style="height:1px;background:#e2e8f0;margin:1rem 0;"></div>
+                        <div class="order-product-item">
 
-                    <% } %>
+                            <div class="order-product-img">
+                                <img src="<%= item.productImage %>" alt="<%= item.productName %>">
+                            </div>
 
-                    <% }) %>
+                            <div class="order-product-info">
+
+                                <div class="flex justify-between items-start mb-2">
+                                    <h3 class="font-bold text-lg">
+                                        <%= item.productName %>
+                                    </h3>
+                                </div>
+
+                                <% if(item.attributes && item.attributes.length > 0){ %>
+
+                                    <p class="text-sm text-muted">
+                                        <%= item.attributes.map(a => a.value).join(" | ") %>
+                                    </p>
+
+                                <% } %>
+
+                                <p class="text-sm text-muted">
+                                    Qty: <%= item.quantity %>
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                    </div>
 
                 </div>
 
-            </div>
+                <% }) %>
 
             <% }) %>
 

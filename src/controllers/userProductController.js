@@ -14,7 +14,8 @@ import {
     removeFromCartService,
     updateCartQuantityService,
     createOrder,
-    getAllOrders
+    getAllOrders,
+    getOrderRequest
 
 } from "../services/userProductService.js"
 
@@ -590,4 +591,107 @@ export const loadOrderHistory=async(req,res)=>{
         console.log(err)
         res.redirect("/")
     }
+}
+
+export const loadOrderDetails= async(req,res)=>{
+    try {
+
+        const {id}=req.params
+
+        const order=await orderModel.findOne({orderId:id})
+
+        if(!order){
+           return res.redirect("/order-history")
+        }
+
+        const requestData = getOrderRequest(order)
+
+        res.render("user/orderDetails", {
+            title: "Order Details -Quavix",
+            css: "userStyle",
+            order,
+            requestType: requestData.requestType,
+            requestAllowed: requestData.requestAllowed
+        })
+
+
+        
+    } catch (err) {
+        console.log(err)
+        res.redirect("/order-history")
+    }
+}
+
+export const orderRequest = async (req,res)=>{
+
+    try{
+
+        const {orderId, reason, description,variantId, returnQty} = req.body
+
+        const order = await orderModel.findOne({orderId})
+
+        if(!order){
+           return res.redirect("/order-history")
+        }
+
+        const item = order.items.find(i => i.variantId.toString() === variantId)
+
+        if(!item){
+            return res.redirect("/order-details/" + order.orderId)
+        }
+        
+        if(!reason){
+                throw new Error("Reason required")
+            }
+
+        if(!description || description.trim().length < 6){
+            throw new Error("Description must contain at least 6 characters")
+        }
+
+
+        if(item.orderStatus === "delivered"){
+
+            if(!item.deliveredAt){
+                return res.redirect("/order-details/" + order.orderId)
+            }
+
+            const days = (Date.now() - new Date(item.deliveredAt)) / (1000 * 60 * 60 * 24)
+
+            if(days > 7){
+                return res.redirect("/order-details/" + order.orderId)
+            }
+
+            
+            const qty = Math.min(parseInt(returnQty) || 1, item.quantity)
+
+            item.returnVariantId = variantId
+            item.returnQuantity = qty
+            item.returnReason = reason
+            item.returnDescription = description
+            item.returnedAt = new Date()
+            item.orderStatus = "returned"
+
+        }else{
+
+            item.cancelReason = reason
+            item.cancelDescription = description
+            item.cancelledAt = new Date()
+            item.orderStatus = "cancelled"
+
+            await productModel.updateOne(
+                { "variants._id": item.variantId },
+                { $inc: { "variants.$.stock": item.quantity } }
+            )
+
+        }
+
+        await order.save()
+
+        res.redirect("/order-details/" + order.orderId)
+
+    }catch(err){
+        console.log(err)
+        res.redirect("/order-history")
+    }
+
 }

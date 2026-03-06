@@ -42,6 +42,53 @@ const orderItemSchema = new mongoose.Schema({
     total: {
         type: Number,
         required: true
+    },
+
+    orderStatus: {
+        type: String,
+        enum: [
+            "pending",
+            "shipped",
+            "out_for_delivery",
+            "delivered",
+            "cancelled",
+            "returned"
+        ],
+        default: "pending"
+    },
+
+    returnVariantId: {
+        type: mongoose.Schema.Types.ObjectId
+    },
+
+    returnQuantity: {
+        type: Number,
+        default: 1
+    },
+
+    cancelReason: {
+        type: String
+    },
+    cancelDescription: {
+        type: String
+    },
+    cancelledAt: {
+        type: Date
+    },
+
+    returnReason: {
+        type: String
+    },
+    returnDescription: {
+        type: String
+    },
+
+    returnedAt: {
+        type: Date
+    },
+    
+    deliveredAt: {   
+        type: Date
     }
 
 }, { _id: false });
@@ -86,44 +133,13 @@ const orderSchema = new mongoose.Schema({
         default: "pending"
     },
 
-    orderStatus: {
-        type: String,
-        enum: [
-            "placed",
-            "shipped",
-            "delivered",
-            "cancelled",
-            "returned"
-        ],
-        default: "placed"
-    },
-
     subtotal: { type: Number, required: true },
     discount: { type: Number, default: 0 },
     shippingCharge: { type: Number, default: 0 },
     couponDiscount: { type: Number, default: 0 },
     totalAmount: { type: Number, required: true },
 
-    cancelReason: {
-        type: String
-    },
-    cancelDescription: {
-        type: String
-    },
-    cancelledAt: {
-        type: Date
-    },
 
-    returnReason: {
-        type: String
-    },
-    returnDescription: {
-        type: String
-    },
-
-    returnedAt: {
-        type: Date
-    },
 
     razorpayOrderId: String,
     razorpayPaymentId: String,
@@ -134,8 +150,8 @@ const orderSchema = new mongoose.Schema({
 orderSchema.pre("save", function () {
 
     if (!this.orderId) {
-        const random = Math.floor(100000 + Math.random() * 900000);
-        this.orderId = `ORD-${Date.now()}-${random}`;
+        const random = Math.floor(10000 + Math.random() * 90000)
+        this.orderId = `ORD-${Date.now().toString().slice(-5)}-${random}`;
     }
 
 });

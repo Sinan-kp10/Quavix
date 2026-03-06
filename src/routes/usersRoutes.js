@@ -54,7 +54,9 @@ import {
   checkoutFromCart,
   placeOrder,
   loadOrderSuccess,
-  loadOrderHistory
+  loadOrderHistory,
+  loadOrderDetails,
+  orderRequest
 
 } from "../controllers/userProductController.js"
 
@@ -132,12 +134,13 @@ router.post("/checkout", isLogin, placeOrder)
 router.get("/order-success/:id", isLogin, loadOrderSuccess)
 
 router.get("/order-history", isLogin, loadOrderHistory)
+router.get("/order-details/:id",isLogin, loadOrderDetails)
+router.post("/order-request",isLogin, orderRequest)
 
 
 router.get("/not-found", notFound)
 
 router.get("/logout", logout)
-
 
 
 

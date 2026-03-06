@@ -604,3 +604,19 @@ export const removeProduct=async(req,res)=>{
         res.redirect("/admin/products");
     }
 }
+
+export const loadOrders=async(req,res)=>{
+    try {
+
+        const search=req.query.search || ""
+        const  status=req.query.status|| "all"
+        const page=parseInt(req.query.page) || 1
+        const limit =10
+
+
+    } catch (err) {
+        console.log(err)
+        res.redirect("admin/dahboard")
+        
+    }
+}
