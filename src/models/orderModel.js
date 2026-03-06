@@ -63,7 +63,7 @@ const orderItemSchema = new mongoose.Schema({
 
     returnQuantity: {
         type: Number,
-        default: 1
+        default: 0
     },
 
     cancelReason: {

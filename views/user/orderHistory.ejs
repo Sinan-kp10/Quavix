@@ -54,10 +54,12 @@
 
             <div class="nav-icons">
                 <!-- Search Bar -->
-                <div class="nav-search">
-                    <input type="text" placeholder="Search gadgets...">
-                    <button><i class="fa-solid fa-magnifying-glass"></i></button>
-                </div>
+                <form class="nav-search" action="/products/search" method="GET">
+                    <input type="text" name="q" placeholder="Search gadgets...">
+                    <button type="submit">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </button>
+                </form>
 
                 <a href="/wishlist" class="relative">
                     <i class="fa-regular fa-heart nav-icon-lg"></i>
@@ -140,7 +142,7 @@
 
             <% orders.forEach(order => { %>
 
-                <% order.items.forEach(item => { %>
+                <% order.items.filter(item => status === "all" || item.orderStatus === status).forEach(item => { %>
 
                 <div class="order-history-card">
 

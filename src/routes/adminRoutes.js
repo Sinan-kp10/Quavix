@@ -20,7 +20,9 @@ import {
     addProduct,
     loadEditProduct,
     editProduct,
-    removeProduct
+    removeProduct,
+    loadOrders,
+    editOrderStatus
     
 } from "../controllers/adminController.js"
 
@@ -43,7 +45,11 @@ router.get("/admin/products/add",isLogin,loadAddProducts)
 router.post("/admin/products/add",isLogin,upload.any(),addProduct);
 router.get("/admin/products/edit/:id",isLogin,loadEditProduct)
 router.post("/admin/products/edit/:id",isLogin, upload.any(), editProduct);
-router.post("/admin/products/delete/:id", removeProduct);
+router.post("/admin/products/delete/:id", removeProduct)
+
+router.get("/admin/orders",isLogin,loadOrders)
+router.post("/admin/orders", editOrderStatus)
+
 
 
 

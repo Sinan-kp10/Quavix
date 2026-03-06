@@ -4,6 +4,7 @@ import slugify from "slugify";
 import productModel from "../models/productModal.js"
 import cloudinary from "../config/cloudinary.js";
 import { compressImage } from "../utils/imageUpload.js";
+import orderModel from "../models/orderModel.js";
 
 
 import {
@@ -18,7 +19,9 @@ import {
     getAllProducts,
     createProducts,
     updateProduct,
-    deleteProduct
+    deleteProduct,
+    getAllOrders,
+
 } from "../services/adminService.js"
 
 
@@ -609,14 +612,67 @@ export const loadOrders=async(req,res)=>{
     try {
 
         const search=req.query.search || ""
-        const  status=req.query.status|| "all"
+        const status=req.query.status|| "all"
         const page=parseInt(req.query.page) || 1
-        const limit =10
+        const limit =6
 
+        const {ordersList,totalOrders}=await getAllOrders(search,status,page,limit)
+
+        const totalPages= Math.ceil(totalOrders/limit)
+
+        res.render("admin/orders", {
+            title: "Manage Orders - Quavix",
+            css: "adminStyle",
+            orders:ordersList,
+            status,
+            search,
+            currentPage: page, 
+            totalPages
+            
+        })
 
     } catch (err) {
         console.log(err)
-        res.redirect("admin/dahboard")
+        res.redirect("/admin/dashboard")
         
+    }
+}
+
+export const editOrderStatus = async (req, res) => {
+    try {
+
+        const { orderId, itemIndex, status } = req.body
+
+        const order = await orderModel.findById(orderId)
+
+        if (!order) {
+            return res.redirect("/admin/orders")
+        }
+
+        const item = order.items[Number(itemIndex)]
+
+        if (item.orderStatus === "cancelled" || item.orderStatus === "returned") {
+            return res.redirect("/admin/orders")
+        }
+
+        if (status) {
+            item.orderStatus = status
+        }
+
+        if (status === "delivered") {
+            item.deliveredAt = new Date()
+        }
+
+        if (status === "cancelled") {
+            item.cancelledAt = new Date()
+        }
+
+        await order.save()
+
+        res.redirect("/admin/orders")
+
+    } catch (error) {
+        console.log(error)
+        res.redirect("/admin/orders")
     }
 }

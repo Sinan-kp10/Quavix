@@ -7499,13 +7499,14 @@ ORDER TRACKING & STATUS BADGES CSS
 }
 
 .badge-pending {
-    background: #e0f2fe;
-    color: #0369a1;
+    background: #fef3c7;
+    color: #b45309;
 }
 
 .badge-shipped {
-    background: #fef3c7;
-    color: #b45309;
+
+    background: #e0f2fe;
+    color: #0369a1;
 }
 
 .badge-delivered {
@@ -7521,6 +7522,13 @@ ORDER TRACKING & STATUS BADGES CSS
 .badge-returned {
     background: #f7e7d5;
     color: #ea580c;
+}
+
+.returned-text{
+    color: #dc2626;   /* red */
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-top: 4px;
 }
 
 /* --- Vertical Tracking Stepper --- */
@@ -7722,17 +7730,6 @@ ORDER TRACKING & STATUS BADGES CSS
         margin: 0;
     }
 }
-
-
-
-
-
-
-
-
-
-
-
 
 
 /* Progress heights */

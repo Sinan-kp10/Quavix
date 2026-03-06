@@ -5,6 +5,7 @@ import slugify from "slugify";
 import dotenv from "dotenv"
 dotenv.config();
 import users from "../models/userModal.js"
+import orderModel from "../models/orderModel.js";
 
 
 export  const adminLoginAccess=async(email,password)=>{
@@ -383,3 +384,31 @@ export const deleteProduct =async(id)=>{
     await product.save()
     return true
 }
+
+export const getAllOrders = async (search="",status = "all", page = 1, limit = 6) => {
+
+    let query = {}
+
+    if(search){
+        query.$or=[
+            {orderId:{$regex:search , $options:"i" }},
+            {"shippingAddress.fullname":{$regex:search,$options:"i" }}
+        ]
+    }
+
+    if (status !== "all") {
+        query["items.orderStatus"] = status
+    }
+
+    const skip = (page - 1) * limit
+
+    const ordersList = await orderModel.find(query).populate("user", "email").sort({ createdAt: -1 }).skip(skip).limit(limit)
+
+    const totalOrders = await orderModel.countDocuments(query)
+
+    return {
+        ordersList,
+        totalOrders
+    }
+}
+

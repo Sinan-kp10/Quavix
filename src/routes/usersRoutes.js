@@ -56,7 +56,8 @@ import {
   loadOrderSuccess,
   loadOrderHistory,
   loadOrderDetails,
-  orderRequest
+  orderRequest,
+  downloadInvoice
 
 } from "../controllers/userProductController.js"
 
@@ -136,7 +137,7 @@ router.get("/order-success/:id", isLogin, loadOrderSuccess)
 router.get("/order-history", isLogin, loadOrderHistory)
 router.get("/order-details/:id",isLogin, loadOrderDetails)
 router.post("/order-request",isLogin, orderRequest)
-
+router.get("/invoice/:orderId", downloadInvoice)
 
 router.get("/not-found", notFound)
 

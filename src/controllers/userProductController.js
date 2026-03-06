@@ -4,6 +4,10 @@ import categoryModel from "../models/category.js"
 import wishlistModel from "../models/wishlistModel.js"
 import cartModel from "../models/cartModel.js"
 import orderModel from "../models/orderModel.js"
+import pdf from "html-pdf-node"
+import ejs from "ejs"
+import path from "path"
+import fs from "fs"
 
 import {
     
@@ -133,7 +137,9 @@ export const searchProducts = async (req, res) => {
             products,
             categories,
             searchQuery: q,
-            wishlistItems
+            wishlistItems,
+            totalPages: 1,
+            currentPage: 1
         })
 
     } catch (err) {
@@ -569,7 +575,7 @@ export const loadOrderHistory=async(req,res)=>{
         const userId=req.session.user.id
         const status=req.query.status || "all"
         const page=parseInt(req.query.page) || 1
-        const limit =6
+        const limit =5
 
         const {ordersList,totalOrders}=await getAllOrders(userId,status,page,limit)
         
@@ -593,29 +599,39 @@ export const loadOrderHistory=async(req,res)=>{
     }
 }
 
-export const loadOrderDetails= async(req,res)=>{
+export const loadOrderDetails = async (req, res) => {
     try {
 
-        const {id}=req.params
+        const { id } = req.params
+        const variantId = req.query.item
 
-        const order=await orderModel.findOne({orderId:id})
+        const order = await orderModel.findOne({ orderId: id })
 
-        if(!order){
-           return res.redirect("/order-history")
+        if (!order) {
+            return res.redirect("/order-history")
+        }
+
+  
+        let item = order.items.find(i => 
+            i.variantId.toString() === variantId
+        )
+
+
+        if (!item) {
+            item = order.items[0]
         }
 
         const requestData = getOrderRequest(order)
 
         res.render("user/orderDetails", {
-            title: "Order Details -Quavix",
+            title: "Order Details - Quavix",
             css: "userStyle",
             order,
+            item,   
             requestType: requestData.requestType,
             requestAllowed: requestData.requestAllowed
         })
 
-
-        
     } catch (err) {
         console.log(err)
         res.redirect("/order-history")
@@ -664,12 +680,17 @@ export const orderRequest = async (req,res)=>{
             
             const qty = Math.min(parseInt(returnQty) || 1, item.quantity)
 
+
             item.returnVariantId = variantId
             item.returnQuantity = qty
             item.returnReason = reason
             item.returnDescription = description
             item.returnedAt = new Date()
-            item.orderStatus = "returned"
+
+
+            if(qty === item.quantity){
+                item.orderStatus = "returned"
+            }
 
         }else{
 
@@ -692,6 +713,50 @@ export const orderRequest = async (req,res)=>{
     }catch(err){
         console.log(err)
         res.redirect("/order-history")
+    }
+
+}
+
+export const downloadInvoice = async (req, res) => {
+
+    try {
+
+        const { orderId } = req.params
+
+        const order = await orderModel
+            .findOne({ orderId })
+            .populate("user")
+
+        if (!order) {
+            return res.redirect("/order-history")
+        }
+
+        const templatePath = path.join(process.cwd(), "views", "user", "invoice.ejs")
+
+        const html = await ejs.renderFile(templatePath, { order })
+
+        const file = { content: html }
+
+        const options = {
+            format: "A4",
+            printBackground: true
+        }
+
+        const pdfBuffer = await pdf.generatePdf(file, options)
+
+        res.setHeader("Content-Type", "application/pdf")
+        res.setHeader(
+            "Content-Disposition",
+            `attachment; filename=invoice-${order.orderId}.pdf`
+        )
+
+        res.send(pdfBuffer)
+
+    } catch (error) {
+
+        console.log(error)
+        res.redirect("/order-history")
+
     }
 
 }

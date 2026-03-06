@@ -56,10 +56,12 @@
             </div>
 
             <div class="nav-icons">
-                <div class="nav-search">
-                    <input type="text" placeholder="Search gadgets...">
-                    <button><i class="fa-solid fa-magnifying-glass"></i></button>
-                </div>
+                <form class="nav-search" action="/products/search" method="GET">
+                    <input type="text" name="q" placeholder="Search gadgets...">
+                    <button type="submit">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </button>
+                </form>
 
                 <a href="/wishlist" class="relative">
                     <i class="fa-regular fa-heart nav-icon-lg"></i>
@@ -102,7 +104,7 @@
                 <h1 class="text-2xl font-bold">Order Details</h1>
             </div>
             <%
-                const item = order.items[0]
+                
                 const status = item.orderStatus
 
                 let returnAllowed = false
@@ -117,7 +119,7 @@
 
             <div class="mb-1 flex items-center gap-6">
 
-                <% if(status !== "cancelled" && status !== "returned"){ %>
+                <% if(status !== "cancelled" && status !== "returned" && item.returnQuantity === 0){ %>
 
                     <% if(status === "delivered"){ %>
 
@@ -168,10 +170,10 @@
             <div>
                 <p class="text-xs text-muted font-medium tracking-wider">Status</p>
 
-                <div class="status-badge badge-<%= order.items[0].orderStatus %>">
+                <div class="status-badge badge-<%= item.orderStatus %>">
                     <i class="fa-solid fa-circle-check"></i>
 
-                    <%= order.items[0].orderStatus.replaceAll("_"," ").toUpperCase() %>
+                    <%= item.orderStatus.replaceAll("_"," ").toUpperCase() %>
 
                 </div>
 
@@ -190,7 +192,7 @@
                    <div class="product-item-card">
 
                         <div class="product-img-wrap">
-                            <img src="<%= order.items[0].productImage %>" alt="<%= order.items[0].productName %>">
+                            <img src="<%= item.productImage %>" alt="<%= item.productName%>">
                         </div>
 
                         <div class="flex-grow flex flex-col justify-between min-h-80">
@@ -204,7 +206,7 @@
                                     </h3>
 
                                     <p class="font-bold text-lg text-primary">
-                                        ₹<%= order.items[0].price.toLocaleString() %>
+                                        ₹<%= item.price.toLocaleString() %>
                                     </p>
 
                                 </div>
@@ -218,8 +220,14 @@
                                     <% }) %>
 
                                     <span class="font-medium mt-1">
-                                        Qty: <%= order.items[0].quantity %>
+                                        Qty: <%= item.quantity %>
                                     </span>
+
+                                    <% if(order.items[0].returnQuantity > 0){ %>
+
+                                        <p class="returned-text"><%= order.items[0].returnQuantity %> item returned<%= order.items[0].returnQuantity > 1 ? "s" : "" %></p>
+
+                                    <% } %>
 
                                 </div>
 
@@ -317,7 +325,7 @@
             <%
                 const steps = ["placed","pending","shipped","out_for_delivery","delivered"];
 
-                const currentStatus = order.items[0].orderStatus;
+                const currentStatus = item.orderStatus?.toLowerCase();
                 const currentIndex = steps.indexOf(currentStatus);
 
                 let progressClass = "";

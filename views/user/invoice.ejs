@@ -1,0 +1,595 @@
+
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice - Quavix</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --invoice-bg: #ffffff;
+            --invoice-text: #000000;
+            --invoice-primary: #000000;
+            --invoice-secondary: #000000;
+            --invoice-border: #000000;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-weight: 400;
+        }
+
+        strong {
+            font-weight: 600;
+        }
+
+        .invoice-page {
+            background-color: #ffffff;
+            min-height: 100vh;
+            padding: 40px 0;
+            color: #000000;
+        }
+
+        .invoice-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: var(--invoice-bg);
+            border-radius: 8px;
+            box-shadow: none;
+            border: 1px solid #000000;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .invoice-header {
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            border-bottom: 2px solid #000000;
+        }
+
+        .invoice-logo-centered {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+
+        .invoice-logo-centered .logo {
+            font-size: 2.5rem;
+            text-decoration: none !important;
+            color: #000000 !important;
+            font-weight: 600;
+            background: none !important;
+            -webkit-background-clip: initial !important;
+            background-clip: initial !important;
+            -webkit-text-fill-color: initial !important;
+        }
+
+        .invoice-header-bottom {
+            padding-top: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        .invoice-company-details {
+            font-size: 0.9rem;
+            color: var(--invoice-secondary);
+            line-height: 1.5;
+            text-align: left;
+        }
+
+        .invoice-meta {
+            text-align: right;
+        }
+
+        .invoice-id {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #000000 !important;
+            margin-bottom: 5px;
+            display: block;
+            background: none !important;
+            -webkit-background-clip: initial !important;
+            background-clip: initial !important;
+            -webkit-text-fill-color: initial !important;
+        }
+
+        .invoice-date-status {
+            font-size: 0.9rem;
+            color: var(--invoice-secondary);
+        }
+
+        .invoice-info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            padding: 30px;
+        }
+
+        .info-block h4 {
+            font-family: inherit;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #000000;
+            margin-bottom: 15px;
+            border-bottom: 1px solid var(--invoice-border);
+            padding-bottom: 8px;
+        }
+
+        .info-block p {
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .invoice-table-container {
+            padding: 0 30px;
+        }
+
+        .invoice-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .invoice-table th {
+            text-align: left;
+            padding: 15px 10px;
+            font-family: inherit;
+            font-size: 0.85rem;
+            color: #000000;
+            text-transform: uppercase;
+            border-bottom: 2px solid var(--invoice-border);
+            font-weight: 500;
+        }
+
+        .invoice-table td {
+            padding: 20px 10px;
+            border-bottom: 1px solid var(--invoice-border);
+            vertical-align: middle;
+        }
+
+        .product-name {
+            font-weight: 500;
+            display: block;
+            margin-bottom: 2px;
+        }
+
+        .product-specs {
+            font-size: 0.8rem;
+            color: var(--invoice-secondary);
+        }
+
+        .price-cell,
+        .qty-cell,
+        .total-cell {
+            font-weight: 500;
+        }
+
+        .total-cell {
+            text-align: right;
+            font-weight: 600;
+        }
+
+        .invoice-summary-section {
+            padding: 30px;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .summary-box {
+            width: 300px;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            font-size: 0.95rem;
+        }
+
+        .summary-label {
+            color: var(--invoice-secondary);
+        }
+
+        .summary-value {
+            font-weight: 500;
+        }
+
+        .summary-total {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px solid #000000;
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #000000 !important;
+            background: none !important;
+            -webkit-background-clip: initial !important;
+            background-clip: initial !important;
+            -webkit-text-fill-color: initial !important;
+        }
+
+        .invoice-footer {
+            padding: 30px 40px;
+            background: #ffffff;
+            text-align: center;
+            border-top: 1px solid #000000;
+        }
+
+        .footer-note {
+            font-size: 0.85rem;
+            color: var(--invoice-secondary);
+            margin-bottom: 10px;
+        }
+
+        .footer-support {
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        /* Floating Action Button */
+        .print-fab {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background: #000000;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            box-shadow: var(--shadow-lg);
+            cursor: pointer;
+            border: none;
+            transition: transform 0.3s;
+            z-index: 1000;
+        }
+
+        .print-fab:hover {
+            transform: scale(1.1);
+        }
+
+        /* Tablet Breakpoint (e.g., iPad Air) */
+        @media (max-width: 1024px) {
+            .invoice-container {
+                max-width: 90%;
+            }
+        }
+
+        /* Responsive Mobile Styles (e.g., Phones) */
+        @media (max-width: 768px) {
+            .invoice-page {
+                padding: 20px 10px;
+            }
+
+            .invoice-container {
+                border-radius: 0;
+                width: 100% !important;
+                max-width: none !important;
+                box-shadow: none;
+            }
+
+            .invoice-header {
+                flex-direction: column;
+                padding: 20px;
+                gap: 15px;
+            }
+
+            .invoice-logo-centered {
+                margin-bottom: 15px;
+            }
+
+            .invoice-header-bottom {
+                display: flex;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+                width: 100%;
+            }
+
+            .invoice-meta {
+                text-align: left;
+                width: 100%;
+            }
+
+            .invoice-info-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+                padding: 20px;
+            }
+
+            .invoice-table-container {
+                padding: 0 20px;
+                overflow-x: visible;
+            }
+
+            .invoice-summary-section {
+                padding: 20px;
+                justify-content: flex-end;
+            }
+
+            .summary-box {
+                width: 100%;
+                max-width: 100%;
+            }
+
+            .print-fab {
+                bottom: 20px;
+                right: 20px;
+                width: 50px;
+                height: 50px;
+            }
+        }
+
+        /* Extra Small Screen Breakpoint (Table to Cards) */
+        @media (max-width: 600px) {
+
+            .invoice-table,
+            .invoice-table tbody {
+                display: block;
+                width: 100%;
+            }
+
+            .invoice-table thead {
+                display: none;
+                /* Hide headers on small mobile */
+            }
+
+            .invoice-table tr {
+                display: block;
+                border-bottom: 2px solid var(--invoice-border);
+                padding: 6px 0;
+            }
+
+            .invoice-table td {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 3px 0;
+                border-bottom: none;
+                text-align: right;
+                width: 100%;
+            }
+
+            .invoice-table td::before {
+                content: attr(data-label);
+                /* Using data-label for headers */
+                font-weight: 500;
+                text-transform: uppercase;
+                font-size: 0.75rem;
+                color: var(--invoice-secondary);
+                text-align: left;
+            }
+
+            .invoice-table td:first-child {
+                display: block;
+                text-align: left;
+                padding-bottom: 8px;
+            }
+
+            .invoice-table td:first-child::before {
+                content: "ITEM";
+                display: block;
+                margin-bottom: 5px;
+            }
+
+            .total-cell {
+                text-align: right !important;
+                border-top: 1px dashed var(--invoice-border);
+                margin-top: 4px;
+                padding-top: 8px !important;
+            }
+
+            .invoice-header,
+            .invoice-info-grid,
+            .invoice-summary-section {
+                padding: 15px !important;
+            }
+        }
+
+        /* Print Styles */
+        @media print {
+            body {
+                background: white !important;
+                color: black !important;
+            }
+
+            .navbar,
+            .print-fab {
+                display: none !important;
+            }
+
+            .invoice-page {
+                padding: 0;
+                background: white !important;
+            }
+
+            .invoice-container {
+                box-shadow: none !important;
+                max-width: 100% !important;
+                width: 100% !important;
+                border: none !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+
+            /* Force text to be black and remove gradients for PDF compatibility */
+            .text-gradient,
+            .text-gradient-clip,
+            .logo i,
+            .logo span,
+            .invoice-id,
+            .summary-total,
+            .summary-value {
+                background: none !important;
+                -webkit-background-clip: initial !important;
+                background-clip: initial !important;
+                color: black !important;
+                -webkit-text-fill-color: initial !important;
+            }
+
+            .invoice-header,
+            .invoice-info-grid,
+            .invoice-table-container,
+            .invoice-summary-section {
+                padding: 20px !important;
+            }
+
+            .invoice-header {
+                border-bottom: 2px solid #000 !important;
+            }
+
+            .invoice-table th {
+                border-bottom: 2px solid #000 !important;
+                color: black !important;
+            }
+
+            .invoice-table td {
+                border-bottom: 1px solid #eee !important;
+            }
+
+            .summary-total {
+                border-top: 2px solid #000 !important;
+                color: black !important;
+            }
+
+            .invoice-footer {
+                background: white !important;
+                border-top: 1px solid #000 !important;
+            }
+        }
+    </style>
+</head>
+<body class="invoice-page">
+    
+
+
+    <div class="invoice-container">
+        <!-- Header -->
+        <header class="invoice-header">
+            <div class="invoice-logo-centered">
+                <a href="index.html" class="logo">
+                    <span class="text-gradient">Quavix</span>
+                </a>
+            </div>
+            <div class="invoice-header-bottom">
+                <div class="invoice-company-details">
+                    <p><strong>Quavix Technologies Pvt. Ltd.</strong></p>
+                    <p>Cyberpark, 4th Floor</p>
+                    <p>Kozhikode, Kerala - 673016</p>
+                    <p>GSTIN: 32AAAAA0000A1Z5</p>
+                    <p>Email: support@quavix.com</p>
+                </div>
+                <div class="invoice-meta">
+                    <span class="invoice-id">#<%= order.orderId %></span>
+                    <div class="invoice-date-status">
+                        <p><strong>Date of Issue:</strong> <%= new Date(order.createdAt).toLocaleDateString("en-IN",{day:"2-digit",month:"long",year:"numeric"}) %></p>
+                        <p><strong>Payment Term:</strong> <%= order.paymentMethod === "cod" ? "Cash On Delivery" : "Prepaid" %></p>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Info Grid -->
+        <div class="invoice-info-grid">
+            <div class="info-block">
+                <h4>Bill To</h4>
+                <p><strong><%= order.shippingAddress.fullname %></strong></p>
+                <p><%= order.shippingAddress.street %></p>
+                <p><%= order.shippingAddress.city %> - <%= order.shippingAddress.pincode %></p>
+                <p><%= order.shippingAddress.state %></p>
+                <p>Phone: <%= order.shippingAddress.phone %></p>
+            </div>
+            <div class="info-block">
+                <h4>Shipping Address</h4>
+                <p><strong>John Doe</strong></p>
+                <p>123 Main Street, Green Park Avenue</p>
+                <p>Near Central Mall</p>
+                <p>New Delhi - 110016</p>
+                <p>Shipping via BlueDart Express</p>
+            </div>
+        </div>
+
+        <!-- Table -->
+        <div class="invoice-table-container">
+            <table class="invoice-table">
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Price</th>
+                        <th>Qty</th>
+                        <th class="total-cell">Total</th>
+                    </tr>
+                </thead>
+                    <tbody>
+
+                        <% order.items.forEach(item => { %>
+
+                        <tr>
+                            <td>
+                                <div>
+                                    <span class="product-name"><%= item.productName %></span>
+
+                                    <span class="product-specs">
+                                    <%= item.attributes.map(a => a.value).join(" | ") %>
+                                    </span>
+
+                                </div>
+                            </td>
+
+                            <td class="price-cell">
+                                ₹<%= item.price.toLocaleString("en-IN") %>
+                            </td>
+
+                            <td class="qty-cell"><%= item.quantity %></td>
+
+                            <td class="total-cell">₹<%= item.total.toLocaleString("en-IN") %></td>
+
+                        </tr>
+
+                        <% }) %>
+
+                    </tbody>
+            </table>
+        </div>
+
+        <!-- Summary -->
+        <div class="invoice-summary-section">
+            <div class="summary-box">
+                <div class="summary-row">
+                    <span class="summary-label">Sub Total</span>
+                    <span class="summary-value">
+                        ₹<%= order.subtotal.toLocaleString("en-IN") %>
+                    </span>
+                </div>
+
+                <div class="summary-row">
+                    <span class="summary-label">Discount</span>
+                    <span class="summary-value text-green-700">
+                        - ₹<%= order.discount.toLocaleString("en-IN") %>
+                    </span>
+                </div>
+
+                <div class="summary-row">
+                    <span class="summary-label">Shipping</span>
+                    <span class="summary-value">
+                        ₹<%= order.shippingCharge.toLocaleString("en-IN") %>
+                    </span>
+                </div>
+
+                <div class="summary-total summary-row">
+                    <span>Grand Total</span>
+                    <span>
+                        ₹<%= order.totalAmount.toLocaleString("en-IN") %>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+</body>
+

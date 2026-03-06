@@ -18,6 +18,7 @@
     "express": "^5.2.1",
     "express-ejs-layouts": "^2.5.1",
     "express-session": "^1.19.0",
+    "html-pdf-node": "^1.0.8",
     "mongoose": "^9.2.1",
     "multer": "^2.1.0",
     "nocache": "^4.0.0",
