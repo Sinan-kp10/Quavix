@@ -419,12 +419,19 @@ export const createOrder = async ({ userId, addressId, paymentMethod, buyNowData
     };
 }
 
-export const getAllOrders = async (userId, status = "all", page = 1, limit = 6) => {
+export const getAllOrders = async ( userId, status = "all",search = "",page = 1,limit = 6) => {
 
     let query = { user: userId }
 
     if (status !== "all") {
         query["items.orderStatus"] = status
+    }
+
+    if (search) {
+        query.$or = [
+            { orderId: { $regex: search, $options: "i" } },
+            { "items.productName": { $regex: search, $options: "i" } }
+        ]
     }
 
     const skip = (page - 1) * limit

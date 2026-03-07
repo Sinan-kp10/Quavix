@@ -569,31 +569,31 @@ export const loadOrderSuccess=async(req,res)=>{
         res.redirect("/not-found")
     }
 }
-export const loadOrderHistory=async(req,res)=>{
+export const loadOrderHistory = async (req, res) => {
 
     try {
-        const userId=req.session.user.id
-        const status=req.query.status || "all"
-        const page=parseInt(req.query.page) || 1
-        const limit =5
 
-        const {ordersList,totalOrders}=await getAllOrders(userId,status,page,limit)
-        
-        const totalPages= Math.ceil(totalOrders/limit)
+        const userId = req.session.user.id
+        const status = req.query.status || "all"
+        const search = req.query.search || ""
+        const page = parseInt(req.query.page) || 1
+        const limit = 5
 
+        const { ordersList, totalOrders } = await getAllOrders(userId, status, search,page,limit)
 
+        const totalPages = Math.ceil(totalOrders / limit)
 
         res.render("user/orderHistory", {
             title: "My Orders - Quavix",
             css: "userStyle",
-            orders:ordersList,
+            orders: ordersList,
             status,
+            search,
             page,
             totalPages
-            
         })
 
-    }catch (err) {
+    } catch (err) {
         console.log(err)
         res.redirect("/")
     }

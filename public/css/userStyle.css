@@ -673,6 +673,7 @@ input[type=number] {
     transition: all 0.2s;
     width: 100%;
     max-width: 400px;
+    margin-right: 700px;
     /* Desktop width */
 }
 
@@ -7161,6 +7162,37 @@ footer a:hover {
 
 .border-color-var {
     border-color: var(--border-color);
+}
+
+.page-search{
+    position: relative;
+}
+
+.search-clear {
+    position: absolute;   /* IMPORTANT */
+    right: 50px;
+    top: 50%;             /* move slightly down */
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: #94a3b8;
+    cursor: pointer;
+    font-size: 0.9rem;
+    display: none;
+    padding: 0;
+    width: 20px;
+    height: 20px;
+    line-height: 20px;
+    text-align: center;
+    z-index: 10;
+}
+
+.search-clear:hover {
+    color: #ef4444;
+}
+
+.search-clear.active {
+    display: block;
 }
 
 
