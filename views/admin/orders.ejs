@@ -137,16 +137,22 @@
                                                     Cancelled
                                                 </span>
 
-                                            <% } else { %>
+                                            <% } else if(item.returnQuantity > 0){ %>
 
-                                                <!-- Fully returned OR partially returned both show Delivered -->
+                                                <!-- Any return still shows Delivered -->
                                                 <span class="order-status-badge badge-delivered">
                                                     Delivered
                                                 </span>
 
+                                            <% } else { %>
+
+                                                <span class="order-status-badge badge-<%= item.orderStatus.replaceAll('_','-') %>">
+                                                    <%= item.orderStatus.replaceAll('_',' ').replace(/\b\w/g, l => l.toUpperCase()) %>
+                                                </span>
+
                                             <% } %>
 
-                                        </td>
+                                            </td>
 
                                         <td>
                                             <div class="actions-wrap">
@@ -240,7 +246,7 @@
 
                         </div>
 
-                        <button class="btn-close-modal"onclick="closeModal('edit_<%= order._id %>_<%= i %>')">&times;</button>
+                        <button type="button" class="btn-close-modal"onclick="closeModal('edit_<%= order._id %>_<%= i %>')">&times;</button>
                     </div>
 
 
