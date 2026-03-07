@@ -54,18 +54,28 @@
                     <div class="flex gap-2">
                         <form method="GET" action="/admin/orders" class="flex gap-2">
 
-                            <div class="search-group">
+                            <div class="search-group" style="position: relative;">
+
                                 <input 
                                     type="text"
                                     name="search"
-                                    value="<%= typeof search !== 'undefined' ? search : '' %>"
+                                    value="<%= search || '' %>"
                                     class="form-input orders-search-input"
                                     placeholder="Search orders..."
+                                    style="width:300px;"
                                 >
 
-                                <button class="btn btn-primary search-btn">
+                                <% if (search) { %>
+                                    <a href="/admin/orders?status=<%= status %>" 
+                                    class="search-clear active">
+                                        <i class="fa-solid fa-xmark"></i>
+                                    </a>
+                                <% } %>
+
+                                <button type="submit" class="btn btn-primary search-btn" style="height:50px;">
                                     <i class="fa-solid fa-magnifying-glass"></i>
                                 </button>
+
                             </div>
 
                             <select name="status" class="form-select orders-filter-select" onchange="this.form.submit()">
@@ -146,9 +156,9 @@
                                         <td>
                                             <div class="actions-wrap">
 
-                                                <button class="btn-circle" onclick="openModal('view_<%= order._id %>')">
+                                                <a href="/admin/orders/<%= order._id %>" class="btn-circle">
                                                     <i class="fa-solid fa-eye"></i>
-                                                </button>
+                                                </a>
 
                                                 <button class="btn-circle"
                                                     onclick="openModal('edit_<%= order._id %>_<%= i %>')">
@@ -333,7 +343,7 @@
                     <!-- FOOTER -->
                     <div class="m-footer">
 
-                        <button class="btn btn-outline"
+                        <button type="button" class="btn btn-outline"
                             onclick="closeModal('edit_<%= order._id %>_<%= i %>')">
                             Cancel
                         </button>

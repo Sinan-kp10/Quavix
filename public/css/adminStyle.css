@@ -481,8 +481,9 @@ img {
     color: #c2410c;
 }
 
-.returned-text{
-    color: #dc2626;   /* red */
+.returned-text {
+    color: #dc2626;
+    /* red */
     font-size: 0.9rem;
     font-weight: 600;
     margin-top: 4px;
@@ -2379,8 +2380,8 @@ img {
 
 .modal-orders .modal-container {
     background: #ffffff;
-    width: 95%;
-    max-width: 600px;
+    width: 700px !important;
+    max-width: 700px !important;
     border-radius: 20px;
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.2);
     overflow: hidden;
@@ -2560,10 +2561,9 @@ img {
 .p-item-edit {
     display: flex;
     align-items: center;
-    gap: 28px;
-    padding: 24px 0;
+    gap: 12px;
+    padding: 12px 0;
     border-bottom: 1px solid #f1f5f9;
-    width: 100%;
 }
 
 .p-item-edit:last-child {
@@ -2571,42 +2571,39 @@ img {
 }
 
 .p-item-edit img {
-    width: 76px !important;
-    height: 76px !important;
-    border-radius: 16px !important;
+    width: 44px;
+    height: 44px;
+    border-radius: 8px;
     object-fit: cover;
     flex-shrink: 0;
-    background: #f8fafc;
-    border: 1px solid #e2e8f0;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08) !important;
 }
 
 .p-item-edit-info {
-    flex-grow: 1;
+    flex: 1;
     min-width: 0;
-    padding-right: 20px;
 }
 
 .p-item-edit-select {
-    margin-left: auto;
-    width: 260px !important;
-    height: 50px !important;
+    width: 160px;
+    height: 40px;
     flex-shrink: 0;
-    font-size: 0.95rem;
-    padding: 0 1.25rem;
-    border-radius: 12px !important;
-    background-color: #f8fafc !important;
-    border: 2px solid #e2e8f0 !important;
-    font-weight: 500;
+    font-size: 0.82rem;
+    padding: 0 0.75rem;
 }
 
 /* Modal Grid & Payment Info */
 .info-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(3, 1fr);
     gap: 16px;
     margin-bottom: 20px;
     align-items: stretch;
+}
+
+@media (max-width: 1024px) {
+    .info-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
 }
 
 @media (max-width: 580px) {
@@ -2848,9 +2845,9 @@ img {
 }
 
 /* ── Edit modal: container & icon overrides ─────────── */
-.modal-orders .modal-container.modal-container-edit {
-    width: 800px !important;
-    max-width: 95vw !important;
+.modal-container-edit {
+    max-width: 700px !important;
+    width: 700px !important;
 }
 
 .m-icon-box-edit {

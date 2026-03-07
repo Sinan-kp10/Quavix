@@ -676,3 +676,29 @@ export const editOrderStatus = async (req, res) => {
         res.redirect("/admin/orders")
     }
 }
+
+export const OrderDetails = async (req, res) => {
+
+    try {
+
+        const { id } = req.params
+
+        const order = await orderModel.findById(id).populate("user", "email")
+
+        if (!order) {
+            return res.redirect("/admin/orders")
+        }
+
+        res.render("admin/orderDetails", {
+            title: "Order Details - Quavix",
+            css: "adminStyle",
+            order
+        })
+
+    } catch (err) {
+
+        console.log(err)
+        res.redirect("/admin/orders")
+
+    }
+}

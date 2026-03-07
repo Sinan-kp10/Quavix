@@ -1,0 +1,332 @@
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<body class="page-orders">
+
+    <div class="admin-layout">
+        <!-- Mobile Header -->
+        <div class="mobile-header">
+            <div class="mobile-logo">
+                <i class="fa-solid fa-bolt"></i> Quavix
+            </div>
+            <button class="menu-toggle" onclick="toggleSidebar()">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+        </div>
+
+        <!-- Sidebar Overlay -->
+        <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo">
+                <i class="fa-solid fa-bolt"></i> Quavix Admin
+            </div>
+
+            <nav>
+                <a href="index.html" class="sidebar-link"><i class="fa-solid fa-chart-line"></i> Dashboard</a>
+                <a href="products.html" class="sidebar-link"><i class="fa-solid fa-box"></i> Products</a>
+                <a href="orders.html" class="sidebar-link active"><i class="fa-solid fa-clipboard-list"></i> Orders</a>
+                <a href="coupons.html" class="sidebar-link"><i class="fa-solid fa-ticket"></i> Coupons</a>
+                <a href="categories.html" class="sidebar-link"><i class="fa-solid fa-tags"></i> Categories</a>
+                <a href="users.html" class="sidebar-link"><i class="fa-solid fa-users"></i> Users</a>
+                <a href="banner.html" class="sidebar-link"><i class="fa-solid fa-image"></i> Banner</a>
+                <a href="reports.html" class="sidebar-link"><i class="fa-solid fa-chart-pie"></i> Reports</a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <a href="../index.html" class="sidebar-link"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="content">
+            <header class="flex justify-between items-center mb-6">
+                <div>
+                    <h2>Order Details</h2>
+                    <p class="text-muted mt-1">OrderID: #<%= order.orderId %></p>
+                </div>
+                <a href="/admin/orders" class="btn btn-outline"><i class="fa-solid fa-arrow-left"></i> Back to Orders</a>
+            </header>
+
+            <div class="m-body" style="padding: 0; max-height: none; overflow-y: visible;">
+                <div class="info-grid">
+                    <!-- Customer Info Card -->
+                    <div class="info-card">
+
+                        <div class="info-card-header">
+
+                            <div class="info-avatar">
+                            <%= order.shippingAddress.fullname.charAt(0).toUpperCase() %>
+                            </div>
+
+                            <div>
+                                <div class="info-card-name">
+                                    <%= order.shippingAddress.fullname %>
+                                </div>
+
+                                <div class="info-card-tag">Customer</div>
+                            </div>
+
+                        </div>
+
+                        <div class="info-card-row">
+                            <i class="fa-solid fa-envelope info-row-icon"></i>
+                            <span><%= order.user?.email || "" %></span>
+                        </div>
+
+                        <div class="info-card-row">
+                            <i class="fa-solid fa-phone info-row-icon"></i>
+                            <span><%= order.shippingAddress.phone %></span>
+                        </div>
+
+                    </div>
+                    <!-- Shipping Address Card -->
+                    <div class="info-card">
+
+                        <div class="info-card-label mb-3">Shipping Address</div>
+
+                        <div class="flex items-start gap-3">
+
+                            <div class="m-icon-box"
+                            style="background:#eef2ff;color:#6366f1;width:40px;height:40px;border-radius:8px;">
+                            <i class="fa-solid fa-location-dot"></i>
+                            </div>
+
+                            <div style="line-height:1.6;color:#475569;font-size:.9rem;">
+
+                            <%= order.shippingAddress.street %><br>
+
+                            <span style="color:#64748b;">
+                            <%= order.shippingAddress.city %>,
+                            <%= order.shippingAddress.state %>
+                            <%= order.shippingAddress.pincode %>
+                            </span>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+                    <!-- Payment Details Card -->
+                    <div class="info-card">
+
+                        <div class="info-card-label">Payment Details</div>
+
+                        <!-- Payment Method -->
+                        <div class="payment-pill">
+                            <i class="fa-solid fa-credit-card"></i>
+
+                            <span>
+                                <%= order.paymentMethod === "cod" ? "Cash On Delivery" :
+                                    order.paymentMethod === "razorpay" ? "Razorpay" :
+                                    order.paymentMethod === "wallet" ? "Wallet" : "" %>
+                            </span>
+                        </div>
+
+
+                        <!-- Payment Status -->
+                        <div class="payment-status-row">
+
+                            <span class="text-xs text-muted">
+                                Payment Status
+                            </span>
+
+                            <span class="pay-status-badge pay-status-<%= order.paymentStatus %>">
+
+                                <%= order.paymentStatus
+                                    ? order.paymentStatus.charAt(0).toUpperCase() + order.paymentStatus.slice(1)
+                                    : "Pending" %>
+
+                            </span>
+
+                        </div>
+
+
+                        <!-- Total Amount -->
+                        <div class="payment-status-row">
+
+                            <span class="text-xs text-muted">
+                                Total Amount
+                            </span>
+
+                            <span class="font-bold text-primary">
+                                ₹<%= order.totalAmount.toLocaleString("en-IN") %>
+                            </span>
+
+                        </div>
+
+                    </div>
+                </div>
+
+
+                <div class="card p-4">
+
+                    <div class="font-bold text-xs mb-3 text-muted uppercase tracking-wider">
+                    Order Items
+                    </div>
+
+                    <% order.items.forEach(item => { %>
+
+                    <div class="p-item">
+
+                        <img src="<%= item.productImage %>">
+
+                        <div class="p-item-body">
+
+                            <div class="font-medium">
+                                <%= item.productName %>
+                            </div>
+
+                            <div class="p-item-attrs">
+
+                                <% item.attributes.forEach(attr => { %>
+                                    <span class="attr-tag"><%= attr.value %></span>
+                                <% }) %>
+
+                            </div>
+
+                            <div class="p-item-qty">
+                                Qty: <%= item.quantity %>
+                            </div>
+
+                            <% if(item.returnQuantity && item.returnQuantity > 0){ %>
+
+                                <div class="returned-text">
+                                    <%= item.returnQuantity %> item returned
+                                </div>
+
+                            <% } %>
+
+                        </div>
+
+
+                        <div class="p-item-right">
+
+                            <% if(item.orderStatus === "cancelled"){ %>
+
+                                <span class="item-delivery-status status-danger">
+                                    Cancelled
+                                </span>
+
+                            <% } else { %>
+
+                                <span class="item-delivery-status badge-<%= item.orderStatus %>">
+                                    <%= item.orderStatus.replaceAll("_"," ").replace(/\b\w/g, l => l.toUpperCase()) %>
+                                </span>
+
+                            <% } %>
+
+                            <div class="font-medium">
+                                ₹<%= item.total.toLocaleString() %>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <% }) %>
+
+                </div>
+
+                <!-- Return Reason Section -->
+                <% 
+                const reasons = {
+                    mind_change: "Changed my mind",
+                    price_drop: "Found a better price elsewhere",
+                    defective: "Item is defective or damaged",
+                    wrong_item: "Received wrong item",
+                    others: "Others"
+                };
+                %>
+
+                <% order.items.forEach(item => { %>
+
+                    <% if(item.returnQuantity > 0 || item.orderStatus === "cancelled"){ %>
+
+                    <div class="info-card mb-4 mt-4"
+                        style="border-left:4px solid #ef4444;background:#fef2f2;">
+
+                        <div class="font-bold text-xs mb-3 text-red-600 uppercase tracking-wider flex items-center gap-2">
+
+                            <% if(item.returnQuantity > 0){ %>
+                                <i class="fa-solid fa-rotate-left"></i> Return Details
+                            <% } else { %>
+                                <i class="fa-solid fa-circle-xmark"></i> Cancel Details
+                            <% } %>
+
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+                            <!-- Reason -->
+                            <div>
+
+                                <span class="text-xs text-muted block mb-1">
+
+                                    <% if(item.returnQuantity > 0){ %>
+                                        Return Reason
+                                    <% } else { %>
+                                        Cancel Reason
+                                    <% } %>
+
+                                </span>
+
+                                <div class="font-medium text-gray-800">
+
+                                    <% if(item.returnQuantity > 0){ %>
+
+                                        <%= reasons[item.returnReason] || "Not specified" %>
+
+                                    <% } else { %>
+
+                                        <%= reasons[item.cancelReason] || "Not specified" %>
+
+                                    <% } %>
+
+                                </div>
+
+                            </div>
+
+
+                            <!-- Description -->
+                            <div>
+
+                                <span class="text-xs text-muted block mb-1">
+                                    Customer Description
+                                </span>
+
+                                <div class="text-sm text-gray-700">
+
+                                    <% if(item.returnQuantity > 0){ %>
+
+                                        <%= item.returnDescription || "No description provided" %>
+
+                                    <% } else { %>
+
+                                        <%= item.cancelDescription || "No description provided" %>
+
+                                    <% } %>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <% } %>
+
+                <% }) %>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        function toggleSidebar() {
+            document.querySelector('.sidebar').classList.toggle('active');
+            document.getElementById('sidebarOverlay').classList.toggle('active');
+        }
+    </script>
+</body>
+

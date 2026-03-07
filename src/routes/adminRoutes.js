@@ -22,7 +22,8 @@ import {
     editProduct,
     removeProduct,
     loadOrders,
-    editOrderStatus
+    editOrderStatus,
+    OrderDetails
     
 } from "../controllers/adminController.js"
 
@@ -48,8 +49,8 @@ router.post("/admin/products/edit/:id",isLogin, upload.any(), editProduct);
 router.post("/admin/products/delete/:id", removeProduct)
 
 router.get("/admin/orders",isLogin,loadOrders)
-router.post("/admin/orders", editOrderStatus)
-
+router.post("/admin/orders",isLogin, editOrderStatus)
+router.get("/admin/orders/:id",isLogin, OrderDetails)
 
 
 
