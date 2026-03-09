@@ -608,33 +608,34 @@ export const removeProduct=async(req,res)=>{
     }
 }
 
-export const loadOrders=async(req,res)=>{
+export const loadOrders = async (req, res) => {
+
     try {
 
-        const search=req.query.search || ""
-        const status=req.query.status|| "all"
-        const page=parseInt(req.query.page) || 1
-        const limit =6
+        const search = req.query.search || ""
+        const status = req.query.status || "all"
+        const page = parseInt(req.query.page) || 1
+        const limit = 4
 
-        const {ordersList,totalOrders}=await getAllOrders(search,status,page,limit)
+        const { items, totalItems } = await getAllOrders(search, status, page, limit)
 
-        const totalPages= Math.ceil(totalOrders/limit)
+        const totalPages = Math.ceil(totalItems / limit)
 
         res.render("admin/orders", {
             title: "Manage Orders - Quavix",
             css: "adminStyle",
-            orders:ordersList,
+            orders: items,
             status,
             search,
-            currentPage: page, 
+            currentPage: page,
             totalPages
-            
         })
 
     } catch (err) {
+
         console.log(err)
         res.redirect("/admin/dashboard")
-        
+
     }
 }
 
@@ -678,27 +679,33 @@ export const editOrderStatus = async (req, res) => {
 }
 
 export const OrderDetails = async (req, res) => {
-
     try {
 
-        const { id } = req.params
+        const { id, itemIndex } = req.params
 
-        const order = await orderModel.findById(id).populate("user", "email")
+        const order = await orderModel
+            .findById(id)
+            .populate("user", "email")
 
         if (!order) {
+            return res.redirect("/admin/orders")
+        }
+
+        const item = order.items[itemIndex]
+
+        if (!item) {
             return res.redirect("/admin/orders")
         }
 
         res.render("admin/orderDetails", {
             title: "Order Details - Quavix",
             css: "adminStyle",
-            order
+            order,
+            item
         })
 
     } catch (err) {
-
         console.log(err)
         res.redirect("/admin/orders")
-
     }
 }

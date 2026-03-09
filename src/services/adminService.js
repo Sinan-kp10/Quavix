@@ -385,30 +385,46 @@ export const deleteProduct =async(id)=>{
     return true
 }
 
-export const getAllOrders = async (search="",status = "all", page = 1, limit = 6) => {
+export const getAllOrders = async (search = "", status = "all", page = 1, limit = 4) => {
 
     let query = {}
 
-    if(search){
-        query.$or=[
-            {orderId:{$regex:search , $options:"i" }},
-            {"shippingAddress.fullname":{$regex:search,$options:"i" }}
+    if (search) {
+        query.$or = [
+            { orderId: { $regex: search, $options: "i" } },
+            { "shippingAddress.fullname": { $regex: search, $options: "i" } }
         ]
     }
 
-    if (status !== "all") {
-        query["items.orderStatus"] = status
-    }
+    const orders = await orderModel.find(query).populate("user", "email").sort({ createdAt: -1 })
 
-    const skip = (page - 1) * limit
 
-    const ordersList = await orderModel.find(query).populate("user", "email").sort({ createdAt: -1 }).skip(skip).limit(limit)
+    let items = []
 
-    const totalOrders = await orderModel.countDocuments(query)
+    orders.forEach(order => {
+
+        order.items.forEach(item => {
+
+            if (status === "all" || item.orderStatus === status) {
+
+                items.push({
+                    order,
+                    item,
+                    itemIndex: order.items.indexOf(item)
+                })
+            }
+
+        })
+
+    })
+
+    const totalItems = items.length
+
+    const start = (page - 1) * limit
+    const paginatedItems = items.slice(start, start + limit)
 
     return {
-        ordersList,
-        totalOrders
+        items: paginatedItems,
+        totalItems
     }
 }
-

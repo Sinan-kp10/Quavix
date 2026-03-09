@@ -220,12 +220,16 @@ export const addToCartService = async (userId, productId, variantId) => {
 
     } else {
 
+        
+
         cart.items.push({
             product: productId,
             variant: variantId,
             quantity: 1
         });
     }
+
+    
 
     await cart.save();
 
@@ -419,13 +423,9 @@ export const createOrder = async ({ userId, addressId, paymentMethod, buyNowData
     };
 }
 
-export const getAllOrders = async ( userId, status = "all",search = "",page = 1,limit = 6) => {
+export const getAllOrders = async (userId, status = "all", search = "", page = 1, limit = 6) => {
 
     let query = { user: userId }
-
-    if (status !== "all") {
-        query["items.orderStatus"] = status
-    }
 
     if (search) {
         query.$or = [
@@ -434,15 +434,37 @@ export const getAllOrders = async ( userId, status = "all",search = "",page = 1,
         ]
     }
 
-    const skip = (page - 1) * limit
+    const skip = Math.max((page - 1) * limit, 0)
 
-    const ordersList = await orderModel.find(query).sort({ createdAt: -1 }).skip(skip).limit(limit)
+    const orders = await orderModel
+        .find(query)
+        .sort({ createdAt: -1 })
 
-    const totalOrders = await orderModel.countDocuments(query)
+    let items = []
+
+    orders.forEach(order => {
+
+        order.items.forEach(item => {
+
+            if (status !== "all" && item.orderStatus !== status) return
+
+            items.push({
+                ...item.toObject(),
+                orderId: order.orderId,
+                createdAt: order.createdAt
+            })
+
+        })
+
+    })
+
+    const totalItems = items.length
+
+    const paginatedItems = items.slice(skip, skip + limit)
 
     return {
-        ordersList,
-        totalOrders
+        ordersList: paginatedItems,
+        totalOrders: totalItems
     }
 }
 

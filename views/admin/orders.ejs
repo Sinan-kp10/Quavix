@@ -104,76 +104,77 @@
                         </thead>
                         <tbody>
                             
-                            <% orders.forEach(order => { %>
+                            <% orders.forEach((data, i) => { 
+                                const order = data.order
+                                const item = data.item
+                            %>
 
-                                <% order.items.forEach((item, i) => { %>
+                                <tr>
 
-                                    <tr>
+                                    <td>
+                                        <span class="font-medium">#<%= order.orderId %></span>
+                                    </td>
 
-                                        <td>
-                                            <span class="font-medium">#<%= order.orderId %></span>
+                                    <td>
+                                        <%= new Date(order.createdAt).toLocaleDateString("en-IN",{day:"2-digit",month:"short",year:"numeric"}) %>
+                                    </td>
+
+                                    <td>
+                                        <div class="font-medium"><%= order.shippingAddress.fullname %></div>
+                                        <div class="text-xs text-muted"><%= order.user?.email || "" %></div>
+                                    </td>
+
+                                    <td>
+                                        <%= order.paymentMethod === "cod" ? "COD" : 
+                                            order.paymentMethod === "razorpay" ? "Razorpay" : 
+                                            order.paymentMethod === "wallet" ? "Wallet" : "" %>
+                                    </td>
+
+                                    <td class="td-status">
+
+                                        <% if(item.orderStatus === "cancelled"){ %>
+
+                                            <span class="order-status-badge badge-cancelled">
+                                                Cancelled
+                                            </span>
+
+                                        <% } else if(item.returnQuantity > 0){ %>
+
+                                            <!-- Any return still shows Delivered -->
+                                            <span class="order-status-badge badge-delivered">
+                                                Delivered
+                                            </span>
+
+                                        <% } else { %>
+
+                                            <span class="order-status-badge badge-<%= item.orderStatus.replaceAll('_','-') %>">
+                                                <%= item.orderStatus.replaceAll('_',' ').replace(/\b\w/g, l => l.toUpperCase()) %>
+                                            </span>
+
+                                        <% } %>
+
                                         </td>
 
-                                        <td>
-                                            <%= new Date(order.createdAt).toLocaleDateString("en-IN",{day:"2-digit",month:"short",year:"numeric"}) %>
-                                        </td>
+                                    <td>
+                                        <div class="actions-wrap">
 
-                                        <td>
-                                            <div class="font-medium"><%= order.shippingAddress.fullname %></div>
-                                            <div class="text-xs text-muted"><%= order.user?.email || "" %></div>
-                                        </td>
+                                            <a href="/admin/orders/<%= order._id %>/<%= data.itemIndex %>" class="btn-circle">
+                                                <i class="fa-solid fa-eye"></i>
+                                            </a>
 
-                                        <td>
-                                            <%= order.paymentMethod === "cod" ? "COD" : 
-                                                order.paymentMethod === "razorpay" ? "Razorpay" : 
-                                                order.paymentMethod === "wallet" ? "Wallet" : "" %>
-                                        </td>
+                                            <button class="btn-circle"
+                                                onclick="openModal('edit_<%= order._id %>_<%= i %>')">
+                                                <i class="fa-solid fa-pen"></i>
+                                            </button>
 
-                                        <td class="td-status">
+                                        </div>
+                                    </td>
 
-                                            <% if(item.orderStatus === "cancelled"){ %>
+                                </tr>
 
-                                                <span class="order-status-badge badge-cancelled">
-                                                    Cancelled
-                                                </span>
+                            
 
-                                            <% } else if(item.returnQuantity > 0){ %>
-
-                                                <!-- Any return still shows Delivered -->
-                                                <span class="order-status-badge badge-delivered">
-                                                    Delivered
-                                                </span>
-
-                                            <% } else { %>
-
-                                                <span class="order-status-badge badge-<%= item.orderStatus.replaceAll('_','-') %>">
-                                                    <%= item.orderStatus.replaceAll('_',' ').replace(/\b\w/g, l => l.toUpperCase()) %>
-                                                </span>
-
-                                            <% } %>
-
-                                            </td>
-
-                                        <td>
-                                            <div class="actions-wrap">
-
-                                                <a href="/admin/orders/<%= order._id %>" class="btn-circle">
-                                                    <i class="fa-solid fa-eye"></i>
-                                                </a>
-
-                                                <button class="btn-circle"
-                                                    onclick="openModal('edit_<%= order._id %>_<%= i %>')">
-                                                    <i class="fa-solid fa-pen"></i>
-                                                </button>
-
-                                            </div>
-                                        </td>
-
-                                    </tr>
-
-                                <% }) %>
-
-                            <% }) %>
+                        <% }) %>
 
                         </tbody>
                     </table>
@@ -218,15 +219,17 @@
         </main>
     </div>
     <!-- Modal -->
-    <% orders.forEach(order => { %>
-        <% order.items.forEach((item,i) => { %>
+    <% orders.forEach((data,i) => { 
+        const order = data.order
+        const item = data.item
+    %>
 
         <div class="modal-orders" id="edit_<%= order._id %>_<%= i %>">
             
             <form method="POST" action="/admin/orders">
 
                 <input type="hidden" name="orderId" value="<%= order._id %>">
-                <input type="hidden" name="itemIndex" value="<%= i %>">
+                <input type="hidden" name="itemIndex" value="<%= data.itemIndex %>">
 
 
                 <div class="modal-container modal-container-edit">
@@ -380,7 +383,6 @@
 
         </div>
 
-        <% }) %>
     <% }) %>
 
 

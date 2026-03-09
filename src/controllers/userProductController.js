@@ -294,10 +294,20 @@ export const loadCart = async (req, res) => {
 
         const cart = await cartModel.findOne({ user: userId }).populate("items.product");
 
+        const items=cart.items
+        let count = 0
+
+        for(let obj of items){
+
+            count+= obj.quantity
+            
+        }
+
         res.render("user/cart", {
             title: "My Cart - Quavix",
             css: "userStyle",
-            cart
+            cart,
+            
         })
 
     } catch (err) {
@@ -577,7 +587,7 @@ export const loadOrderHistory = async (req, res) => {
         const status = req.query.status || "all"
         const search = req.query.search || ""
         const page = parseInt(req.query.page) || 1
-        const limit = 5
+        const limit = 4
 
         const { ordersList, totalOrders } = await getAllOrders(userId, status, search,page,limit)
 
@@ -642,7 +652,7 @@ export const orderRequest = async (req,res)=>{
 
     try{
 
-        const {orderId, reason, description,variantId, returnQty} = req.body
+        const {orderId, reason, description,variantId} = req.body
 
         const order = await orderModel.findOne({orderId})
 
@@ -678,19 +688,12 @@ export const orderRequest = async (req,res)=>{
             }
 
             
-            const qty = Math.min(parseInt(returnQty) || 1, item.quantity)
-
-
             item.returnVariantId = variantId
-            item.returnQuantity = qty
             item.returnReason = reason
             item.returnDescription = description
             item.returnedAt = new Date()
 
-
-            if(qty === item.quantity){
-                item.orderStatus = "returned"
-            }
+            item.orderStatus = "returned"
 
         }else{
 

@@ -61,11 +61,6 @@ const orderItemSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId
     },
 
-    returnQuantity: {
-        type: Number,
-        default: 0
-    },
-
     cancelReason: {
         type: String
     },
@@ -156,4 +151,4 @@ orderSchema.pre("save", function () {
 
 });
 
-export default mongoose.model("Order", orderSchema);
+export default mongoose.model("Order", orderSchema)

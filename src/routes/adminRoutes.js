@@ -50,7 +50,7 @@ router.post("/admin/products/delete/:id", removeProduct)
 
 router.get("/admin/orders",isLogin,loadOrders)
 router.post("/admin/orders",isLogin, editOrderStatus)
-router.get("/admin/orders/:id",isLogin, OrderDetails)
+router.get("/admin/orders/:id/:itemIndex", isLogin, OrderDetails)
 
 
 

@@ -119,7 +119,7 @@
 
             <div class="mb-1 flex items-center gap-6">
 
-                <% if(status !== "cancelled" && status !== "returned" && item.returnQuantity === 0){ %>
+                <% if(status !== "cancelled" && status !== "returned"){ %>
 
                     <% if(status === "delivered"){ %>
 
@@ -170,7 +170,7 @@
             <div>
                 <p class="text-xs text-muted font-medium tracking-wider">Status</p>
 
-                <div class="status-badge badge-<%= item.orderStatus %>">
+                <div class="status-badge badge-<%= item.orderStatus.replaceAll('_','-') %>">
                     <i class="fa-solid fa-circle-check"></i>
 
                     <%= item.orderStatus.replaceAll("_"," ").toUpperCase() %>
@@ -202,7 +202,7 @@
                                 <div class="flex justify-between items-start mb-1 flex-wrap gap-2">
 
                                     <h3 class="font-bold text-lg text-main">
-                                        <%= order.items[0].productName %>
+                                        <%= item.productName %>
                                     </h3>
 
                                     <p class="font-bold text-lg text-primary">
@@ -213,7 +213,7 @@
 
                                 <div class="text-sm text-muted flex flex-col gap-1 mt-2">
 
-                                    <% order.items[0].attributes.forEach(attr => { %>
+                                    <% item.attributes.forEach(attr => { %>
                                         <span>
                                             <strong><%= attr.name %>:</strong> <%= attr.value %>
                                         </span>
@@ -223,11 +223,7 @@
                                         Qty: <%= item.quantity %>
                                     </span>
 
-                                    <% if(order.items[0].returnQuantity > 0){ %>
-
-                                        <p class="returned-text"><%= order.items[0].returnQuantity %> item returned<%= order.items[0].returnQuantity > 1 ? "s" : "" %></p>
-
-                                    <% } %>
+                                    
 
                                 </div>
 
@@ -271,50 +267,58 @@
                                 <div class="flex justify-between">
                                     <span class="text-slate-500">Method</span>
 
-                                    <span class="font-bold inline-flex items-center gap-1 text-main">
-                                    <%= order.paymentMethod.toUpperCase() %>
+                                    <span class="font-bold text-main">
+                                        <%= order.paymentMethod.toUpperCase() %>
                                     </span>
                                 </div>
 
-
                                 <div class="flex justify-between">
-                                    <span class="text-slate-500">Sub Total</span>
+                                    <span class="text-slate-500">Item Price</span>
 
                                     <span class="font-medium text-main">
-                                    ₹<%= order.subtotal.toLocaleString() %>
+                                        ₹<%= item.price.toLocaleString() %>
                                     </span>
                                 </div>
-
 
                                 <div class="flex justify-between">
-                                    <span class="text-slate-500">Discount</span>
+                                    <span class="text-slate-500">Quantity</span>
 
-                                    <span class="font-medium text-success">
-                                    - ₹<%= order.discount.toLocaleString() %>
+                                    <span class="font-medium text-main">
+                                        <%= item.quantity %>
                                     </span>
                                 </div>
-
 
                                 <div class="flex justify-between">
                                     <span class="text-slate-500">Shipping</span>
 
                                     <span class="font-medium text-main">
-                                    ₹<%= order.shippingCharge.toLocaleString() %>
+                                        ₹<%= order.shippingCharge.toLocaleString() %>
                                     </span>
                                 </div>
 
+                                <div class="flex justify-between items-center font-bold text-main mt-4 border-t pt-4">
+
+                                    <span>Total Amount</span>
+
+                                    <span class="text-primary">
+                                        ₹<%= item.total.toLocaleString() %>
+                                    </span>
+
+                                </div>
+
+
+                                
+
+
+                                
+
+
+                                
+
                             </div>
 
 
-                            <div class="flex justify-between items-center font-bold text-main mt-4 border-t border-color-var pt-4">
-
-                                <span>Total Amount</span>
-
-                                <span class="text-primary">
-                                ₹<%= order.totalAmount.toLocaleString() %>
-                                </span>
-
-                            </div>
+                            
 
                         </div>
                     </div>
@@ -525,26 +529,7 @@
                                 <!-- Quantity Selector (only if ordered quantity > 1) -->
                                 <input type="hidden" name="variantId" value="<%= item.variantId %>">
 
-                                <% if(status === "delivered" && item.quantity > 1){ %>
-
-                                <div class="modal-qty-control" data-max="<%= item.quantity %>">
-
-                                    <button type="button" class="modal-qty-btn" onclick="changeQty(this,-1)">
-                                        <i class="fa-solid fa-minus"></i>
-                                    </button>
-
-                                    <span class="modal-qty-value">1</span>
-
-                                    <button type="button" class="modal-qty-btn" onclick="changeQty(this,1)">
-                                        <i class="fa-solid fa-plus"></i>
-                                    </button>
-
-                                    <!-- Hidden input to send quantity -->
-                                    <input type="hidden" name="returnQty" class="returnQtyInput" value="1">
-
-                                </div>
-
-                                <% } %>
+                                
 
                             </div>
 
@@ -563,7 +548,6 @@
                             <option value="others">Others</option>
                         </select>
                         <small class="error-message"></small>
-
                     </div>
 
                     <!-- Description -->
@@ -676,22 +660,6 @@
             }
 
         })
-
-        function changeQty(btn, value){
-
-            const container = btn.closest(".modal-qty-control")
-            const qtySpan = container.querySelector(".modal-qty-value")
-            const qtyInput = container.querySelector(".returnQtyInput")
-
-            let qty = parseInt(qtySpan.textContent) + value
-            const maxQty = parseInt(container.dataset.max)
-
-            if(qty < 1) qty = 1
-            if(qty > maxQty) qty = maxQty
-
-            qtySpan.textContent = qty
-            qtyInput.value = qty
-        }
 
     </script>
 

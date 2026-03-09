@@ -158,14 +158,11 @@
                     </div>
                 </div>
 
-
                 <div class="card p-4">
 
                     <div class="font-bold text-xs mb-3 text-muted uppercase tracking-wider">
-                    Order Items
+                        Order Item
                     </div>
-
-                    <% order.items.forEach(item => { %>
 
                     <div class="p-item">
 
@@ -178,43 +175,22 @@
                             </div>
 
                             <div class="p-item-attrs">
-
                                 <% item.attributes.forEach(attr => { %>
                                     <span class="attr-tag"><%= attr.value %></span>
                                 <% }) %>
-
                             </div>
 
                             <div class="p-item-qty">
                                 Qty: <%= item.quantity %>
                             </div>
 
-                            <% if(item.returnQuantity && item.returnQuantity > 0){ %>
-
-                                <div class="returned-text">
-                                    <%= item.returnQuantity %> item returned
-                                </div>
-
-                            <% } %>
-
                         </div>
-
 
                         <div class="p-item-right">
 
-                            <% if(item.orderStatus === "cancelled"){ %>
-
-                                <span class="item-delivery-status status-danger">
-                                    Cancelled
-                                </span>
-
-                            <% } else { %>
-
-                                <span class="item-delivery-status badge-<%= item.orderStatus %>">
-                                    <%= item.orderStatus.replaceAll("_"," ").replace(/\b\w/g, l => l.toUpperCase()) %>
-                                </span>
-
-                            <% } %>
+                            <span class="item-delivery-status badge-<%= item.orderStatus %>">
+                                <%= item.orderStatus.replaceAll("_"," ").replace(/\b\w/g,l=>l.toUpperCase()) %>
+                            </span>
 
                             <div class="font-medium">
                                 ₹<%= item.total.toLocaleString() %>
@@ -224,9 +200,8 @@
 
                     </div>
 
-                    <% }) %>
-
                 </div>
+                
 
                 <!-- Return Reason Section -->
                 <% 
@@ -239,85 +214,49 @@
                 };
                 %>
 
-                <% order.items.forEach(item => { %>
-
-                    <% if(item.returnQuantity > 0 || item.orderStatus === "cancelled"){ %>
+                <% if(item.orderStatus === "returned" || item.orderStatus === "cancelled"){ %>
 
                     <div class="info-card mb-4 mt-4"
-                        style="border-left:4px solid #ef4444;background:#fef2f2;">
+                    style="border-left:4px solid #ef4444;background:#fef2f2;">
 
-                        <div class="font-bold text-xs mb-3 text-red-600 uppercase tracking-wider flex items-center gap-2">
+                    <div class="font-bold text-xs mb-3 text-red-600 uppercase tracking-wider flex items-center gap-2">
 
-                            <% if(item.returnQuantity > 0){ %>
-                                <i class="fa-solid fa-rotate-left"></i> Return Details
-                            <% } else { %>
-                                <i class="fa-solid fa-circle-xmark"></i> Cancel Details
-                            <% } %>
+                        <% if(item.orderStatus === "returned"){ %>
+                            <i class="fa-solid fa-rotate-left"></i> Return Details
+                        <% } else { %>
+                            <i class="fa-solid fa-circle-xmark"></i> Cancel Details
+                        <% } %>
 
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+                        <div>
+                            <span class="text-xs text-muted block mb-1">
+                                Reason
+                            </span>
+
+                            <div class="font-medium text-gray-800">
+                                <%= reasons[item.returnReason] || reasons[item.cancelReason] || "Not specified" %>
+                            </div>
                         </div>
 
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <span class="text-xs text-muted block mb-1">
+                                Customer Description
+                            </span>
 
-                            <!-- Reason -->
-                            <div>
-
-                                <span class="text-xs text-muted block mb-1">
-
-                                    <% if(item.returnQuantity > 0){ %>
-                                        Return Reason
-                                    <% } else { %>
-                                        Cancel Reason
-                                    <% } %>
-
-                                </span>
-
-                                <div class="font-medium text-gray-800">
-
-                                    <% if(item.returnQuantity > 0){ %>
-
-                                        <%= reasons[item.returnReason] || "Not specified" %>
-
-                                    <% } else { %>
-
-                                        <%= reasons[item.cancelReason] || "Not specified" %>
-
-                                    <% } %>
-
-                                </div>
-
+                            <div class="text-sm text-gray-700">
+                                <%= item.returnDescription || item.cancelDescription || "No description provided" %>
                             </div>
-
-
-                            <!-- Description -->
-                            <div>
-
-                                <span class="text-xs text-muted block mb-1">
-                                    Customer Description
-                                </span>
-
-                                <div class="text-sm text-gray-700">
-
-                                    <% if(item.returnQuantity > 0){ %>
-
-                                        <%= item.returnDescription || "No description provided" %>
-
-                                    <% } else { %>
-
-                                        <%= item.cancelDescription || "No description provided" %>
-
-                                    <% } %>
-
-                                </div>
-
-                            </div>
-
                         </div>
 
                     </div>
 
-                    <% } %>
+                    </div>
 
-                <% }) %>
+                    <% } %>
+                
             </div>
         </main>
     </div>

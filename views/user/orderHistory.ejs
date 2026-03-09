@@ -154,9 +154,7 @@
             <% } %>
 
 
-            <% orders.forEach(order => { %>
-
-                <% order.items.filter(item => status === "all" || item.orderStatus === status).forEach(item => { %>
+            <% orders.forEach(item => { %>
 
                 <div class="order-history-card">
 
@@ -168,7 +166,7 @@
                             <div class="order-info-group">
                                 <p>Order Placed</p>
                                 <p>
-                                    <%= new Date(order.createdAt).toLocaleDateString("en-IN",{
+                                    <%= new Date(item.createdAt).toLocaleDateString("en-IN",{
                                         year:"numeric",
                                         month:"long",
                                         day:"numeric"
@@ -183,7 +181,7 @@
 
                             <div class="order-info-group">
                                 <p>Order ID</p>
-                                <p><%= order.orderId %></p>
+                                <p><%= item.orderId %></p>
                             </div>
 
                         </div>
@@ -191,7 +189,7 @@
 
                         <div class="order-header-actions">
 
-                            <div class="status-badge badge-<%= item.orderStatus %>">
+                            <div class="status-badge badge-<%= item.orderStatus.replaceAll("_","-") %>">
 
                                 <% if(item.orderStatus === "pending"){ %>
                                     <i class="fa-solid fa-box"></i>
@@ -217,14 +215,12 @@
                                     <i class="fa-solid fa-rotate-left"></i>
                                 <% } %>
 
-                                <%= item.orderStatus.replace("_"," ").toUpperCase() %>
+                                <%= item.orderStatus.replaceAll("_"," ").toUpperCase() %>
 
                             </div>
 
-                            <a href="/order-details/<%= order.orderId %>?item=<%= item.variantId %>" 
-                            class="btn btn-outline btn-sm">
-                            View Details
-                            </a>
+                            <a href="/order-details/<%= item.orderId %>?item=<%= item.variantId %>"
+                            class="btn btn-outline btn-sm">View Details</a>
 
                         </div>
 
@@ -268,11 +264,9 @@
 
                 </div>
 
-                <% }) %>
-
             <% }) %>
 
-            </div>
+        </div>
 
         <!-- Pagination -->
         <div class="pagination">
