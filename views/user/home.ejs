@@ -32,7 +32,14 @@
                     <a href="/products"><i class="fa-solid fa-shop"></i> Shop</a>
                     <a href="order-history"><i class="fa-solid fa-box"></i> Orders</a>
                     <a href="/wishlist"><i class="fa-regular fa-heart"></i> Wishlist</a>
-                    <a href="cart.html"><i class="fa-solid fa-cart-shopping"></i> Cart</a>
+                    <a href="/cart" class="relative">
+                        <i class="fa-solid fa-cart-shopping"></i> Cart
+
+                        <% if (cartCount > 0) { %>
+                            <span class="badge cart-sidebar-badge"><%= cartCount %></span>
+                        <% } %>
+
+                    </a>
 
                     <% if (user) { %>
                             <a href="/profile"><i class="fa-solid fa-user"></i> Profile</a>
@@ -68,6 +75,10 @@
 
                 <a href="/cart" class="relative">
                     <i class="fa-solid fa-cart-shopping nav-icon-lg"></i>
+
+                    <% if (cartCount > 0) { %>
+                        <span class="badge cart-badge"><%= cartCount %></span>
+                    <% } %>
                 </a>
 
                 <% if (user) { %>

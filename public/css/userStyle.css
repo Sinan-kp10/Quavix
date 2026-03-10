@@ -102,6 +102,10 @@ img {
     .container {
         padding: 0 1rem;
     }
+
+    .card {
+        padding: 1.25rem !important;
+    }
 }
 
 /* Buttons */
@@ -607,7 +611,8 @@ input[type=number] {
 
 /* Badges */
 .badge {
-    background: var(--accent-color);
+    background: #ef4444;
+    /* Vibrant Red */
     color: white;
     border-radius: 50%;
     width: 18px;
@@ -623,6 +628,13 @@ input[type=number] {
     right: -10px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     border: 1px solid white;
+}
+
+.cart-sidebar-badge {
+    position: relative !important;
+    top: 0 !important;
+    right: 0 !important;
+    margin-left: 5px;
 }
 
 .nav-search {
@@ -3246,6 +3258,30 @@ footer a:hover {
     backface-visibility: hidden;
 }
 
+.btn-reload {
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: white;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    backdrop-filter: blur(4px);
+}
+
+.btn-reload:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: rotate(130deg);
+}
+
+.btn-reload i {
+    font-size: 1.1rem;
+}
+
 .text-white {
     color: #ffffff !important;
 }
@@ -3351,7 +3387,7 @@ footer a:hover {
 
 .transaction-list-header {
     display: grid;
-    grid-template-columns: 1fr 2fr 1fr 1fr;
+    grid-template-columns: 1.2fr 2fr 1fr 1fr;
     padding: 0 1rem 1rem 1rem;
     border-bottom: 2px solid var(--border-color);
     margin-bottom: 1rem;
@@ -3363,9 +3399,9 @@ footer a:hover {
 
 .transaction-item {
     display: grid;
-    grid-template-columns: 1fr 2fr 1fr 1fr;
+    grid-template-columns: 1.2fr 2fr 1fr 1fr;
     align-items: center;
-    padding: 1rem;
+    padding: 1.25rem 1rem;
     border-bottom: 1px solid var(--border-color);
     transition: all 0.2s;
 }
@@ -3375,20 +3411,106 @@ footer a:hover {
     transform: translateX(4px);
 }
 
+.transaction-date {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+.transaction-desc {
+    font-weight: 700;
+    color: var(--text-main);
+    font-size: 0.95rem;
+}
+
+.transaction-amount {
+    text-align: right;
+    font-weight: 700;
+    font-size: 1.1rem;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.transaction-amount.text-red {
+    color: #dc2626;
+}
+
+.transaction-amount.text-green {
+    color: #16a34a;
+}
+
+.mobile-label {
+    display: none;
+    color: var(--text-muted);
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+@media (max-width: 768px) {
+    .transaction-list-header {
+        display: none;
+    }
+
+    .transaction-item {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        grid-template-areas:
+            "desc status"
+            "date date"
+            "amount amount";
+        gap: 0.5rem;
+        padding: 1.25rem 0.5rem;
+    }
+
+    .transaction-desc {
+        grid-area: desc;
+        font-size: 1.05rem;
+    }
+
+    .transaction-status {
+        grid-area: status;
+        text-align: right;
+    }
+
+    .transaction-status .status-badge-inline {
+        margin-top: 0;
+    }
+
+    .transaction-date {
+        grid-area: date;
+        margin-bottom: 0.5rem;
+    }
+
+    .transaction-amount {
+        grid-area: amount;
+        justify-content: space-between;
+        padding-top: 0.75rem;
+        margin-top: 0.25rem;
+    }
+
+    .mobile-label {
+        display: inline-block;
+    }
+
+    .amount-value {
+        font-size: 1.15rem;
+    }
+}
+
 .status-badge-inline {
     display: inline-block;
-    padding: 0.2rem 0.6rem;
-    border-radius: 4px;
+    padding: 0.3rem 0.75rem;
+    border-radius: 6px;
     font-size: 0.75rem;
     font-weight: 700;
-    margin-top: 0.25rem;
 }
 
 .badge-debit {
     background: #fee2e2;
     color: #dc2626;
 }
-
 
 .badge-primary {
     background: #e0e7ff;
@@ -3400,58 +3522,6 @@ footer a:hover {
     color: #16a34a;
 }
 
-/* Pagination Styles */
-/* .pagination-container {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    margin-top: 2rem;
-    padding-top: 1rem;
-    border-top: 1px solid var(--border-color);
-}
-
-.pagination-info {
-    font-size: 0.9rem;
-    color: var(--text-muted);
-}
-
-.pagination-controls {
-    display: flex;
-    gap: 0.5rem;
-}
-
-.btn-page {
-    width: 36px;
-    height: 36px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: var(--radius);
-    border: 1px solid var(--border-color);
-    background: white;
-    color: var(--text-main);
-    transition: all 0.2s;
-    cursor: pointer;
-    font-weight: 500;
-}
-
-.btn-page:hover {
-    border-color: var(--primary-color);
-    color: var(--primary-color);
-    background: #f8fafc;
-}
-
-.btn-page.active {
-    background: var(--primary-color);
-    color: white;
-    border-color: var(--primary-color);
-}
-
-.btn-page:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    background: #f1f5f9;
-} */
 
 /* Pagination */
 .pagination {
@@ -3562,72 +3632,7 @@ footer a:hover {
     border: 2px solid var(--primary-color);
 }
 
-.transaction-row {
-    display: contents;
-    transition: background 0.2s;
-}
 
-.transaction-row:hover>div {
-    background-color: #f8fafc;
-    /* Optional: highlight row on hover if we wrapped them, but with display:contents this is tricky. */
-}
-
-/* Alternative: keep row wrapper for hover, but use subgrid? No, subgrid support varies. 
-   Let's use a standard row wrapper with internal flex or grid. 
-   Actually, standard table or flex-row list is easier for hover effects. 
-   Let's stick to flex row list but with fixed widths or grid-template within the row.
-*/
-
-.transaction-list-header {
-    display: grid;
-    grid-template-columns: 1fr 2fr 1fr 1fr;
-    padding: 0 1rem 1rem 1rem;
-    border-bottom: 2px solid var(--border-color);
-    margin-bottom: 1rem;
-    font-weight: 700;
-    color: var(--text-muted);
-    font-size: 0.85rem;
-    text-transform: uppercase;
-}
-
-.transaction-item {
-    display: grid;
-    grid-template-columns: 1fr 2fr 1fr 1fr;
-    align-items: center;
-    padding: 1rem;
-    border-bottom: 1px solid var(--border-color);
-    transition: all 0.2s;
-}
-
-.transaction-item:hover {
-    background-color: #f8fafc;
-    transform: translateX(4px);
-}
-
-.status-badge-inline {
-    display: inline-block;
-    padding: 0.2rem 0.6rem;
-    border-radius: 4px;
-    font-size: 0.75rem;
-    font-weight: 700;
-    margin-top: 0.25rem;
-}
-
-.badge-debit {
-    background: #fee2e2;
-    color: #dc2626;
-}
-
-
-.badge-primary {
-    background: #e0e7ff;
-    color: var(--primary-color);
-}
-
-.badge-credit {
-    background: #dcfce7;
-    color: #16a34a;
-}
 
 /* Pagination Styles */
 .pagination-container {
@@ -3635,8 +3640,6 @@ footer a:hover {
     align-items: center;
     justify-content: flex-end;
     margin-top: 2rem;
-    padding-top: 1rem;
-    border-top: 1px solid var(--border-color);
 }
 
 .pagination-info {
@@ -7164,14 +7167,16 @@ footer a:hover {
     border-color: var(--border-color);
 }
 
-.page-search{
+.page-search {
     position: relative;
 }
 
 .search-clear {
-    position: absolute;   /* IMPORTANT */
+    position: absolute;
+    /* IMPORTANT */
     right: 50px;
-    top: 50%;             /* move slightly down */
+    top: 50%;
+    /* move slightly down */
     transform: translateY(-50%);
     background: none;
     border: none;
@@ -7561,8 +7566,9 @@ ORDER TRACKING & STATUS BADGES CSS
     color: #ea580c;
 }
 
-.returned-text{
-    color: #dc2626;   /* red */
+.returned-text {
+    color: #dc2626;
+    /* red */
     font-size: 0.9rem;
     font-weight: 600;
     margin-top: 4px;
@@ -7599,6 +7605,7 @@ ORDER TRACKING & STATUS BADGES CSS
     from {
         transform: scaleY(0);
     }
+
     to {
         transform: scaleY(1);
     }
@@ -7771,18 +7778,180 @@ ORDER TRACKING & STATUS BADGES CSS
 
 /* Progress heights */
 
-.progress-h-25{
-height:25%;
+.progress-h-25 {
+    height: 25%;
 }
 
-.progress-h-50{
-height:50%;
+.progress-h-50 {
+    height: 50%;
 }
 
-.progress-h-75{
-height:75%;
+.progress-h-75 {
+    height: 75%;
 }
 
-.progress-h-100{
-height:100%;
+.progress-h-100 {
+    height: 100%;
+}
+
+/* Referral Page Styles */
+.how-it-works-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2.5rem;
+    margin-top: 1rem;
+}
+
+.referral-step {
+    text-align: center;
+    padding: 1rem;
+    transition: transform 0.3s ease;
+}
+
+.referral-step:hover {
+    transform: translateY(-5px);
+}
+
+.referral-icon-wrapper {
+    width: 60px;
+    height: 60px;
+    background: rgba(99, 102, 241, 0.1);
+    color: var(--primary-color);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem;
+    font-size: 1.5rem;
+}
+
+.referral-code-box {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 0.5rem 1.25rem;
+    transition: all 0.3s ease;
+}
+
+.referral-code-box:hover {
+    border-color: var(--primary-color);
+    background: white;
+    box-shadow: 0 4px 20px rgba(99, 102, 241, 0.08);
+}
+
+.referral-code-text {
+    font-family: var(--font-heading);
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    color: var(--text-main);
+}
+
+.btn-copy-inline {
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 0.6rem 1.2rem;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 0.8rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-copy-inline:hover {
+    background: #4338ca;
+    transform: scale(1.05);
+}
+
+@media (max-width: 992px) {
+    .how-it-works-grid {
+        grid-template-columns: repeat(1, 1fr);
+        gap: 1.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .referral-code-box {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+    }
+
+    .btn-copy-inline {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* Price Range Slider */
+.price-slider-container {
+    position: relative;
+    width: 100%;
+    height: 6px;
+    margin-top: 1.5rem;
+}
+
+.slider-track {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: #e2e8f0;
+    border-radius: 5px;
+    z-index: 1;
+}
+
+.range-slider {
+    position: absolute;
+    width: 100%;
+    -webkit-appearance: none;
+    appearance: none;
+    background: none;
+    pointer-events: none;
+    height: 6px;
+    z-index: 2;
+    top: 0;
+}
+
+.range-slider::-webkit-slider-thumb {
+    height: 18px;
+    width: 18px;
+    border-radius: 50%;
+    background: white;
+    border: 2px solid #6366f1;
+    cursor: pointer;
+    -webkit-appearance: none;
+    appearance: none;
+    pointer-events: auto;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    transition: all 0.2s;
+}
+
+.range-slider::-webkit-slider-thumb:hover {
+    transform: scale(1.1);
+    box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.3);
+}
+
+.price-value {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-main);
+    background: #f8fafc;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    border: 1px solid #e2e8f0;
+}
+
+.out-of-stock-label{
+    color:#dc2626;
+    padding:6px 10px;
+    border-radius:6px;
+    font-size:13px;
+    font-weight:600;
 }

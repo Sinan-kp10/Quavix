@@ -54,7 +54,7 @@
             <div class="nav-menu">
                 <a href="/">Home</a>
                 <a href="/products">Shop</a>
-                <a href="order-history.html">Orders</a>
+                <a href="/order-history">Orders</a>
             </div>
 
             <div class="nav-icons">
@@ -72,6 +72,10 @@
 
                 <a href="/cart" class="relative">
                     <i class="fa-solid fa-cart-shopping nav-icon-lg"></i>
+
+                    <% if (cartCount > 0) { %>
+                        <span class="badge cart-badge"><%= cartCount %></span>
+                    <% } %>
                 </a>
 
                 <% if (user) { %>
@@ -139,7 +143,7 @@
                     </div>
                     <br>
                     <div class="flex flex-col">
-                        <a href="order-history.html" class="profile-nav-link">
+                        <a href="/order-history" class="profile-nav-link">
                             <i class="fa-solid fa-box"></i> My Orders
                         </a>
                         <a href="/cart" class="profile-nav-link">

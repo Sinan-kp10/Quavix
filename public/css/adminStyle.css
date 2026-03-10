@@ -481,6 +481,11 @@ img {
     color: #c2410c;
 }
 
+.badge-return-requested {
+    background: #ffedd5;
+    color: #ea580c;
+}
+
 .returned-text {
     color: #dc2626;
     /* red */
@@ -2893,4 +2898,218 @@ img {
         table-layout: auto;
         min-width: 900px;
     }
+}
+
+.card-return-request {
+    background: #fef2f2;
+    /* Light red for urgency */
+    border: 1px solid #fecaca;
+    border-left: 4px solid #ef4444;
+}
+
+/* Return Action Buttons */
+.return-actions {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
+    justify-content: flex-end;
+}
+
+.btn-return-accept {
+    background: #10b981;
+    color: white;
+    min-width: 140px;
+    box-shadow: 0 4px 6px -1px rgba(16, 185, 129, 0.2);
+}
+
+.btn-return-accept:hover {
+    background: #059669;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.3);
+}
+
+.btn-return-reject {
+    background: white;
+    border: 1px solid #fecaca;
+    color: #475569;
+    min-width: 140px;
+}
+
+.btn-return-reject:hover {
+    background: #f1f5f9;
+    color: #ef4444;
+    border-color: #ffa4a4;
+    transform: translateY(-2px);
+}
+
+/* Notification System */
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.notification-wrapper {
+    position: relative;
+}
+
+.notification-btn {
+    background: white;
+    border: none;
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-main);
+    font-size: 1.25rem;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: var(--shadow-sm);
+    position: relative;
+}
+
+.notification-btn:hover {
+    background: #f8fafc;
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+    color: var(--primary-color);
+}
+
+.notification-badge {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    width: 18px;
+    height: 18px;
+    background: #ef4444;
+    border: 2px solid white;
+    border-radius: 50%;
+    color: white;
+    font-size: 0.65rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+
+.notification-dropdown {
+    position: absolute;
+    top: calc(100% + 12px);
+    right: 0;
+    width: 320px;
+    background: white;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-lg);
+    border: 1px solid #e2e8f0;
+    z-index: 1000;
+    display: none;
+    transform-origin: top right;
+    animation: dropdownFade 0.3s ease;
+}
+
+.notification-dropdown.active {
+    display: block;
+}
+
+@keyframes dropdownFade {
+    from {
+        opacity: 0;
+        transform: translateY(-10px) scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.notification-header {
+    padding: 1rem;
+    border-bottom: 1px solid #e2e8f0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.notification-header h3 {
+    font-size: 1rem;
+    margin: 0;
+}
+
+.mark-all-btn {
+    background: none;
+    border: none;
+    color: var(--primary-color);
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.mark-all-btn:hover {
+    color: #4338ca;
+}
+
+.notification-list {
+    max-height: 240px;
+    /* Approximately 80px per item * 3 */
+    overflow-y: auto;
+}
+
+.notification-item {
+    padding: 1rem;
+    display: flex;
+    gap: 1rem;
+    border-bottom: 1px solid #e2e8f0;
+    transition: all 0.2s;
+    cursor: pointer;
+}
+
+.notification-item:last-child {
+    border-bottom: none;
+}
+
+.notification-item:hover {
+    background: #fff1f2;
+}
+
+.notification-item.unread {
+    background: #ffffff;
+}
+
+.notification-icon {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.notification-icon.return {
+    background: #fff1f2;
+    color: #ef4444;
+}
+
+.notification-icon.delivery {
+    background: #f0fdf4;
+    color: #22c55e;
+}
+
+.notification-content p {
+    font-size: 0.9rem;
+    margin-bottom: 0.25rem;
+    line-height: 1.4;
+    color: #1e293b;
+}
+
+.notification-time {
+    font-size: 0.8rem;
+    color: #64748b;
 }

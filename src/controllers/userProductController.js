@@ -29,7 +29,7 @@ export const loadProducts = async (req, res) => {
     try {
 
         const page = Number(req.query.page) || 1;
-        const limit = 6;  
+        const limit = 6;
 
         const result = await getFilterdProduct(
             null,
@@ -41,6 +41,30 @@ export const loadProducts = async (req, res) => {
         );
 
         const categories = await categoryModel.find({ status: "Active" });
+
+        const products = await productModel.find({ isDeleted: false });
+
+        let prices = [];
+
+        products.forEach(product => {
+
+            const offer = product.offerPercentage || 0;
+
+            product.variants
+                .filter(v => v.status === "Active")
+                .forEach(variant => {
+
+                    const finalPrice = Math.round(
+                        variant.price - (variant.price * offer / 100)
+                    );
+
+                    prices.push(finalPrice);
+                });
+
+        });
+
+        const minPrice = prices.length ? Math.min(...prices) : 0;
+        const maxPrice = prices.length ? Math.max(...prices) : 200000;
 
         let wishlistItems = [];
 
@@ -64,14 +88,16 @@ export const loadProducts = async (req, res) => {
             categories,
             wishlistItems,
             totalPages: result.totalPages,
-            currentPage: page
+            currentPage: page,
+            minPrice,
+            maxPrice
         });
 
     } catch (err) {
         console.log(err);
         res.redirect("/");
     }
-};
+}
 
 export const filterProducts = async (req, res) => {
     try {
@@ -294,19 +320,10 @@ export const loadCart = async (req, res) => {
 
         const cart = await cartModel.findOne({ user: userId }).populate("items.product");
 
-        const items=cart.items
-        let count = 0
-
-        for(let obj of items){
-
-            count+= obj.quantity
-            
-        }
-
         res.render("user/cart", {
             title: "My Cart - Quavix",
             css: "userStyle",
-            cart,
+            cart
             
         })
 

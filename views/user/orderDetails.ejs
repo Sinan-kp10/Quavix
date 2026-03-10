@@ -36,13 +36,21 @@
                     <a href="/order-history" class="text-primary"><i class="fa-solid fa-box text-primary"></i>
                         Orders</a>
                     <a href="/wishlist"><i class="fa-regular fa-heart"></i> Wishlist</a>
-                    <a href="/cart"><i class="fa-solid fa-cart-shopping"></i> Cart</a>
+                    <a href="/cart" class="relative">
+                    <a href="/cart" class="relative">
+                        <i class="fa-solid fa-cart-shopping"></i> Cart
+
+                        <% if (cartCount > 0) { %>
+                            <span class="badge cart-sidebar-badge"><%= cartCount %></span>
+                        <% } %>
+
+                    </a>
                     <% if (user) { %>
                         <a href="/profile"><i class="fa-solid fa-user"></i> Profile</a>
                         <a href="/logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
-                        <% } else { %>
+                    <% } else { %>
                             <a href="/login"><i class="fa-solid fa-right-to-bracket"></i> Sign In</a>
-                            <% } %>
+                    <% } %>
                 </div>
             </aside>
 
@@ -68,6 +76,10 @@
                 </a>
                 <a href="/cart" class="relative">
                     <i class="fa-solid fa-cart-shopping nav-icon-lg"></i>
+
+                    <% if (cartCount > 0) { %>
+                        <span class="badge cart-badge"><%= cartCount %></span>
+                    <% } %>
                 </a>
                 <% if (user) { %>
                     <a href="/profile" class="nav-profile-icon">
@@ -81,11 +93,11 @@
                                 <% } %>
 
                     </a>
-                    <% } else { %>
+                <% } else { %>
                         <a href="/login" class="btn btn-primary btn-sm">
                             <i class="fa-solid fa-right-to-bracket"></i> Sign In
                         </a>
-                        <% } %>
+                <% } %>
             </div>
         </div>
     </nav>
@@ -305,21 +317,7 @@
                                     </span>
 
                                 </div>
-
-
-                                
-
-
-                                
-
-
-                                
-
                             </div>
-
-
-                            
-
                         </div>
                     </div>
                 </div>
@@ -569,6 +567,7 @@
         </div>
     </div>
 
+    <script src="/js/user/navbar.js"></script>
 
     <script>
 

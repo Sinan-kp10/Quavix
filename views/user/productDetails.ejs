@@ -71,6 +71,10 @@
                         </a>
                         <a href="/cart" class="relative">
                             <i class="fa-solid fa-cart-shopping nav-icon-lg"></i>
+
+                            <% if (cartCount > 0) { %>
+                                <span class="badge cart-badge"><%= cartCount %></span>
+                            <% } %>
                         </a>
                         <% if (user) { %>
                             <a href="/profile" class="nav-profile-icon">

@@ -71,6 +71,10 @@
                 </a>
                 <a href="/cart" class="relative">
                     <i class="fa-solid fa-cart-shopping nav-icon-lg"></i>
+
+                    <% if (cartCount > 0) { %>
+                        <span class="badge cart-badge"><%= cartCount %></span>
+                    <% } %>
                 </a>
                 <% if (user) { %>
                     <a href="/profile" class="nav-profile-icon">
@@ -142,12 +146,37 @@
 
                 <div class="mb-8">
                     <h4 class="mb-4 text-main filter-category-title">Price Range</h4>
-                    <div class="flex items-center gap-2">
-                        <input type="number" id="minPrice" class="form-input" placeholder="Min ₹" min="0"
-                            style="padding: 0.4rem 0.5rem; text-align: center;">
-                        <span class="text-muted font-bold">-</span>
-                        <input type="number" id="maxPrice" class="form-input" placeholder="Max ₹" min="0"
-                            style="padding: 0.4rem 0.5rem; text-align: center;">
+
+                    <div class="price-slider-container">
+                        <div class="slider-track"></div>
+
+                        <input 
+                            type="range"
+                            min="<%= minPrice %>"
+                            max="<%= maxPrice %>"
+                            value="<%= minPrice %>"
+                            id="rangeMin"
+                            class="range-slider"
+                        >
+
+                        <input 
+                            type="range"
+                            min="<%= minPrice %>"
+                            max="<%= maxPrice %>"
+                            value="<%= maxPrice %>"
+                            id="rangeMax"
+                            class="range-slider"
+                        >
+                    </div>
+
+                    <div class="flex justify-between mt-4">
+                        <div class="price-value">
+                            ₹<span id="minValue"><%= minPrice %></span>
+                        </div>
+
+                        <div class="price-value">
+                            ₹<span id="maxValue"><%= maxPrice.toLocaleString() %>+</span>
+                        </div>
                     </div>
                 </div>
 
@@ -386,8 +415,8 @@
                 .map(cb => cb.value);
 
             const sort = document.querySelector("input[name='sort']:checked")?.value;
-            const minPrice = document.getElementById("minPrice").value;
-            const maxPrice = document.getElementById("maxPrice").value;
+            const minPrice = document.getElementById("rangeMin").value;
+            const maxPrice = document.getElementById("rangeMax").value;
 
             const params = new URLSearchParams();
 
@@ -414,6 +443,56 @@
                     }
                 });
         }
+        const rangeMin = document.getElementById("rangeMin");
+        const rangeMax = document.getElementById("rangeMax");
+
+        const minValue = document.getElementById("minValue");
+        const maxValue = document.getElementById("maxValue");
+
+        if (rangeMin && rangeMax) {
+
+            rangeMin.addEventListener("input", () => {
+
+                if (+rangeMin.value >= +rangeMax.value) {
+                    rangeMin.value = rangeMax.value - 1;
+                }
+
+                minValue.textContent = rangeMin.value;
+            });
+
+            rangeMax.addEventListener("input", () => {
+
+                if (+rangeMax.value <= +rangeMin.value) {
+                    rangeMax.value = +rangeMin.value + 1;
+                }
+
+                maxValue.textContent = Number(rangeMax.value).toLocaleString();
+            });
+
+        }
+        const track = document.querySelector(".slider-track");
+        const min = parseInt(rangeMin.min);
+        const max = parseInt(rangeMax.max);
+
+        function updateSliderTrack() {
+
+            const percentMin = ((rangeMin.value - min) / (max - min)) * 100;
+            const percentMax = ((rangeMax.value - min) / (max - min)) * 100;
+
+            track.style.background = `linear-gradient(
+                to right,
+                #e2e8f0 ${percentMin}%,
+                #6366f1 ${percentMin}%,
+                #6366f1 ${percentMax}%,
+                #e2e8f0 ${percentMax}%
+            )`;
+        }
+
+        rangeMin.addEventListener("input", updateSliderTrack);
+        rangeMax.addEventListener("input", updateSliderTrack);
+
+        updateSliderTrack();
+
 
         function renderProducts(products) {
 
@@ -599,8 +678,8 @@
             document.querySelectorAll("input[name='sort']")
                 .forEach(rb => rb.checked = false);
 
-            document.getElementById("minPrice").value = "";
-            document.getElementById("maxPrice").value = "";
+            document.getElementById("rangeMin").value = "<%= minPrice %>";
+            document.getElementById("rangeMax").value = "<%= maxPrice %>";
 
             window.location.href = "/products";
 
