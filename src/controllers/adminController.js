@@ -4,6 +4,7 @@ import slugify from "slugify";
 import productModel from "../models/productModal.js"
 import cloudinary from "../config/cloudinary.js";
 import { compressImage } from "../utils/imageUpload.js";
+import orderModel from "../models/orderModel.js";
 
 
 import {
@@ -18,7 +19,9 @@ import {
     getAllProducts,
     createProducts,
     updateProduct,
-    deleteProduct
+    deleteProduct,
+    getAllOrders,
+
 } from "../services/adminService.js"
 
 
@@ -602,5 +605,107 @@ export const removeProduct=async(req,res)=>{
         req.session.toastMessage = err.message || "Action failed";
         req.session.toastType = "error";
         res.redirect("/admin/products");
+    }
+}
+
+export const loadOrders = async (req, res) => {
+
+    try {
+
+        const search = req.query.search || ""
+        const status = req.query.status || "all"
+        const page = parseInt(req.query.page) || 1
+        const limit = 4
+
+        const { items, totalItems } = await getAllOrders(search, status, page, limit)
+
+        const totalPages = Math.ceil(totalItems / limit)
+
+        res.render("admin/orders", {
+            title: "Manage Orders - Quavix",
+            css: "adminStyle",
+            orders: items,
+            status,
+            search,
+            currentPage: page,
+            totalPages
+        })
+
+    } catch (err) {
+
+        console.log(err)
+        res.redirect("/admin/dashboard")
+
+    }
+}
+
+export const editOrderStatus = async (req, res) => {
+    try {
+
+        const { orderId, itemIndex, status } = req.body
+
+        const order = await orderModel.findById(orderId)
+
+        if (!order) {
+            return res.redirect("/admin/orders")
+        }
+
+        const item = order.items[Number(itemIndex)]
+
+        if (item.orderStatus === "cancelled" || item.orderStatus === "returned") {
+            return res.redirect("/admin/orders")
+        }
+
+        if (status) {
+            item.orderStatus = status
+        }
+
+        if (status === "delivered") {
+            item.deliveredAt = new Date()
+        }
+
+        if (status === "cancelled") {
+            item.cancelledAt = new Date()
+        }
+
+        await order.save()
+
+        res.redirect("/admin/orders")
+
+    } catch (error) {
+        console.log(error)
+        res.redirect("/admin/orders")
+    }
+}
+
+export const OrderDetails = async (req, res) => {
+    try {
+
+        const { id, itemIndex } = req.params
+
+        const order = await orderModel
+            .findById(id)
+            .populate("user", "email")
+
+        if (!order) {
+            return res.redirect("/admin/orders")
+        }
+
+        const item = order.items[itemIndex]
+
+        if (!item) {
+            return res.redirect("/admin/orders")
+        }
+
+        res.render("admin/orderDetails", {
+            title: "Order Details - Quavix",
+            css: "adminStyle",
+            order,
+            item
+        })
+
+    } catch (err) {
+        console.log(err)
+        res.redirect("/admin/orders")
     }
 }

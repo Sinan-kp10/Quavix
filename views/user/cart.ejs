@@ -9,7 +9,7 @@
     <!-- Navbar -->
     <nav class="navbar">
         <div class="container nav-container">
-            <a href="index.html" class="logo">
+            <a href="/" class="logo">
                 <i class="fa-solid fa-bolt text-gradient-clip"></i>
                 <span class="text-gradient">Quavix</span>
             </a>
@@ -35,9 +35,16 @@
                 </div>
                 <div class="sidebar-content">
                     <a href="/products"><i class="fa-solid fa-shop"></i> Shop</a>
-                    <a href="order-history.html"><i class="fa-solid fa-box"></i> Orders</a>
+                    <a href="/order-history"><i class="fa-solid fa-box"></i> Orders</a>
                     <a href="/wishlist"><i class="fa-regular fa-heart"></i> Wishlist</a>
-                    <a href="/cart"><i class="fa-solid fa-cart-shopping"></i> Cart</a>
+                    <a href="/cart" class="relative">
+                        <i class="fa-solid fa-cart-shopping"></i> Cart
+
+                        <% if (cartCount > 0) { %>
+                            <span class="badge cart-sidebar-badge"><%= cartCount %></span>
+                        <% } %>
+
+                    </a>
                     <% if (user) { %>
                             <a href="/profile"><i class="fa-solid fa-user"></i> Profile</a>
                             <a href="/logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
@@ -54,7 +61,7 @@
             <div class="nav-menu">
                 <a href="/" style="color: var(--text-muted);">Home</a>
                 <a href="/products" style="color: var(--text-muted);">Shop</a>
-                <a href="order-history.html" style="color: var(--text-muted);">Orders</a>
+                <a href="/order-history" style="color: var(--text-muted);">Orders</a>
             </div>
 
             <div class="nav-icons">
@@ -71,6 +78,9 @@
                 </a>
                 <a href="/cart" class="relative">
                     <i class="fa-solid fa-cart-shopping nav-icon-lg text-primary"></i>
+                    <% if (cartCount > 0) { %>
+                        <span class="badge cart-badge"><%= cartCount %></span>
+                    <% } %>
                 </a>
                 <% if (user) { %>
                     <a href="/profile" class="nav-profile-icon">
@@ -273,9 +283,9 @@
                         You will save ₹<span id="summary-save"><%= Math.round(totalDiscount).toLocaleString() %></span> on this order
                     </div>
 
-                    <a href="/checkout" class="btn-place-order">
+                    <button class="btn-place-order" onclick="goToCheckout()">
                         Place Order
-                    </a>
+                    </button>
 
                 </div>
             </div>
@@ -284,6 +294,9 @@
 
         </div>
     </div>
+
+    <script src="/js/user/navbar.js"></script>
+
 
     <script>
         document.addEventListener("click", function (e) {
@@ -377,6 +390,26 @@
                 triggerToast("Something went wrong", "error");
             }
         })
+
+        async function goToCheckout(){
+
+            const response = await fetch("/checkout-from-cart",{
+                method:"POST",
+                
+            });
+
+            if (response.status === 401) {
+                return window.location.href="/login";
+            }
+
+            const data = await response.json();
+
+            if(data.success){
+                window.location.href="/checkout";
+            }else{
+                triggerToast(data.message || "Something went wrong","error");
+            }
+        }
 
         const toast = document.getElementById("toast");
 

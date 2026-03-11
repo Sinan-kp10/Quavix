@@ -30,9 +30,16 @@
                 </div>
                 <div class="sidebar-content">
                     <a href="/products"><i class="fa-solid fa-shop"></i> Shop</a>
-                    <a href="order-history.html"><i class="fa-solid fa-box"></i> Orders</a>
+                    <a href="order-history"><i class="fa-solid fa-box"></i> Orders</a>
                     <a href="/wishlist"><i class="fa-regular fa-heart"></i> Wishlist</a>
-                    <a href="cart.html"><i class="fa-solid fa-cart-shopping"></i> Cart</a>
+                    <a href="/cart" class="relative">
+                        <i class="fa-solid fa-cart-shopping"></i> Cart
+
+                        <% if (cartCount > 0) { %>
+                            <span class="badge cart-sidebar-badge"><%= cartCount %></span>
+                        <% } %>
+
+                    </a>
 
                     <% if (user) { %>
                             <a href="/profile"><i class="fa-solid fa-user"></i> Profile</a>
@@ -48,9 +55,9 @@
 
             <!-- Desktop Menu -->
             <div class="nav-menu">
-                <a href="index.html" class="text-primary">Home</a>
+                <a href="/" class="text-primary">Home</a>
                 <a href="/products">Shop</a>
-                <a href="order-history.html">Orders</a>
+                <a href="/order-history">Orders</a>
             </div>
 
             <div class="nav-icons">
@@ -68,6 +75,10 @@
 
                 <a href="/cart" class="relative">
                     <i class="fa-solid fa-cart-shopping nav-icon-lg"></i>
+
+                    <% if (cartCount > 0) { %>
+                        <span class="badge cart-badge"><%= cartCount %></span>
+                    <% } %>
                 </a>
 
                 <% if (user) { %>
@@ -327,7 +338,7 @@
                 <div>
                     <h4 class="mb-6">Contact Us</h4>
                     <ul class="text-muted leading-loose mb-6">
-                        <li><a href="mailto:quavixsupport@gmail.com">quavixsupport@gmail.com</a></li>
+                        <li><a href="mailto:support@quavix.com">support@quavix.com</a></li>
                         <li><a href="tel:+918000090000">+91 80000 90000</a></li>
                         <li><a href="#">Bengaluru, India</a></li>
                     </ul>

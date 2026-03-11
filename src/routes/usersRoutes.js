@@ -32,6 +32,7 @@ import {
   deleteAddress,
   uploadProfileImage,
   removeProfileImage,
+  notFound
 
 } from "../controllers/userController.js"
 
@@ -47,11 +48,24 @@ import {
   loadCart,
   addToCart,
   removeFromCart,
-  updateCartQuantity
+  updateCartQuantity,
+  buyNowProduct,
+  loadCheckout,
+  checkoutFromCart,
+  placeOrder,
+  loadOrderSuccess,
+  loadOrderHistory,
+  loadOrderDetails,
+  orderRequest,
+  downloadInvoice
 
 } from "../controllers/userProductController.js"
 
+import {
 
+  createRazorpay
+
+} from "../controllers/paymentController.js"
 
 router.get("/", loadHome)
 router.get("/login", loadLogin)
@@ -118,8 +132,22 @@ router.post("/cart",isLogin, addToCart)
 router.delete("/cart/remove",isLogin, removeFromCart)
 router.patch("/cart/update-quantity",isLogin, updateCartQuantity);
 
-router.get("/logout", logout)
+router.post("/buy-now", isLogin, buyNowProduct)
+router.post("/checkout-from-cart", isLogin, checkoutFromCart)
+router.get("/checkout", isLogin, loadCheckout);
+router.post("/checkout", isLogin, placeOrder)
+router.get("/order-success/:id", isLogin, loadOrderSuccess)
 
+router.get("/order-history", isLogin, loadOrderHistory)
+router.get("/order-details/:id",isLogin, loadOrderDetails)
+router.post("/order-request",isLogin, orderRequest)
+router.post("/razorpay",isLogin, createRazorpay);
+
+router.get("/invoice/:orderId",isLogin, downloadInvoice)
+
+router.get("/not-found", notFound)
+
+router.get("/logout", logout)
 
 
 

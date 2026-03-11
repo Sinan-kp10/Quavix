@@ -1,0 +1,411 @@
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<body class="page-orders">
+    <% if (typeof toastMessage !== "undefined") { %>
+    <div id="toast" class="toast <%= toastType %>">
+         <%= toastMessage %>
+    </div>
+    <% } %>
+
+    <div class="admin-layout">
+        <!-- Mobile Header -->
+        <div class="mobile-header">
+            <div class="mobile-logo">
+                <i class="fa-solid fa-bolt"></i> Quavix
+            </div>
+            <button class="menu-toggle" onclick="toggleSidebar()">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+        </div>
+
+        <!-- Sidebar Overlay -->
+        <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo">
+                <i class="fa-solid fa-bolt"></i> Quavix Admin
+            </div>
+
+            <nav>
+                <a href="/admin/dashboard" class="sidebar-link"><i class="fa-solid fa-chart-line"></i> Dashboard</a>
+                <a href="/admin/products" class="sidebar-link"><i class="fa-solid fa-box"></i> Products</a>
+                <a href="/admin/orders" class="sidebar-link active"><i class="fa-solid fa-clipboard-list"></i> Orders</a>
+                <a href="coupons.html" class="sidebar-link"><i class="fa-solid fa-ticket"></i> Coupons</a>
+                <a href="/admin/categories" class="sidebar-link"><i class="fa-solid fa-tags"></i> Categories</a>
+                <a href="/admin/users." class="sidebar-link"><i class="fa-solid fa-users"></i> Users</a>
+                <a href="banner.html" class="sidebar-link"><i class="fa-solid fa-image"></i> Banner</a>
+                <a href="reports.html" class="sidebar-link"><i class="fa-solid fa-chart-pie"></i> Reports</a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <a href="/admin/logout" class="sidebar-link"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="content">
+            <header class="flex justify-between items-center mb-4">
+                <h2>Order Management</h2>
+            </header>
+
+            <div class="card p-4">
+                <div class="flex justify-between items-center mb-4">
+                    <div class="flex gap-2">
+                        <form method="GET" action="/admin/orders" class="flex gap-2">
+
+                            <div class="search-group" style="position: relative;">
+
+                                <input 
+                                    type="text"
+                                    name="search"
+                                    value="<%= search || '' %>"
+                                    class="form-input orders-search-input"
+                                    placeholder="Search orders..."
+                                    style="width:300px;"
+                                >
+
+                                <% if (search) { %>
+                                    <a href="/admin/orders?status=<%= status %>" 
+                                    class="search-clear active">
+                                        <i class="fa-solid fa-xmark"></i>
+                                    </a>
+                                <% } %>
+
+                                <button type="submit" class="btn btn-primary search-btn" style="height:50px;">
+                                    <i class="fa-solid fa-magnifying-glass"></i>
+                                </button>
+
+                            </div>
+
+                            <select name="status" class="form-select orders-filter-select" onchange="this.form.submit()">
+                                <option value="all" <%= status === "all" ? "selected" : "" %>>All Status</option>
+                                <option value="pending" <%= status === "pending" ? "selected" : "" %>>Pending</option>
+                                <option value="shipped" <%= status === "shipped" ? "selected" : "" %>>Shipped</option>
+                                <option value="delivered" <%= status === "delivered" ? "selected" : "" %>>Delivered</option>
+                                <option value="cancelled" <%= status === "cancelled" ? "selected" : "" %>>Cancelled</option>
+                            </select>
+
+                        </form>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Date</th>
+                                <th>Customer</th>
+                                <th>Payment</th>
+                                <th class="th-status">Status</th>
+                                <th class="th-actions">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            
+                            <% orders.forEach((data, i) => { 
+                                const order = data.order
+                                const item = data.item
+                            %>
+
+                                <tr>
+
+                                    <td>
+                                        <span class="font-medium">#<%= order.orderId %></span>
+                                    </td>
+
+                                    <td>
+                                        <%= new Date(order.createdAt).toLocaleDateString("en-IN",{day:"2-digit",month:"short",year:"numeric"}) %>
+                                    </td>
+
+                                    <td>
+                                        <div class="font-medium"><%= order.shippingAddress.fullname %></div>
+                                        <div class="text-xs text-muted"><%= order.user?.email || "" %></div>
+                                    </td>
+
+                                    <td>
+                                        <%= order.paymentMethod === "cod" ? "COD" : 
+                                            order.paymentMethod === "razorpay" ? "Razorpay" : 
+                                            order.paymentMethod === "wallet" ? "Wallet" : "" %>
+                                    </td>
+
+                                    <td class="td-status">
+
+                                        <% if(item.orderStatus === "cancelled"){ %>
+
+                                            <span class="order-status-badge badge-cancelled">
+                                                Cancelled
+                                            </span>
+
+                                        <% } else if(item.returnQuantity > 0){ %>
+
+                                            <!-- Any return still shows Delivered -->
+                                            <span class="order-status-badge badge-delivered">
+                                                Delivered
+                                            </span>
+
+                                        <% } else { %>
+
+                                            <span class="order-status-badge badge-<%= item.orderStatus.replaceAll('_','-') %>">
+                                                <%= item.orderStatus.replaceAll('_',' ').replace(/\b\w/g, l => l.toUpperCase()) %>
+                                            </span>
+
+                                        <% } %>
+
+                                        </td>
+
+                                    <td>
+                                        <div class="actions-wrap">
+
+                                            <a href="/admin/orders/<%= order._id %>/<%= data.itemIndex %>" class="btn-circle">
+                                                <i class="fa-solid fa-eye"></i>
+                                            </a>
+
+                                            <button class="btn-circle"
+                                                onclick="openModal('edit_<%= order._id %>_<%= i %>')">
+                                                <i class="fa-solid fa-pen"></i>
+                                            </button>
+
+                                        </div>
+                                    </td>
+
+                                </tr>
+
+                            
+
+                        <% }) %>
+
+                        </tbody>
+                    </table>
+                </div>
+
+
+                <!-- Pagination -->
+                <div class="pagination">
+
+                    <% if(currentPage > 1){ %>
+                        <a href="?search=<%= search %>&status=<%= status %>&page=<%= currentPage - 1 %>"
+                        class="page-link">
+                            <i class="fa-solid fa-chevron-left"></i>
+                        </a>
+                    <% } %>
+
+                    <% 
+                        let startPage = Math.max(1, currentPage - 1);
+                        let endPage = Math.min(totalPages, startPage + 2);
+
+                        if(endPage - startPage < 2){
+                            startPage = Math.max(1, endPage - 2);
+                        }
+                    %>
+
+                    <% for(let i = startPage; i <= endPage; i++){ %>
+                        <a href="?search=<%= search %>&status=<%= status %>&page=<%= i %>"
+                        class="page-link <%= currentPage === i ? 'active' : '' %>">
+                            <%= i %>
+                        </a>
+                    <% } %>
+
+                    <% if(currentPage < totalPages){ %>
+                        <a href="?search=<%= search %>&status=<%= status %>&page=<%= currentPage + 1 %>"
+                        class="page-link">
+                            <i class="fa-solid fa-chevron-right"></i>
+                        </a>
+                    <% } %>
+
+                </div>
+            </div>
+        </main>
+    </div>
+    <!-- Modal -->
+    <% orders.forEach((data,i) => { 
+        const order = data.order
+        const item = data.item
+    %>
+
+        <div class="modal-orders" id="edit_<%= order._id %>_<%= i %>">
+            
+            <form method="POST" action="/admin/orders">
+
+                <input type="hidden" name="orderId" value="<%= order._id %>">
+                <input type="hidden" name="itemIndex" value="<%= data.itemIndex %>">
+
+
+                <div class="modal-container modal-container-edit">
+
+                    <!-- HEADER -->
+                    <div class="m-header">
+                        <div class="flex items-center gap-4">
+
+                            <div class="m-icon-box m-icon-box-edit">
+                                <i class="fa-solid fa-pen-to-square"></i>
+                            </div>
+
+                            <div class="m-header-title">
+                                <h3>Update Item Status</h3>
+                                <span>OrderID: #<%= order.orderId %></span>
+                            </div>
+
+                        </div>
+
+                        <button type="button" class="btn-close-modal"onclick="closeModal('edit_<%= order._id %>_<%= i %>')">&times;</button>
+                    </div>
+
+
+                    <!-- BODY -->
+                    <div class="m-body">
+                        <div class="font-bold text-xs mb-3 text-muted uppercase tracking-wider"> UPDATE DELIVERY STATUS PER ITEM</div>
+                        <div class="p-item-edit">
+
+                            <img src="<%= item.productImage %>">
+
+                            <div class="p-item-edit-info">
+
+                                <div class="font-medium p-item-edit-name">
+                                    <%= item.productName %>
+                                </div>
+
+                                <div class="text-xs text-muted">
+                                    <%= item.attributes.map(a => a.value).join(" · ") %>
+                                </div>
+
+                                <div class="p-item-qty">
+                                    Qty: <%= item.quantity %>
+                                </div>
+
+                                <!-- RETURN INFO -->
+
+                                <% if(item.returnQuantity > 0){ %>
+
+                                <div class="returned-text">
+                                    Returned: <%= item.returnQuantity %>
+                                </div>
+
+                            <% } %>
+
+                            </div>
+
+
+                            <!-- STATUS SECTION -->
+
+                            <% if(item.orderStatus === "cancelled"){ %>
+
+                                <span class="order-status-badge badge-cancelled">
+                                    Cancelled
+                                </span>
+
+                            <% } else if(item.returnQuantity === item.quantity){ %>
+
+                                <!-- Fully returned but show Delivered -->
+                                <span class="order-status-badge badge-delivered">
+                                    Delivered
+                                </span>
+
+                            <% } else if(item.returnQuantity > 0){ %>
+
+                                <!-- Partially returned but still delivered -->
+                                <span class="order-status-badge badge-delivered">
+                                    Delivered
+                                </span>
+
+                            <% } else { %>
+
+                                <% if(item.orderStatus === "pending"){ %>
+
+                                    <select name="status" class="form-select p-item-edit-select">
+
+                                        <option value="shipped">Shipped</option>
+                                        <option value="cancelled">Cancelled</option>
+
+                                    </select>
+
+                                <% } else if(item.orderStatus === "shipped"){ %>
+
+                                    <select name="status" class="form-select p-item-edit-select">
+
+                                        <option value="out_for_delivery">Out for Delivery</option>
+
+                                    </select>
+
+                                <% } else if(item.orderStatus === "out_for_delivery"){ %>
+
+                                    <select name="status" class="form-select p-item-edit-select">
+
+                                        <option value="delivered">Delivered</option>
+
+                                    </select>
+
+                                <% } else { %>
+
+                                    <span class="order-status-badge badge-<%= item.orderStatus %>">
+                                        <%= item.orderStatus.replaceAll('_',' ').replace(/\b\w/g,l=>l.toUpperCase()) %>
+                                    </span>
+
+                                <% } %>
+
+                            <% } %>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- FOOTER -->
+                    <div class="m-footer">
+
+                        <button type="button" class="btn btn-outline"
+                            onclick="closeModal('edit_<%= order._id %>_<%= i %>')">
+                            Cancel
+                        </button>
+
+                        <% if(item.orderStatus !== "returned" && item.orderStatus !== "cancelled" && item.orderStatus !== "delivered"){ %>
+
+                            <button class="btn btn-primary ml-2">
+                                Update Status
+                            </button>
+
+                        <% } else { %>
+
+                            <button class="btn btn-primary ml-2"
+                                disabled style="opacity:.6;cursor:not-allowed;">
+                                Status Locked
+                            </button>
+
+                        <% } %>
+
+                    </div>
+                    
+
+                </div>
+
+            </form>    
+
+        </div>
+
+    <% }) %>
+
+
+
+    <script>
+
+        function toggleSidebar() {
+            document.querySelector('.sidebar').classList.toggle('active');
+            document.getElementById('sidebarOverlay').classList.toggle('active');
+        }
+
+        function openModal(id) {
+            document.getElementById(id).classList.add('active');
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+        }
+
+        window.onclick = function (e) {
+            if (e.target.classList.contains('modal-orders')) {
+                e.target.classList.remove('active');
+            }
+        }
+    </script>
+</body>

@@ -15,7 +15,10 @@
             <div class="nav-menu">
                 <span class="text-muted">Add New Address</span>
             </div>
-            <a href="checkout.html" class="text-muted nav-back-link"><i class="fa-solid fa-arrow-left"></i> Back</a>
+            <a href="<%= from === 'checkout' ? '/checkout' : '/profile' %>" 
+                class="text-muted nav-back-link">
+                <i class="fa-solid fa-arrow-left"></i> Back
+            </a>
         </div>
     </nav>
 
@@ -23,7 +26,7 @@
         <div class="card max-w-2xl mx-auto">
             <h1 class="mb-6 font-bold text-xl">Add New Address</h1>
 
-            <form id="addressForm" class="form-grid" method="post" action="<%= address ? '/editAddress/' + address._id : '/addAddress' %>">
+            <form id="addressForm" class="form-grid" method="post" action="<%= address ? '/editAddress/' + address._id + '?from=' + from : '/addAddress?from=' + from %>">
                 <div class="form-group col-span-2">
                     <label class="form-label">Full Name</label>
                     <input type="text" name="fullname" id="name" class="form-input" placeholder="Full Name" value="<%= address ? address.fullname : '' %>">
@@ -77,7 +80,7 @@
                 </div>
                 <div class="col-span-2 flex gap-4 mt-4 justify-end address-btn-container">
                     <button type="submit" class="btn btn-primary px-8">Save Address</button>
-                    <a href="/profile" class="btn btn-google px-8">Cancel</a>
+                    <a href="<%= from === 'checkout' ? '/checkout' : '/profile' %>" class="btn btn-google px-8">Cancel</a>
                 </div>
             </form>
         </div>

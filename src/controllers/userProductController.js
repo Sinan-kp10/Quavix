@@ -3,25 +3,33 @@ import productModel from "../models/productModal.js"
 import categoryModel from "../models/category.js"
 import wishlistModel from "../models/wishlistModel.js"
 import cartModel from "../models/cartModel.js"
+import orderModel from "../models/orderModel.js"
+import pdf from "html-pdf-node"
+import ejs from "ejs"
+import path from "path"
+import fs from "fs"
 
 import {
-
-    getAllProducts,
+    
     getFilterdProduct,
     findProducts,
     addWishlistService,
     addToCartService,
     removeFromCartService,
-    updateCartQuantityService
+    updateCartQuantityService,
+    createOrder,
+    getAllOrders,
+    getOrderRequest
 
 } from "../services/userProductService.js"
+
 
 
 export const loadProducts = async (req, res) => {
     try {
 
         const page = Number(req.query.page) || 1;
-        const limit = 6;  
+        const limit = 6;
 
         const result = await getFilterdProduct(
             null,
@@ -33,6 +41,30 @@ export const loadProducts = async (req, res) => {
         );
 
         const categories = await categoryModel.find({ status: "Active" });
+
+        const products = await productModel.find({ isDeleted: false });
+
+        let prices = [];
+
+        products.forEach(product => {
+
+            const offer = product.offerPercentage || 0;
+
+            product.variants
+                .filter(v => v.status === "Active")
+                .forEach(variant => {
+
+                    const finalPrice = Math.round(
+                        variant.price - (variant.price * offer / 100)
+                    );
+
+                    prices.push(finalPrice);
+                });
+
+        });
+
+        const minPrice = prices.length ? Math.min(...prices) : 0;
+        const maxPrice = prices.length ? Math.max(...prices) : 200000;
 
         let wishlistItems = [];
 
@@ -56,14 +88,16 @@ export const loadProducts = async (req, res) => {
             categories,
             wishlistItems,
             totalPages: result.totalPages,
-            currentPage: page
+            currentPage: page,
+            minPrice,
+            maxPrice
         });
 
     } catch (err) {
         console.log(err);
         res.redirect("/");
     }
-};
+}
 
 export const filterProducts = async (req, res) => {
     try {
@@ -129,7 +163,9 @@ export const searchProducts = async (req, res) => {
             products,
             categories,
             searchQuery: q,
-            wishlistItems
+            wishlistItems,
+            totalPages: 1,
+            currentPage: 1
         })
 
     } catch (err) {
@@ -288,6 +324,7 @@ export const loadCart = async (req, res) => {
             title: "My Cart - Quavix",
             css: "userStyle",
             cart
+            
         })
 
     } catch (err) {
@@ -354,4 +391,419 @@ export const updateCartQuantity = async (req, res) => {
     } catch (err) {
         res.status(400).json({ success: false,message: err.message});
     }
+}
+
+export const buyNowProduct=async(req,res)=>{
+    try {
+
+        const {variantId}=req.body
+
+        if(!variantId){
+            return res.json({ success: false, message: "Variant required" });
+        }
+
+        const product= await productModel.findOne({"variants._id":variantId,isDeleted:false})
+
+        if (!product) {
+            return res.json({ success: false, message: "Product not found" });
+        }
+
+        const variant=product.variants.id(variantId)
+
+        if(!variant||variant.status!=="Active"){
+            return res.json({ success: false, message: "Variant not available" });
+        }
+
+        if (variant.stock <= 0) {
+            return res.json({ success: false, message: "Out of stock" });
+        }
+
+        req.session.buyNow = {
+            productId: product._id,
+            variantId: variant._id,
+            quantity: 1
+        };
+
+        res.json({ success: true });
+        
+    }catch(err){
+        res.json({ success: false, message: "Something went wrong" })
+    }
+}
+
+export const checkoutFromCart = async (req, res) => {
+  try {
+
+    if (!req.session.user || !req.session.user.id) {
+      return res.json({
+        success: false,
+        message: "Please login to continue"
+      });
+    }
+
+    const cart = await cartModel.findOne({ user: req.session.user.id }).populate("items.product");
+
+    if (!cart || cart.items.length === 0) {
+      return res.json({ success: false, message: "Cart empty" });
+    }
+
+    for (const item of cart.items) {
+
+      const product = item.product;
+      const variant = product.variants.id(item.variant);
+
+      if (!variant || variant.stock < item.quantity) {
+        return res.json({
+          success: false,
+          message: `${product.name} is out of stock`
+        });
+      }
+
+    }
+
+    req.session.fromCart = true;
+    req.session.buyNow = null;
+
+    res.json({ success: true });
+
+  } catch (err) {
+    console.log(err);
+    res.json({
+      success: false,
+      message: "Something went wrong while processing checkout."
+    });
+  }
+};
+
+export const loadCheckout = async (req, res) => {
+    try {
+
+        const userId = req.session.user.id;
+
+        const user = await userModel.findById(userId);
+
+        if (req.session.buyNow) {
+
+            const { productId, variantId, quantity } = req.session.buyNow;
+
+            const product = await productModel.findById(productId);
+            const variant = product.variants.id(variantId);
+
+            const offer = product.offerPercentage || 0;
+            const discount = (variant.price * offer) / 100;
+            const finalPrice = Math.round(variant.price - discount);
+
+            const totalMRP = variant.price * quantity;
+            const totalDiscount = discount * quantity;
+            const subtotal = finalPrice * quantity;
+
+            return res.render("user/checkout", {
+                title: "Checkout - Quavix",
+                css: "userStyle",
+                user,
+                product,
+                variant,
+                quantity,
+                subtotal,
+                totalMRP,
+                totalDiscount,
+                cancelUrl: `/product/${product.slug}`
+            });
+        }
+
+        if (req.session.fromCart) {
+
+            const cart = await cartModel
+                .findOne({ user: userId })
+                .populate("items.product");
+
+            if (!cart || cart.items.length === 0) {
+                return res.redirect("/cart");
+            }
+
+            let totalMRP = 0;
+            let totalDiscount = 0;
+            let subtotal = 0;
+
+            cart.items.forEach(item => {
+
+                const product = item.product;
+                const variant = product.variants.id(item.variant);
+                if (!variant) return;
+
+                const offer = product.offerPercentage || 0;
+                const discount = (variant.price * offer) / 100;
+                const finalPrice = variant.price - discount;
+
+                totalMRP += variant.price * item.quantity;
+                totalDiscount += discount * item.quantity;
+                subtotal += finalPrice * item.quantity;
+            });
+
+            return res.render("user/checkout", {
+                title: "Checkout - Quavix",
+                css: "userStyle",
+                user,
+                cart,
+                subtotal,
+                totalMRP,
+                totalDiscount,
+                cancelUrl: "/cart" 
+            });
+        }
+
+        res.redirect("/cart");
+
+    } catch (err) {
+        res.redirect("/not-found");
+    }
+}
+
+export const placeOrder = async (req, res) => {
+
+    try {
+
+        const userId = req.session.user.id;
+        const { addressId, paymentMethod } = req.body;
+
+        if (!["cod", "wallet", "razorpay"].includes(paymentMethod)) {
+            throw new Error("Invalid payment method");
+        }
+
+        const buyNowData=req.session.buyNow || null
+        const result = await createOrder({
+            userId,
+            addressId,
+            paymentMethod,
+            buyNowData
+        });
+
+        if (paymentMethod !== "razorpay") {
+            req.session.buyNow = null;
+            req.session.fromCart = null;
+        }
+
+        res.json({
+            success: true,
+            orderId: result.orderId,
+            paymentMethod
+        })
+
+    } catch (error) {
+
+        console.error(error);
+
+        res.json({
+            success: false,
+            message: error.message
+        });
+    }
+
+}
+
+export const loadOrderSuccess=async(req,res)=>{
+    try{
+
+        const {id}=req.params
+        const order=await orderModel.findOne({ orderId:id })
+
+        if (!order) {
+            return res.redirect("/not-found");
+        }
+
+        res.render("user/orderSuccess", {
+            title: "Order Completed- Quavix",
+            css: "userStyle",
+            order
+        });
+
+
+    }catch(err){
+        console.log(err)
+        res.redirect("/not-found")
+    }
+}
+export const loadOrderHistory = async (req, res) => {
+
+    try {
+
+        const userId = req.session.user.id
+        const status = req.query.status || "all"
+        const search = req.query.search || ""
+        const page = parseInt(req.query.page) || 1
+        const limit = 4
+
+        const { ordersList, totalOrders } = await getAllOrders(userId, status, search,page,limit)
+
+        const totalPages = Math.ceil(totalOrders / limit)
+
+        res.render("user/orderHistory", {
+            title: "My Orders - Quavix",
+            css: "userStyle",
+            orders: ordersList,
+            status,
+            search,
+            page,
+            totalPages
+        })
+
+    } catch (err) {
+        console.log(err)
+        res.redirect("/")
+    }
+}
+
+export const loadOrderDetails = async (req, res) => {
+    try {
+
+        const { id } = req.params
+        const variantId = req.query.item
+
+        const order = await orderModel.findOne({ orderId: id })
+
+        if (!order) {
+            return res.redirect("/order-history")
+        }
+
+  
+        let item = order.items.find(i => 
+            i.variantId.toString() === variantId
+        )
+
+
+        if (!item) {
+            item = order.items[0]
+        }
+
+        const requestData = getOrderRequest(order)
+
+        res.render("user/orderDetails", {
+            title: "Order Details - Quavix",
+            css: "userStyle",
+            order,
+            item,   
+            requestType: requestData.requestType,
+            requestAllowed: requestData.requestAllowed
+        })
+
+    } catch (err) {
+        console.log(err)
+        res.redirect("/order-history")
+    }
+}
+
+export const orderRequest = async (req,res)=>{
+
+    try{
+
+        const {orderId, reason, description,variantId} = req.body
+
+        const order = await orderModel.findOne({orderId})
+
+        if(!order){
+           return res.redirect("/order-history")
+        }
+
+        const item = order.items.find(i => i.variantId.toString() === variantId)
+
+        if(!item){
+            return res.redirect("/order-details/" + order.orderId)
+        }
+        
+        if(!reason){
+                throw new Error("Reason required")
+            }
+
+        if(!description || description.trim().length < 6){
+            throw new Error("Description must contain at least 6 characters")
+        }
+
+
+        if(item.orderStatus === "delivered"){
+
+            if(!item.deliveredAt){
+                return res.redirect("/order-details/" + order.orderId)
+            }
+
+            const days = (Date.now() - new Date(item.deliveredAt)) / (1000 * 60 * 60 * 24)
+
+            if(days > 7){
+                return res.redirect("/order-details/" + order.orderId)
+            }
+
+            
+            item.returnVariantId = variantId
+            item.returnReason = reason
+            item.returnDescription = description
+            item.returnedAt = new Date()
+
+            item.orderStatus = "returned"
+
+        }else{
+
+            item.cancelReason = reason
+            item.cancelDescription = description
+            item.cancelledAt = new Date()
+            item.orderStatus = "cancelled"
+
+            await productModel.updateOne(
+                { "variants._id": item.variantId },
+                { $inc: { "variants.$.stock": item.quantity } }
+            )
+
+        }
+
+        await order.save()
+
+        res.redirect("/order-details/" + order.orderId)
+
+    }catch(err){
+        console.log(err)
+        res.redirect("/order-history")
+    }
+
+}
+
+export const downloadInvoice = async (req, res) => {
+
+    try {
+
+        const { orderId } = req.params
+
+        const order = await orderModel
+            .findOne({ orderId })
+            .populate("user")
+
+        if (!order) {
+            return res.redirect("/order-history")
+        }
+
+        const templatePath = path.join(process.cwd(), "views", "user", "invoice.ejs")
+
+        const html = await ejs.renderFile(templatePath, { order })
+
+        const file = { content: html }
+
+        const options = {
+            format: "A4",
+            printBackground: true
+        }
+
+        const pdfBuffer = await pdf.generatePdf(file, options)
+
+        res.setHeader("Content-Type", "application/pdf")
+        res.setHeader(
+            "Content-Disposition",
+            `attachment; filename=invoice-${order.orderId}.pdf`
+        )
+
+        res.send(pdfBuffer)
+
+    } catch (error) {
+
+        console.log(error)
+        res.redirect("/order-history")
+
+    }
+
 }
