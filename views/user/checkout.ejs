@@ -277,18 +277,6 @@
     </div>
 
     <script>
-        const toast = document.getElementById("toast");
-
-        if (toast) {
-            setTimeout(() => {
-            toast.classList.add("show");
-            }, 100);
-
-            setTimeout(() => {
-            toast.classList.remove("show");
-            }, 3000);
-        }
-
 
         document.getElementById("place-order-btn").addEventListener("click", async () => {
 
@@ -296,12 +284,12 @@
             const payment = document.querySelector('input[name="payment"]:checked');
 
             if (!address) {
-                triggerToast("Please select a delivery address", "error")
+                triggerToast("Please select a delivery address", "error");
                 return;
             }
 
             if (!payment) {
-                triggerToast("Please select a payment method", "error")
+                triggerToast("Please select a payment method", "error");
                 return;
             }
 
@@ -320,22 +308,62 @@
                     body: JSON.stringify(orderData)
                 });
 
-                const data = await res.json()
+                const data = await res.json();
 
-                console.log("ORDER RESPONSE:", data)
-
-                if (data.success) {
-                    window.location.href = `/order-success/${data.orderId}`;
-                } else {
-                    triggerToast(data.message, "error")
-                    
+                if (!data.success) {
+                    triggerToast(data.message, "error");
+                    return;
                 }
 
-            } catch (err) {
-                console.error(err);
-                    window.location.href = "/not-";
 
-                
+                if (payment.value !== "razorpay") {
+                    window.location.href = `/order-success/${data.orderId}`;
+                    return;
+                }
+
+                const paymentRes = await fetch("/razorpay", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        orderId: data.orderId
+                    })
+                });
+
+                const paymentData = await paymentRes.json();
+
+                const options = {
+                    key: paymentData.key,
+                    amount: paymentData.amount,
+                    currency: "INR",
+                    order_id: paymentData.razorpayOrderId,
+                    name: "Quavix",
+                    description: "Order Payment",
+
+                    prefill: {
+                        email: paymentData.email,
+                        contact: paymentData.contact
+                    },
+
+                    handler: function () {
+                        window.location.replace(`/order-success/${data.orderId}`);
+                    },
+                    modal: {
+                        ondismiss: function () {
+                            triggerToast("Payment cancelled");
+                        }
+                    }
+                };
+
+                const rzp = new Razorpay(options);
+                rzp.open();
+
+            } catch (err) {
+
+                console.error(err);
+                window.location.href = "/not-found";
+
             }
 
         });
@@ -362,6 +390,19 @@
             }, 3000);
         }
 
+        const toast = document.getElementById("toast");
+
+        if (toast) {
+            setTimeout(() => {
+            toast.classList.add("show");
+            }, 100);
+
+            setTimeout(() => {
+            toast.classList.remove("show");
+            }, 3000);
+        }
+
 
     </script>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 </body>

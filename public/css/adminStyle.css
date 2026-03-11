@@ -486,6 +486,11 @@ img {
     color: #ea580c;
 }
 
+.badge-returnRequest{
+    background:#fef3c7;
+    color:#b45309;
+}
+
 .returned-text {
     color: #dc2626;
     /* red */

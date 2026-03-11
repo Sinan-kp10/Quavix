@@ -61,7 +61,11 @@ import {
 
 } from "../controllers/userProductController.js"
 
+import {
 
+  createRazorpay
+
+} from "../controllers/paymentController.js"
 
 router.get("/", loadHome)
 router.get("/login", loadLogin)
@@ -137,7 +141,9 @@ router.get("/order-success/:id", isLogin, loadOrderSuccess)
 router.get("/order-history", isLogin, loadOrderHistory)
 router.get("/order-details/:id",isLogin, loadOrderDetails)
 router.post("/order-request",isLogin, orderRequest)
-router.get("/invoice/:orderId", downloadInvoice)
+router.post("/razorpay",isLogin, createRazorpay);
+
+router.get("/invoice/:orderId",isLogin, downloadInvoice)
 
 router.get("/not-found", notFound)
 

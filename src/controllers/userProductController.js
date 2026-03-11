@@ -431,25 +431,49 @@ export const buyNowProduct=async(req,res)=>{
     }
 }
 
-export const checkoutFromCart=async(req,res)=>{
-    try {
-        
-        const cart=await cartModel.findOne({user:req.session.user.id})
+export const checkoutFromCart = async (req, res) => {
+  try {
 
-        if(!cart || cart.items.length===0){
-            return res.json({success:false,message:"Cart empty"});
-        }
-
-        req.session.fromCart = true;
-        req.session.buyNow = null;
-        res.json({success:true});
-
-
-    } catch (err) {
-        console.log(err);
-        res.json({success:false,message:"Something went wrong while processing checkout."});
+    if (!req.session.user || !req.session.user.id) {
+      return res.json({
+        success: false,
+        message: "Please login to continue"
+      });
     }
-}
+
+    const cart = await cartModel.findOne({ user: req.session.user.id }).populate("items.product");
+
+    if (!cart || cart.items.length === 0) {
+      return res.json({ success: false, message: "Cart empty" });
+    }
+
+    for (const item of cart.items) {
+
+      const product = item.product;
+      const variant = product.variants.id(item.variant);
+
+      if (!variant || variant.stock < item.quantity) {
+        return res.json({
+          success: false,
+          message: `${product.name} is out of stock`
+        });
+      }
+
+    }
+
+    req.session.fromCart = true;
+    req.session.buyNow = null;
+
+    res.json({ success: true });
+
+  } catch (err) {
+    console.log(err);
+    res.json({
+      success: false,
+      message: "Something went wrong while processing checkout."
+    });
+  }
+};
 
 export const loadCheckout = async (req, res) => {
     try {
@@ -554,13 +578,16 @@ export const placeOrder = async (req, res) => {
             buyNowData
         });
 
+        if (paymentMethod !== "razorpay") {
+            req.session.buyNow = null;
+            req.session.fromCart = null;
+        }
+
         res.json({
             success: true,
-            orderId: result.orderId
+            orderId: result.orderId,
+            paymentMethod
         })
-
-        req.session.buyNow = null;
-        req.session.fromCart = null;
 
     } catch (error) {
 

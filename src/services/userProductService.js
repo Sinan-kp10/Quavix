@@ -335,6 +335,7 @@ export const createOrder = async ({ userId, addressId, paymentMethod, buyNowData
         subtotal = total;
         totalDiscount = discount * quantity;
 
+
         items.push({
             product: product._id,
             productName: product.name,
@@ -346,8 +347,11 @@ export const createOrder = async ({ userId, addressId, paymentMethod, buyNowData
             total
         });
 
-        variant.stock -= quantity;
-        await product.save();
+        if (paymentMethod === "cod") {
+            variant.stock -= quantity;
+            await product.save();
+        }
+
     }
 
     else {
