@@ -816,21 +816,3 @@ export const downloadInvoice = async (req, res) => {
 
 }
 
-export const loadPaymentFailed = async (req, res) => {
-    try {
-
-        const amount = req.query.amount || 0;
-
-        res.render("user/paymentFailed", {
-            title: "Payment Failed - Quavix",
-            css: "userStyle",
-            amount
-        });
-
-    } catch (err) {
-
-        console.log(err);
-        res.redirect("/not-found");
-
-    }
-}

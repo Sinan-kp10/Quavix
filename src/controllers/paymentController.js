@@ -1,10 +1,11 @@
 
 import crypto from "crypto"
-
 import {createRazorpayPayment,} from "../services/paymentServices.js"
 import { createOrder } from "../services/userProductService.js"
-import productModel from "../models/productModal.js";
-import cartModel from "../models/cartModel.js";
+import productModel from "../models/productModal.js"
+import cartModel from "../models/cartModel.js"
+import userModal from "../models/userModal.js"
+import walletModel from "../models/walletModel.js"
 
 export const createRazorpay = async (req,res)=>{
     try{
@@ -108,4 +109,67 @@ export const verifyRazorpay = async (req, res) => {
         });
 
     }
-};
+}
+
+export const loadPaymentFailed = async (req, res) => {
+    try {
+
+        const amount = req.query.amount || 0;
+
+        res.render("user/paymentFailed", {
+            title: "Payment Failed - Quavix",
+            css: "userStyle",
+            amount
+        });
+
+    } catch (err) {
+
+        console.log(err);
+        res.redirect("/not-found");
+
+    }
+}
+
+export const loadWallet=async (req,res)=>{
+
+    try {
+        const page = parseInt(req.query.page) || 1
+        const limit = 5
+        const skip = (page - 1) * limit
+
+        const user=await userModal.findById(req.session.user.id)
+
+        if(!user){
+            res.redirect('/')
+        }
+
+        const wallet=await walletModel.findOne({userId:user.id})
+
+        let transactions = []
+        let totalPages = 1
+
+        if (wallet) {
+            const allTransactions = wallet.transactions.slice().reverse()
+
+            transactions = allTransactions.slice(skip, skip + limit)
+
+            totalPages = Math.ceil(allTransactions.length / limit)
+        }
+
+        res.render("user/wallet", {
+            title: "My Wallet - Quavix",
+            css: "userStyle",
+            user:user,
+            wallet:wallet,
+            transactions,
+            currentPage: page,
+            totalPages
+        });
+
+
+        
+    } catch (err) {
+        console.log(err)
+        res.redirect('/')
+    }
+}

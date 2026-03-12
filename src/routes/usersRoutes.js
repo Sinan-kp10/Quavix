@@ -57,8 +57,7 @@ import {
   loadOrderHistory,
   loadOrderDetails,
   orderRequest,
-  downloadInvoice,
-  loadPaymentFailed
+  downloadInvoice
 
 } from "../controllers/userProductController.js"
 
@@ -66,6 +65,8 @@ import {
 
   createRazorpay,
   verifyRazorpay,
+  loadPaymentFailed,
+  loadWallet
 
 } from "../controllers/paymentController.js"
 
@@ -118,8 +119,7 @@ router.get("/auth/google/callback", passport.authenticate("google", { failureRed
   }
 
   res.redirect("/");
-}
-)
+})
 
 router.get("/products", loadProducts)
 router.get("/products/filter", filterProducts)
@@ -146,8 +146,11 @@ router.post("/order-request",isLogin, orderRequest)
 router.post("/razorpay",isLogin, createRazorpay);
 router.post("/verify-razorpay", isLogin,verifyRazorpay)
 router.get("/payment-failed",isLogin, loadPaymentFailed)
-
 router.get("/invoice/:orderId",isLogin, downloadInvoice)
+
+router.get("/wallet",isLogin , loadWallet)
+
+
 
 router.get("/not-found", notFound)
 
