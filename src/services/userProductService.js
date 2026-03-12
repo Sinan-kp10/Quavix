@@ -344,21 +344,17 @@ export const createOrder = async ({ userId, addressId, paymentMethod, buyNowData
             attributes: variant.attributes,
             quantity,
             price: finalPrice,
-            total
+            total,
+            paymentStatus: paymentMethod === "cod" ? "pending" : "paid"
         });
 
-        if (paymentMethod === "cod") {
-            variant.stock -= quantity;
-            await product.save();
-        }
-
+        variant.stock -= quantity;
+        await product.save();
     }
 
     else {
 
-        const cart = await cartModel
-            .findOne({ user: userId })
-            .populate("items.product");
+        const cart = await cartModel.findOne({ user: userId }).populate("items.product");
 
         if (!cart || cart.items.length === 0) {
             throw new Error("Cart is empty");
@@ -395,7 +391,8 @@ export const createOrder = async ({ userId, addressId, paymentMethod, buyNowData
                 attributes: variant.attributes,
                 quantity: item.quantity,
                 price: finalPrice,
-                total
+                total,
+                paymentStatus: paymentMethod === "cod" ? "pending" : "paid"
             });
 
             variant.stock -= item.quantity;

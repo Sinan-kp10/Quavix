@@ -131,10 +131,10 @@
                                 Payment Status
                             </span>
 
-                            <span class="pay-status-badge pay-status-<%= order.paymentStatus %>">
+                            <span class="pay-status-badge pay-status-<%= item.paymentStatus %>">
 
-                                <%= order.paymentStatus
-                                    ? order.paymentStatus.charAt(0).toUpperCase() + order.paymentStatus.slice(1)
+                                <%= item.paymentStatus
+                                    ? item.paymentStatus.charAt(0).toUpperCase() + item.paymentStatus.slice(1)
                                     : "Pending" %>
 
                             </span>

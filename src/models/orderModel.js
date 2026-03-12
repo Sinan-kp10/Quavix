@@ -58,6 +58,12 @@ const orderItemSchema = new mongoose.Schema({
         default: "pending"
     },
 
+    paymentStatus: {
+        type: String,
+        enum: ["pending", "paid", "failed", "refunded"],
+        default: "pending"
+    },
+
     returnVariantId: {
         type: mongoose.Schema.Types.ObjectId
     },
@@ -121,12 +127,6 @@ const orderSchema = new mongoose.Schema({
         type: String,
         enum: ["razorpay", "wallet", "cod"],
         required: true
-    },
-
-    paymentStatus: {
-        type: String,
-        enum: ["pending", "paid", "failed", "refunded"],
-        default: "pending"
     },
 
     subtotal: { type: Number, required: true },

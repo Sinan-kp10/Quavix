@@ -7566,9 +7566,9 @@ ORDER TRACKING & STATUS BADGES CSS
     color: #ea580c;
 }
 
-.badge-returnRequest{
-    background:#fef3c7;
-    color:#b45309;
+.badge-returnRequest {
+    background: #fef3c7;
+    color: #b45309;
 }
 
 .returned-text {
@@ -7953,10 +7953,141 @@ ORDER TRACKING & STATUS BADGES CSS
     border: 1px solid #e2e8f0;
 }
 
-.out-of-stock-label{
-    color:#dc2626;
-    padding:6px 10px;
-    border-radius:6px;
-    font-size:13px;
-    font-weight:600;
+.out-of-stock-label {
+    color: #dc2626;
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+/* --- Payment Failed Styles --- */
+.failed-page-wrapper {
+    min-height: calc(100vh - 70px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem 0;
+    background: var(--bg-body);
+}
+
+.error-content-wrapper {
+    max-width: 480px;
+    width: 90%;
+    margin: 0 auto;
+    text-align: center;
+    background: white;
+    padding: 2rem 1.75rem;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    border: 1px solid #e2e8f0;
+}
+
+.crossmark-wrapper {
+    width: 65px;
+    height: 65px;
+    border-radius: 50%;
+    background: #fef2f2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.25rem;
+    border: 3px solid #fee2e2;
+    animation: shake 0.6s cubic-bezier(.36, .07, .19, .97) both;
+}
+
+.crossmark-wrapper i {
+    font-size: 2rem;
+    color: #ef4444;
+}
+
+@keyframes shake {
+
+    10%,
+    90% {
+        transform: translate3d(-1px, 0, 0);
+    }
+
+    20%,
+    80% {
+        transform: translate3d(2px, 0, 0);
+    }
+
+    30%,
+    50%,
+    70% {
+        transform: translate3d(-4px, 0, 0);
+    }
+
+    40%,
+    60% {
+        transform: translate3d(4px, 0, 0);
+    }
+}
+
+.error-title {
+    font-size: 1.6rem;
+    margin-bottom: 0.5rem;
+    color: #0f172a;
+    font-weight: 700;
+}
+
+.error-message {
+    color: #64748b;
+    margin-bottom: 1.5rem;
+    font-size: 0.95rem;
+    line-height: 1.4;
+}
+
+.error-info-card {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+    text-align: left;
+}
+
+.error-action-buttons {
+    display: flex;
+    flex-direction: row;
+    gap: 0.75rem;
+}
+
+.error-action-buttons .btn {
+    flex: 1;
+}
+
+@media (max-width: 768px) {
+    .error-action-buttons .btn {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.75rem;
+        white-space: nowrap;
+    }
+}
+
+.btn-try-again {
+    background: #ef4444;
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    color: white;
+    box-shadow: 0 4px 6px -1px rgba(239, 68, 68, 0.4);
+}
+
+.btn-try-again:hover {
+    box-shadow: 0 10px 15px -3px rgba(239, 68, 68, 0.5);
+    transform: translateY(-2px);
+}
+
+.text-gradient-danger {
+    background: linear-gradient(to right, #ef4444, #f97316);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: 700;
+}
+
+.navbar-danger {
+    background: #fffafa !important;
+    border-bottom: 2px solid #fee2e2 !important;
 }

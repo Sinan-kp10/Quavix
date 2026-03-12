@@ -473,7 +473,7 @@ export const checkoutFromCart = async (req, res) => {
       message: "Something went wrong while processing checkout."
     });
   }
-};
+}
 
 export const loadCheckout = async (req, res) => {
     try {
@@ -570,37 +570,45 @@ export const placeOrder = async (req, res) => {
             throw new Error("Invalid payment method");
         }
 
-        const buyNowData=req.session.buyNow || null
+        if (paymentMethod === "razorpay") {
+
+            req.session.checkoutData = {
+                userId,
+                addressId,
+                paymentMethod,
+                buyNow: req.session.buyNow || null
+            };
+
+            return res.json({
+                success: true,
+                razorpay: true
+            });
+        }
+
         const result = await createOrder({
             userId,
             addressId,
             paymentMethod,
-            buyNowData
+            buyNowData: req.session.buyNow || null
         });
 
-        if (paymentMethod !== "razorpay") {
-            req.session.buyNow = null;
-            req.session.fromCart = null;
-        }
+        req.session.buyNow = null;
+        req.session.fromCart = null;
 
         res.json({
             success: true,
-            orderId: result.orderId,
-            paymentMethod
-        })
+            orderId: result.orderId
+        });
 
     } catch (error) {
-
-        console.error(error);
 
         res.json({
             success: false,
             message: error.message
         });
+
     }
-
-}
-
+};
 export const loadOrderSuccess=async(req,res)=>{
     try{
 
@@ -806,4 +814,23 @@ export const downloadInvoice = async (req, res) => {
 
     }
 
+}
+
+export const loadPaymentFailed = async (req, res) => {
+    try {
+
+        const amount = req.query.amount || 0;
+
+        res.render("user/paymentFailed", {
+            title: "Payment Failed - Quavix",
+            css: "userStyle",
+            amount
+        });
+
+    } catch (err) {
+
+        console.log(err);
+        res.redirect("/not-found");
+
+    }
 }
