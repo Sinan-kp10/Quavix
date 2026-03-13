@@ -142,21 +142,41 @@ export const searchProducts = async (req, res) => {
 
         const categories = await categoryModel.find({})
 
-        let wishlistItems = [];
+        let prices = []
+
+        products.forEach(product => {
+
+            const offer = product.offerPercentage || 0
+
+            product.variants.forEach(variant => {
+
+                const finalPrice = Math.round(
+                    variant.price - (variant.price * offer / 100)
+                )
+
+                prices.push(finalPrice)
+            })
+
+        })
+
+        const minPrice = prices.length ? Math.min(...prices) : 0
+        const maxPrice = prices.length ? Math.max(...prices) : 200000
+
+
+        let wishlistItems = []
 
         if (req.session.user) {
             const wishlist = await wishlistModel.findOne({
                 user: req.session.user.id
-            });
+            })
 
             if (wishlist) {
                 wishlistItems = wishlist.items.map(item => ({
                     product: item.product.toString(),
                     variant: item.variant.toString()
-                }));
+                }))
             }
         }
-
 
         res.render("user/products", {
             title: "products-Quavix",
@@ -166,12 +186,13 @@ export const searchProducts = async (req, res) => {
             searchQuery: q,
             wishlistItems,
             totalPages: 1,
-            currentPage: 1
+            currentPage: 1,
+            minPrice,
+            maxPrice
         })
 
     } catch (err) {
         res.status(500).json({ success: false })
-
     }
 }
 

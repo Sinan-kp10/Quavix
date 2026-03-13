@@ -32,7 +32,8 @@ import {
   deleteAddress,
   uploadProfileImage,
   removeProfileImage,
-  notFound
+  notFound,
+  loadReferral
 
 } from "../controllers/userController.js"
 
@@ -150,7 +151,7 @@ router.get("/invoice/:orderId",isLogin, downloadInvoice)
 
 router.get("/wallet",isLogin , loadWallet)
 
-
+router.get("/referral",isLogin,loadReferral)
 
 router.get("/not-found", notFound)
 

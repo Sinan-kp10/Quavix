@@ -1,6 +1,7 @@
 import category from "../models/category.js"
 import userModel from "../models/userModal.js"
 import wishlistModel from "../models/wishlistModel.js"
+import walletModel from "../models/walletModel.js"
 
 import {
     loginUser,
@@ -70,19 +71,22 @@ export const login=async(req,res)=>{
 
 export const register=async(req,res)=>{
     try{
-        const {name,email,password}=req.body
+        const {name,email,password,referral}=req.body
         const result=await registerUser({name,email,password})
 
         req.session.userOtp = result.otp;
         req.session.userData = result.userData;
         req.session.otpExpiry = Date.now() + (2 * 60 * 1000);
+        if(referral){
+            req.session.referral = referral
+        }
         
         return res.render("user/otp", {
             title: "Login-Quavix",
             css: "userStyle", 
             expiryTime: req.session.otpExpiry|| 0,
             formAction: "/loginVerify"
-        });
+        })
 
 
     }catch(err){
@@ -151,10 +155,62 @@ export const verifyOtp = async (req, res)=>{
 
     
     const newUser = new userModel(req.session.userData);
-    await newUser.save();
+    await newUser.save()
 
-    req.session.userOtp = null;
-    req.session.userData = null;
+    if(req.session.referral){
+
+        const referralCode= req.session.referral
+
+        const referrer=await userModel.findOne({referralCode})
+
+        if(referrer){
+
+            let wallet=new walletModel({
+                userId: newUser.id,
+                balance:0,
+                transactions:[]
+
+            })
+            wallet.balance += 100
+
+            wallet.transactions.push({
+                date:new Date(),
+                description: "Referral Signup Bonus",
+                type: "credit",
+                amount: 100,
+            })
+            await wallet.save()
+
+            const walleteChecking=await walletModel.findById(referrer.id)
+
+            if(!walleteChecking){
+
+                let wallet=new walletModel({
+                    userId: referrer.id,
+                    balance:0,
+                    transactions:[]
+
+                })
+                wallet.balance += 100
+
+                wallet.transactions.push({
+                    date:new Date(),
+                    description: "Referral Signup Bonus",
+                    type: "credit",
+                    amount: 100,
+                })
+                await wallet.save()
+
+            }
+            req.session.referral = null
+        }
+
+
+    }
+
+    req.session.userOtp = null
+    req.session.userData = null
+
 
     return res.render("user/login", {
         title: "Login-Quavix",
@@ -708,3 +764,26 @@ export const logout = (req, res) => {
     res.redirect("/login")
 }
 
+export const loadReferral=async (req,res)=>{
+
+    try {
+
+        const user=await userModel.findById(req.session.user.id)
+
+        if(!req.session.user) {
+            return res.redirect("/login");
+        }
+
+
+        res.render("user/referral", {
+            title: "Refer & Earn -Quavix",
+            css: "userStyle",
+            user: user,
+
+        });
+        
+    } catch (err) {
+        console.log(err);
+        res.redirect("/");
+    }
+}
