@@ -178,9 +178,11 @@
                     <div class="wallet-balance-card p-8">
                         <div>
                             <p class="text-white-muted mb-2">Total Balance</p>
-                            <h2 class="text-4xl font-bold text-white mb-0">₹<%= wallet ? wallet.balance.toFixed(2) : "0.00" %></h2>
+                            <h2 class="text-4xl font-bold text-white mb-0">
+                                ₹<%= wallet ? wallet.balance.toLocaleString("en-IN", {minimumFractionDigits: 2}) : "0.00" %>
+                            </h2>
                         </div>
-                        <button class="btn-reload" title="Reload Balance">
+                        <button id="reloadBtn" class="btn-reload" title="Reload Balance">
                             <i class="fa-solid fa-rotate-right"></i>
                         </button>
                     </div>
@@ -244,7 +246,7 @@
                                             <span class="mobile-label">Amount</span>
 
                                             <span class="amount-value">
-                                                ₹<%= transaction.amount.toFixed(2) %>
+                                                ₹<%= transaction.amount.toLocaleString("en-IN",{minimumFractionDigits:2}) %>
                                             </span>
 
                                         </div>
@@ -310,6 +312,12 @@
                 document.querySelector("#walletContent").innerHTML = newContent
 
             })
+
+        })
+
+        document.getElementById("reloadBtn").addEventListener("click", function(){
+
+            location.reload()
 
         })
 

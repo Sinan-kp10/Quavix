@@ -6562,7 +6562,7 @@ footer a:hover {
     font-size: 0.7rem;
     font-weight: 600;
     border-radius: 9999px;
-    text-transform: uppercase;
+    text-transform: capitalize;
 }
 
 .order-details-page .order-status-banner .btn-primary {
@@ -7566,9 +7566,14 @@ ORDER TRACKING & STATUS BADGES CSS
     color: #ea580c;
 }
 
-.badge-returnRequest {
-    background: #fef3c7;
-    color: #b45309;
+.badge-return-request {
+    background:  #e8f7fd;
+    color: #0099ff;
+}
+
+.badge-return-rejected {
+    background: #ffebc6;
+    color: #db0c0c;
 }
 
 .returned-text {
@@ -7947,10 +7952,9 @@ ORDER TRACKING & STATUS BADGES CSS
     font-size: 0.9rem;
     font-weight: 600;
     color: var(--text-main);
-    background: #f8fafc;
     padding: 0.25rem 0.75rem;
     border-radius: 20px;
-    border: 1px solid #e2e8f0;
+
 }
 
 .out-of-stock-label {
@@ -8033,7 +8037,7 @@ ORDER TRACKING & STATUS BADGES CSS
     font-weight: 700;
 }
 
-.error-message {
+.error-message-1 {
     color: #64748b;
     margin-bottom: 1.5rem;
     font-size: 0.95rem;
@@ -8090,4 +8094,34 @@ ORDER TRACKING & STATUS BADGES CSS
 .navbar-danger {
     background: #fffafa !important;
     border-bottom: 2px solid #fee2e2 !important;
+}
+
+
+.pay-status-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 10px;
+    border-radius: 999px;
+    font-size: 0.7rem;
+    font-weight: 700;
+}
+
+.pay-status-pending {
+    background: #fef3c7;
+    color: #b45309;
+}
+
+.pay-status-paid {
+    background: #dcfce7;
+    color: #16a34a;
+}
+
+.pay-status-failed {
+    background: #e79551;
+    color: #ef4444;
+}
+
+.pay-status-refunded {
+    background: #fee2e2;
+    color: #ef6644;
 }

@@ -23,7 +23,8 @@ import {
     removeProduct,
     loadOrders,
     editOrderStatus,
-    OrderDetails
+    OrderDetails,
+    handleReturnRequest
     
 } from "../controllers/adminController.js"
 
@@ -51,6 +52,8 @@ router.post("/admin/products/delete/:id", removeProduct)
 router.get("/admin/orders",isLogin,loadOrders)
 router.post("/admin/orders",isLogin, editOrderStatus)
 router.get("/admin/orders/:id/:itemIndex", isLogin, OrderDetails)
+router.post("/admin/return-action",isLogin, handleReturnRequest)
+
 
 
 

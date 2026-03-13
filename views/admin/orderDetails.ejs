@@ -1,6 +1,11 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
 <body class="page-orders">
+    <% if (typeof toastMessage !== "undefined") { %>
+        <div id="toast" class="toast <%= toastType %>">
+            <%= toastMessage %>
+        </div>
+    <% } %>
 
     <div class="admin-layout">
         <!-- Mobile Header -->
@@ -150,7 +155,7 @@
                             </span>
 
                             <span class="font-bold text-primary">
-                                ₹<%= order.totalAmount.toLocaleString("en-IN") %>
+                                ₹<%= item.total.toLocaleString("en-IN") %>
                             </span>
 
                         </div>
@@ -188,7 +193,7 @@
 
                         <div class="p-item-right">
 
-                            <span class="item-delivery-status badge-<%= item.orderStatus %>">
+                            <span class="item-delivery-status badge-<%= item.orderStatus.replaceAll('_','-').toLowerCase() %>">
                                 <%= item.orderStatus.replaceAll("_"," ").replace(/\b\w/g,l=>l.toUpperCase()) %>
                             </span>
 
@@ -214,7 +219,7 @@
                 };
                 %>
 
-                <% if(item.orderStatus === "returned" || item.orderStatus === "cancelled"){ %>
+                <% if(item.orderStatus === "return_Request" || item.orderStatus === "returned" || item.orderStatus === "cancelled"){ %>
 
                     <div class="info-card mb-4 mt-4"
                     style="border-left:4px solid #ef4444;background:#fef2f2;">
@@ -252,6 +257,33 @@
                         </div>
 
                     </div>
+                    <% if(item.orderStatus === "return_Request"){ %>
+
+                        <div class="return-actions">
+
+                            <form method="POST" action="/admin/return-action">
+                                <input type="hidden" name="orderId" value="<%= order._id %>">
+                                <input type="hidden" name="variantId" value="<%= item.variantId %>">
+                                <input type="hidden" name="action" value="approve">
+
+                                <button type="button" class="btn btn-return-accept approve-btn">
+                                    <i class="fa-solid fa-check"></i> Approve Return
+                                </button>
+                            </form>
+
+                            <form method="POST" action="/admin/return-action">
+                                <input type="hidden" name="orderId" value="<%= order._id %>">
+                                <input type="hidden" name="variantId" value="<%= item.variantId %>">
+                                <input type="hidden" name="action" value="reject">
+
+                                <button type="button" class="btn btn-return-reject reject-btn">
+                                    <i class="fa-solid fa-xmark"></i> Reject Return
+                                </button>
+                            </form>
+
+                        </div>
+
+                    <% } %>
 
                     </div>
 
@@ -266,6 +298,62 @@
             document.querySelector('.sidebar').classList.toggle('active');
             document.getElementById('sidebarOverlay').classList.toggle('active');
         }
+        function handleReturn(action) {
+            if (action === 'approve') {
+                alert('Return request approved!');
+
+            } else if (action === 'reject') {
+                alert('Return request rejected.');
+  
+            }
+        }
+
+        document.addEventListener("click", function(e){
+
+            const approveBtn = e.target.closest(".approve-btn");
+            const rejectBtn = e.target.closest(".reject-btn");
+
+            if(approveBtn){
+
+                const form = approveBtn.closest("form");
+
+                Swal.fire({
+                    title: "Approve Return?",
+                    text: "Are you sure you want to approve this return request?",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#16a34a",
+                    cancelButtonColor: "#64748b",
+                    confirmButtonText: "Yes, approve it"
+                }).then((result)=>{
+                    if(result.isConfirmed){
+                        form.submit();
+                    }
+                });
+
+            }
+
+            if(rejectBtn){
+
+                const form = rejectBtn.closest("form");
+
+                Swal.fire({
+                    title: "Reject Return?",
+                    text: "Are you sure you want to reject this return request?",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#ef4444",
+                    cancelButtonColor: "#64748b",
+                    confirmButtonText: "Yes, reject it"
+                }).then((result)=>{
+                    if(result.isConfirmed){
+                        form.submit();
+                    }
+                });
+
+            }
+
+        });
     </script>
 </body>
 

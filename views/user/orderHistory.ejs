@@ -196,7 +196,7 @@
 
                         <div class="order-header-actions">
 
-                            <div class="status-badge badge-<%= item.orderStatus.replaceAll("_","-") %>">
+                            <div class="status-badge badge-<%= item.orderStatus.toLowerCase().replaceAll("_","-") %>">
 
                                 <% if(item.orderStatus === "pending"){ %>
                                     <i class="fa-solid fa-box"></i>
@@ -222,7 +222,7 @@
                                     <i class="fa-solid fa-rotate-left"></i>
                                 <% } %>
 
-                                <%= item.orderStatus.replaceAll("_"," ").toUpperCase() %>
+                                <%= item.orderStatus.replaceAll("_"," ").replace(/\b\w/g,l=>l.toUpperCase()) %>
 
                             </div>
 

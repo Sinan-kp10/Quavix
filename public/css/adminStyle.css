@@ -451,12 +451,14 @@ img {
     gap: 0.5rem;
 }
 
+
 .badge-pending {
     background: #fef3c7;
     color: #b45309;
 }
 
 .badge-shipped {
+
     background: #e0f2fe;
     color: #0369a1;
 }
@@ -478,13 +480,17 @@ img {
 
 .badge-returned {
     background: #f7e7d5;
-    color: #c2410c;
+    color: #ea580c;
 }
 
+.badge-return-request {
+    background:  #e8f7fd;
+    color: #0099ff;
+}
 
-.badge-returnRequest{
-    background:#fef3c7;
-    color:#b45309;
+.badge-return-rejected {
+    background: #ffebc6;
+    color: #db0c0c;
 }
 
 .returned-text {
@@ -1616,15 +1622,10 @@ img {
     gap: 1.5rem;
 }
 
-@media (max-width: 1280px) {
+@media (max-width: 1024px) {
     .coupon-grid {
         grid-template-columns: repeat(2, 1fr);
-    }
-}
-
-@media (max-width: 768px) {
-    .coupon-grid {
-        grid-template-columns: 1fr;
+        gap: 0.75rem;
     }
 }
 
@@ -2186,6 +2187,151 @@ img {
     box-shadow: none;
 }
 
+/* Coupon Toolbar & Responsiveness */
+.coupon-toolbar {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+/* Desktop Compact Height for Coupons */
+.coupon-toolbar .form-input,
+.coupon-toolbar .form-select,
+.coupon-toolbar .btn {
+    height: 40px !important;
+    min-height: 40px !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+}
+
+.coupon-toolbar .btn {
+    padding: 0 1.25rem !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+/* Force widths and alignment on desktop without affecting mobile expansion */
+@media (min-width: 641px) {
+    .coupon-toolbar {
+        display: flex !important;
+        flex-direction: row !important;
+        justify-content: flex-start !important;
+        gap: 1rem !important;
+    }
+
+    .coupon-toolbar .search-group {
+        width: 400px !important;
+        flex: 0 0 400px !important;
+    }
+
+    .coupon-toolbar .w-search {
+        width: 100% !important;
+        /* Let input fill the 300px group */
+    }
+
+    .coupon-toolbar .w-filter {
+        width: 150px !important;
+        max-width: 150px !important;
+        flex: 0 0 150px !important;
+    }
+}
+
+/* Mobile Stacking */
+@media (max-width: 640px) {
+    .coupon-toolbar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .coupon-toolbar .search-group,
+    .coupon-toolbar .form-select,
+    .coupon-toolbar .w-search,
+    .coupon-toolbar .w-filter {
+        width: 100% !important;
+    }
+}
+
+/* Responsive Headers */
+.responsive-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+}
+
+@media (max-width: 480px) {
+    .responsive-header h2 {
+        font-size: 1.25rem;
+        /* Slightly smaller title on very small screens */
+    }
+}
+
+/* Coupon Card Stacking and Scaling on Tablets and Mobile */
+@media (max-width: 1024px) {
+    .coupon-card {
+        min-height: 110px;
+        /* Reduced from 140px */
+    }
+
+    .coupon-left {
+        flex: 0 0 35%;
+        padding: 0.5rem;
+        /* Reduced padding */
+    }
+
+    .coupon-off {
+        font-size: 1.15rem;
+        /* Slightly smaller */
+    }
+
+    .coupon-min-purchase {
+        font-size: 0.6rem;
+    }
+
+    .coupon-right {
+        padding: 0.5rem 0.75rem;
+        /* Tighter padding */
+    }
+
+    .coupon-code-box {
+        font-size: 0.85rem;
+        padding: 0.2rem 0.4rem;
+        margin-bottom: 0.4rem;
+    }
+
+    .coupon-meta {
+        font-size: 0.7rem;
+        margin-bottom: 0.35rem;
+    }
+
+    .coupon-actions {
+        gap: 0.35rem;
+    }
+
+    .coupon-actions .btn {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.65rem;
+    }
+}
+
+@media (max-width: 480px) {
+
+    /* When screen is very small, we might want to scale slightly more but keep 2 columns */
+    .coupon-left {
+        padding: 0.5rem;
+    }
+
+    .coupon-off {
+        font-size: 1.1rem;
+    }
+
+    .coupon-right {
+        padding: 0.5rem;
+    }
+}
+
 .search-clear {
     position: absolute;
     right: 50px;
@@ -2677,13 +2823,13 @@ img {
 }
 
 .pay-status-failed {
-    background: #fee2e2;
+    background: #e79551;
     color: #ef4444;
 }
 
 .pay-status-refunded {
-    background: #ede9fe;
-    color: #6d28d9;
+    background: #fee2e2;
+    color: #ef6644;
 }
 
 /* ── Order Meta Bar (replaces 2-col info grid) ───── */
@@ -2914,7 +3060,6 @@ img {
     gap: 0.75rem;
     margin-top: 1.5rem;
     padding-top: 1.25rem;
-    border-top: 1px solid rgba(0, 0, 0, 0.05);
     justify-content: flex-end;
 }
 
@@ -2932,17 +3077,16 @@ img {
 }
 
 .btn-return-reject {
-    background: white;
-    border: 1px solid #fecaca;
-    color: #475569;
+    background: #ef4444;
+    color: white;
     min-width: 140px;
+    box-shadow: 0 4px 6px -1px rgba(239, 68, 68, 0.2);
 }
 
 .btn-return-reject:hover {
-    background: #f1f5f9;
-    color: #ef4444;
-    border-color: #ffa4a4;
+    background: #dc2626;
     transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(239, 68, 68, 0.3);
 }
 
 /* Notification System */
@@ -3075,12 +3219,12 @@ img {
     border-bottom: none;
 }
 
-.notification-item:hover {
-    background: #fff1f2;
-}
-
 .notification-item.unread {
     background: #ffffff;
+}
+
+.notification-item:hover {
+    background: #f0f4f8;
 }
 
 .notification-icon {

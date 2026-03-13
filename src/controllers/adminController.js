@@ -5,6 +5,9 @@ import productModel from "../models/productModal.js"
 import cloudinary from "../config/cloudinary.js";
 import { compressImage } from "../utils/imageUpload.js";
 import orderModel from "../models/orderModel.js";
+import userModal from "../models/userModal.js";
+import walletModel from "../models/walletModel.js";
+
 
 
 import {
@@ -705,6 +708,88 @@ export const OrderDetails = async (req, res) => {
         })
 
     } catch (err) {
+        console.log(err)
+        res.redirect("/admin/orders")
+    }
+}
+
+export const handleReturnRequest = async (req, res) => {
+
+    try{
+
+        const { orderId, variantId, action } = req.body
+
+        const order = await orderModel.findById(orderId)
+
+        if(!order){
+            return res.redirect("/admin/orders")
+        }
+
+        // find index of the item
+        const itemIndex = order.items.findIndex(
+            i => i.variantId.toString() === variantId
+        )
+
+        if(itemIndex === -1){
+            return res.redirect("/admin/orders")
+        }
+
+        const item = order.items[itemIndex]
+
+        if(!item){
+            return res.redirect("/admin/orders")
+        }
+
+        if(item.orderStatus !== "return_Request"){
+            res.redirect(`/admin/orders/${orderId}/${itemIndex}`)
+        }
+
+        if(action === "approve"){
+
+            item.orderStatus = "returned"
+
+            if(item.paymentStatus === "paid"){
+
+                const user = await userModal.findById(order.user)
+
+                let wallet = await walletModel.findOne({ userId: user.id })
+
+                if(!wallet){
+                    wallet = new walletModel({
+                        userId: user.id,
+                        balance: 0,
+                        transactions: []
+                    })
+                }
+
+                const refundAmount = item.total
+
+                wallet.balance += refundAmount
+
+                wallet.transactions.push({
+                    date: new Date(),
+                    description: "Return refund",
+                    type: "credit",
+                    amount: refundAmount,
+                    orderId: order._id
+                })
+
+                item.paymentStatus = "refunded"
+
+                await wallet.save()
+            }
+
+        }
+
+        if(action === "reject"){
+            item.orderStatus = "return_rejected"
+        }
+
+        await order.save()
+
+        res.redirect(`/admin/orders/${orderId}/${itemIndex}`)
+
+    }catch(err){
         console.log(err)
         res.redirect("/admin/orders")
     }

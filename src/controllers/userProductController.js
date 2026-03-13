@@ -4,6 +4,7 @@ import categoryModel from "../models/category.js"
 import wishlistModel from "../models/wishlistModel.js"
 import cartModel from "../models/cartModel.js"
 import orderModel from "../models/orderModel.js"
+import walletModel from "../models/walletModel.js"
 import pdf from "html-pdf-node"
 import ejs from "ejs"
 import path from "path"
@@ -745,25 +746,77 @@ export const orderRequest = async (req,res)=>{
             item.returnDescription = description
             item.returnedAt = new Date()
 
-            item.orderStatus = "returned"
+            item.orderStatus = "return_Request"
+
+            req.session.toastMessage = "Return request submitted. Waiting for admin approval"
+            req.session.toastType = "success"
 
         }else{
 
-            item.cancelReason = reason
-            item.cancelDescription = description
-            item.cancelledAt = new Date()
-            item.orderStatus = "cancelled"
+            if(item.paymentStatus=="paid"){
 
-            await productModel.updateOne(
-                { "variants._id": item.variantId },
-                { $inc: { "variants.$.stock": item.quantity } }
-            )
+                item.cancelReason = reason
+                item.cancelDescription = description
+                item.cancelledAt = new Date()
+                item.orderStatus = "cancelled"
+
+                await productModel.updateOne(
+                    { "variants._id": item.variantId },
+                    { $inc: { "variants.$.stock": item.quantity } }
+                )
+
+                const user=await userModel.findById(req.session.user.id)
+
+                let wallet= await walletModel.findOne({userId:user.id})
+
+                if(!wallet){
+
+                    wallet=new walletModel({
+                        userId:user,
+                        balance:0,
+                        transactions: []
+
+                    })
+                }
+
+                const refundAmount = item.total
+
+                wallet.balance += refundAmount
+
+                wallet.transactions.push({
+                    date:new Date(),
+                    description: "Cancellation refund",
+                    type: "credit",
+                    amount: refundAmount,
+                    orderId: order._id
+                })
+
+                item.paymentStatus ="refunded"
+
+                req.session.toastMessage = "Refund successfully added to your wallet"
+                req.session.toastType = "success"
+                await wallet.save()
+
+
+            }else{
+
+                item.cancelReason = reason
+                item.cancelDescription = description
+                item.cancelledAt = new Date()
+                item.orderStatus = "cancelled"
+
+                await productModel.updateOne(
+                    { "variants._id": item.variantId },
+                    { $inc: { "variants.$.stock": item.quantity } }
+                )
+            }
+            
 
         }
 
         await order.save()
 
-        res.redirect("/order-details/" + order.orderId)
+        res.redirect(`/order-details/${order.orderId}?item=${variantId}`)
 
     }catch(err){
         console.log(err)
