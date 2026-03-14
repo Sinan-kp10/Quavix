@@ -37,7 +37,13 @@
                             <a href="products.html"><i class="fa-solid fa-shop"></i> Shop</a>
                             <a href="/order-history"><i class="fa-solid fa-box"></i> Orders</a>
                             <a href="/wishlist"><i class="fa-regular fa-heart"></i> Wishlist</a>
-                            <a href="/cart"><i class="fa-solid fa-cart-shopping"></i> Cart</a>
+                            <a href="/cart" class="relative">
+                                <i class="fa-solid fa-cart-shopping"></i> Cart
+
+                                <span id="cartSidebarBadge" class="badge cart-sidebar-badge">
+                                    <%= cartCount %>
+                                </span>
+                            </a>
                             <% if (user) { %>
                                 <a href="/profile"><i class="fa-solid fa-user"></i> Profile</a>
                                 <a href="/logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
@@ -72,9 +78,9 @@
                         <a href="/cart" class="relative">
                             <i class="fa-solid fa-cart-shopping nav-icon-lg"></i>
 
-                            <% if (cartCount > 0) { %>
-                                <span class="badge cart-badge"><%= cartCount %></span>
-                            <% } %>
+                            <span id="cartBadge" class="badge-1 cart-badge">
+                                <%= cartCount %>
+                            </span>
                         </a>
                         <% if (user) { %>
                             <a href="/profile" class="nav-profile-icon">
@@ -509,6 +515,9 @@
 
         <% } %>
 
+    <script src="/js/user/navbar.js"></script>
+
+
     <script>
         const mainImageContainer = document.querySelector('.main-image-container');
 
@@ -544,9 +553,9 @@
             }
         });
 
-    </script>
 
-    <script>
+
+
 
         //wishlist
 
@@ -591,6 +600,7 @@
                     icon.style.color = "red";
 
                     triggerToast(data.message, "success");
+
                 } else {
                     icon.classList.remove("fa-solid");
                     icon.classList.add("fa-regular");
@@ -642,6 +652,7 @@
                 }
 
                 triggerToast(data.message, "success");
+                increaseCartBadge(1);
 
             } catch (error) {
                 triggerToast("Something went wrong", "error");

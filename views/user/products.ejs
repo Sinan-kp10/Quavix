@@ -36,7 +36,14 @@
                     <a href="/products"><i class="fa-solid fa-shop"></i> Shop</a>
                     <a href="/order-history"><i class="fa-solid fa-box"></i> Orders</a>
                     <a href="/wishlist"><i class="fa-regular fa-heart"></i> Wishlist</a>
-                    <a href="/cart"><i class="fa-solid fa-cart-shopping"></i> Cart</a>
+                    <a href="/cart" class="relative">
+                        <i class="fa-solid fa-cart-shopping"></i> Cart
+
+                        <% if (cartCount > 0) { %>
+                            <span class="badge cart-sidebar-badge"><%= cartCount %></span>
+                        <% } %>
+
+                    </a>
                     <% if (user) { %>
                             <a href="/profile"><i class="fa-solid fa-user"></i> Profile</a>
                             <a href="/logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
@@ -314,7 +321,11 @@
                                     </span>
                                 </div>
                                 <% } %>
-
+                                <% if (activeVariant.stock === 0) { %>
+                                    <span class="stock-status text-red font-bold text-sm">
+                                        Out of Stock
+                                    </span>
+                                <% } %>
                             </div>
 
                         </div>
@@ -493,7 +504,6 @@
 
         updateSliderTrack();
 
-
         function renderProducts(products) {
 
             const grid = document.querySelector(".product-grid");
@@ -532,6 +542,7 @@
                 const rom   = romAttr?.value || "";
 
                 const titleExtra = [color, rom].filter(Boolean).join(", ");
+
                 let memoryHTML = "";
                 let highlightLimit = 4;
 
@@ -560,6 +571,14 @@
                             </span>
                         </div>
                     `
+                    : "";
+
+                const stock = variant.stock || 0;
+
+                const stockHTML = stock === 0
+                    ? `<span class="stock-status text-red font-bold text-sm">
+                            Out of Stock
+                    </span>`
                     : "";
 
                 grid.innerHTML += `
@@ -615,6 +634,8 @@
 
                             ${oldPriceHTML}
 
+                            ${stockHTML}
+
                         </div>
 
                     </div>
@@ -623,6 +644,7 @@
                 `;
             });
         }
+        
 
         //pagination
         function renderPagination(totalPages, currentPage) {

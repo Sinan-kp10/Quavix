@@ -2129,7 +2129,7 @@ img {
 
 .toast {
     position: fixed;
-    top: 25px;
+    top: 75px;
     right: 25px;
     min-width: 260px;
     padding: 14px 18px;

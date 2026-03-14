@@ -40,10 +40,9 @@
                     <a href="/cart" class="relative">
                         <i class="fa-solid fa-cart-shopping"></i> Cart
 
-                        <% if (cartCount > 0) { %>
-                            <span class="badge cart-sidebar-badge"><%= cartCount %></span>
-                        <% } %>
-
+                        <span id="cartSidebarBadge" class="badge cart-sidebar-badge">
+                            <%= cartCount %>
+                        </span>
                     </a>
                     <% if (user) { %>
                             <a href="/profile"><i class="fa-solid fa-user"></i> Profile</a>
@@ -77,10 +76,11 @@
                     <i class="fa-regular fa-heart nav-icon-lg"></i>
                 </a>
                 <a href="/cart" class="relative">
-                    <i class="fa-solid fa-cart-shopping nav-icon-lg text-primary"></i>
-                    <% if (cartCount > 0) { %>
-                        <span class="badge cart-badge"><%= cartCount %></span>
-                    <% } %>
+                    <i class="fa-solid fa-cart-shopping nav-icon-lg"></i>
+
+                    <span id="cartBadge" class="badge cart-badge">
+                        <%= cartCount %>
+                    </span>
                 </a>
                 <% if (user) { %>
                     <a href="/profile" class="nav-profile-icon">
