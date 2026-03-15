@@ -624,6 +624,8 @@ export const loadOrders = async (req, res) => {
 
         const totalPages = Math.ceil(totalItems / limit)
 
+        const returnRequests = await orderModel.find({"items.orderStatus": "return_Request"}).populate("user", "email")
+
         res.render("admin/orders", {
             title: "Manage Orders - Quavix",
             css: "adminStyle",
@@ -631,7 +633,8 @@ export const loadOrders = async (req, res) => {
             status,
             search,
             currentPage: page,
-            totalPages
+            totalPages,
+            returnRequests
         })
 
     } catch (err) {
@@ -725,10 +728,7 @@ export const handleReturnRequest = async (req, res) => {
             return res.redirect("/admin/orders")
         }
 
-        // find index of the item
-        const itemIndex = order.items.findIndex(
-            i => i.variantId.toString() === variantId
-        )
+        const itemIndex = order.items.findIndex(i => i.variantId.toString() === variantId)
 
         if(itemIndex === -1){
             return res.redirect("/admin/orders")

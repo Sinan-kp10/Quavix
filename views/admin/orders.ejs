@@ -31,8 +31,8 @@
                 <a href="/admin/dashboard" class="sidebar-link"><i class="fa-solid fa-chart-line"></i> Dashboard</a>
                 <a href="/admin/products" class="sidebar-link"><i class="fa-solid fa-box"></i> Products</a>
                 <a href="/admin/orders" class="sidebar-link active"><i class="fa-solid fa-clipboard-list"></i> Orders</a>
-                <a href="coupons.html" class="sidebar-link"><i class="fa-solid fa-ticket"></i> Coupons</a>
-                <a href="/admin/categories" class="sidebar-link"><i class="fa-solid fa-tags"></i> Categories</a>
+                <a href="/admin/coupons" class="sidebar-link"><i class="fa-solid fa-ticket"></i> Coupons</a>
+                <a href="/admin/category" class="sidebar-link"><i class="fa-solid fa-tags"></i> Categories</a>
                 <a href="/admin/users." class="sidebar-link"><i class="fa-solid fa-users"></i> Users</a>
                 <a href="banner.html" class="sidebar-link"><i class="fa-solid fa-image"></i> Banner</a>
                 <a href="reports.html" class="sidebar-link"><i class="fa-solid fa-chart-pie"></i> Reports</a>
@@ -49,24 +49,68 @@
                 <h2>Order Management</h2>
                 <div class="header-actions">
                     <div class="notification-wrapper">
+                        <%let returnCount = 0;
+
+                        returnRequests.forEach(order => {
+                            order.items.forEach(item => {
+                                if(item.orderStatus === "return_Request"){
+                                    returnCount++;
+                                }
+                            })
+                        });
+                        %>
+
                         <button class="notification-btn" onclick="toggleNotifications()">
                             <i class="fa-solid fa-bell"></i>
-                            <span class="notification-badge">1</span>
+
+                            <% if(returnCount > 0){ %>
+                                <span class="notification-badge">
+                                    <%= returnCount %>
+                                </span>
+                            <% } %>
+
                         </button>
                         <div class="notification-dropdown" id="notificationDropdown">
                             <div class="notification-header">
                                 <h3>Notifications</h3>
-                                <button class="mark-all-btn">Mark all as read</button>
                             </div>
                             <div class="notification-list">
-                                <a href="order-details.html" class="notification-item unread">
-                                    <div class="notification-icon return"><i class="fa-solid fa-rotate-left"></i></div>
-                                    <div class="notification-content">
-                                        <p>New <strong>Return Request</strong> for #ORD-2024-004</p>
-                                        <span class="notification-time">2 mins ago</span>
+
+                                <% if(returnRequests.length === 0){ %>
+
+                                    <div class="notification-item">
+                                        <p>No notifications</p>
                                     </div>
+
+                                <% } %>
+
+                                <% returnRequests.forEach(order => { 
+                                    order.items.forEach((item,i)=>{
+
+                                        if(item.orderStatus === "return_Request"){
+                                %>
+
+                                <a href="/admin/orders/<%= order._id %>/<%= i %>" class="notification-item unread">
+
+                                    <div class="notification-icon return">
+                                        <i class="fa-solid fa-rotate-left"></i>
+                                    </div>
+
+                                    <div class="notification-content">
+                                        <p>
+                                            New <strong>Return Request</strong> for #<%= order.orderId %>
+                                        </p>
+
+                                        <span class="notification-time">
+                                            <%= item.returnedAt ? new Date(item.returnedAt).toLocaleString("en-IN") : "" %>
+                                        </span>
+                                    </div>
+
                                 </a>
-                            </div>
+
+                                <%  } }) }) %>
+
+                                </div>
                         </div>
                     </div>
                 </div>
@@ -134,73 +178,73 @@
                                 const item = data.item
                             %>
 
-                                <tr>
+                            <tr>
 
-                                    <td>
-                                        <span class="font-medium">#<%= order.orderId %></span>
-                                    </td>
+                                <td>
+                                    <span class="font-medium">#<%= order.orderId %></span>
+                                </td>
 
-                                    <td>
-                                        <%= new Date(order.createdAt).toLocaleDateString("en-IN",{day:"2-digit",month:"short",year:"numeric"}) %>
-                                    </td>
+                                <td>
+                                    <%= new Date(order.createdAt).toLocaleDateString("en-IN",{day:"2-digit",month:"short",year:"numeric"}) %>
+                                </td>
 
-                                    <td>
-                                        <div class="font-medium"><%= order.shippingAddress.fullname %></div>
-                                        <div class="text-xs text-muted"><%= order.user?.email || "" %></div>
-                                    </td>
+                                <td>
+                                    <div class="font-medium"><%= order.shippingAddress.fullname %></div>
+                                    <div class="text-xs text-muted"><%= order.user?.email || "" %></div>
+                                </td>
 
-                                    <td>
-                                        <%= order.paymentMethod === "cod" ? "COD" : 
-                                            order.paymentMethod === "razorpay" ? "Razorpay" : 
-                                            order.paymentMethod === "wallet" ? "Wallet" : "" %>
-                                    </td>
+                                <td>
+                                    <%= order.paymentMethod === "cod" ? "COD" : 
+                                        order.paymentMethod === "razorpay" ? "Razorpay" : 
+                                        order.paymentMethod === "wallet" ? "Wallet" : "" %>
+                                </td>
 
-                                    <td class="td-status">
+                                <td class="td-status">
 
-                                        <% if(item.orderStatus === "cancelled"){ %>
+                                    <% if(item.orderStatus === "cancelled"){ %>
 
-                                            <span class="order-status-badge badge-cancelled">
-                                                Cancelled
-                                            </span>
+                                        <span class="order-status-badge badge-cancelled">
+                                            Cancelled
+                                        </span>
 
-                                        <% } else if(item.orderStatus === "return_Request"){ %>
+                                    <% } else if(item.orderStatus === "return_Request"){ %>
 
-                                            <span class="order-status-badge badge-return-request">
-                                                Return Request
-                                            </span>
+                                        <span class="order-status-badge badge-return-request">
+                                            Return Request
+                                        </span>
 
-                                        <% } else if(item.orderStatus === "returned"){ %>
+                                    <% } else if(item.orderStatus === "returned"){ %>
 
-                                            <span class="order-status-badge badge-returned">
-                                                Returned
-                                            </span>
+                                        <span class="order-status-badge badge-returned">
+                                            Returned
+                                        </span>
 
-                                        <% } else { %>
+                                    <% } else { %>
 
-                                           <span class="order-status-badge badge-<%= item.orderStatus.toLowerCase().replaceAll('_','-') %>">
-                                                <%= item.orderStatus.replaceAll('_',' ').replace(/\b\w/g,l=>l.toUpperCase()) %>
-                                            </span>
+                                        <span class="order-status-badge badge-<%= item.orderStatus.toLowerCase().replaceAll('_','-') %>">
+                                            <%= item.orderStatus.replaceAll('_',' ').replace(/\b\w/g,l=>l.toUpperCase()) %>
+                                        </span>
 
-                                        <% } %>
+                                    <% } %>
 
-                                    </td>
+                                </td>
 
-                                    <td>
-                                        <div class="actions-wrap">
+                                <td>
+                                    <div class="actions-wrap">
 
-                                            <a href="/admin/orders/<%= order._id %>/<%= data.itemIndex %>" class="btn-circle">
-                                                <i class="fa-solid fa-eye"></i>
-                                            </a>
+                                        <a href="/admin/orders/<%= order._id %>/<%= data.itemIndex %>" class="btn-circle">
+                                            <i class="fa-solid fa-eye"></i>
+                                        </a>
 
-                                            <button class="btn-circle"
-                                                onclick="openModal('edit_<%= order._id %>_<%= i %>')">
-                                                <i class="fa-solid fa-pen"></i>
-                                            </button>
+                                        <button class="btn-circle"
+                                            onclick="openModal('edit_<%= order._id %>_<%= i %>')">
+                                            <i class="fa-solid fa-pen"></i>
+                                        </button>
 
-                                        </div>
-                                    </td>
+                                    </div>
+                                </td>
 
-                                </tr>
+                            </tr>
 
                             
 

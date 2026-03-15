@@ -1,0 +1,184 @@
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<body>
+
+    <div class="admin-layout">
+        <!-- Mobile Header -->
+        <div class="mobile-header">
+            <div class="mobile-logo">
+                <i class="fa-solid fa-bolt"></i> Quavix
+            </div>
+            <button class="menu-toggle" onclick="toggleSidebar()">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+        </div>
+
+        <!-- Sidebar Overlay -->
+        <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo">
+                <i class="fa-solid fa-bolt"></i> Quavix Admin
+            </div>
+
+             <nav>
+                <a href="/admin/dashboard"  class="sidebar-link"><i class="fa-solid fa-chart-line"></i>
+                    Dashboard</a>
+                <a href="/admin/products" class="sidebar-link"><i class="fa-solid fa-box"></i>
+                    Products</a>
+                <a href="/admin/orders" class="sidebar-link"><i class="fa-solid fa-clipboard-list"></i> Orders</a>
+                <a href="/admin/coupons" class="sidebar-link active"><i class="fa-solid fa-ticket"></i> Coupons</a>
+                <a href="/admin/category" class="sidebar-link"><i class="fa-solid fa-tags"></i>
+                    Categories</a>
+                <a href="/admin/users"  class="sidebar-link"><i class="fa-solid fa-users"></i>
+                    Users</a>
+                <a href="banner.html" class="sidebar-link"><i class="fa-solid fa-image"></i>
+                    Banner</a>
+
+                <a href="reports.html" class="sidebar-link"><i class="fa-solid fa-chart-pie"></i>
+                    Reports</a>
+
+            </nav>
+
+            <div class="sidebar-footer">
+                <a href="/admin/logout" class="sidebar-link"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+            </div>
+        </aside>
+
+        <!-- Coupon Content -->
+        <main class="content">
+            <header class="responsive-header mb-6">
+                <h2>Coupon Management</h2>
+                <button class="btn btn-primary" onclick="openModal('couponModal')"><i class="fa-solid fa-plus"></i> Add
+                    Coupon</button>
+            </header>
+
+
+
+            <!-- Search and Filter -->
+            <div class="mb-6">
+                <div class="coupon-toolbar">
+                    <div class="search-group">
+                        <input type="text" id="searchInput" class="form-input bg-white w-search"
+                            placeholder="Search coupons...">
+                        <button class="btn btn-primary"><i class="fa-solid fa-magnifying-glass"></i></button>
+                    </div>
+                    <select id="statusFilter" class="form-select bg-white w-filter">
+                        <option value="all">All Status</option>
+                        <option value="active">Active</option>
+                        <option value="expired">Expired</option>
+                    </select>
+                </div>
+            </div>
+
+
+            <div class="coupon-grid">
+                <!-- Active Coupon 1 -->
+                <div class="coupon-card active">
+                    <div class="coupon-left">
+                        <div class="coupon-off">₹500 <br> OFF</div>
+                        <div class="coupon-min-purchase">Min. purchase ₹5,000</div>
+                    </div>
+                    <div class="coupon-right">
+
+                        <div class="coupon-code-box">WELCOME500</div>
+                        <p class="coupon-meta">Exp: 31 Dec 2026</p>
+                        <div class="coupon-actions flex gap-2 mt-3">
+                            <button class="btn btn-outline btn-sm py-1" onclick="openModal('couponModal')">Edit</button>
+                            <button class="btn btn-remove btn-sm py-1">Remove</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Active Coupon 2 -->
+                <div class="coupon-card active">
+                    <div class="coupon-left">
+                        <div class="coupon-off">₹2000 <br> OFF</div>
+                        <div class="coupon-min-purchase">Min. purchase ₹10,000</div>
+                    </div>
+                    <div class="coupon-right">
+
+                        <div class="coupon-code-box">HBSCC2000</div>
+                        <p class="coupon-meta">Exp: 15 Mar 2026</p>
+                        <div class="coupon-actions flex gap-2 mt-3">
+                            <button class="btn btn-outline btn-sm py-1" onclick="openModal('couponModal')">Edit</button>
+                            <button class="btn btn-remove btn-sm py-1">Remove</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Expired Coupon -->
+                <div class="coupon-card expired">
+                    <div class="coupon-left">
+                        <div class="coupon-off">₹100 <br> OFF</div>
+                        <div class="coupon-min-purchase">Min. purchase ₹1000</div>
+                    </div>
+                    <div class="coupon-right">
+
+                        <div class="coupon-code-box">KBPSW10</div>
+                        <p class="coupon-meta">Exp: 15 Nov 2025</p>
+                        <div class="coupon-actions flex gap-2 mt-3">
+                            <button class="btn btn-outline btn-sm py-1" onclick="openModal('couponModal')">Edit</button>
+                            <button class="btn btn-remove btn-sm py-1">Remove</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+
+    <!-- Coupon Modal -->
+    <div id="couponModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Add / Edit Coupon</h3>
+                <button class="btn btn-outline btn-sm" onclick="closeModal('couponModal')"><i
+                        class="fa-solid fa-xmark"></i></button>
+            </div>
+            <form>
+                <div class="form-group">
+                    <label>Coupon Code</label>
+                    <input type="text" class="form-input" placeholder="e.g. WELCOME500">
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Discount Amount</label>
+                        <input type="text" class="form-input" placeholder="e.g. ₹500">
+                    </div>
+                    <div class="form-group">
+                        <label>Min. Purchase</label>
+                        <input type="text" class="form-input" placeholder="e.g. 5000">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Expiry Date</label>
+                    <input type="date" class="form-input" placeholder="dd-mm-yyyy">
+                </div>
+                <button type="button" class="btn btn-primary w-full">Save Coupon</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function toggleSidebar() {
+            document.querySelector('.sidebar').classList.toggle('active');
+            document.getElementById('sidebarOverlay').classList.toggle('active');
+        }
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.add('active');
+        }
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        window.onclick = function (event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.classList.remove('active');
+            }
+        }
+    </script>
+</body>
+

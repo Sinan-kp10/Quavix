@@ -3,6 +3,7 @@ import upload from "../config/multer.js"
 import multer from "multer";
 const router=express.Router()
 import {isLogin,checkSession} from "../middleware/adminAuth.js"
+import { loadCoupons } from "../controllers/adminCouponController.js"
 import {
     loadLogin,
     loadDashboard,
@@ -54,6 +55,7 @@ router.post("/admin/orders",isLogin, editOrderStatus)
 router.get("/admin/orders/:id/:itemIndex", isLogin, OrderDetails)
 router.post("/admin/return-action",isLogin, handleReturnRequest)
 
+router.get("/admin/coupons",isLogin,loadCoupons)
 
 
 
