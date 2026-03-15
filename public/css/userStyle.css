@@ -3848,7 +3848,7 @@ footer a:hover {
 
 .toast {
     position: fixed;
-    top: 75px;
+    top: 25px;
     right: 25px;
     min-width: 260px;
     padding: 14px 18px;

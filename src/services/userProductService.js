@@ -286,7 +286,7 @@ export const updateCartQuantityService = async (userId,productId,variantId,chang
     return item.quantity
 }
 
-export const createOrder = async ({ userId, addressId, paymentMethod, buyNowData }) => {
+export const createOrder = async ({ userId, addressId, paymentMethod, buyNowData,walletCalculation = false  }) => {
 
     const user = await userModal.findById(userId);
 
@@ -348,8 +348,10 @@ export const createOrder = async ({ userId, addressId, paymentMethod, buyNowData
             paymentStatus: paymentMethod === "cod" ? "pending" : "paid"
         });
 
-        variant.stock -= quantity;
-        await product.save();
+        if (!walletCalculation) {
+            variant.stock -= quantity;
+            await product.save();
+        }
     }
 
     else {
@@ -395,14 +397,24 @@ export const createOrder = async ({ userId, addressId, paymentMethod, buyNowData
                 paymentStatus: paymentMethod === "cod" ? "pending" : "paid"
             });
 
-            variant.stock -= item.quantity;
-            await product.save();
+            if (!walletCalculation) {
+                variant.stock -= item.quantity;
+                await product.save();
+            }
         }
 
-        await cartModel.findOneAndUpdate(
-            { user: userId },
-            { $set: { items: [] } }
-        );
+        if (!walletCalculation) {
+            await cartModel.findOneAndUpdate(
+                { user: userId },
+                { $set: { items: [] } }
+            );
+        }
+    }
+
+    if (walletCalculation) {
+        return {
+            totalAmount: subtotal
+        }
     }
 
     const order = new orderModel({
@@ -420,8 +432,9 @@ export const createOrder = async ({ userId, addressId, paymentMethod, buyNowData
     await order.save();
 
     return {
-        orderId: order.orderId
-    };
+        orderId: order.orderId,
+        totalAmount: subtotal
+    }
 }
 
 export const getAllOrders = async (userId, status = "all", search = "", page = 1, limit = 6) => {

@@ -163,46 +163,49 @@ export const verifyOtp = async (req, res)=>{
 
         const referrer=await userModel.findOne({referralCode})
 
-        if(referrer){
+        if (referrer) {
 
-            let wallet=new walletModel({
-                userId: newUser.id,
-                balance:0,
-                transactions:[]
+            let wallet = new walletModel({
+                userId: newUser._id,
+                balance: 0,
+                transactions: []
+            });
 
-            })
-            wallet.balance += 100
+            wallet.balance += 50;
 
             wallet.transactions.push({
-                date:new Date(),
+                date: new Date(),
                 description: "Referral Signup Bonus",
                 type: "credit",
-                amount: 100,
-            })
-            await wallet.save()
+                amount: 50,
+            });
 
-            const walleteChecking=await walletModel.findById(referrer.id)
+            await wallet.save();
 
-            if(!walleteChecking){
 
-                let wallet=new walletModel({
-                    userId: referrer.id,
-                    balance:0,
-                    transactions:[]
 
-                })
-                wallet.balance += 100
+            let referrerWallet = await walletModel.findOne({ userId: referrer._id });
 
-                wallet.transactions.push({
-                    date:new Date(),
-                    description: "Referral Signup Bonus",
-                    type: "credit",
-                    amount: 100,
-                })
-                await wallet.save()
-
+            if (!referrerWallet) {
+                referrerWallet = new walletModel({
+                    userId: referrer._id,
+                    balance: 0,
+                    transactions: []
+                });
             }
-            req.session.referral = null
+
+            referrerWallet.balance += 50;
+
+            referrerWallet.transactions.push({
+                date: new Date(),
+                description: "Referral Signup Bonus",
+                type: "credit",
+                amount: 50,
+            });
+
+            await referrerWallet.save();
+
+            req.session.referral = null;
         }
 
 

@@ -502,7 +502,9 @@ export const loadCheckout = async (req, res) => {
 
         const userId = req.session.user.id;
 
-        const user = await userModel.findById(userId);
+        const user = await userModel.findById(userId)
+        const wallet = await walletModel.findOne({ userId });
+        const walletBalance = wallet ? wallet.balance : 0;
 
         if (req.session.buyNow) {
 
@@ -529,6 +531,7 @@ export const loadCheckout = async (req, res) => {
                 subtotal,
                 totalMRP,
                 totalDiscount,
+                walletBalance,
                 cancelUrl: `/product/${product.slug}`
             });
         }
@@ -570,6 +573,7 @@ export const loadCheckout = async (req, res) => {
                 subtotal,
                 totalMRP,
                 totalDiscount,
+                walletBalance,
                 cancelUrl: "/cart" 
             });
         }
@@ -592,20 +596,56 @@ export const placeOrder = async (req, res) => {
             throw new Error("Invalid payment method");
         }
 
-        if (paymentMethod === "razorpay") {
+        if (paymentMethod === "razorpay"){
 
             req.session.checkoutData = {
                 userId,
                 addressId,
                 paymentMethod,
                 buyNow: req.session.buyNow || null
-            };
+            }
 
             return res.json({
                 success: true,
                 razorpay: true
-            });
+            })
         }
+
+        let wallet;
+
+        if (paymentMethod === "wallet") {
+
+            wallet = await walletModel.findOne({ userId });
+
+            if (!wallet) {
+                throw new Error("Wallet not found");
+            }
+
+
+            const walletCalculation = await createOrder({
+                userId,
+                addressId,
+                paymentMethod,
+                buyNowData: req.session.buyNow || null,
+                walletCalculation: true
+            });
+
+            if (wallet.balance < walletCalculation.totalAmount) {
+                throw new Error("Insufficient wallet balance");
+            }
+
+            wallet.balance -= walletCalculation.totalAmount;
+
+            wallet.transactions.push({
+                description: "Order Payment",
+                type: "debit",
+                amount: walletCalculation.totalAmount
+            });
+
+            await wallet.save();
+        }
+
+
 
         const result = await createOrder({
             userId,
