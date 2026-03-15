@@ -10,7 +10,7 @@ const couponSchema = new mongoose.Schema({
         trim: true
     },
 
-    discountValue: {
+    discountAmount: {
         type: Number,
         required: true
     },
@@ -27,7 +27,7 @@ const couponSchema = new mongoose.Schema({
 
     usageLimit: {
         type: Number,
-        default: 0
+        default: 1
     },
 
     usersUsed: [
@@ -44,7 +44,7 @@ const couponSchema = new mongoose.Schema({
 
     status: {
       type: String,
-      enum: ["Active", "Inactive"],
+      enum: ["Active", "Inactive","Expired"],
       default: "Active"
     },
 

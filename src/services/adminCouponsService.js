@@ -9,8 +9,16 @@ export const getAllCoupons=async(search="",status="all",page=1,limit=12)=>{
         
     }
 
-    if(status !== "all"){
-        query.status = status;
+    if (status === "Active") {
+        query.status = "Active"
+    }
+
+    else if (status === "Inactive") {
+        query.status = "Inactive"
+    }
+
+    else if (status === "Expired") {
+        query.expiryDate = { $lt: new Date() }
     }
 
     const skip=(page-1)*limit
@@ -21,4 +29,74 @@ export const getAllCoupons=async(search="",status="all",page=1,limit=12)=>{
     return {
         couponsList,totalCoupons
     }
+}
+
+export const addCouponService= async(code,discountAmount,minPurchaseAmount,maxDiscountAmount,date)=>{
+
+    const existingCoupon = await couponsModel.findOne({ code });
+
+    if (existingCoupon) {
+        throw new Error("Coupon code already exists")
+    }
+
+    const newCoupon=new couponsModel({
+        code:code,
+        discountAmount:discountAmount,
+        maxDiscountAmount:maxDiscountAmount,
+        minPurchaseAmount:minPurchaseAmount,
+        expiryDate:date
+
+    })
+
+    await newCoupon.save()
+
+    return true
+
+}
+
+export const updateCoupon = async (id, code, discountAmount, minPurchaseAmount, maxDiscountAmount,date) => {
+
+    const coupon = await couponsModel.findById(id)
+
+    if(!coupon){
+        throw new Error("Coupon not found")
+    }
+
+    const existingCoupon = await couponsModel.findOne({code,_id: { $ne: id }})
+
+    if(existingCoupon){
+        throw new Error("Coupon code already exists")
+    }
+
+    if( coupon.code === code &&coupon.discountAmount == discountAmount &&coupon.minPurchaseAmount == minPurchaseAmount &&coupon.maxDiscountAmount == maxDiscountAmount && new Date(coupon.expiryDate).toISOString().split("T")[0] === date ){
+        throw new Error("No changes were made")
+    }
+
+    await couponsModel.findByIdAndUpdate(id,{
+        code,
+        discountAmount,
+        minPurchaseAmount,
+        maxDiscountAmount,
+        expiryDate: date
+    })
+
+    return true
+}
+
+export const deleteCoupon = async (couponId) => {
+
+    const coupon = await couponsModel.findById(couponId);
+
+    if (!coupon) {
+        throw new Error("Coupon not found");
+    }
+
+    if (coupon.status === "Active") {
+        coupon.status = "Inactive";
+    } else {
+        coupon.status = "Active";
+    }
+
+    await coupon.save();
+    return coupon;
 }
