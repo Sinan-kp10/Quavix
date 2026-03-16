@@ -5,7 +5,6 @@
     </div>
     <% } %>
 
-
     <div class="admin-layout">
         <!-- Mobile Header -->
         <div class="mobile-header">
@@ -91,60 +90,115 @@
 
 
 
-            <!-- Recent Orders -->
-            <div class="card p-4 mb-4">
-                <div class="flex justify-between items-center mb-4">
-                    <h3 class="font-semibold text-lg">Recent Orders</h3>
+            <div class="grid gap-4 mb-4 grid-cols-2">
+                <!-- Revenue Chart -->
+                <div class="card p-4">
+                    <h3 class="mb-4 font-semibold text-lg">Revenue Overview</h3>
+                    <div style="height: 300px;">
+                        <canvas id="revenueChart"></canvas>
+                    </div>
                 </div>
-                <div class="table-responsive">
-                    <table class="admin-table">
-                        <thead>
-                            <tr>
-                                <th>Order ID</th>
-                                <th>Customer</th>
-                                <th>Date</th>
-                                <th class="text-center">Total</th>
-                                <th class="text-center">Status</th>
-
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>#ORD-1024</td>
-                                <td>John Doe</td>
-                                <td>Jan 24, 2026</td>
-                                <td class="text-center">₹299.00</td>
-                                <td class="text-center"><span class="status-badge status-warning">Pending</span></td>
-
-                            </tr>
-                            <tr>
-                                <td>#ORD-1022</td>
-                                <td>Tom Hardy</td>
-                                <td>Jan 15, 2026</td>
-                                <td class="text-center">₹89.00</td>
-                                <td class="text-center"><span class="status-badge status-blue">Shipped</span></td>
-
-                            </tr>
-                            <tr>
-                                <td>#ORD-1023</td>
-                                <td>Alice Wonderland</td>
-                                <td>Jan 23, 2026</td>
-                                <td class="text-center">₹1,199.00</td>
-                                <td class="text-center"><span class="status-badge status-success">Completed</span></td>
-
-                            </tr>
-
-                        </tbody>
-                    </table>
-                </div>
-                <div class="flex justify-end mt-4">
-                    <a href="orders.html" class="btn btn-primary btn-sm px-8">View All Orders</a>
+                <!-- Orders Chart -->
+                <div class="card p-4">
+                    <h3 class="mb-4 font-semibold text-lg">Orders Summary</h3>
+                    <div style="height: 300px;">
+                        <canvas id="ordersChart"></canvas>
+                    </div>
                 </div>
             </div>
+
+
+
+
+
         </main>
     </div>
+    <!-- Chart.js Integration -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="/js/admin/dashboard.js"></script>
     <script src="/js/admin/sidebar.js"></script>
+    <script>
+        function toggleSidebar() {
+            document.querySelector('.sidebar').classList.toggle('active');
+            document.getElementById('sidebarOverlay').classList.toggle('active');
+        }
 
+        // Revenue Overview Chart
+        const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+        new Chart(revenueCtx, {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                datasets: [{
+                    label: 'Revenue',
+                    data: [12000, 19000, 15000, 25000, 22000, 30000, 28000, 35000, 32000, 45231, 42000, 48000],
+                    borderColor: '#4f46e5',
+                    backgroundColor: 'rgba(79, 70, 229, 0.1)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            borderDash: [5, 5]
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            }
+        });
+
+        // Orders Summary Chart
+        const ordersCtx = document.getElementById('ordersChart').getContext('2d');
+        new Chart(ordersCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                datasets: [{
+                    label: 'Orders',
+                    data: [12, 19, 3, 8, 2, 3, 15],
+                    backgroundColor: '#4f46e5',
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            borderDash: [5, 5]
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            }
+        });
+    </script>
 </body>
 
