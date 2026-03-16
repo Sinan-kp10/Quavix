@@ -522,8 +522,39 @@ export const loadCheckout = async (req, res) => {
             const totalDiscount = discount * quantity;
             const subtotal = finalPrice * quantity;
 
-            
+            let couponDiscount = 0;
+            let appliedCoupon = null;
 
+            if (req.session.couponCode) {
+
+                const coupon = await couponsModel.findOne({ code: req.session.couponCode });
+
+                if (coupon &&coupon.status === "Active" &&coupon.expiryDate >= new Date() &&subtotal >= coupon.minPurchaseAmount) {
+
+                    appliedCoupon = coupon;
+
+                    if (coupon.discountType === "percentage") {
+
+                        couponDiscount = (subtotal * coupon.discountAmount) / 100;
+
+                        if (coupon.maxDiscountAmount) {
+                            couponDiscount = Math.min(couponDiscount, coupon.maxDiscountAmount);
+                        }
+
+                    } else {
+
+                        couponDiscount = coupon.discountAmount;
+                    }
+                }
+            }
+
+            const finalTotal = Math.max(0, subtotal - couponDiscount);
+
+            const coupons = await couponsModel.find({
+                status: "Active",
+                expiryDate: { $gte: new Date() },
+                minPurchaseAmount: { $lte: subtotal }
+            })
             return res.render("user/checkout", {
                 title: "Checkout - Quavix",
                 css: "userStyle",
@@ -534,6 +565,10 @@ export const loadCheckout = async (req, res) => {
                 subtotal,
                 totalMRP,
                 totalDiscount,
+                couponDiscount,
+                finalTotal,
+                appliedCoupon,
+                coupons,
                 walletBalance,
                 cancelUrl: `/product/${product.slug}`
             });
@@ -541,9 +576,7 @@ export const loadCheckout = async (req, res) => {
 
         if (req.session.fromCart) {
 
-            const cart = await cartModel
-                .findOne({ user: userId })
-                .populate("items.product");
+            const cart = await cartModel.findOne({ user: userId }).populate("items.product");
 
             if (!cart || cart.items.length === 0) {
                 return res.redirect("/cart");
@@ -566,7 +599,39 @@ export const loadCheckout = async (req, res) => {
                 totalMRP += variant.price * item.quantity;
                 totalDiscount += discount * item.quantity;
                 subtotal += finalPrice * item.quantity;
-            });
+            })
+            let couponDiscount = 0;
+            let appliedCoupon = null;
+
+            if (req.session.couponCode) {
+
+                const coupon = await couponsModel.findOne({ code: req.session.couponCode });
+
+                if ( coupon && coupon.status === "Active" && coupon.expiryDate >= new Date() && subtotal >= coupon.minPurchaseAmount) {
+
+                    appliedCoupon = coupon;
+
+                    if (coupon.discountType === "percentage") {
+
+                        couponDiscount = (subtotal * coupon.discountAmount) / 100;
+
+                        if (coupon.maxDiscountAmount) {
+                            couponDiscount = Math.min(couponDiscount, coupon.maxDiscountAmount);
+                        }
+
+                    } else {
+
+                        couponDiscount = coupon.discountAmount;
+                    }
+                }
+            }
+
+            const finalTotal = Math.max(0, subtotal - couponDiscount);
+            const coupons = await couponsModel.find({
+                status: "Active",
+                expiryDate: { $gte: new Date() },
+                minPurchaseAmount: { $lte: subtotal }
+            })
 
             return res.render("user/checkout", {
                 title: "Checkout - Quavix",
@@ -576,6 +641,10 @@ export const loadCheckout = async (req, res) => {
                 subtotal,
                 totalMRP,
                 totalDiscount,
+                couponDiscount,
+                finalTotal,
+                appliedCoupon,
+                coupons,
                 walletBalance,
                 cancelUrl: "/cart" 
             });
@@ -599,20 +668,22 @@ export const placeOrder = async (req, res) => {
             throw new Error("Invalid payment method");
         }
 
-        if (paymentMethod === "razorpay"){
+        if (paymentMethod === "razorpay") {
 
             req.session.checkoutData = {
                 userId,
                 addressId,
                 paymentMethod,
-                buyNow: req.session.buyNow || null
-            }
+                buyNow: req.session.buyNow || null,
+                couponCode: req.session.couponCode || null
+            };
 
             return res.json({
                 success: true,
                 razorpay: true
-            })
+            });
         }
+
 
         let wallet;
 
@@ -624,12 +695,12 @@ export const placeOrder = async (req, res) => {
                 throw new Error("Wallet not found");
             }
 
-
             const walletCalculation = await createOrder({
                 userId,
                 addressId,
                 paymentMethod,
                 buyNowData: req.session.buyNow || null,
+                couponCode: req.session.couponCode || null,
                 walletCalculation: true
             });
 
@@ -640,6 +711,7 @@ export const placeOrder = async (req, res) => {
             wallet.balance -= walletCalculation.totalAmount;
 
             wallet.transactions.push({
+                date: new Date(),
                 description: "Order Payment",
                 type: "debit",
                 amount: walletCalculation.totalAmount
@@ -649,16 +721,21 @@ export const placeOrder = async (req, res) => {
         }
 
 
-
         const result = await createOrder({
             userId,
             addressId,
             paymentMethod,
-            buyNowData: req.session.buyNow || null
+            buyNowData: req.session.buyNow || null,
+            couponCode: req.session.couponCode || null
         });
+
+
 
         req.session.buyNow = null;
         req.session.fromCart = null;
+        req.session.couponCode = null;
+
+
 
         res.json({
             success: true,
@@ -673,7 +750,8 @@ export const placeOrder = async (req, res) => {
         });
 
     }
-};
+}
+
 export const loadOrderSuccess=async(req,res)=>{
     try{
 
@@ -843,7 +921,17 @@ export const orderRequest = async (req,res)=>{
                     })
                 }
 
-                const refundAmount = item.total
+                let refundAmount = item.total
+
+                if(order.couponDiscount && order.subtotal > 0){
+
+                    const itemShare = item.total / order.subtotal
+
+                    const couponShare = order.couponDiscount * itemShare
+
+                    refundAmount = Math.round(item.total - couponShare)
+
+                }
 
                 wallet.balance += refundAmount
 

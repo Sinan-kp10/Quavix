@@ -6,64 +6,110 @@ import productModel from "../models/productModal.js"
 import cartModel from "../models/cartModel.js"
 import userModal from "../models/userModal.js"
 import walletModel from "../models/walletModel.js"
+import couponsModel from "../models/couponsModel.js"
 
-export const createRazorpay = async (req,res)=>{
-    try{
+export const createRazorpay = async (req, res) => {
+    try {
 
         const checkout = req.session.checkoutData;
 
-        if(!checkout){
+        if (!checkout) {
             throw new Error("Checkout session expired");
         }
 
         const { userId, buyNow } = checkout;
+        const couponCode = req.session.couponCode;
 
-        let amount = 0;
+        let subtotal = 0;
+        let couponDiscount = 0;
 
-        if(buyNow){
+        if (buyNow) {
+
             const product = await productModel.findById(buyNow.productId);
+            if (!product) throw new Error("Product not found");
+
             const variant = product.variants.id(buyNow.variantId);
+            if (!variant) throw new Error("Variant not found");
 
             const offer = product.offerPercentage || 0;
             const discount = (variant.price * offer) / 100;
 
             const finalPrice = Math.round(variant.price - discount);
 
-            amount = finalPrice * buyNow.quantity;
+            subtotal = finalPrice * buyNow.quantity;
 
-        }else{
+        } else {
 
             const cart = await cartModel.findOne({ user: userId }).populate("items.product");
 
-            for(const item of cart.items){
+            if (!cart || cart.items.length === 0) {
+                throw new Error("Cart is empty");
+            }
+
+            for (const item of cart.items) {
 
                 const product = item.product;
                 const variant = product.variants.id(item.variant);
+
+                if (!variant) continue;
 
                 const offer = product.offerPercentage || 0;
                 const discount = (variant.price * offer) / 100;
 
                 const finalPrice = Math.round(variant.price - discount);
 
-                amount += finalPrice * item.quantity;
+                subtotal += finalPrice * item.quantity;
             }
         }
 
-        const payment = await createRazorpayPayment(amount);
+        if (couponCode) {
+
+            const coupon = await couponsModel.findOne({
+                code: couponCode,
+                status: "Active",
+                expiryDate: { $gte: new Date() }
+            });
+
+            if (coupon && subtotal >= coupon.minPurchaseAmount) {
+
+                const usedCount = coupon.usersUsed.filter(
+                    id => id.toString() === userId.toString()
+                ).length;
+
+                if (usedCount >= coupon.usageLimit) {
+                    throw new Error("Coupon usage limit reached");
+                }
+
+                couponDiscount = coupon.discountAmount;
+
+                if (coupon.maxDiscountAmount > 0) {
+                    couponDiscount = Math.min(
+                        couponDiscount,
+                        coupon.maxDiscountAmount
+                    );
+                }
+            }
+        }
+
+        const finalTotal = Math.max(0, subtotal - couponDiscount);
+
+        const payment = await createRazorpayPayment(finalTotal);
 
         res.json({
-            success:true,
+            success: true,
             ...payment,
-            email:req.session.user.email
-        })
+            email: req.session.user.email
+        });
 
-    }catch(err){
+    } catch (err) {
+        console.log(err)
         res.json({
-            success:false,
-            message:err.message
-        })
+            success: false,
+            message: err.message
+        });
+
     }
-}
+};
 
 export const verifyRazorpay = async (req, res) => {
     try {
@@ -72,7 +118,10 @@ export const verifyRazorpay = async (req, res) => {
 
         const body = razorpayOrderId + "|" + razorpayPaymentId;
 
-        const generatedSignature = crypto.createHmac("sha256", process.env.RAZORPAY_KEY_SECRET).update(body).digest("hex");
+        const generatedSignature = crypto
+            .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
+            .update(body)
+            .digest("hex");
 
         if (generatedSignature !== razorpaySignature) {
             throw new Error("Payment verification failed");
@@ -88,13 +137,14 @@ export const verifyRazorpay = async (req, res) => {
             userId: checkout.userId,
             addressId: checkout.addressId,
             paymentMethod: "razorpay",
-            buyNowData: checkout.buyNow
+            buyNowData: checkout.buyNow,
+            couponCode: checkout.couponCode || null
         });
-
 
         req.session.checkoutData = null;
         req.session.buyNow = null;
         req.session.fromCart = null;
+        req.session.couponCode = null;
 
         res.json({
             success: true,

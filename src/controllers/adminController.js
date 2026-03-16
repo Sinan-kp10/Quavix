@@ -689,9 +689,7 @@ export const OrderDetails = async (req, res) => {
 
         const { id, itemIndex } = req.params
 
-        const order = await orderModel
-            .findById(id)
-            .populate("user", "email")
+        const order = await orderModel.findById(id).populate("user", "email")
 
         if (!order) {
             return res.redirect("/admin/orders")
@@ -702,12 +700,22 @@ export const OrderDetails = async (req, res) => {
         if (!item) {
             return res.redirect("/admin/orders")
         }
+        let finalItemTotal = item.total
+
+        if(order.couponDiscount && order.subtotal > 0){
+
+            const itemShare = item.total / order.subtotal
+            const couponShare = order.couponDiscount * itemShare
+
+            finalItemTotal = Math.round(item.total - couponShare)
+        }
 
         res.render("admin/orderDetails", {
             title: "Order Details - Quavix",
             css: "adminStyle",
             order,
-            item
+            item,
+            finalItemTotal
         })
 
     } catch (err) {
@@ -762,7 +770,16 @@ export const handleReturnRequest = async (req, res) => {
                     })
                 }
 
-                const refundAmount = item.total
+                let refundAmount = item.total
+
+                if(order.couponDiscount && order.subtotal > 0){
+
+                    const itemShare = item.total / order.subtotal
+
+                    const couponShare = order.couponDiscount * itemShare
+
+                    refundAmount = Math.round(item.total - couponShare)
+                }
 
                 wallet.balance += refundAmount
 

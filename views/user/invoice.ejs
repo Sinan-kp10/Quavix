@@ -540,13 +540,31 @@
                                 </div>
                             </td>
 
+                            <%
+                            let finalPrice = item.price
+                            let finalTotal = item.total
+
+                            if(order.couponDiscount && order.subtotal > 0){
+
+                                const itemShare = item.total / order.subtotal
+                                const couponShare = order.couponDiscount * itemShare
+
+                                const perUnitCoupon = couponShare / item.quantity
+
+                                finalPrice = Math.round(item.price - perUnitCoupon)
+                                finalTotal = Math.round(item.total - couponShare)
+                            }
+                            %>
+
                             <td class="price-cell">
-                                ₹<%= item.price.toLocaleString("en-IN") %>
+                                ₹<%= finalPrice.toLocaleString("en-IN") %>
                             </td>
 
                             <td class="qty-cell"><%= item.quantity %></td>
 
-                            <td class="total-cell">₹<%= item.total.toLocaleString("en-IN") %></td>
+                            <td class="total-cell">
+                                ₹<%= finalTotal.toLocaleString("en-IN") %>
+                            </td>
 
                         </tr>
 

@@ -183,7 +183,7 @@
 
                             <div class="order-info-group">
                                 <p>Total</p>
-                                <p>₹<%= item.total.toLocaleString() %></p>
+                                <p>₹<%= item.totalAmount.toLocaleString() %></p>
                             </div>
 
                             <div class="order-info-group">
@@ -279,7 +279,7 @@
         <div class="pagination">
 
             <% if(page > 1){ %>
-                <a href="?status=<%= status %>&page=<%= page - 1 %>" class="page-link">
+                <a href="?status=<%= status %>&search=<%= search %>&page=<%= page - 1 %>" class="page-link">
                     <i class="fa-solid fa-chevron-left"></i>
                 </a>
             <% } %>
@@ -294,7 +294,7 @@
             %>
 
             <% for(let i = startPage; i <= endPage; i++){ %>
-                <a href="?status=<%= status %>&page=<%= i %>"
+                <a href="?status=<%= status %>&search=<%= search %>&page=<%= i %>"
                 class="page-link <%= page === i ? 'active' : '' %>">
                     <%= i %>
                 </a>
@@ -312,7 +312,8 @@
     <script src="/js/user/navbar.js"></script>
     <script>
         function filterStatus(status){
-            window.location.href = `/order-history?status=${status}`;
+            const search = "<%= search || '' %>"
+            window.location.href = `/order-history?status=${status}&search=${search}`;
         }
     </script>
 

@@ -3,6 +3,7 @@ import wishlistModel from "../models/wishlistModel.js"
 import cartModel from "../models/cartModel.js";
 import userModal from "../models/userModal.js";
 import orderModel from "../models/orderModel.js";
+import couponsModel from "../models/couponsModel.js";
 
 
 
@@ -286,7 +287,7 @@ export const updateCartQuantityService = async (userId,productId,variantId,chang
     return item.quantity
 }
 
-export const createOrder = async ({ userId, addressId, paymentMethod, buyNowData,walletCalculation = false  }) => {
+export const createOrder = async ({ userId,addressId, paymentMethod,buyNowData,couponCode,walletCalculation = false}) => {
 
     const user = await userModal.findById(userId);
 
@@ -303,6 +304,10 @@ export const createOrder = async ({ userId, addressId, paymentMethod, buyNowData
     let items = [];
     let subtotal = 0;
     let totalDiscount = 0;
+    let couponDiscount = 0;
+    let finalTotal = 0;
+
+
 
     if (buyNowData) {
 
@@ -335,7 +340,6 @@ export const createOrder = async ({ userId, addressId, paymentMethod, buyNowData
         subtotal = total;
         totalDiscount = discount * quantity;
 
-
         items.push({
             product: product._id,
             productName: product.name,
@@ -353,6 +357,7 @@ export const createOrder = async ({ userId, addressId, paymentMethod, buyNowData
             await product.save();
         }
     }
+
 
     else {
 
@@ -404,17 +409,38 @@ export const createOrder = async ({ userId, addressId, paymentMethod, buyNowData
         }
 
         if (!walletCalculation) {
-            await cartModel.findOneAndUpdate(
+            await cartModel.updateOne(
                 { user: userId },
                 { $set: { items: [] } }
             );
         }
     }
 
+
+    if (couponCode) {
+
+        const coupon = await couponsModel.findOne({
+            code: couponCode,
+            status: "Active",
+            expiryDate: { $gte: new Date() }
+        });
+
+        if (coupon && subtotal >= coupon.minPurchaseAmount) {
+
+            couponDiscount = coupon.discountAmount;
+
+            if (coupon.maxDiscountAmount > 0) {
+                couponDiscount = Math.min(couponDiscount, coupon.maxDiscountAmount);
+            }
+        }
+    }
+
+    finalTotal = Math.max(0, subtotal - couponDiscount);
+
     if (walletCalculation) {
         return {
-            totalAmount: subtotal
-        }
+            totalAmount: finalTotal
+        };
     }
 
     const order = new orderModel({
@@ -425,16 +451,16 @@ export const createOrder = async ({ userId, addressId, paymentMethod, buyNowData
         subtotal,
         discount: totalDiscount,
         shippingCharge: 0,
-        couponDiscount: 0,
-        totalAmount: subtotal
+        couponDiscount,
+        totalAmount: finalTotal
     });
 
     await order.save();
 
     return {
         orderId: order.orderId,
-        totalAmount: subtotal
-    }
+        totalAmount: finalTotal
+    };
 }
 
 export const getAllOrders = async (userId, status = "all", search = "", page = 1, limit = 6) => {
@@ -450,9 +476,7 @@ export const getAllOrders = async (userId, status = "all", search = "", page = 1
 
     const skip = Math.max((page - 1) * limit, 0)
 
-    const orders = await orderModel
-        .find(query)
-        .sort({ createdAt: -1 })
+    const orders = await orderModel.find(query).sort({ createdAt: -1 })
 
     let items = []
 
@@ -465,7 +489,8 @@ export const getAllOrders = async (userId, status = "all", search = "", page = 1
             items.push({
                 ...item.toObject(),
                 orderId: order.orderId,
-                createdAt: order.createdAt
+                createdAt: order.createdAt,
+                totalAmount: order.totalAmount
             })
 
         })
@@ -482,14 +507,16 @@ export const getAllOrders = async (userId, status = "all", search = "", page = 1
     }
 }
 
-export const getOrderRequest = (order) => {
-
-    const item = order.items[0]
+export const getOrderRequest = (item) => {
 
     let requestType = null
     let requestAllowed = false
 
-    if(item.orderStatus === "pending" || item.orderStatus === "shipped" || item.orderStatus === "out_for_delivery"){
+    if(
+        item.orderStatus === "pending" ||
+        item.orderStatus === "shipped" ||
+        item.orderStatus === "out_for_delivery"
+    ){
         requestType = "cancel"
         requestAllowed = true
     }
@@ -507,12 +534,10 @@ export const getOrderRequest = (order) => {
             requestType = "return"
             requestAllowed = true
         }
-
     }
 
     return {
         requestType,
         requestAllowed
     }
-
 }

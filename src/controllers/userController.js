@@ -817,3 +817,22 @@ export const loadCoupons=async(req,res)=>{
     }
 }
 
+export const applyCoupon = (req,res)=>{
+
+    const { couponCode } = req.body
+
+    req.session.couponCode = couponCode
+
+    res.json({
+        success:true
+    })
+}
+export const removeCoupon = (req,res)=>{
+
+    req.session.couponCode = null
+
+    res.json({
+        success:true
+    })
+
+}

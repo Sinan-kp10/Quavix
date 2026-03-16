@@ -1,5 +1,5 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@400;500;600;700;800&display=swap"rel="stylesheet">
-<body>
+<body data-final="<%= finalTotal %>">
     <% if (typeof toastMessage !== "undefined") { %>
         <div id="toast" class="toast <%= toastType %>">
             <%= toastMessage %>
@@ -131,7 +131,11 @@
             <!-- ================= RIGHT SIDE ================= -->
             <div class="card">
                 <h3 class="mb-4">Order Summary</h3>
-                <!-- Coupon Code -->
+                <!-- ================= COUPON SECTION ================= -->
+
+                <% if(!appliedCoupon){ %>
+
+                <!-- Coupon Select -->
                 <div class="coupon-action-box" id="coupon-input-container">
 
                     <select class="form-input checkout-coupon-select" id="checkout-coupon-select">
@@ -143,15 +147,7 @@
                             <% coupons.forEach(coupon => { %>
 
                                 <option value="<%= coupon.code %>">
-
-                                    <%= coupon.code %>
-
-                                    <% if(coupon.discountType === "percentage"){ %>
-                                        (<%= coupon.discountAmount %>% OFF)
-                                    <% } else { %>
-                                        (₹<%= coupon.discountAmount %> OFF)
-                                    <% } %>
-
+                                    <%= coupon.code %> (₹<%= coupon.discountAmount %> OFF)
                                 </option>
 
                             <% }) %>
@@ -164,12 +160,54 @@
 
                     </select>
 
-                    <button class="btn btn-primary checkout-coupon-btn" onclick="applyCheckoutCoupon()">
+                    <button class="btn btn-primary checkout-coupon-btn"
+                        onclick="applyCheckoutCoupon()">
                         Apply
                     </button>
 
                 </div>
 
+                <% } else { %>
+
+                <!-- Applied Coupon Banner -->
+                <div class="coupon-applied-box">
+
+                    <div class="applied-coupon-info">
+
+                        <div class="applied-success-icon">
+                            <i class="fa-solid fa-check"></i>
+                        </div>
+
+                        <div class="applied-text-content">
+
+                            <p class="applied-title">
+
+                                <%= appliedCoupon.code %>
+
+                                <span class="applied-badge">Applied</span>
+
+                            </p>
+
+                            <p class="applied-subtitle">
+                                Coupon applied successfully!
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                    <button class="btn-remove-coupon"
+                        onclick="removeCheckoutCoupon()">
+
+                        <i class="fa-solid fa-trash-can"></i> Remove
+
+                    </button>
+
+                </div>
+
+                <% } %>
+                
+                <br>
                 <div class="checkout-items-list mb-4">
 
                     <!-- BUY NOW -->
@@ -284,18 +322,20 @@
                 <!-- Coupon -->
                 <div class="flex justify-between mb-4">
                     <span class="text-muted">Coupon</span>
-                    <span class="font-medium">₹0.00</span>
+                    <span class="font-medium text-success">
+                        - ₹<%= (couponDiscount || 0).toLocaleString() %>
+                    </span>
                 </div>
 
                 <div class="flex justify-between mb-4 border-t pt-4">
                     <span class="font-bold">Total Amount</span>
                     <span class="font-bold text-lg text-primary">
-                        ₹<%= subtotal.toLocaleString() %>
+                        ₹<%= finalTotal.toLocaleString() %>
                     </span>
                 </div>
 
                 <div class="savings-badge mb-4">
-                    You will save ₹<%= totalDiscount.toLocaleString() %> on this order
+                    You will save ₹<%= (totalDiscount + (couponDiscount || 0)).toLocaleString() %> on this order
                 </div>
 
                 <button id="place-order-btn" class="btn btn-primary w-full">Place Order</button>
@@ -306,7 +346,7 @@
     </div>
 
     <script>
-        const subtotalAmount = Number(document.body.dataset.subtotal);
+        const finalAmount = Number(document.body.dataset.final);
 
         
         document.addEventListener("DOMContentLoaded", () => {
@@ -401,14 +441,14 @@
                                 if(verification.success){
                                     window.location.replace(`/order-success/${verification.orderId}`)
                                 }else{
-                                    window.location.replace(`/payment-failed?amount=${subtotalAmount}`)
+                                    window.location.replace(`/payment-failed?amount=${finalAmount}`)
                                 }
 
                             },
 
                             modal:{
                                 ondismiss:function(){
-                                    window.location.replace(`/payment-failed?amount=${subtotalAmount}`)
+                                    window.location.replace(`/payment-failed?amount=${finalAmount}`)
                                 }
                             }
                         };
@@ -462,36 +502,46 @@
                 }, 3000);
             }
         })
-        function applyCheckoutCoupon() {
+        async function applyCheckoutCoupon() {
 
             const select = document.getElementById('checkout-coupon-select')
             const couponCode = select.value
 
             if (!couponCode) {
-                alert('Please select a coupon first.')
+                triggerToast('Please select a coupon first.', "error")
                 return
             }
 
-            document.getElementById('coupon-input-container').style.display = 'none'
+            const res = await fetch("/apply-coupon", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ couponCode })
+            })
 
+            const data = await res.json()
 
-            const appliedContainer = document.getElementById('coupon-applied-container')
-            appliedContainer.style.display = 'flex'
+            if (!data.success) {
+                triggerToast(data.message, "error")
+                return
+            }
 
-            document.getElementById('applied-coupon-code-text').textContent = couponCode
-
-            localStorage.setItem("appliedCoupon", couponCode)
+            location.reload()
 
         }
 
-        function removeCheckoutCoupon() {
+        async function removeCheckoutCoupon() {
 
-            document.getElementById('coupon-applied-container').style.display = 'none'
-            document.getElementById('coupon-input-container').style.display = 'flex'
+            const res = await fetch("/remove-coupon", {
+                method: "POST"
+            })
 
-            document.getElementById('checkout-coupon-select').value = ''
+            const data = await res.json()
 
-            localStorage.removeItem("appliedCoupon")
+            if(data.success){
+                location.reload()
+            }
 
         }
 

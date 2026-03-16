@@ -35,7 +35,9 @@ import {
   removeProfileImage,
   notFound,
   loadReferral,
-  loadCoupons
+  loadCoupons,
+  applyCoupon,
+  removeCoupon
 
 } from "../controllers/userController.js"
 
@@ -152,6 +154,8 @@ router.get("/payment-failed",isLogin, loadPaymentFailed)
 router.get("/invoice/:orderId",isLogin, downloadInvoice)
 
 router.get("/coupons",isLogin,loadCoupons)
+router.post("/apply-coupon",isLogin, applyCoupon)
+router.post("/remove-coupon",isLogin, removeCoupon)
 
 
 router.get("/wallet",isLogin , loadWallet)

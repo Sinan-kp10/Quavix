@@ -242,8 +242,22 @@
                                         <%= item.productName %>
                                     </h3>
 
+                                    <%
+                                    let itemPriceAfterCoupon = item.price;
+
+                                    if(order.couponDiscount && order.subtotal > 0){
+
+                                        const itemShare = item.total / order.subtotal
+                                        const couponShare = order.couponDiscount * itemShare
+
+                                        const perUnitCoupon = couponShare / item.quantity
+
+                                        itemPriceAfterCoupon = Math.round(item.price - perUnitCoupon)
+                                    }
+                                    %>
+
                                     <p class="font-bold text-lg text-primary">
-                                        ₹<%= item.price.toLocaleString() %>
+                                        ₹<%= itemPriceAfterCoupon.toLocaleString("en-IN") %>
                                     </p>
 
                                 </div>
@@ -292,8 +306,9 @@
 
                     <!-- Payment Summary -->
                     <div class="card p-6">
+
                         <div class="flex justify-between items-center mb-6">
-                            
+
                             <h3 class="font-bold text-lg flex items-center gap-2">
                                 <i class="fa-solid fa-receipt text-primary"></i>
                                 Payment Summary
@@ -308,7 +323,10 @@
                                 </span>
 
                             <% } %>
+
                         </div>
+
+
                         <div class="text-sm">
 
                             <div class="flex flex-col gap-3 mb-6">
@@ -321,21 +339,28 @@
                                     </span>
                                 </div>
 
+
                                 <div class="flex justify-between">
-                                    <span class="text-slate-500">Item Price</span>
+                                    <span class="text-slate-500">Items Total</span>
 
                                     <span class="font-medium text-main">
-                                        ₹<%= item.price.toLocaleString() %>
+                                        ₹<%= order.subtotal.toLocaleString() %>
                                     </span>
                                 </div>
 
-                                <div class="flex justify-between">
-                                    <span class="text-slate-500">Quantity</span>
 
-                                    <span class="font-medium text-main">
-                                        <%= item.quantity %>
+                                <% if(order.couponDiscount && order.couponDiscount > 0){ %>
+
+                                <div class="flex justify-between">
+                                    <span class="text-slate-500">Coupon Discount</span>
+
+                                    <span class="text-green-600 font-medium">
+                                        - ₹<%= order.couponDiscount.toLocaleString() %>
                                     </span>
                                 </div>
+
+                                <% } %>
+
 
                                 <div class="flex justify-between">
                                     <span class="text-slate-500">Shipping</span>
@@ -345,17 +370,21 @@
                                     </span>
                                 </div>
 
+
                                 <div class="flex justify-between items-center font-bold text-main mt-4 border-t pt-4">
 
                                     <span>Total Amount</span>
 
                                     <span class="text-primary">
-                                        ₹<%= item.total.toLocaleString() %>
+                                        ₹<%= order.totalAmount.toLocaleString() %>
                                     </span>
 
                                 </div>
+
                             </div>
+
                         </div>
+
                     </div>
                 </div>
 
