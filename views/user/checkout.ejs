@@ -132,17 +132,42 @@
             <div class="card">
                 <h3 class="mb-4">Order Summary</h3>
                 <!-- Coupon Code -->
-                <div class="mb-4">
-                    <div class="flex gap-2">
-                        <input type="text"
-                            id="couponInput"
-                            class="form-input checkout-coupon-input"
-                            placeholder="Coupon Code">
+                <div class="coupon-action-box" id="coupon-input-container">
 
-                        <button type="button"id="applyCouponBtn" class="btn btn-primary checkout-coupon-btn">
-                            Apply
-                        </button>
-                    </div>
+                    <select class="form-input checkout-coupon-select" id="checkout-coupon-select">
+
+                        <option value="">Applicable Coupons</option>
+
+                        <% if(coupons && coupons.length > 0){ %>
+
+                            <% coupons.forEach(coupon => { %>
+
+                                <option value="<%= coupon.code %>">
+
+                                    <%= coupon.code %>
+
+                                    <% if(coupon.discountType === "percentage"){ %>
+                                        (<%= coupon.discountAmount %>% OFF)
+                                    <% } else { %>
+                                        (₹<%= coupon.discountAmount %> OFF)
+                                    <% } %>
+
+                                </option>
+
+                            <% }) %>
+
+                        <% } else { %>
+
+                            <option disabled>No applicable coupons</option>
+
+                        <% } %>
+
+                    </select>
+
+                    <button class="btn btn-primary checkout-coupon-btn" onclick="applyCheckoutCoupon()">
+                        Apply
+                    </button>
+
                 </div>
 
                 <div class="checkout-items-list mb-4">
@@ -437,7 +462,40 @@
                 }, 3000);
             }
         })
+        function applyCheckoutCoupon() {
+
+            const select = document.getElementById('checkout-coupon-select')
+            const couponCode = select.value
+
+            if (!couponCode) {
+                alert('Please select a coupon first.')
+                return
+            }
+
+            document.getElementById('coupon-input-container').style.display = 'none'
+
+
+            const appliedContainer = document.getElementById('coupon-applied-container')
+            appliedContainer.style.display = 'flex'
+
+            document.getElementById('applied-coupon-code-text').textContent = couponCode
+
+            localStorage.setItem("appliedCoupon", couponCode)
+
+        }
+
+        function removeCheckoutCoupon() {
+
+            document.getElementById('coupon-applied-container').style.display = 'none'
+            document.getElementById('coupon-input-container').style.display = 'flex'
+
+            document.getElementById('checkout-coupon-select').value = ''
+
+            localStorage.removeItem("appliedCoupon")
+
+        }
 
     </script>
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
 </body>

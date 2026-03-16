@@ -5,6 +5,7 @@ import nodemailer from "nodemailer"
 import dotenv from "dotenv"
 import categoryModal from "../models/category.js"
 import productModel from "../models/productModal.js"
+import couponsModel from "../models/couponsModel.js"
 dotenv.config();
 const saltround=10
 
@@ -382,4 +383,21 @@ export const getActiveCategories=async()=>{
 
 export const getHomepageProducts = async () => {
     return await productModel.find({  isDeleted: false,showOnHomepage: true   }).populate("category").sort({ createdAt: -1 });
-};
+}
+
+export const getAllCoupons=async(page=1,limit=9)=>{
+
+    const query = {
+        expiryDate: { $gte: new Date() },
+        status: "Active"
+    }
+
+    const skip=(page-1)*limit
+    const couponsList=await couponsModel.find(query).sort({createdAt:-1}).skip(skip).limit(limit)
+
+    const totalCoupons=await couponsModel.countDocuments(query)
+
+    return {
+        couponsList,totalCoupons
+    }
+}

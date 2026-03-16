@@ -17,7 +17,8 @@ import {
     updateUserProfileImage,
     removeUserProfileImage,
     getActiveCategories,
-    getHomepageProducts
+    getHomepageProducts,
+    getAllCoupons
 
 } from "../services/userService.js"
 
@@ -790,3 +791,29 @@ export const loadReferral=async (req,res)=>{
         res.redirect("/");
     }
 }
+
+export const loadCoupons=async(req,res)=>{
+    try {
+
+        const page=parseInt(req.query.page) || 1
+        const limit = 9
+
+        const {couponsList,totalCoupons}=await getAllCoupons(page,limit)
+
+        const totalPages= Math.ceil(totalCoupons/limit)
+
+        res.render("user/coupons", {
+            title: "My Coupons- Quavix",
+            css: "userStyle",
+            couponsList:couponsList,
+            currentPage:page,
+            totalPages,
+            noCoupons:couponsList.length===0
+        })
+        
+    } catch (err) {
+        console.log(err)
+        res.redirect("/")
+    }
+}
+

@@ -6,6 +6,7 @@ import multer from "multer";
 import { profileUploadValidation } from "../middleware/profileUploadValidation.js"
 import { googleUserStatus } from "../middleware/googleUser.js"
 import passport from "passport"
+
 import {
   loadLogin,
   loadSingnup,
@@ -33,7 +34,8 @@ import {
   uploadProfileImage,
   removeProfileImage,
   notFound,
-  loadReferral
+  loadReferral,
+  loadCoupons
 
 } from "../controllers/userController.js"
 
@@ -58,7 +60,7 @@ import {
   loadOrderHistory,
   loadOrderDetails,
   orderRequest,
-  downloadInvoice
+  downloadInvoice,
 
 } from "../controllers/userProductController.js"
 
@@ -149,8 +151,10 @@ router.post("/verify-razorpay", isLogin,verifyRazorpay)
 router.get("/payment-failed",isLogin, loadPaymentFailed)
 router.get("/invoice/:orderId",isLogin, downloadInvoice)
 
-router.get("/wallet",isLogin , loadWallet)
+router.get("/coupons",isLogin,loadCoupons)
 
+
+router.get("/wallet",isLogin , loadWallet)
 router.get("/referral",isLogin,loadReferral)
 
 router.get("/not-found", notFound)

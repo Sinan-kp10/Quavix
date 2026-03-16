@@ -5,6 +5,7 @@ import wishlistModel from "../models/wishlistModel.js"
 import cartModel from "../models/cartModel.js"
 import orderModel from "../models/orderModel.js"
 import walletModel from "../models/walletModel.js"
+import couponsModel from "../models/couponsModel.js"
 import pdf from "html-pdf-node"
 import ejs from "ejs"
 import path from "path"
@@ -520,6 +521,8 @@ export const loadCheckout = async (req, res) => {
             const totalMRP = variant.price * quantity;
             const totalDiscount = discount * quantity;
             const subtotal = finalPrice * quantity;
+
+            
 
             return res.render("user/checkout", {
                 title: "Checkout - Quavix",
