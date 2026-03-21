@@ -40,7 +40,7 @@ export const loadCoupons=async(req,res)=>{
 export const addCoupon=async(req,res)=>{
     try {
 
-        const {code,discountAmount,minPurchaseAmount,maxDiscountAmount,date}= req.body
+        const {code,discountAmount,minPurchaseAmount,date}= req.body
 
         
         const regex = /^(?=.*[A-Z])(?=.*[0-9])[A-Z0-9]{6,12}$/
@@ -50,8 +50,11 @@ export const addCoupon=async(req,res)=>{
         }
         
 
-        if (!discountAmount || discountAmount <= 0 ||!minPurchaseAmount || minPurchaseAmount <= 0 ||!maxDiscountAmount || maxDiscountAmount <= 0 || !date){
+        if (!discountAmount || discountAmount <= 0 ||!minPurchaseAmount || minPurchaseAmount <= 0  || !date){
             throw new Error("All fields are required");
+        }
+        else if(minPurchaseAmount <= discountAmount){
+            throw new Error("Discount amount should be lower than min purchase amount");
         }
 
         const today = new Date();
@@ -61,7 +64,7 @@ export const addCoupon=async(req,res)=>{
             throw new Error("Expiry date cannot be in the past");
         }
                 
-        await addCouponService(code,discountAmount,minPurchaseAmount,maxDiscountAmount,date)
+        await addCouponService(code,discountAmount,minPurchaseAmount,date)
 
         req.session.toastMessage = "Coupon added successfully"
         req.session.toastType = "success"
@@ -83,7 +86,7 @@ export const editCoupon=async(req,res)=>{
         
        
         const {id}=req.params
-        const {code,discountAmount,minPurchaseAmount,maxDiscountAmount,date}=req.body
+        const {code,discountAmount,minPurchaseAmount,date}=req.body
 
                 
         const regex = /^(?=.*[A-Z])(?=.*[0-9])[A-Z0-9]{6,12}$/
@@ -93,8 +96,11 @@ export const editCoupon=async(req,res)=>{
         }
         
 
-        if (!discountAmount || discountAmount <= 0 ||!minPurchaseAmount || minPurchaseAmount <= 0 ||!maxDiscountAmount || maxDiscountAmount <= 0 || !date){
+        if (!discountAmount || discountAmount <= 0 ||!minPurchaseAmount || minPurchaseAmount <= 0|| !date){
             throw new Error("All fields are required");
+        }
+        else if(minPurchaseAmount <= discountAmount){
+            throw new Error("Discount amount should be lower than min purchase amount");
         }
 
         const today = new Date();
@@ -105,7 +111,7 @@ export const editCoupon=async(req,res)=>{
         }
           
 
-        await updateCoupon(id,code,discountAmount,minPurchaseAmount,maxDiscountAmount,date)
+        await updateCoupon(id,code,discountAmount,minPurchaseAmount,date)
         req.session.toastMessage = "Coupon updated successfully!";
         req.session.toastType = "success";
         res.redirect("/admin/coupons");

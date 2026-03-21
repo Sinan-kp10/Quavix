@@ -208,177 +208,184 @@
                                 (
                                 <% activeVariant.attributes.forEach((attr, index)=> { %>
                                     <%= attr.value %>
-                                        <%= index < activeVariant.attributes.length - 1 ? ', ' : '' %>
-                                            <% }) %>
-                                                )
+                                    <%= index < activeVariant.attributes.length - 1 ? ', ' : '' %>
+                            <% }) %>
+                            )
                         </h1>
 
 
                         <!-- ===== PRICE CALCULATION ===== -->
                         <% const originalPrice=activeVariant.price; const offer=product.offerPercentage || 0; const
                             discount=(originalPrice * offer) / 100; const finalPrice=Math.round(originalPrice -
-                            discount); %>
+                            discount); 
+                        %>
 
-                            <div class="price-section mb-2">
-                                <span class="current-price">
-                                    ₹<%= finalPrice.toLocaleString() %>
+                        <div class="price-section mb-2">
+                            <span class="current-price">
+                                ₹<%= finalPrice.toLocaleString() %>
+                            </span>
+
+                            <% if (offer> 0) { %>
+                                <span class="original-price">
+                                    ₹<%= originalPrice.toLocaleString() %>
                                 </span>
-
-                                <% if (offer> 0) { %>
-                                    <span class="original-price">
-                                        ₹<%= originalPrice.toLocaleString() %>
-                                    </span>
-                                    <span class="text-green font-bold ml-2 text-sm" style="margin-left: 10px;">
-                                        <%= offer %>% OFF
-                                    </span>
-                                    <% } %>
-                            </div>
-
-
-                            <!-- Rating + Stock -->
-                            <div class="flex items-center gap-4 mb-4">
-
-                                <span class="rating-badge rating-badge-lg">
-                                    <%= product.rating.toFixed(1) %>
-                                        <i class="fa-solid fa-star text-xs"></i>
+                                <span class="text-green font-bold ml-2 text-sm" style="margin-left: 10px;">
+                                    <%= offer %>% OFF
                                 </span>
-
-                                <span
-                                    class="stock-status <%= activeVariant.stock > 0 ? 'text-green' : 'text-red' %> font-bold text-sm">
-                                    <%= activeVariant.stock> 0 ? `In Stock (${activeVariant.stock})` : 'Out of Stock' %>
-                                </span>
-
-                            </div>
-                            <!-- Colour -->
-                             
-                            <div class="color-selection-container">
-                                <h4 class="color-label">Color</h4>
-                                <div class="color-options">
-
-                                    <% colorVariants.forEach(variant => { 
-                                        const colorAttr = variant.attributes.find(attr =>
-                                            attr.name && attr.name.toLowerCase() === "color"
-                                        );
-
-                                        const isActive = variant._id.toString() === activeVariant._id.toString();
-
-                                        if (colorAttr && variant.status === "Active") { %>
-
-                                            <a href="?variant=<%= variant._id %>">
-                                                <button
-                                                    class="color-swatch <%= isActive ? 'active' : '' %>"
-                                                    data-color="<%= colorAttr.value %>"
-                                                    title="<%= colorAttr.value %>">
-                                                </button>
-                                            </a>
-
-                                    <% } }); %>
-
-                                </div>
-                            </div>
-
-                            <!-- ===== HIGHLIGHTS ===== -->
-                            <% if (product.highlights.length> 0) { %>
-                                <div class="details-section mb-4">
-                                    <div class="highlight-row">
-                                        <h4>Highlights</h4>
-                                        <div class="highlight-content">
-                                            <% product.highlights.forEach(item=> { %>
-                                                <span>
-                                                    <%= item %>
-                                                </span>
-                                                <% }) %>
-                                        </div>
-                                    </div>
-                                </div>
                                 <% } %>
+                        </div>
 
 
-                                <!-- ===== SERVICES ===== -->
-                                <% if (product.services.length> 0) { %>
-                                    <div class="details-section">
-                                        <div class="service-row">
-                                            <h4>Services</h4>
-                                            <div class="service-content">
-                                                <% product.services.forEach(service=> { %>
-                                                    <span class="flex items-center">
-                                                        <i class="fa-solid fa-check mr-2"></i>
-                                                        <%= service %>
-                                                    </span>
-                                                    <% }) %>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <% } %>
+                        <!-- Rating + Stock -->
+                        <div class="flex items-center gap-4 mb-4">
 
+                            <span class="rating-badge rating-badge-lg">
+                                <%= product.rating.toFixed(1) %>
+                                    <i class="fa-solid fa-star text-xs"></i>
+                            </span>
 
-                                        <!-- ===== DESCRIPTION ===== -->
-                                        <div class="mt-8">
-                                            <div class="p-4 font-bold text-lg">
-                                                Product Description
-                                            </div>
-                                            <div class="p-6 text-muted text-sm">
-                                                <p class="product-desc-text">
-                                                    <%= product.description %>
-                                                </p>
-                                            </div>
-                                        </div>
-
-
-                                        <!-- User Reviews -->
-                                        <div class="mt-8">
-                                            <h3 class="font-bold text-lg mb-4">User Reviews</h3>
-
-                                            <!-- Review 1 --> 
-                                            <div class="review-card mb-4 p-4 border rounded-lg bg-white">
-                                                <div class="flex items-center justify-between mb-2">
-                                                    <div class="flex items-center gap-2">
-                                                        <span class="rating-badge text-xs px-1">5 <i
-                                                                class="fa-solid fa-star"></i></span>
-                                                        <span class="font-bold text-sm">Amazing Phone!</span>
-                                                    </div>
-                                                    <span class="text-muted text-xs">James D. - Oct 12, 2023</span>
-                                                </div>
-                                                <p class="text-sm text-gray-700">The battery life is incredible and
-                                                    the camera quality is
-                                                    top-notch. Highly recommend!</p>
-                                            </div>
-
-                                            <!-- Review 2 -->
-                                            <div class="review-card mb-4 p-4 border rounded-lg bg-white">
-                                                <div class="flex items-center justify-between mb-2">
-                                                    <div class="flex items-center gap-2">
-                                                        <span class="rating-badge text-xs px-1">4 <i
-                                                                class="fa-solid fa-star"></i></span>
-                                                        <span class="font-bold text-sm">Value for money</span>
-                                                    </div>
-                                                    <span class="text-muted text-xs">Sarah L. - Sept 28, 2023</span>
-                                                </div>
-                                                <p class="text-sm text-gray-700">Great performance, but I wish the
-                                                    charging text speed was a bit
-                                                    faster. Overall very satisfied.</p>
-                                            </div>
-
-                                            <button class="btn btn-outline text-primary text-sm w-full">View All Reviews</button>
-                                        
-
-
-
-
-                                         <!--===== REVIEWS COUNT ===== -->
-                                        <!-- <div class="mt-8">
-                                            <h3 class="font-bold text-lg mb-4">
-                                                User Reviews (<%= product.numReviews %>)
-                                            </h3>-->
-
-                                            <!--<button class="btn btn-outline text-primary text-sm w-full">
-                                                View All Reviews
-                                            </button>
-                                        </div> --> 
+                            <span
+                                class="stock-status <%= activeVariant.stock > 0 ? 'text-green' : 'text-red' %> font-bold text-sm">
+                                <%= activeVariant.stock> 0 ? `In Stock (${activeVariant.stock})` : 'Out of Stock' %>
+                            </span>
 
                         </div>
+                        <!-- Colour -->
+                            
+                        <div class="color-selection-container">
+                            <h4 class="color-label">Color</h4>
+                            <div class="color-options">
+
+                                <% colorVariants.forEach(variant => { 
+                                    const colorAttr = variant.attributes.find(attr =>
+                                        attr.name && attr.name.toLowerCase() === "color"
+                                    );
+
+                                    const isActive = variant._id.toString() === activeVariant._id.toString();
+
+                                    if (colorAttr && variant.status === "Active") { %>
+
+                                        <a href="?variant=<%= variant._id %>">
+                                            <button
+                                                class="color-swatch <%= isActive ? 'active' : '' %>"
+                                                data-color="<%= colorAttr.value %>"
+                                                title="<%= colorAttr.value %>">
+                                            </button>
+                                        </a>
+
+                                <% } }); %>
+
+                            </div>
+                        </div>
+
+                        <!-- Storage Selection -->
+                        <%
+                            const storageMap = {};
+                            product.variants.forEach(v => {
+
+                                if (v.status !== "Active") return;
+
+                                const storageAttr = v.attributes.find(a =>
+                                    a.name &&
+                                    (
+                                        a.name.toLowerCase().includes("storage") ||
+                                        a.name.toLowerCase().includes("rom")
+                                    )
+                                );
+
+                                if (!storageAttr) return;
+
+                                const value = storageAttr.value;
+
+                                if (!storageMap[value]) {
+                                    storageMap[value] = v;
+                                }
+                            });
+
+                            const storageList = Object.keys(storageMap);
+                        %>
+
+                        <% if (storageList.length > 0) { %>
+
+                        <div class="storage-selection-container mb-6">
+                            <h4 class="storage-label">Storage</h4>
+
+                            <div class="storage-options">
+
+                                <% storageList.forEach(value => {
+
+                                    const variant = storageMap[value];
+
+                                    const isActive = activeVariant.attributes.some(a =>
+                                        (
+                                            a.name.toLowerCase().includes("storage") ||
+                                            a.name.toLowerCase().includes("rom")
+                                        ) && a.value === value
+                                    );
+
+                                %>
+
+                                    <a href="?variant=<%= variant._id %>">
+                                        <button class="storage-btn <%= isActive ? 'active' : '' %>">
+                                            <%= value %>
+                                        </button>
+                                    </a>
+
+                                <% }) %>
+
+                            </div>
+                        </div>
+
+                        <% } %>
+
+                        <!-- ===== HIGHLIGHTS ===== -->
+                        <% if (product.highlights.length> 0) { %>
+                        <div class="details-section mb-4">
+                            <div class="highlight-row">
+                                <h4>Highlights</h4>
+                                <div class="highlight-content">
+                                    <% product.highlights.forEach(item=> { %>
+                                        <span>
+                                            <%= item %>
+                                        </span>
+                                        <% }) %>
+                                </div>
+                            </div>
+                        </div>
+                        <% } %>
+
+
+                            <!-- ===== SERVICES ===== -->
+                        <% if (product.services.length> 0) { %>
+                            <div class="details-section">
+                                <div class="service-row">
+                                    <h4>Services</h4>
+                                    <div class="service-content">
+                                        <% product.services.forEach(service=> { %>
+                                            <span class="flex items-center">
+                                                <i class="fa-solid fa-check mr-2"></i>
+                                                <%= service %>
+                                            </span>
+                                            <% }) %>
+                                    </div>
+                                </div>
+                            </div>
+                        <% } %>
+
+
+                        <!-- ===== DESCRIPTION ===== -->
+                        <div class="mt-8">
+                            <div class="p-4 font-bold text-lg">
+                                Product Description
+                            </div>
+                            <div class="p-6 text-muted text-sm">
+                                <p class="product-desc-text">
+                                    <%= product.description %>
+                                </p>
+                            </div>
+                        </div>                   
                     </div>
-            </div>
+        </div>
 
     <% if (relatedProducts && relatedProducts.length > 0) { %>
 

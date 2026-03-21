@@ -39,9 +39,6 @@
                     Categories</a>
                 <a href="/admin/users"  class="sidebar-link"><i class="fa-solid fa-users"></i>
                     Users</a>
-                <a href="banner.html" class="sidebar-link"><i class="fa-solid fa-image"></i>
-                    Banner</a>
-
                 <a href="reports.html" class="sidebar-link"><i class="fa-solid fa-chart-pie"></i>
                     Reports</a>
 
@@ -228,13 +225,7 @@
                         <small class="error-message"></small>
                     </div>
                 </div>
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label>Max. Discount Amount</label>
-                        <input type="number" name="maxDiscountAmount" id="maxDiscountAmount" class="form-input" placeholder="e.g. 10000" min="1" value="<%= editCoupon ? editCoupon.maxDiscountAmount : '' %>">
-                        <small class="error-message"></small>
-
-                    </div>
+                <div class="form-group">
                     <div class="form-group">
                         <label>Expiry Date</label>
                         <input type="date" name="date" id="date" class="form-input" placeholder="dd-mm-yyyy" min="<%= new Date().toISOString().split('T')[0] %>" value="<%= editCoupon ? new Date(editCoupon.expiryDate).toISOString().split('T')[0] : '' %>">
@@ -262,7 +253,6 @@
             document.getElementById("code").value = "";
             document.getElementById("discountAmount").value = "";
             document.getElementById("minPurchaseAmount").value = "";
-            document.getElementById("maxDiscountAmount").value = "";
             document.getElementById("date").value = "";
 
             document.getElementById("couponModal").classList.add("active");
@@ -276,19 +266,18 @@
         const code = document.getElementById("code");
         const discountAmount = document.getElementById("discountAmount");
         const minPurchaseAmount = document.getElementById("minPurchaseAmount");
-        const maxDiscountAmount = document.getElementById("maxDiscountAmount")
         const date = document.getElementById("date")
 
+        code.addEventListener("input", () => {
+            code.value = code.value.toUpperCase();
+        })
 
         form.addEventListener("submit", function (e) {
             e.preventDefault();
             clearErrors();
             let isValid = true;
 
-            code.addEventListener("input", () => {
-                code.value = code.value.toUpperCase();
-            });
-
+            
             const codeValue = code.value.trim();
             const regex = /^(?=.*[A-Z])(?=.*[0-9])[A-Z0-9]{6,12}$/
 
@@ -300,12 +289,16 @@
                 showError(discountAmount, "Discount Amount is required");
                 isValid = false;
             }
+
+            const discountValue = Number(discountAmount.value);
+            const minPurchaseValue = Number(minPurchaseAmount.value)
+
             if (minPurchaseAmount.value.trim()==="" ||  minPurchaseAmount.value <= 0) {
                 showError(minPurchaseAmount, "Min Purchase Amount is required");
                 isValid = false;
             }
-            if (maxDiscountAmount.value.trim()==="" || maxDiscountAmount.value <= 0) {
-                showError(maxDiscountAmount, "Max Discount Amount is required");
+            else if (minPurchaseValue <= discountValue ) {
+                showError(discountAmount, "Discount amount should be lower than min purchase amount");
                 isValid = false;
             }
 

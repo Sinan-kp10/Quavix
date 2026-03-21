@@ -1,0 +1,228 @@
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<body>
+
+    <div class="admin-layout">
+        <!-- Mobile Header -->
+        <div class="mobile-header">
+            <div class="mobile-logo">
+                <i class="fa-solid fa-bolt"></i> Quavix
+            </div>
+            <button class="menu-toggle" onclick="toggleSidebar()">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+        </div>
+
+        <!-- Sidebar Overlay -->
+        <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo">
+                <i class="fa-solid fa-bolt"></i> Quavix Admin
+            </div>
+
+            <nav>
+                <a href="index.html" class="sidebar-link"><i class="fa-solid fa-chart-line"></i> Dashboard</a>
+                <a href="products.html" class="sidebar-link"><i class="fa-solid fa-box"></i> Products</a>
+                <a href="orders.html" class="sidebar-link"><i class="fa-solid fa-clipboard-list"></i> Orders</a>
+                <a href="coupons.html" class="sidebar-link"><i class="fa-solid fa-ticket"></i> Coupons</a>
+                <a href="categories.html" class="sidebar-link"><i class="fa-solid fa-tags"></i> Categories</a>
+                <a href="users.html" class="sidebar-link"><i class="fa-solid fa-users"></i> Users</a>
+                <a href="banner.html" class="sidebar-link"><i class="fa-solid fa-image"></i> Banner</a>
+                <a href="reports.html" class="sidebar-link active"><i class="fa-solid fa-chart-pie"></i> Reports</a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <a href="../index.html" class="sidebar-link"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="content">
+            <header class="flex justify-between items-center mb-4">
+                <h2>Sales Report</h2>
+                <div class="header-actions flex gap-2">
+                    <button class="btn btn-outline"><i class="fa-solid fa-file-pdf"></i> Export PDF</button>
+                    <button class="btn btn-outline"><i class="fa-solid fa-file-excel"></i> Export Excel</button>
+                </div>
+            </header>
+
+            <div class="card p-4">
+                <div class="reports-filter-container mb-4">
+                    <div class="search-group">
+                        <input type="text" class="form-input reports-search-input" placeholder="Search report...">
+                        <button class="btn btn-primary search-btn-tall"><i class="fa-solid fa-search"></i></button>
+                    </div>
+                    <select class="form-select w-filter">
+                        <option>All Time</option>
+                        <option>Today</option>
+                        <option>This Week</option>
+                        <option>This Month</option>
+                        <option>This Year</option>
+                    </select>
+                    <div class="inline-summary reports-summary">
+                        <span class="text-muted font-medium">Showing <span class="summary-highlight">18</span>
+                            orders</span>
+                        <span class="summary-divider">|</span>
+                        <span class="text-muted font-medium">Total Revenue: <span
+                                class="text-success summary-revenue">₹12,500</span></span>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="admin-table reports-table">
+                        <thead>
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Date</th>
+                                <th>Customer</th>
+                                <th>Products</th>
+                                <th>Payment</th>
+                                <th>Total</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><span class="font-medium">#ORD-001</span></td>
+                                <td class="text-muted text-sm">Oct 24, 2026</td>
+                                <td>
+                                    <div class="font-medium">John Doe</div>
+                                    <div class="text-xs text-muted">john@example.com</div>
+                                </td>
+                                <td>
+                                    <div class="report-products">
+                                        <div class="report-product-item">
+                                            <span class="product-name">Wireless Headphones</span>
+                                            <span class="product-qty">x2</span>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="text-sm">Credit Card</td>
+                                <td class="font-medium">$299.98</td>
+                                <td><span class="status-badge status-success">Completed</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="font-medium">#ORD-004</span></td>
+                                <td class="text-muted text-sm">Oct 22, 2026</td>
+                                <td>
+                                    <div class="font-medium">Emily Davis</div>
+                                    <div class="text-xs text-muted">emily@example.com</div>
+                                </td>
+                                <td>
+                                    <div class="report-products">
+                                        <div class="report-product-item">
+                                            <span class="product-name">Noise Cancelling Earbuds</span>
+                                            <span class="product-qty">x1</span>
+                                        </div>
+                                        <div class="report-product-item">
+                                            <span class="product-name">Silicone Case (Blue)</span>
+                                            <span class="product-qty">x1</span>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="text-sm">Credit Card</td>
+                                <td class="font-medium">$149.50</td>
+                                <td><span class="status-badge status-danger">Cancelled</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="font-medium">#ORD-005</span></td>
+                                <td class="text-muted text-sm">Oct 21, 2026</td>
+                                <td>
+                                    <div class="font-medium">David Wilson</div>
+                                    <div class="text-xs text-muted">david@example.com</div>
+                                </td>
+                                <td>
+                                    <div class="report-products">
+                                        <div class="report-product-item">
+                                            <span class="product-name">Gaming Mouse</span>
+                                            <span class="product-qty">x1</span>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="text-sm">Credit Card</td>
+                                <td class="font-medium">$89.99</td>
+                                <td><span class="status-badge status-success">Completed</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="font-medium">#ORD-006</span></td>
+                                <td class="text-muted text-sm">Oct 20, 2026</td>
+                                <td>
+                                    <div class="font-medium">Sarah Brown</div>
+                                    <div class="text-xs text-muted">sarah@example.com</div>
+                                </td>
+                                <td>
+                                    <div class="report-products">
+                                        <div class="report-product-item">
+                                            <span class="product-name">Mechanical Keyboard</span>
+                                            <span class="product-qty">x1</span>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="text-sm">PayPal</td>
+                                <td class="font-medium">$129.00</td>
+                                <td><span class="status-badge status-warning">Processing</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="font-medium">#ORD-007</span></td>
+                                <td class="text-muted text-sm">Oct 19, 2026</td>
+                                <td>
+                                    <div class="font-medium">Chris Taylor</div>
+                                    <div class="text-xs text-muted">chris@example.com</div>
+                                </td>
+                                <td>
+                                    <div class="report-products">
+                                        <div class="report-product-item">
+                                            <span class="product-name">4K Monitor</span>
+                                            <span class="product-qty">x1</span>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="text-sm">Credit Card</td>
+                                <td class="font-medium">$349.00</td>
+                                <td><span class="status-badge status-success">Completed</span></td>
+                            </tr>
+                            <tr>
+                                <td><span class="font-medium">#ORD-008</span></td>
+                                <td class="text-muted text-sm">Oct 19, 2026</td>
+                                <td>
+                                    <div class="font-medium">Alex Lee</div>
+                                    <div class="text-xs text-muted">alex@example.com</div>
+                                </td>
+                                <td>
+                                    <div class="report-products">
+                                        <div class="report-product-item">
+                                            <span class="product-name">USB-C Hub</span>
+                                            <span class="product-qty">x1</span>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="text-sm">Debit Card</td>
+                                <td class="font-medium">$45.00</td>
+                                <td><span class="status-badge status-success">Completed</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                <div class="pagination mt-4">
+                    <a href="#" class="page-link"><i class="fa-solid fa-chevron-left"></i></a>
+                    <a href="#" class="page-link active">1</a>
+                    <a href="#" class="page-link">2</a>
+                    <a href="#" class="page-link">3</a>
+                    <a href="#" class="page-link"><i class="fa-solid fa-chevron-right"></i></a>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        function toggleSidebar() {
+            document.querySelector('.sidebar').classList.toggle('active');
+            document.getElementById('sidebarOverlay').classList.toggle('active');
+        }
+    </script>
+</body>
+

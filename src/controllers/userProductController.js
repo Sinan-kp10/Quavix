@@ -236,6 +236,14 @@ export const loadProductDetials = async (req, res) => {
                 );
             }
         }
+        const storageVariants = product.variants.filter(v =>
+            v.attributes.some(attr =>
+                attr.name && (
+                attr.name.toLowerCase().includes("storage") ||
+                attr.name.toLowerCase().includes("rom")
+                )
+            )
+        )
 
         res.render("user/productDetails", {
             title: `${product.name} - Quavix`,
@@ -243,6 +251,7 @@ export const loadProductDetials = async (req, res) => {
             product,
             activeVariant,
             colorVariants,
+            storageVariants, 
             relatedProducts,
             isWishlisted
         })

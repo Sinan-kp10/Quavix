@@ -31,7 +31,7 @@ export const getAllCoupons=async(search="",status="all",page=1,limit=12)=>{
     }
 }
 
-export const addCouponService= async(code,discountAmount,minPurchaseAmount,maxDiscountAmount,date)=>{
+export const addCouponService= async(code,discountAmount,minPurchaseAmount,date)=>{
 
     const existingCoupon = await couponsModel.findOne({ code });
 
@@ -42,7 +42,6 @@ export const addCouponService= async(code,discountAmount,minPurchaseAmount,maxDi
     const newCoupon=new couponsModel({
         code:code,
         discountAmount:discountAmount,
-        maxDiscountAmount:maxDiscountAmount,
         minPurchaseAmount:minPurchaseAmount,
         expiryDate:date
 
@@ -54,7 +53,7 @@ export const addCouponService= async(code,discountAmount,minPurchaseAmount,maxDi
 
 }
 
-export const updateCoupon = async (id, code, discountAmount, minPurchaseAmount, maxDiscountAmount,date) => {
+export const updateCoupon = async (id, code, discountAmount, minPurchaseAmount,date) => {
 
     const coupon = await couponsModel.findById(id)
 
@@ -68,7 +67,7 @@ export const updateCoupon = async (id, code, discountAmount, minPurchaseAmount, 
         throw new Error("Coupon code already exists")
     }
 
-    if( coupon.code === code &&coupon.discountAmount == discountAmount &&coupon.minPurchaseAmount == minPurchaseAmount &&coupon.maxDiscountAmount == maxDiscountAmount && new Date(coupon.expiryDate).toISOString().split("T")[0] === date ){
+    if( coupon.code === code &&coupon.discountAmount == discountAmount &&coupon.minPurchaseAmount == minPurchaseAmount && new Date(coupon.expiryDate).toISOString().split("T")[0] === date ){
         throw new Error("No changes were made")
     }
 
@@ -76,7 +75,6 @@ export const updateCoupon = async (id, code, discountAmount, minPurchaseAmount, 
         code,
         discountAmount,
         minPurchaseAmount,
-        maxDiscountAmount,
         expiryDate: date
     })
 

@@ -1717,7 +1717,7 @@ input[type=number] {
 }
 
 .highlight-content span::before {
-    content: 'â€¢';
+    content: '\2022';
     color: #c2c2c2;
     margin-right: 0.5rem;
 }
@@ -3822,8 +3822,51 @@ footer a:hover {
 }
 
 .color-swatch.active {
-    /* Borders removed as per user request */
     transform: scale(1.1);
+    box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--primary-color);
+}
+
+/* Storage Selection */
+.storage-selection-container {
+    margin-top: 1.5rem;
+}
+
+.storage-label {
+    font-size: 0.875rem;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+    color: var(--text-main);
+}
+
+.storage-options {
+    display: flex;
+    gap: 0.75rem;
+}
+
+.storage-btn {
+    padding: 0.6rem 1.25rem;
+    border: 1.5px solid var(--border-color);
+    border-radius: 10px;
+    background: white;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-main);
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.storage-btn:hover {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+    background: #f8fafc;
+    transform: translateY(-1px);
+}
+
+.storage-btn.active {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+    background: rgba(79, 70, 229, 0.05);
+    box-shadow: 0 0 0 1px var(--primary-color);
 }
 
 .bg-blue {
@@ -5943,7 +5986,7 @@ footer a:hover {
 }
 
 .home-card-highlights li::before {
-    content: "â€¢";
+    content: "\2022";
     color: #cbd5e1;
     font-size: 1rem;
 }
