@@ -501,6 +501,54 @@ input[type="date"] {
     width: 12%;
 }
 
+/* Reports Table Specific Widths */
+.reports-table th:nth-child(1) {
+    width: 18% !important;
+}
+
+/* Order ID */
+.reports-table th:nth-child(2) {
+    width: 12% !important;
+}
+
+/* Date */
+.reports-table th:nth-child(3) {
+    width: 15% !important;
+}
+
+/* Customer */
+.reports-table th:nth-child(4) {
+    width: 25% !important;
+}
+
+/* Products */
+.reports-table th:nth-child(5) {
+    width: 10% !important;
+}
+
+/* Payment */
+.reports-table th:nth-child(6) {
+    width: 10% !important;
+}
+
+/* Total */
+.reports-table th:nth-child(7) {
+    width: 10% !important;
+}
+
+/* Status */
+
+/* Content spacing */
+.reports-table td:nth-child(2) {
+    white-space: nowrap;
+}
+
+.reports-table td:first-child span {
+    white-space: nowrap;
+    font-size: 0.85rem;
+    font-family: var(--font-body);
+}
+
 /* Actions */
 
 /* Badges & Status */
@@ -2423,6 +2471,7 @@ input[type="date"] {
 }
 
 @media (max-width: 768px) {
+
     /* Fix Search Group on Mobile */
     .search-group {
         width: 100% !important;
@@ -3367,13 +3416,33 @@ input[type="date"] {
 }
 
 /* Reports Table Specific Widths */
-.reports-table th:nth-child(1) { width: 12%; }
-.reports-table th:nth-child(2) { width: 13%; }
-.reports-table th:nth-child(3) { width: 18%; }
-.reports-table th:nth-child(4) { width: 30%; }
-.reports-table th:nth-child(5) { width: 12%; }
-.reports-table th:nth-child(6) { width: 10%; }
-.reports-table th:nth-child(7) { width: 10%; }
+.reports-table th:nth-child(1) {
+    width: 12%;
+}
+
+.reports-table th:nth-child(2) {
+    width: 13%;
+}
+
+.reports-table th:nth-child(3) {
+    width: 18%;
+}
+
+.reports-table th:nth-child(4) {
+    width: 30%;
+}
+
+.reports-table th:nth-child(5) {
+    width: 12%;
+}
+
+.reports-table th:nth-child(6) {
+    width: 10%;
+}
+
+.reports-table th:nth-child(7) {
+    width: 10%;
+}
 
 /* Responsive Reports Page */
 @media (max-width: 768px) {
@@ -3387,7 +3456,7 @@ input[type="date"] {
         width: 100% !important;
     }
 
-    .reports-filter-container > .search-group {
+    .reports-filter-container>.search-group {
         margin-bottom: 0px !important;
     }
 
@@ -3397,7 +3466,7 @@ input[type="date"] {
         grid-template-columns: 1fr 1fr;
     }
 
-    .reports-filter-container > .search-group {
+    .reports-filter-container>.search-group {
         grid-column: span 2;
     }
 

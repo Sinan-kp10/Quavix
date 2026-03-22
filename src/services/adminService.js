@@ -428,3 +428,51 @@ export const getAllOrders = async (search = "", status = "all", page = 1, limit 
         totalItems
     }
 }
+
+export const reportService=async(search="",filter="all",page=1,limit=10)=>{
+
+    const skip=(page-1)*limit
+
+    let query= {};
+
+    if (search) {
+        query.$or = [
+            { orderId: { $regex: search, $options: "i" } }
+        ]
+    }
+
+    const now = new Date()
+
+    if (filter === "today") {
+        const start = new Date();
+        start.setHours(0, 0, 0, 0);
+        query.createdAt = { $gte: start };
+    }
+
+    if (filter === "week") {
+        const start = new Date();
+        start.setDate(start.getDate() - 7);
+        query.createdAt = { $gte: start };
+    }
+
+    if (filter === "month") {
+        const start = new Date(now.getFullYear(), now.getMonth(), 1);
+        query.createdAt = { $gte: start };
+    }
+
+    if (filter === "year") {
+        const start = new Date(now.getFullYear(), 0, 1);
+        query.createdAt = { $gte: start };
+    }
+
+    const orderList=await orderModel.find(query).sort({createdAt:-1}).populate("user").skip(skip).limit(limit)
+
+    const totalOrders = await orderModel.countDocuments(query);
+
+
+    return {
+        orderList,
+        totalOrders,
+    };
+
+}

@@ -25,15 +25,23 @@ import {
     loadOrders,
     editOrderStatus,
     OrderDetails,
-    handleReturnRequest
+    handleReturnRequest,
+    loadReports,
+    exportExcel,
+    exportPDF
     
 } from "../controllers/adminController.js"
 
 
 router.get("/admin/login", checkSession, loadLogin)
 router.post("/admin/login", adminLogin)
-router.get("/admin/users", isLogin, loadAllUsers)
 router.get("/admin/dashboard", isLogin, loadDashboard)
+
+router.get("/admin/reports",isLogin,loadReports)
+router.get("/admin/reports/excel", isLogin, exportExcel)
+router.get("/admin/reports/pdf", isLogin, exportPDF);
+
+router.get("/admin/users", isLogin, loadAllUsers)
 router.get("/admin/block/:id",isLogin, blockedUsers);
 router.get("/admin/unblock/:id",isLogin, activeUsers)
 

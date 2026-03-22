@@ -8,6 +8,8 @@ import orderModel from "../models/orderModel.js";
 import userModal from "../models/userModal.js";
 import walletModel from "../models/walletModel.js";
 import ProductModel from "../models/productModal.js";
+import XLSX from "xlsx";
+import PDFDocument from "pdfkit";
 
 
 
@@ -25,6 +27,7 @@ import {
     updateProduct,
     deleteProduct,
     getAllOrders,
+    reportService
 
 } from "../services/adminService.js"
 
@@ -899,12 +902,24 @@ export const loadReports=async(req,res)=>{
 
     try {
 
-        const order=await orderModel.find().sort({createdAt:-1})
+        const search=req.query.search||""
+        const filter = req.query.filter || "all";
+        const page=parseInt(req.query.page)||1
+        const limit=10
 
-        res.render("admin/dashboard",{ 
+        const {orderList,totalOrders}=await reportService(search,filter,page,limit)
+
+        const totalPages = Math.ceil(totalOrders / limit)
+
+
+        res.render("admin/reports",{ 
             title: "Sales and Reports -Quavix",
             css: "adminStyle",
-            order
+            order:orderList,
+            currentPage:page,
+            totalPages,
+            search,
+            filter
 
         })
 
@@ -912,5 +927,134 @@ export const loadReports=async(req,res)=>{
     } catch (err) {
         console.log(err)
         res.redirect("/admin/dashboard") 
+    }
+}
+
+export const exportExcel = async (req, res) => {
+    try {
+
+        const search = req.query.search || "";
+        const filter = req.query.filter || "all";
+
+        const { orderList } = await reportService(search, filter, 1, 100000);
+
+        const data = [];
+
+        orderList.forEach(order => {
+            order.items.forEach(item => {
+                data.push({
+                    OrderID: order.orderId,
+                    Date: new Date(order.createdAt).toLocaleDateString(),
+                    Customer: order.user?.name || "N/A",
+                    Email: order.user?.email || "",
+                    Product: item.productName,
+                    Quantity: item.quantity,
+                    Price: item.price,
+                    Total: item.total,
+                    Payment: order.paymentMethod,
+                    Status: item.orderStatus
+                });
+            });
+        });
+
+        const workbook = XLSX.utils.book_new();
+        const worksheet = XLSX.utils.json_to_sheet(data);
+
+        worksheet["!cols"] = [
+            { wch: 18 }, // OrderID
+            { wch: 12 }, // Date
+            { wch: 15 }, // Customer
+            { wch: 25 }, // Email
+            { wch: 25 }, // Product
+            { wch: 10 }, // Quantity
+            { wch: 12 }, // Price
+            { wch: 12 }, // Total
+            { wch: 12 }, // Payment
+            { wch: 15 }  // Status
+        ];
+
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Reports");
+
+        const buffer = XLSX.write(workbook, {
+            type: "buffer",
+            bookType: "xlsx"
+        });
+
+        res.setHeader("Content-Disposition", "attachment; filename=reports.xlsx");
+        res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+
+        res.send(buffer);
+
+    } catch (err) {
+        console.log(err);
+        res.status(500).send("Error generating Excel");
+    }
+}
+
+
+export const exportPDF = async (req, res) => {
+    try {
+
+        const search = req.query.search || "";
+        const filter = req.query.filter || "all";
+
+        const { orderList } = await reportService(search, filter, 1, 100000);
+
+        const doc = new PDFDocument({ margin: 40 });
+
+        res.setHeader("Content-Type", "application/pdf");
+        res.setHeader("Content-Disposition", "attachment; filename=reports.pdf");
+
+        doc.pipe(res);
+
+
+        doc.fontSize(16).text("Sales Report", { align: "center" });
+        doc.moveDown();
+
+        let y = doc.y;
+
+        doc.font("Helvetica-Bold").fontSize(10);
+
+        doc.text("OrderID", 40, y);
+        doc.text("Date", 140, y);
+        doc.text("Customer", 210, y);
+        doc.text("Product", 320, y);
+        doc.text("Qty", 440, y);
+        doc.text("Total", 480, y);
+        doc.text("Status", 530, y);
+
+        y += 15;
+
+        doc.moveTo(40, y).lineTo(580, y).stroke();
+
+        y += 5;
+
+        doc.font("Helvetica").fontSize(9);
+
+        orderList.forEach(order => {
+            order.items.forEach(item => {
+
+                doc.text(order.orderId, 40, y);
+                doc.text(new Date(order.createdAt).toLocaleDateString(), 140, y);
+                doc.text(order.user?.name || "N/A", 210, y);
+                doc.text(item.productName.substring(0, 18), 320, y); // cut long text
+                doc.text(item.quantity.toString(), 440, y);
+                doc.text("₹" + item.total, 480, y);
+                doc.text(item.orderStatus, 530, y);
+
+                y += 18;
+
+                if (y > 750) {
+                    doc.addPage();
+                    y = 40;
+                }
+            });
+        });
+
+        doc.end();
+
+    } catch (err) {
+        console.log(err);
+        res.status(500).send("Error generating PDF");
     }
 }
