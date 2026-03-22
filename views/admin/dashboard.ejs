@@ -50,7 +50,15 @@
         <main class="content">
             <header class="flex justify-between items-center mb-4">
                 <h2>Dashboard Overview</h2>
-
+                <div class="header-actions">
+                    <select class="form-select" onchange="handleFilter(this.value)">
+                        <option value="all" <%= filter === 'all' ? 'selected' : '' %>>All Time</option>
+                        <option value="today" <%= filter === 'today' ? 'selected' : '' %>>Today</option>
+                        <option value="week" <%= filter === 'week' ? 'selected' : '' %>>This Week</option>
+                        <option value="month" <%= filter === 'month' ? 'selected' : '' %>>This Month</option>
+                        <option value="year" <%= filter === 'year' ? 'selected' : '' %>>This Year</option>
+                    </select>
+                </div>
             </header>
 
             <!-- Stats Grid -->
@@ -60,28 +68,28 @@
                         <i class="fa-solid fa-rupee-sign"></i>
                     </div>
                     <div class="text-sm text-muted">Total Revenue</div>
-                    <div class="text-2xl font-bold">₹45,231</div>
+                    <div class="text-2xl font-bold">₹<%= Number(totalRevenue).toLocaleString('en-IN') %></div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-icon bg-green-100 text-success">
                         <i class="fa-solid fa-shopping-cart"></i>
                     </div>
                     <div class="text-sm text-muted">Total Orders</div>
-                    <div class="text-2xl font-bold">328</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-icon bg-rose-100 text-accent">
-                        <i class="fa-solid fa-box"></i>
-                    </div>
-                    <div class="text-sm text-muted">Total Products</div>
-                    <div class="text-2xl font-bold">1,423</div>
+                    <div class="text-2xl font-bold"><%= totalOrders %></div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-icon bg-amber-100 text-warning">
                         <i class="fa-solid fa-users"></i>
                     </div>
                     <div class="text-sm text-muted">Total Customers</div>
-                    <div class="text-2xl font-bold">892</div>
+                    <div class="text-2xl font-bold"><%= filteredUsers %></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon bg-rose-100 text-accent">
+                        <i class="fa-solid fa-box"></i>
+                    </div>
+                    <div class="text-sm text-muted">Total Products</div>
+                    <div class="text-2xl font-bold"><%= totalProducts %></div>
                 </div>
             </div>
 
@@ -128,7 +136,7 @@
                 labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
                 datasets: [{
                     label: 'Revenue',
-                    data: [12000, 19000, 15000, 25000, 22000, 30000, 28000, 35000, 32000, 45231, 42000, 48000],
+                    data: <%- JSON.stringify(monthlyRevenue) %>,
                     borderColor: '#4f46e5',
                     backgroundColor: 'rgba(79, 70, 229, 0.1)',
                     borderWidth: 2,
@@ -165,10 +173,10 @@
         new Chart(ordersCtx, {
             type: 'bar',
             data: {
-                labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                labels: ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],
                 datasets: [{
                     label: 'Orders',
-                    data: [12, 19, 3, 8, 2, 3, 15],
+                    data:  <%- JSON.stringify(weeklyOrders) %>,
                     backgroundColor: '#4f46e5',
                     borderRadius: 4
                 }]
@@ -195,7 +203,11 @@
                     }
                 }
             }
-        });
+        })
+        function handleFilter(value) {
+            window.location.href = `/admin/dashboard?filter=${value}`;
+        }
     </script>
+
 </body>
 

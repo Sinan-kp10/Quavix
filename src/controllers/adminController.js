@@ -7,6 +7,7 @@ import { compressImage } from "../utils/imageUpload.js";
 import orderModel from "../models/orderModel.js";
 import userModal from "../models/userModal.js";
 import walletModel from "../models/walletModel.js";
+import ProductModel from "../models/productModal.js";
 
 
 
@@ -111,10 +112,6 @@ export const activeUsers=async(req,res)=>{
 
 export const loadLogin=(req,res)=>{
     res.render("admin/login",{ title: "Login Admin-Quavix",css: "adminStyle" })
-}
-
-export const loadDashboard=(req,res)=>{
-    res.render("admin/dashboard",{ title: "Users Admin-Quavix",css: "adminStyle" })
 }
 
 export const adminLogout=(req,res)=>{
@@ -809,5 +806,111 @@ export const handleReturnRequest = async (req, res) => {
     }catch(err){
         console.log(err)
         res.redirect("/admin/orders")
+    }
+}
+
+export const loadDashboard = async (req, res) => {
+    try {
+
+        const filter = req.query.filter || "all";
+
+        let dateFilter = {};
+
+        const now = new Date();
+
+        if (filter === "today") {
+            const start = new Date(now.setHours(0, 0, 0, 0));
+            dateFilter = { createdAt: { $gte: start } };
+        }
+
+        if (filter === "week") {
+            const start = new Date();
+            start.setDate(start.getDate() - 7);
+            dateFilter = { createdAt: { $gte: start } };
+        }
+
+        if (filter === "month") {
+            const start = new Date(now.getFullYear(), now.getMonth(), 1);
+            dateFilter = { createdAt: { $gte: start } };
+        }
+
+        if (filter === "year") {
+            const start = new Date(now.getFullYear(), 0, 1);
+            dateFilter = { createdAt: { $gte: start } };
+        }
+
+        const orders = await orderModel.find(dateFilter);
+
+        const totalOrders = orders.length;
+        const totalUsers = await userModal.countDocuments();
+        const filteredUsers = await userModal.countDocuments(dateFilter);
+        const totalProducts = await ProductModel.countDocuments();
+
+        let totalRevenue = 0;
+
+        orders.forEach(order => {
+            order.items.forEach(item => {
+                if (item.orderStatus === "delivered") {
+                    totalRevenue += item.total;
+                }
+            });
+        });
+
+        let monthlyRevenue = Array(12).fill(0);
+
+        orders.forEach(order => {
+            const month = new Date(order.createdAt).getMonth();
+
+            order.items.forEach(item => {
+                if (item.orderStatus === "delivered") {
+                    monthlyRevenue[month] += item.total;
+                }
+            });
+        });
+
+
+        let weeklyOrders = Array(7).fill(0);
+
+        orders.forEach(order => {
+            const day = new Date(order.createdAt).getDay();
+            weeklyOrders[day]++;
+        });
+
+        res.render("admin/dashboard", {
+            title: "Admin Dashboard - Quavix",
+            css: "adminStyle",
+            totalOrders,
+            totalUsers,
+            filteredUsers,
+            totalProducts,
+            totalRevenue,
+            monthlyRevenue,
+            weeklyOrders,
+            filter
+        });
+
+    } catch (err) {
+        console.log(err);
+        res.redirect("/admin/dashboard");
+    }
+}
+
+export const loadReports=async(req,res)=>{
+
+    try {
+
+        const order=await orderModel.find().sort({createdAt:-1})
+
+        res.render("admin/dashboard",{ 
+            title: "Sales and Reports -Quavix",
+            css: "adminStyle",
+            order
+
+        })
+
+        
+    } catch (err) {
+        console.log(err)
+        res.redirect("/admin/dashboard") 
     }
 }

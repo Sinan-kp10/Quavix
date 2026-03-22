@@ -2422,24 +2422,26 @@ input[type="date"] {
     display: block;
 }
 
-/* Fix Search Group on Mobile */
-.search-group {
-    width: 100% !important;
-    flex: 0 0 100% !important;
-    margin-bottom: 0.5rem;
-}
+@media (max-width: 768px) {
+    /* Fix Search Group on Mobile */
+    .search-group {
+        width: 100% !important;
+        flex: 0 0 100% !important;
+        margin-bottom: 0.5rem;
+    }
 
-.search-group .form-input {
-    width: auto !important;
-    flex: 1 !important;
-    min-width: 0;
-    border-top-right-radius: 0 !important;
-    border-bottom-right-radius: 0 !important;
-}
+    .search-group .form-input {
+        width: auto !important;
+        flex: 1 !important;
+        min-width: 0;
+        border-top-right-radius: 0 !important;
+        border-bottom-right-radius: 0 !important;
+    }
 
-.search-group .btn {
-    width: auto !important;
-    flex: 0 0 auto !important;
+    .search-group .btn {
+        width: auto !important;
+        flex: 0 0 auto !important;
+    }
 }
 
 .preview-img {
@@ -3320,4 +3322,113 @@ input[type="date"] {
 .notification-time {
     font-size: 0.8rem;
     color: #64748b;
+}
+
+/* Reports Specific Styles */
+.reports-filter-container {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 1.5rem;
+}
+
+.reports-search-input {
+    width: 320px;
+}
+
+.search-btn-tall {
+    height: 50px;
+}
+
+.reports-summary {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    padding: 0.5rem 1rem;
+    border-radius: 0.375rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.875rem;
+    margin-left: auto;
+}
+
+.summary-highlight {
+    color: var(--text-main);
+    font-weight: 600;
+}
+
+.summary-divider {
+    color: #cbd5e1;
+}
+
+.summary-revenue {
+    font-weight: 700;
+}
+
+/* Reports Table Specific Widths */
+.reports-table th:nth-child(1) { width: 12%; }
+.reports-table th:nth-child(2) { width: 13%; }
+.reports-table th:nth-child(3) { width: 18%; }
+.reports-table th:nth-child(4) { width: 30%; }
+.reports-table th:nth-child(5) { width: 12%; }
+.reports-table th:nth-child(6) { width: 10%; }
+.reports-table th:nth-child(7) { width: 10%; }
+
+/* Responsive Reports Page */
+@media (max-width: 768px) {
+    .reports-filter-container {
+        gap: 0.75rem;
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .reports-search-input {
+        width: 100% !important;
+    }
+
+    .reports-filter-container > .search-group {
+        margin-bottom: 0px !important;
+    }
+
+    /* Wrap filter and summary in a row */
+    .reports-filter-container {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .reports-filter-container > .search-group {
+        grid-column: span 2;
+    }
+
+    .w-filter {
+        width: 100% !important;
+        flex: 1 1 auto !important;
+    }
+
+    .reports-summary {
+        width: 100% !important;
+        flex: 1 1 auto !important;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.25rem;
+        padding: 0.5rem 0.75rem;
+        font-size: 0.8rem;
+        justify-content: center;
+        min-height: 50px;
+        margin-left: 0;
+    }
+
+    .summary-divider {
+        display: none;
+    }
+
+    .reports-table {
+        min-width: 850px;
+    }
+
+    .table-responsive {
+        border: 1px solid #e2e8f0;
+        border-radius: var(--radius-md);
+    }
 }
