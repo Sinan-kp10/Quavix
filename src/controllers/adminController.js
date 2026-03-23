@@ -728,7 +728,7 @@ export const handleReturnRequest = async (req, res) => {
 
     try{
 
-        const { orderId, variantId, action } = req.body
+        const { orderId, variantId, action, rejectReason } = req.body
 
         const order = await orderModel.findById(orderId)
 
@@ -799,7 +799,11 @@ export const handleReturnRequest = async (req, res) => {
         }
 
         if(action === "reject"){
+            if(rejectReason.length<3){
+                throw new Error("Please provide a reason for rejection")
+            }
             item.orderStatus = "return_rejected"
+            item.returnRejectReason = rejectReason
         }
 
         await order.save()

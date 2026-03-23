@@ -213,6 +213,9 @@
             <p class="text-sm font-medium text-red-600" style="color: #6041E8;">
                 Your return request was rejected by admin.
             </p>
+            <p class="text-sm text-red-600 mt-1">
+                Reason: <%= item.returnRejectReason || "No reason provided" %>
+            </p>
 
 
         <% } %>

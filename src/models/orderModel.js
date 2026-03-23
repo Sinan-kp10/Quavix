@@ -85,6 +85,10 @@ const orderItemSchema = new mongoose.Schema({
     returnDescription: {
         type: String
     },
+    
+    returnRejectReason: {
+        type: String
+    },
 
     returnedAt: {
         type: Date

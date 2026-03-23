@@ -46,7 +46,7 @@
                         class="btn btn-outline">
                             <i class="fa-solid fa-file-pdf"></i> Export PDF
                     </a>
-                    
+
                     <a  href="/admin/reports/excel?search=<%= search %>&filter=<%= filter %>" 
                         class="btn btn-outline">
                             <i class="fa-solid fa-file-excel"></i> Export Excel
@@ -155,15 +155,22 @@
                                         <!-- STATUS -->
                                         <td>
                                             <% 
-                                                let status = ord.items[0]?.orderStatus;
-                                                let badgeClass = "status-warning";
+                                                let status = ord.items[0]?.orderStatus || "pending";
 
-                                                if(status === "delivered") badgeClass = "status-success";
-                                                if(status === "cancelled") badgeClass = "status-danger";
+                                                let badgeClass = "";
+
+                                                if(status === "pending") badgeClass = "badge-pending";
+                                                else if(status === "shipped") badgeClass = "badge-shipped";
+                                                else if(status === "out_for_delivery") badgeClass = "badge-out-for-delivery";
+                                                else if(status === "delivered") badgeClass = "badge-delivered";
+                                                else if(status === "cancelled") badgeClass = "badge-cancelled";
+                                                else if(status === "returned") badgeClass = "badge-returned";
+                                                else if(status === "return_Request") badgeClass = "badge-return-request";
+                                                else if(status === "return_rejected") badgeClass = "badge-return-rejected";
                                             %>
 
-                                            <span class="status-badge <%= badgeClass %>">
-                                                <%= status %>
+                                            <span class="order-status-badge <%= badgeClass %>">
+                                                <%= status.replaceAll("_", " ") %>
                                             </span>
                                         </td>
                                     </tr>

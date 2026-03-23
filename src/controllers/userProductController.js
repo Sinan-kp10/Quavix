@@ -32,9 +32,10 @@ export const loadProducts = async (req, res) => {
 
         const page = Number(req.query.page) || 1;
         const limit = 6;
+        const category = req.query.category || null;
 
         const result = await getFilterdProduct(
-            null,
+            category,
             null,
             null,
             null,
@@ -92,7 +93,8 @@ export const loadProducts = async (req, res) => {
             totalPages: result.totalPages,
             currentPage: page,
             minPrice,
-            maxPrice
+            maxPrice,
+            selectedCategory: category
         });
 
     } catch (err) {
