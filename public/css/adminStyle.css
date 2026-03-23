@@ -501,6 +501,28 @@ input[type="date"] {
     width: 12%;
 }
 
+
+/* Users Table Specific Widths */
+.card:has(form[action="/admin/users"]) .admin-table th:nth-child(1) {
+    width: 20%;
+}
+
+.card:has(form[action="/admin/users"]) .admin-table th:nth-child(2) {
+    width: 30%;
+}
+
+.card:has(form[action="/admin/users"]) .admin-table th:nth-child(3) {
+    width: 20%;
+}
+
+.card:has(form[action="/admin/users"]) .admin-table th:nth-child(4) {
+    width: 15%;
+}
+
+.card:has(form[action="/admin/users"]) .admin-table th:nth-child(5) {
+    width: 15%;
+}
+
 /* Reports Table Specific Widths */
 .reports-table th:nth-child(1) {
     width: 18% !important;
@@ -2985,7 +3007,7 @@ textarea.form-control {
 }
 
 .pay-status-failed {
-    background: #e79551;
+    background: #ffd4b1;
     color: #ef4444;
 }
 

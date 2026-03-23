@@ -21,6 +21,12 @@ const categorySchema = new mongoose.Schema(
       enum: ["Active", "Inactive"],
       default: "Active"
     },
+    categoryOffer:{
+      type: Number,
+      default: 0,
+      min: 0,
+      max: 95
+    },
 
     categoryImage: {
       type: String,   

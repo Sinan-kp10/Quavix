@@ -135,13 +135,33 @@
                                 Payment Status
                             </span>
 
-                            <span class="pay-status-badge pay-status-<%= item.paymentStatus %>">
+                            <%
+                                let displayPaymentStatus = item.paymentStatus;
 
-                                <%= item.paymentStatus
-                                    ? item.paymentStatus.charAt(0).toUpperCase() + item.paymentStatus.slice(1)
-                                    : "Pending" %>
+                                if(item.orderStatus === "return_rejected"){
+                                    displayPaymentStatus = "paid";
+                                }
 
-                            </span>
+                                if(item.orderStatus === "returned"){
+                                    displayPaymentStatus = "refunded";
+                                }
+
+                                if(item.orderStatus === "cancelled"){
+                                    if(item.paymentStatus === "paid"){
+                                        displayPaymentStatus = "refunded";
+                                    } else {
+                                        displayPaymentStatus = "failed";
+                                    }
+                                }
+                                %>
+
+                                <span class="pay-status-badge pay-status-<%= displayPaymentStatus %>">
+
+                                    <%= displayPaymentStatus
+                                        ? displayPaymentStatus.charAt(0).toUpperCase() + displayPaymentStatus.slice(1)
+                                        : "Pending" %>
+
+                                </span>
 
                         </div>
 

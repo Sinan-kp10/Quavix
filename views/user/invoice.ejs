@@ -505,11 +505,11 @@
             </div>
             <div class="info-block">
                 <h4>Shipping Address</h4>
-                <p><strong>John Doe</strong></p>
-                <p>123 Main Street, Green Park Avenue</p>
-                <p>Near Central Mall</p>
-                <p>New Delhi - 110016</p>
-                <p>Shipping via BlueDart Express</p>
+                <p><strong><%= order.shippingAddress.fullname %></strong></p>
+                <p><%= order.shippingAddress.street %></p>
+                <p><%= order.shippingAddress.city %> - <%= order.shippingAddress.pincode %></p>
+                <p><%= order.shippingAddress.state %></p>
+                <p>Phone: <%= order.shippingAddress.phone %></p>
             </div>
         </div>
 

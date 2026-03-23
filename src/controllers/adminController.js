@@ -155,8 +155,8 @@ export const loadCategory=async(req,res)=>{
 export const addCategory=async(req,res)=>{
     try {
         
-        const {name}=req.body
-        const result=await createCategory(name,req.file)
+        const {name,offer}=req.body
+        const result=await createCategory(name,offer,req.file)
         if (!result) {
             req.session.toastMessage = "Please select an image.";
             req.session.toastType = "error";
@@ -201,8 +201,8 @@ export const removeCategory = async (req, res) => {
 export const editCategory=async(req,res)=>{
     try {
         const {id}=req.params
-        const {name}=req.body
-        await updateCategory(id,name,req.file)
+        const {name,offer}=req.body
+        await updateCategory(id,name,offer,req.file)
         req.session.toastMessage = "Category updated successfully!";
         req.session.toastType = "success";
         res.redirect("/admin/category");
@@ -618,7 +618,7 @@ export const loadOrders = async (req, res) => {
         const search = req.query.search || ""
         const status = req.query.status || "all"
         const page = parseInt(req.query.page) || 1
-        const limit = 4
+        const limit = 6
 
         const { items, totalItems } = await getAllOrders(search, status, page, limit)
 
@@ -1041,7 +1041,7 @@ export const exportPDF = async (req, res) => {
                 doc.text(order.orderId, 40, y);
                 doc.text(new Date(order.createdAt).toLocaleDateString(), 140, y);
                 doc.text(order.user?.name || "N/A", 210, y);
-                doc.text(item.productName.substring(0, 18), 320, y); // cut long text
+                doc.text(item.productName.substring(0, 18), 320, y);
                 doc.text(item.quantity.toString(), 440, y);
                 doc.text("₹" + item.total, 480, y);
                 doc.text(item.orderStatus, 530, y);

@@ -61,7 +61,6 @@ export const allActiveUsers=async(id)=>{
     return await users.findByIdAndUpdate(id,{status: "active"},{new:true})
 }
 
-
 export const getAllCategory=async(search="",status="all",page=1,limit=10)=>{
 
     let query ={}
@@ -90,7 +89,7 @@ export const getAllCategory=async(search="",status="all",page=1,limit=10)=>{
     }
 }
 
-export const createCategory=async(name,file)=>{
+export const createCategory=async(name,offer,file)=>{
 
     if (!name || name.trim().length < 3) {
         throw new Error("Category name must be at least 3 characters");
@@ -113,6 +112,7 @@ export const createCategory=async(name,file)=>{
     const newCategory = new categoryModal({
         name,
         slug,
+        categoryOffer: offer || 0, 
         categoryImage: result.secure_url,
         categoryImageId: result.public_id,
     });
@@ -139,9 +139,9 @@ export const deleteCategory = async (categoryId) => {
 
     await category.save();
     return true;
-};
+}
 
-export const updateCategory=async(categoryId,name,file)=>{
+export const updateCategory=async(categoryId,name,offer,file)=>{
 
     const category=await categoryModal.findById(categoryId)
     if(!category){
@@ -159,7 +159,7 @@ export const updateCategory=async(categoryId,name,file)=>{
         throw new Error("Category already exists");
     }
     
-    if(category.name==name && !file){
+    if(category.name==name && !file && category.categoryOffer==offer){
         throw new Error("No changes were made")
     }
     if(file){
@@ -179,12 +179,12 @@ export const updateCategory=async(categoryId,name,file)=>{
     }
 
     category.name = name.trim();
-    category.slug = slugify(name, { lower: true });
+    category.slug = slugify(name, { lower: true })
+    category.categoryOffer = offer || 0
 
     await category.save();
     return category;
 }
-
 
 export const getAllProducts=async(search="",status="all",stock="",selectedCategory="",page=1,limit=10)=>{
 
@@ -223,7 +223,6 @@ export const getAllProducts=async(search="",status="all",stock="",selectedCatego
     }
 
 }
-
 
 export const createProducts = async (data) => {
 
