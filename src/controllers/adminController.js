@@ -1062,3 +1062,15 @@ export const exportPDF = async (req, res) => {
         res.status(500).send("Error generating PDF");
     }
 }
+
+
+export const topSellingProducts= async (req,res)=>{
+
+    try {
+
+        const {topProducts}=await findProducts()
+        
+    } catch (err) {
+        
+    }
+}

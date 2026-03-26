@@ -377,9 +377,9 @@ export const addToCart=async(req,res)=>{
         const userId=req.session.user.id
         const {productId,variantId}=req.body
 
-        await addToCartService(userId,productId,variantId)
+        const totalQty=await addToCartService(userId,productId,variantId)
 
-        res.json({success:true,message:"Product added to cart!"})
+        res.json({success:true,message:"Product added to cart!",cartCount: totalQty})
 
     }catch(err){
         res.status(400).json({ success: false });

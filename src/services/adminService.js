@@ -295,7 +295,7 @@ export const createProducts = async (data) => {
     });
 
   return await newProduct.save();
-};
+}
 
 export const updateProduct = async (id, data) => {
 
@@ -369,7 +369,7 @@ export const updateProduct = async (id, data) => {
     },
     { new: true }
   );
-};
+}
 export const deleteProduct =async(id)=>{
 
     const product =await productModel.findById(id)

@@ -40,9 +40,9 @@
                             <a href="/cart" class="relative">
                                 <i class="fa-solid fa-cart-shopping"></i> Cart
 
-                                <% if (user && cartCount > 0) { %>
+                                <% if (user) { %>
                                     <span id="cartSidebarBadge" class="badge cart-sidebar-badge">
-                                        <%= cartCount %>
+                                        <%= cartCount || 0 %>
                                     </span>
                                 <% } %>
                             </a>
@@ -80,9 +80,9 @@
                         <a href="/cart" class="relative">
                             <i class="fa-solid fa-cart-shopping nav-icon-lg"></i>
 
-                            <% if (user && cartCount > 0) { %>
+                            <% if (user) { %>
                                 <span id="cartBadge" class="badge-1 cart-badge">
-                                    <%= cartCount %>
+                                    <%= cartCount || 0 %>
                                 </span>
                             <% } %>
                         </a>
@@ -530,6 +530,18 @@
 
 
     <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const badge = document.getElementById("cartBadge");
+            const sidebarBadge = document.getElementById("cartSidebarBadge");
+
+            if (badge && Number(badge.innerText) === 0) {
+                badge.style.display = "none";
+            }
+
+            if (sidebarBadge && Number(sidebarBadge.innerText) === 0) {
+                sidebarBadge.style.display = "none";
+            }
+        });
         const mainImageContainer = document.querySelector('.main-image-container');
 
         if (mainImageContainer) {
@@ -564,12 +576,7 @@
             }
         });
 
-
-
-
-
         //wishlist
-
 
         document.addEventListener("click", async function (e) {
 
@@ -663,19 +670,30 @@
                 }
 
                 triggerToast(data.message, "success");
-                increaseCartBadge(1);
+                updateCartBadge(data.cartCount);
 
             } catch (error) {
                 triggerToast("Something went wrong", "error");
             }
 
         });
+        function updateCartBadge(count) {
+
+            const badge = document.getElementById("cartBadge");
+            const sidebarBadge = document.getElementById("cartSidebarBadge");
+
+            if (badge){
+                badge.innerText = count;
+                badge.style.display = count > 0 ? "inline-block" : "none";
+            }
+
+            if (sidebarBadge){
+                sidebarBadge.innerText = count;
+                badge.style.display = count > 0 ? "inline-block" : "none";
+            } 
+        }
 
 
-        
-    </script>
-
-    <script>
         function changeImage(element) {
 
             const mainImage = document.getElementById("mainProductImage");

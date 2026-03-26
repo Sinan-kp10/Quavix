@@ -218,6 +218,7 @@ export const addToCartService = async (userId, productId, variantId) => {
         }
 
         existingItem.quantity += 1;
+        
 
     } else {
 
@@ -231,10 +232,10 @@ export const addToCartService = async (userId, productId, variantId) => {
     }
 
     
+    
+    await cart.save()
 
-    await cart.save();
-
-    return true;
+    return cart.items.reduce((sum, item) => sum + item.quantity, 0);
 }
 
 export const removeFromCartService = async (userId, productId, variantId) => {
