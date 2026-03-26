@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { ORDER_STATUS, PAYMENT_STATUS } from "../utils/orderStatus.js"
 
 const orderItemSchema = new mongoose.Schema({
     product: {
@@ -46,23 +47,14 @@ const orderItemSchema = new mongoose.Schema({
 
     orderStatus: {
         type: String,
-        enum: [
-            "pending",
-            "shipped",
-            "out_for_delivery",
-            "delivered",
-            "cancelled",
-            "return_Request",
-            "return_rejected",
-            "returned"
-        ],
-        default: "pending"
+        enum: Object.values(ORDER_STATUS),
+        default: ORDER_STATUS.PENDING
     },
 
     paymentStatus: {
         type: String,
-        enum: ["pending", "paid", "failed", "refunded"],
-        default: "pending"
+        enum: Object.values(PAYMENT_STATUS),
+        default: PAYMENT_STATUS.PENDING
     },
 
     returnVariantId: {

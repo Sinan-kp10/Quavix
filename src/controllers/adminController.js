@@ -10,6 +10,7 @@ import walletModel from "../models/walletModel.js";
 import ProductModel from "../models/productModal.js";
 import XLSX from "xlsx";
 import PDFDocument from "pdfkit";
+import { ORDER_STATUS, PAYMENT_STATUS } from "../utils/orderStatus.js";
 
 
 
@@ -624,7 +625,7 @@ export const loadOrders = async (req, res) => {
 
         const totalPages = Math.ceil(totalItems / limit)
 
-        const returnRequests = await orderModel.find({"items.orderStatus": "return_Request"}).populate("user", "email")
+        const returnRequests = await orderModel.find({"items.orderStatus": ORDER_STATUS.RETURN_REQUEST}).populate("user", "email")
 
         res.render("admin/orders", {
             title: "Manage Orders - Quavix",
@@ -648,41 +649,45 @@ export const loadOrders = async (req, res) => {
 export const editOrderStatus = async (req, res) => {
     try {
 
-        const { orderId, itemIndex, status } = req.body
+        const { orderId, itemIndex, status } = req.body;
 
-        const order = await orderModel.findById(orderId)
+        const order = await orderModel.findById(orderId);
 
         if (!order) {
-            return res.redirect("/admin/orders")
+            return res.redirect("/admin/orders");
         }
 
-        const item = order.items[Number(itemIndex)]
+        const item = order.items[Number(itemIndex)];
 
-        if (item.orderStatus === "cancelled" || item.orderStatus === "returned") {
-            return res.redirect("/admin/orders")
+
+        if (
+            item.orderStatus === ORDER_STATUS.CANCELLED ||
+            item.orderStatus === ORDER_STATUS.RETURNED
+        ) {
+            return res.redirect("/admin/orders");
         }
 
         if (status) {
-            item.orderStatus = status
+            item.orderStatus = status; 
         }
 
-        if (status === "delivered") {
-            item.deliveredAt = new Date()
+        if (status === ORDER_STATUS.DELIVERED) {
+            item.deliveredAt = new Date();
         }
 
-        if (status === "cancelled") {
-            item.cancelledAt = new Date()
+        if (status === ORDER_STATUS.CANCELLED) {
+            item.cancelledAt = new Date();
         }
 
-        await order.save()
+        await order.save();
 
-        res.redirect("/admin/orders")
+        res.redirect("/admin/orders");
 
     } catch (error) {
-        console.log(error)
-        res.redirect("/admin/orders")
+        console.log(error);
+        res.redirect("/admin/orders");
     }
-}
+};
 
 export const OrderDetails = async (req, res) => {
     try {
@@ -726,62 +731,54 @@ export const OrderDetails = async (req, res) => {
 
 export const handleReturnRequest = async (req, res) => {
 
-    try{
+    try {
 
-        const { orderId, variantId, action, rejectReason } = req.body
+        const { orderId, variantId, action, rejectReason } = req.body;
 
-        const order = await orderModel.findById(orderId)
+        const order = await orderModel.findById(orderId);
+        if (!order) return res.redirect("/admin/orders");
 
-        if(!order){
-            return res.redirect("/admin/orders")
+        const itemIndex = order.items.findIndex(
+            i => i.variantId.toString() === variantId
+        );
+
+        if (itemIndex === -1) return res.redirect("/admin/orders");
+
+        const item = order.items[itemIndex];
+
+        if (item.orderStatus !== ORDER_STATUS.RETURN_REQUEST) {
+            return res.redirect(`/admin/orders/${orderId}/${itemIndex}`);
         }
 
-        const itemIndex = order.items.findIndex(i => i.variantId.toString() === variantId)
+        if (action === "approve") {
 
-        if(itemIndex === -1){
-            return res.redirect("/admin/orders")
-        }
+            item.orderStatus = ORDER_STATUS.RETURNED;
 
-        const item = order.items[itemIndex]
+            if (item.paymentStatus === PAYMENT_STATUS.PAID) {
 
-        if(!item){
-            return res.redirect("/admin/orders")
-        }
+                const user = await userModal.findById(order.user);
 
-        if(item.orderStatus !== "return_Request"){
-            res.redirect(`/admin/orders/${orderId}/${itemIndex}`)
-        }
+                let wallet = await walletModel.findOne({ userId: user.id });
 
-        if(action === "approve"){
-
-            item.orderStatus = "returned"
-
-            if(item.paymentStatus === "paid"){
-
-                const user = await userModal.findById(order.user)
-
-                let wallet = await walletModel.findOne({ userId: user.id })
-
-                if(!wallet){
+                if (!wallet) {
                     wallet = new walletModel({
                         userId: user.id,
                         balance: 0,
                         transactions: []
-                    })
+                    });
                 }
 
-                let refundAmount = item.total
+                let refundAmount = item.total;
 
-                if(order.couponDiscount && order.subtotal > 0){
+                if (order.couponDiscount && order.subtotal > 0) {
 
-                    const itemShare = item.total / order.subtotal
+                    const itemShare = item.total / order.subtotal;
+                    const couponShare = order.couponDiscount * itemShare;
 
-                    const couponShare = order.couponDiscount * itemShare
-
-                    refundAmount = Math.round(item.total - couponShare)
+                    refundAmount = Math.round(item.total - couponShare);
                 }
 
-                wallet.balance += refundAmount
+                wallet.balance += refundAmount;
 
                 wallet.transactions.push({
                     date: new Date(),
@@ -789,30 +786,31 @@ export const handleReturnRequest = async (req, res) => {
                     type: "credit",
                     amount: refundAmount,
                     orderId: order._id
-                })
+                });
 
-                item.paymentStatus = "refunded"
+                item.paymentStatus = PAYMENT_STATUS.REFUNDED;
 
-                await wallet.save()
+                await wallet.save();
             }
-
         }
 
-        if(action === "reject"){
-            if(rejectReason.length<3){
-                throw new Error("Please provide a reason for rejection")
+        if (action === "reject") {
+
+            if (rejectReason.length < 3) {
+                throw new Error("Please provide a reason for rejection");
             }
-            item.orderStatus = "return_rejected"
-            item.returnRejectReason = rejectReason
+
+            item.orderStatus = ORDER_STATUS.RETURN_REJECTED;
+            item.returnRejectReason = rejectReason;
         }
 
-        await order.save()
+        await order.save();
 
-        res.redirect(`/admin/orders/${orderId}/${itemIndex}`)
+        res.redirect(`/admin/orders/${orderId}/${itemIndex}`);
 
-    }catch(err){
-        console.log(err)
-        res.redirect("/admin/orders")
+    } catch (err) {
+        console.log(err);
+        res.redirect("/admin/orders");
     }
 }
 
@@ -857,7 +855,7 @@ export const loadDashboard = async (req, res) => {
 
         orders.forEach(order => {
             order.items.forEach(item => {
-                if (item.orderStatus === "delivered") {
+                if (item.orderStatus === ORDER_STATUS.DELIVERED) {
                     totalRevenue += item.total;
                 }
             });
@@ -869,7 +867,7 @@ export const loadDashboard = async (req, res) => {
             const month = new Date(order.createdAt).getMonth();
 
             order.items.forEach(item => {
-                if (item.orderStatus === "delivered") {
+                if (item.orderStatus === ORDER_STATUS.DELIVERED) {
                     monthlyRevenue[month] += item.total;
                 }
             });
@@ -1064,13 +1062,13 @@ export const exportPDF = async (req, res) => {
 }
 
 
-export const topSellingProducts= async (req,res)=>{
+// export const topSellingProducts= async (req,res)=>{
 
-    try {
+//     try {
 
-        const {topProducts}=await findProducts()
+//         const {topProducts}=await findProducts()
         
-    } catch (err) {
+//     } catch (err) {
         
-    }
-}
+//     }
+// }
