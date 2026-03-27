@@ -230,7 +230,7 @@
                                         ₹<%= variant.price.toLocaleString() %>
                                     </span>
                                     <span>₹<%= (variant.price - (variant.price *
-                                            (product.offerPercentage||0)/100)).toLocaleString() %></span>
+                                            (Math.max(product.offerPercentage || 0, product.category?.categoryOffer || 0))/100)).toLocaleString() %></span>
                                     <span class="text-muted">x</span>
                                     <span>
                                         <%= quantity %>
@@ -254,7 +254,7 @@
                                     const variant = product.variants.id(item.variant);
                                     if(!variant) return;
 
-                                    const offer = product.offerPercentage || 0;
+                                    const offer = Math.max(product.offerPercentage || 0, product.category?.categoryOffer || 0);
                                     const discount = (variant.price * offer) / 100;
                                     const finalPrice = variant.price - discount;
                                     const itemTotal = finalPrice * item.quantity;

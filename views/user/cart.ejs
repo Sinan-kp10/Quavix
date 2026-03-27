@@ -135,7 +135,7 @@
                     if (!variant) return;
 
                     const originalPrice = variant.price;
-                    const offer = product.offerPercentage || 0;
+                    const offer = Math.max(product.offerPercentage || 0, product.category?.categoryOffer || 0);
 
                     const discountPerUnit = (originalPrice * offer) / 100;
                     const finalPrice = Math.round(originalPrice - discountPerUnit);

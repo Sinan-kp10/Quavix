@@ -25,13 +25,13 @@ export const createRazorpay = async (req, res) => {
 
         if (buyNow) {
 
-            const product = await productModel.findById(buyNow.productId);
+            const product = await productModel.findById(buyNow.productId).populate("category");
             if (!product) throw new Error("Product not found");
 
             const variant = product.variants.id(buyNow.variantId);
             if (!variant) throw new Error("Variant not found");
 
-            const offer = product.offerPercentage || 0;
+            const offer = Math.max(product.offerPercentage || 0, product.category?.categoryOffer || 0);
             const discount = (variant.price * offer) / 100;
 
             const finalPrice = Math.round(variant.price - discount);
@@ -40,7 +40,7 @@ export const createRazorpay = async (req, res) => {
 
         } else {
 
-            const cart = await cartModel.findOne({ user: userId }).populate("items.product");
+            const cart = await cartModel.findOne({ user: userId }).populate({ path: "items.product", populate: { path: "category" } });
 
             if (!cart || cart.items.length === 0) {
                 throw new Error("Cart is empty");
@@ -53,7 +53,7 @@ export const createRazorpay = async (req, res) => {
 
                 if (!variant) continue;
 
-                const offer = product.offerPercentage || 0;
+                const offer = Math.max(product.offerPercentage || 0, product.category?.categoryOffer || 0);
                 const discount = (variant.price * offer) / 100;
 
                 const finalPrice = Math.round(variant.price - discount);

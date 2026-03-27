@@ -45,13 +45,13 @@ export const loadProducts = async (req, res) => {
 
         const categories = await categoryModel.find({ status: "Active" });
 
-        const products = await productModel.find({ isDeleted: false });
+        const products = await productModel.find({ isDeleted: false }).populate("category");
 
         let prices = [];
 
         products.forEach(product => {
 
-            const offer = product.offerPercentage || 0;
+            const offer = Math.max(product.offerPercentage || 0, product.category?.categoryOffer || 0);
 
             product.variants
                 .filter(v => v.status === "Active")
@@ -149,7 +149,7 @@ export const searchProducts = async (req, res) => {
 
         products.forEach(product => {
 
-            const offer = product.offerPercentage || 0
+            const offer = Math.max(product.offerPercentage || 0, product.category?.categoryOffer || 0);
 
             product.variants.forEach(variant => {
 
@@ -352,7 +352,7 @@ export const loadCart = async (req, res) => {
 
         const userId = req.session.user.id;
 
-        const cart = await cartModel.findOne({ user: userId }).populate("items.product");
+        const cart = await cartModel.findOne({ user: userId }).populate({ path: "items.product", populate: { path: "category" } });
 
         res.render("user/cart", {
             title: "My Cart - Quavix",
@@ -475,7 +475,7 @@ export const checkoutFromCart = async (req, res) => {
       });
     }
 
-    const cart = await cartModel.findOne({ user: req.session.user.id }).populate("items.product");
+    const cart = await cartModel.findOne({ user: req.session.user.id }).populate({ path: "items.product", populate: { path: "category" } });
 
     if (!cart || cart.items.length === 0) {
       return res.json({ success: false, message: "Cart empty" });
@@ -522,10 +522,10 @@ export const loadCheckout = async (req, res) => {
 
             const { productId, variantId, quantity } = req.session.buyNow;
 
-            const product = await productModel.findById(productId);
+            const product = await productModel.findById(productId).populate("category");
             const variant = product.variants.id(variantId);
 
-            const offer = product.offerPercentage || 0;
+            const offer = Math.max(product.offerPercentage || 0, product.category?.categoryOffer || 0);
             const discount = (variant.price * offer) / 100;
             const finalPrice = Math.round(variant.price - discount);
 
@@ -587,7 +587,7 @@ export const loadCheckout = async (req, res) => {
 
         if (req.session.fromCart) {
 
-            const cart = await cartModel.findOne({ user: userId }).populate("items.product");
+            const cart = await cartModel.findOne({ user: userId }).populate({ path: "items.product", populate: { path: "category" } });
 
             if (!cart || cart.items.length === 0) {
                 return res.redirect("/cart");
@@ -603,7 +603,7 @@ export const loadCheckout = async (req, res) => {
                 const variant = product.variants.id(item.variant);
                 if (!variant) return;
 
-                const offer = product.offerPercentage || 0;
+                const offer = Math.max(product.offerPercentage || 0, product.category?.categoryOffer || 0);
                 const discount = (variant.price * offer) / 100;
                 const finalPrice = variant.price - discount;
 
@@ -1030,8 +1030,8 @@ export const downloadInvoice = async (req, res) => {
             return res.redirect("/order-history");
         }
 
-        const product = await productModel.findById(item.product);
-        const offer = product?.offerPercentage || 0;
+        const product = await productModel.findById(item.product).populate("category");
+        const offer = Math.max(product?.offerPercentage || 0, product?.category?.categoryOffer || 0);
 
         const templatePath = path.join(
             process.cwd(),

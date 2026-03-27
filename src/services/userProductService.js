@@ -30,7 +30,7 @@ export const getFilterdProduct = async (
     let variantList = [];
     products.forEach(product => {
 
-        const offer = product.offerPercentage || 0;
+        const offer = Math.max(product.offerPercentage || 0, product.category?.categoryOffer || 0);
 
         product.variants
             .filter(v => v.status === "Active")
@@ -122,7 +122,7 @@ export const findProducts = async (search) => {
         };
     }
 
-    let products = await productModel.find(mongoQuery);
+    let products = await productModel.find(mongoQuery).populate("category");
 
     products = products.map(product => {
 
@@ -314,7 +314,7 @@ export const createOrder = async ({ userId,addressId, paymentMethod,buyNowData,c
 
         const { productId, variantId, quantity } = buyNowData;
 
-        const product = await productModel.findById(productId);
+        const product = await productModel.findById(productId).populate("category");
 
         if (!product) {
             throw new Error("Product not found");
@@ -330,7 +330,7 @@ export const createOrder = async ({ userId,addressId, paymentMethod,buyNowData,c
             throw new Error("Insufficient stock");
         }
 
-        const offer = product.offerPercentage || 0;
+        const offer = Math.max(product.offerPercentage || 0, product.category?.categoryOffer || 0);
 
         const discount = (variant.price * offer) / 100;
 
@@ -362,7 +362,7 @@ export const createOrder = async ({ userId,addressId, paymentMethod,buyNowData,c
 
     else {
 
-        const cart = await cartModel.findOne({ user: userId }).populate("items.product");
+        const cart = await cartModel.findOne({ user: userId }).populate({ path: "items.product", populate: { path: "category" } });
 
         if (!cart || cart.items.length === 0) {
             throw new Error("Cart is empty");
@@ -380,7 +380,7 @@ export const createOrder = async ({ userId,addressId, paymentMethod,buyNowData,c
                 throw new Error(`${product.name} is out of stock`);
             }
 
-            const offer = product.offerPercentage || 0;
+            const offer = Math.max(product.offerPercentage || 0, product.category?.categoryOffer || 0);
 
             const discount = (variant.price * offer) / 100;
 

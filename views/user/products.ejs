@@ -216,7 +216,7 @@
                         .forEach(activeVariant => { 
 
                         const price = activeVariant.price;
-                        const offer = product.offerPercentage || 0;
+                        const offer = Math.max(product.offerPercentage || 0, product.category?.categoryOffer || 0);
 
                         const discountedPrice = offer > 0
                             ? Math.round(price - (price * offer / 100))
@@ -523,7 +523,7 @@
                 const variant = product.variants?.[0];
                 if (!variant) return;
 
-                const offer = product.offerPercentage || 0;
+                const offer = Math.max(product.offerPercentage || 0, product.category?.categoryOffer || 0);
 
                 const finalPrice = product.finalPrice
                     ? product.finalPrice

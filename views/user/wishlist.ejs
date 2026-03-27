@@ -120,7 +120,7 @@
                 ) || product.variants[0];
 
                 const originalPrice = variant.price;
-                const offer = product.offerPercentage || 0;
+                const offer = Math.max(product.offerPercentage || 0, product.category?.categoryOffer || 0);
                 const discount = (originalPrice * offer) / 100;
                 const finalPrice = Math.round(originalPrice - discount);
 

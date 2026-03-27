@@ -215,7 +215,7 @@
 
 
                         <!-- ===== PRICE CALCULATION ===== -->
-                        <% const originalPrice=activeVariant.price; const offer=product.offerPercentage || 0; const
+                        <% const originalPrice=activeVariant.price; const offer=Math.max(product.offerPercentage || 0, product.category?.categoryOffer || 0); const
                             discount=(originalPrice * offer) / 100; const finalPrice=Math.round(originalPrice -
                             discount); 
                         %>
@@ -401,7 +401,7 @@
                     if (!firstVariant) return;
 
                     const originalPrice = firstVariant.price || 0;
-                    const offer = rp.offerPercentage || 0;
+                    const offer = Math.max(rp.offerPercentage || 0, rp.category?.categoryOffer || 0);
                     const discount = (originalPrice * offer) / 100;
                     const finalPrice = Math.round(originalPrice - discount);
 

@@ -160,9 +160,10 @@
                                 const activeVariants = product.variants.filter(v => v.status === "Active").length;
                                 const totalVariants = product.variants.length;
 
+                                const OFFER = product.offerPercentage || 0;
                                 const prices = product.variants.map(v => {
-                                    return product.offerPercentage > 0
-                                        ? v.price - (v.price * product.offerPercentage / 100)
+                                    return OFFER > 0
+                                        ? v.price - (v.price * OFFER / 100)
                                         : v.price;
                                 });
 
@@ -195,10 +196,10 @@
                                         ₹<%= minPrice.toFixed(2) %> – ₹<%= maxPrice.toFixed(2) %>
                                     <% } %>
 
-                                    <% if (product.offerPercentage > 0) { %>
+                                    <% if (OFFER > 0) { %>
                                         <br>
                                         <small style="color: green;">
-                                            <%= product.offerPercentage %>% OFF
+                                            <%= OFFER %>% OFF
                                         </small>
                                     <% } %>
                                 </td>
