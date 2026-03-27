@@ -416,6 +416,128 @@ input[type="date"] {
     margin-bottom: 1rem;
 }
 
+/* Dashboard Top Lists */
+.top-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+}
+
+.top-list-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.top-list-item:last-child {
+    padding-bottom: 0;
+    border-bottom: none;
+}
+
+.top-list-item-left {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.top-list-rank {
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: #94a3b8;
+    width: 20px;
+    text-align: center;
+}
+
+.top-list-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+}
+
+.top-list-icon.product {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    overflow: hidden;
+    padding: 2px;
+}
+
+.top-list-icon.product img {
+    width: 100%;
+    height: 100%;
+    border-radius: 4px;
+}
+
+.top-list-icon.product.cover img {
+    object-fit: cover;
+}
+
+.top-list-icon.product.contain img {
+    object-fit: contain;
+}
+
+.top-list-icon.smartphones {
+    background: rgba(79, 70, 229, 0.1);
+    color: #4f46e5;
+}
+
+.top-list-icon.laptops {
+    background: rgba(14, 165, 233, 0.1);
+    color: #0ea5e9;
+}
+
+.top-list-icon.audio {
+    background: rgba(16, 185, 129, 0.1);
+    color: #10b981;
+}
+
+.top-list-title {
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: #0f172a;
+}
+
+.top-list-subtitle {
+    font-size: 0.8rem;
+    color: #64748b;
+    margin-top: 0.1rem;
+}
+
+.top-list-item-right {
+    text-align: right;
+}
+
+.top-list-value {
+    font-weight: 700;
+    font-size: 1.05rem;
+    color: #0f172a;
+}
+
+.top-list-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #94a3b8;
+    margin-top: 2px;
+}
+
+.card-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin-bottom: 1.25rem;
+}
+
+.p-xl {
+    padding: 1.5rem !important;
+}
+
 /* Cards (Standard) */
 .card {
     background: white;

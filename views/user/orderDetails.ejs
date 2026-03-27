@@ -163,18 +163,16 @@
 
                 <!-- Divider -->
                 <% if(status === "delivered"){ %>
-                <div class="h-4 w-px bg-slate-200"></div>
+                    <div class="h-4 w-px bg-slate-200"></div>
 
                 <!-- INVOICE -->
-                <a href="/invoice/<%= order.orderId %>" 
-                class="text-sm font-medium text-primary hover:underline flex items-center gap-2"
-                title="Download Invoice">
-                <i class="fa-solid fa-file-arrow-down opacity-80"></i>
-                Download Invoice
-                </a>
+                    <a href="/invoice/<%= order.orderId %>?itemId=<%= item.variantId %>" class="text-sm font-medium text-primary hover:underline flex items-center gap-2" title="Download Invoice">
+                        <i class="fa-solid fa-file-arrow-down opacity-80"></i>
+                        Download Invoice
+                    </a>
                 <% } %>
 
-                </div>
+            </div>
         </div>
 
         <!-- Order Status Banner -->

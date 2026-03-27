@@ -166,6 +166,7 @@
             font-weight: 500;
         }
 
+        .invoice-table th.total-cell,
         .total-cell {
             text-align: right;
             font-weight: 600;
@@ -526,8 +527,6 @@
                 </thead>
                     <tbody>
 
-                        <% order.items.forEach(item => { %>
-
                         <tr>
                             <td>
                                 <div>
@@ -540,21 +539,6 @@
                                 </div>
                             </td>
 
-                            <%
-                            let finalPrice = item.price
-                            let finalTotal = item.total
-
-                            if(order.couponDiscount && order.subtotal > 0){
-
-                                const itemShare = item.total / order.subtotal
-                                const couponShare = order.couponDiscount * itemShare
-
-                                const perUnitCoupon = couponShare / item.quantity
-
-                                finalPrice = Math.round(item.price - perUnitCoupon)
-                                finalTotal = Math.round(item.total - couponShare)
-                            }
-                            %>
 
                             <td class="price-cell">
                                 ₹<%= finalPrice.toLocaleString("en-IN") %>
@@ -563,13 +547,10 @@
                             <td class="qty-cell"><%= item.quantity %></td>
 
                             <td class="total-cell">
-                                ₹<%= finalTotal.toLocaleString("en-IN") %>
+                                ₹<%= finalItemTotal.toLocaleString("en-IN") %>
                             </td>
 
                         </tr>
-
-                        <% }) %>
-
                     </tbody>
             </table>
         </div>
@@ -577,37 +558,39 @@
         <!-- Summary -->
         <div class="invoice-summary-section">
             <div class="summary-box">
+
+                <!-- Sub Total -->
                 <div class="summary-row">
                     <span class="summary-label">Sub Total</span>
                     <span class="summary-value">
-                        ₹<%= order.subtotal.toLocaleString("en-IN") %>
+                        ₹<%= originalTotal.toLocaleString("en-IN") %>
                     </span>
                 </div>
 
-                <%
-                    const totalDiscount = (order.discount || 0) + (order.couponDiscount || 0)
-                %>
-
+                <!-- Discount -->
                 <div class="summary-row">
                     <span class="summary-label">Discount</span>
                     <span class="summary-value text-green-700">
-                        - ₹<%= totalDiscount.toLocaleString("en-IN") %>
+                        - ₹<%= itemDiscount.toLocaleString("en-IN") %>
                     </span>
                 </div>
 
+                <!-- Shipping -->
                 <div class="summary-row">
                     <span class="summary-label">Shipping</span>
                     <span class="summary-value">
-                        ₹<%= order.shippingCharge.toLocaleString("en-IN") %>
+                        ₹0
                     </span>
                 </div>
 
+                <!-- Grand Total -->
                 <div class="summary-total summary-row">
                     <span>Grand Total</span>
                     <span>
-                        ₹<%= order.totalAmount.toLocaleString("en-IN") %>
+                        ₹<%= finalItemTotal.toLocaleString("en-IN") %>
                     </span>
                 </div>
+
             </div>
         </div>
     </div>

@@ -151,7 +151,7 @@ router.post("/order-request",isLogin, orderRequest)
 router.post("/razorpay",isLogin, createRazorpay);
 router.post("/verify-razorpay", isLogin,verifyRazorpay)
 router.get("/payment-failed",isLogin, loadPaymentFailed)
-router.get("/invoice/:orderId",isLogin, downloadInvoice)
+router.get("/invoice/:orderId", isLogin, downloadInvoice)
 
 router.get("/coupons",isLogin,loadCoupons)
 router.post("/apply-coupon",isLogin, applyCoupon)

@@ -839,13 +839,37 @@ export const loadOrderDetails = async (req, res) => {
 
         const requestData = getOrderRequest(order)
 
+        let finalItemTotal = item.total
+        let itemDiscount = 0
+
+
+        if(item.discountPercentage){
+            const productDiscount = (item.price * item.discountPercentage) / 100
+            itemDiscount += productDiscount * item.quantity
+        }
+
+
+        if(order.couponDiscount && order.subtotal > 0){
+            const itemShare = item.total / order.subtotal
+            const couponShare = order.couponDiscount * itemShare
+
+            itemDiscount += couponShare
+        }
+
+
+        finalItemTotal = Math.round(item.total - itemDiscount)
+        const finalPrice = Math.round(finalItemTotal / item.quantity)
+
         res.render("user/orderDetails", {
             title: "Order Details - Quavix",
             css: "userStyle",
             order,
             item,   
             requestType: requestData.requestType,
-            requestAllowed: requestData.requestAllowed
+            requestAllowed: requestData.requestAllowed,
+            finalItemTotal,
+            itemDiscount,
+            finalPrice
         })
 
     } catch (err) {
@@ -989,46 +1013,88 @@ export const orderRequest = async (req,res)=>{
 }
 
 export const downloadInvoice = async (req, res) => {
-
     try {
 
-        const { orderId } = req.params
+        const { orderId } = req.params;
+        const itemId = req.query.itemId;
 
-        const order = await orderModel
-            .findOne({ orderId })
-            .populate("user")
+        const order = await orderModel.findOne({ orderId }).populate("user");
 
         if (!order) {
-            return res.redirect("/order-history")
+            return res.redirect("/order-history");
         }
 
-        const templatePath = path.join(process.cwd(), "views", "user", "invoice.ejs")
+        const item = order.items.find(i => i.variantId && i.variantId.toString() === itemId)
 
-        const html = await ejs.renderFile(templatePath, { order })
-
-        const file = { content: html }
-
-        const options = {
-            format: "A4",
-            printBackground: true
+        if (!item) {
+            return res.redirect("/order-history");
         }
 
-        const pdfBuffer = await pdf.generatePdf(file, options)
+        const product = await productModel.findById(item.product);
+        const offer = product?.offerPercentage || 0;
 
-        res.setHeader("Content-Type", "application/pdf")
+        const templatePath = path.join(
+            process.cwd(),
+            "views",
+            "user",
+            "invoice.ejs"
+        );
+
+
+        let finalItemTotal = item.total;
+        let couponDiscount = 0;
+
+        if (order.couponDiscount > 0 && order.subtotal > 0) {
+            const itemShare = item.total / order.subtotal;
+            couponDiscount = Math.round(order.couponDiscount * itemShare);
+
+            finalItemTotal = Math.round(item.total - couponDiscount);
+        }
+
+        let originalPrice = item.price;
+        let originalTotal = item.total;
+        let productDiscount = 0;
+
+        if (offer > 0) {
+            originalPrice = Math.round(item.price / (1 - offer / 100));
+            originalTotal = originalPrice * item.quantity;
+            productDiscount = originalTotal - item.total;
+        }
+
+
+        const itemDiscount = productDiscount + couponDiscount;
+
+        const finalPrice = Math.round(finalItemTotal / item.quantity);
+
+
+        const html = await ejs.renderFile(templatePath, {
+            order,
+            item,
+            finalItemTotal,
+            finalPrice,
+            originalPrice,
+            originalTotal,
+            productDiscount,
+            couponDiscount,
+            itemDiscount, // 🔥 use this in EJS
+            offer
+        });
+
+        const pdfBuffer = await pdf.generatePdf(
+            { content: html },
+            { format: "A4", printBackground: true }
+        );
+
+        res.setHeader("Content-Type", "application/pdf");
         res.setHeader(
             "Content-Disposition",
-            `attachment; filename=invoice-${order.orderId}.pdf`
-        )
+            `attachment; filename=invoice-${order.orderId}-${itemId}.pdf`
+        );
 
-        res.send(pdfBuffer)
+        res.send(pdfBuffer);
 
     } catch (error) {
-
-        console.log(error)
-        res.redirect("/order-history")
-
+        console.log(error);
+        res.redirect("/order-history");
     }
-
-}
-
+};

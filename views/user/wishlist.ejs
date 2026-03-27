@@ -36,7 +36,11 @@
                     <a href="/products"><i class="fa-solid fa-shop"></i> Shop</a>
                     <a href="order-history.html"><i class="fa-solid fa-box"></i> Orders</a>
                     <a href="/wishlist"><i class="fa-regular fa-heart"></i> Wishlist</a>
-                    <a href="/cart"><i class="fa-solid fa-cart-shopping"></i> Cart</a>
+                    <% if (user) { %>
+                        <span id="cartSidebarBadge" class="badge cart-sidebar-badge">
+                            <%= cartCount || 0 %>
+                        </span>
+                    <% } %>
                     <% if(user){ %>
                             <a href="/profile"><i class="fa-solid fa-user"></i> Profile</a>
                             <a href="/logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
@@ -69,8 +73,10 @@
                 <a href="/cart" class="relative">
                     <i class="fa-solid fa-cart-shopping nav-icon-lg"></i>
 
-                    <% if (cartCount > 0) { %>
-                        <span class="badge cart-badge"><%= cartCount %></span>
+                    <% if (user) { %>
+                        <span id="cartBadge" class="badge-1 cart-badge">
+                            <%= cartCount || 0 %>
+                        </span>
                     <% } %>
                 </a>
                 <% if (user) { %>
@@ -225,7 +231,7 @@
                             <i class="fa-solid fa-trash"></i>
                         </button>
 
-</div>
+                    </div>
                 </div>
 
             </div>
@@ -357,6 +363,23 @@
                 }
 
                 triggerToast("Product moved to cart!", "success");
+                updateCartBadge(data.cartCount);
+
+                function updateCartBadge(count) {
+
+                    const badge = document.getElementById("cartBadge");
+                    const sidebarBadge = document.getElementById("cartSidebarBadge");
+
+                    if (badge){
+                        badge.innerText = count;
+                        badge.style.display = count > 0 ? "inline-block" : "none";
+                    }
+
+                    if (sidebarBadge){
+                        sidebarBadge.innerText = count;
+                       sidebarBadge.style.display = count > 0 ? "inline-block" : "none";
+                    } 
+                }
 
                 await fetch("/wishlist/remove", {
                     method: "DELETE",
@@ -375,8 +398,7 @@
                 cartBtn.disabled = false;
             }
 
-        });
-
+        })
 
         const toast = document.getElementById("toast");
 
@@ -411,6 +433,13 @@
                 toast.classList.remove("show");
             }, 3000);
         }
+        document.addEventListener("DOMContentLoaded", () => {
+            const badge = document.getElementById("cartBadge");
+
+            if (badge && Number(badge.innerText) === 0) {
+                badge.style.display = "none";
+            }
+        });
     </script>
 </body>
 

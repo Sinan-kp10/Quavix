@@ -105,9 +105,73 @@
                 </div>
             </div>
 
+            <!-- Top Products & Categories -->
+            <div class="grid gap-4 mb-4 grid-cols-2">
+                <!-- Top 3 Selling Products -->
+                <div class="card p-xl">
+                    <h3 class="card-title">Top 3 Selling Products</h3>
+                    <div class="top-list">
+                        <div class="top-list-item">
+                            <div class="top-list-item-left">
+                                <div class="top-list-rank">1</div>
+                                <div class="top-list-icon product cover">
+                                    <img src="images/iphone 13.jpg" alt="iPhone 13 Pro">
+                                </div>
+                                <div>
+                                    <div class="top-list-title">iPhone 13 Pro</div>
+                                    <div class="top-list-subtitle">Electronics</div>
+                                </div>
+                            </div>
+                            <div class="top-list-item-right">
+                                <div class="top-list-value">124</div>
+                                <div class="top-list-label">Sales</div>
+                            </div>
+                        </div>
 
+                        <div class="top-list-item">
+                            <div class="top-list-item-left">
+                                <div class="top-list-rank">2</div>
+                                <div class="top-list-icon product contain">
+                                    <img src="images/samsung-s24-ultra.png" alt="Samsung S24 Ultra">
+                                </div>
+                                <div>
+                                    <div class="top-list-title">Samsung S24 Ultra</div>
+                                    <div class="top-list-subtitle">Electronics</div>
+                                </div>
+                            </div>
+                            <div class="top-list-item-right">
+                                <div class="top-list-value">89</div>
+                                <div class="top-list-label">Sales</div>
+                            </div>
+                        </div>
 
+                        <div class="top-list-item">
+                            <div class="top-list-item-left">
+                                <div class="top-list-rank">3</div>
+                                <div class="top-list-icon product cover">
+                                    <img src="images/headphone.jpg" alt="Sony WH-1000XM5">
+                                </div>
+                                <div>
+                                    <div class="top-list-title">Sony WH-1000XM5</div>
+                                    <div class="top-list-subtitle">Accessories</div>
+                                </div>
+                            </div>
+                            <div class="top-list-item-right">
+                                <div class="top-list-value">76</div>
+                                <div class="top-list-label">Sales</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
+                <!-- Top Categories -->
+                <div class="card p-xl">
+                    <h3 class="card-title">Top Categories</h3>
+                    <div style="height: 300px;">
+                        <canvas id="topCategoriesChart"></canvas>
+                    </div>
+                </div>
+            </div>
 
         </main>
     </div>
@@ -197,6 +261,40 @@
                 }
             }
         })
+        
+        // Top Categories Chart
+        const topCategoriesCtx = document.getElementById('topCategoriesChart').getContext('2d');
+        new Chart(topCategoriesCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Smartphones', 'Laptops', 'Audio', 'Others'],
+                datasets: [{
+                    data: [45, 30, 15, 10],
+                    backgroundColor: [
+                        '#4f46e5',
+                        '#0ea5e9',
+                        '#10b981',
+                        '#f59e0b'
+                    ],
+                    borderWidth: 0,
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            usePointStyle: true,
+                            padding: 20
+                        }
+                    }
+                },
+                cutout: '70%'
+            }
+        });
         function handleFilter(value) {
             window.location.href = `/admin/dashboard?filter=${value}`;
         }
