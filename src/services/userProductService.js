@@ -429,10 +429,6 @@ export const createOrder = async ({ userId,addressId, paymentMethod,buyNowData,c
         if (coupon && subtotal >= coupon.minPurchaseAmount) {
 
             couponDiscount = coupon.discountAmount;
-
-            if (coupon.maxDiscountAmount > 0) {
-                couponDiscount = Math.min(couponDiscount, coupon.maxDiscountAmount);
-            }
         }
     }
 

@@ -673,6 +673,7 @@ export const editOrderStatus = async (req, res) => {
 
         if (status === ORDER_STATUS.DELIVERED) {
             item.deliveredAt = new Date();
+            item.paymentStatus = PAYMENT_STATUS.PAID;
         }
 
         if (status === ORDER_STATUS.CANCELLED) {
@@ -754,44 +755,41 @@ export const handleReturnRequest = async (req, res) => {
 
             item.orderStatus = ORDER_STATUS.RETURNED;
 
-            if (item.paymentStatus === PAYMENT_STATUS.PAID) {
+            const user = await userModal.findById(order.user);
 
-                const user = await userModal.findById(order.user);
+            let wallet = await walletModel.findOne({ userId: user.id });
 
-                let wallet = await walletModel.findOne({ userId: user.id });
-
-                if (!wallet) {
-                    wallet = new walletModel({
-                        userId: user.id,
-                        balance: 0,
-                        transactions: []
-                    });
-                }
-
-                let refundAmount = item.total;
-
-                if (order.couponDiscount && order.subtotal > 0) {
-
-                    const itemShare = item.total / order.subtotal;
-                    const couponShare = order.couponDiscount * itemShare;
-
-                    refundAmount = Math.round(item.total - couponShare);
-                }
-
-                wallet.balance += refundAmount;
-
-                wallet.transactions.push({
-                    date: new Date(),
-                    description: "Return refund",
-                    type: "credit",
-                    amount: refundAmount,
-                    orderId: order._id
+            if (!wallet) {
+                wallet = new walletModel({
+                    userId: user.id,
+                    balance: 0,
+                    transactions: []
                 });
-
-                item.paymentStatus = PAYMENT_STATUS.REFUNDED;
-
-                await wallet.save();
             }
+
+            let refundAmount = item.total;
+
+            if (order.couponDiscount && order.subtotal > 0) {
+
+                const itemShare = item.total / order.subtotal;
+                const couponShare = order.couponDiscount * itemShare;
+
+                refundAmount = Math.round(item.total - couponShare);
+            }
+
+            wallet.balance += refundAmount;
+
+            wallet.transactions.push({
+                date: new Date(),
+                description: "Return refund",
+                type: "credit",
+                amount: refundAmount,
+                orderId: order._id
+            });
+
+            item.paymentStatus = PAYMENT_STATUS.REFUNDED;
+
+            await wallet.save();
         }
 
         if (action === "reject") {

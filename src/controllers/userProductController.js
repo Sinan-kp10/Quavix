@@ -543,19 +543,7 @@ export const loadCheckout = async (req, res) => {
                 if (coupon &&coupon.status === "Active" &&coupon.expiryDate >= new Date() &&subtotal >= coupon.minPurchaseAmount) {
 
                     appliedCoupon = coupon;
-
-                    if (coupon.discountType === "percentage") {
-
-                        couponDiscount = (subtotal * coupon.discountAmount) / 100;
-
-                        if (coupon.maxDiscountAmount) {
-                            couponDiscount = Math.min(couponDiscount, coupon.maxDiscountAmount);
-                        }
-
-                    } else {
-
-                        couponDiscount = coupon.discountAmount;
-                    }
+                    couponDiscount = coupon.discountAmount;
                 }
             }
 
@@ -621,19 +609,7 @@ export const loadCheckout = async (req, res) => {
                 if ( coupon && coupon.status === "Active" && coupon.expiryDate >= new Date() && subtotal >= coupon.minPurchaseAmount) {
 
                     appliedCoupon = coupon;
-
-                    if (coupon.discountType === "percentage") {
-
-                        couponDiscount = (subtotal * coupon.discountAmount) / 100;
-
-                        if (coupon.maxDiscountAmount) {
-                            couponDiscount = Math.min(couponDiscount, coupon.maxDiscountAmount);
-                        }
-
-                    } else {
-
-                        couponDiscount = coupon.discountAmount;
-                    }
+                    couponDiscount = coupon.discountAmount;
                 }
             }
 

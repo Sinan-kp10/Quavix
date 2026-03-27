@@ -81,13 +81,6 @@ export const createRazorpay = async (req, res) => {
                 }
 
                 couponDiscount = coupon.discountAmount;
-
-                if (coupon.maxDiscountAmount > 0) {
-                    couponDiscount = Math.min(
-                        couponDiscount,
-                        coupon.maxDiscountAmount
-                    );
-                }
             }
         }
 
