@@ -1076,7 +1076,7 @@ export const downloadInvoice = async (req, res) => {
             originalTotal,
             productDiscount,
             couponDiscount,
-            itemDiscount, // 🔥 use this in EJS
+            itemDiscount, 
             offer
         });
 
