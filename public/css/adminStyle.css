@@ -646,38 +646,32 @@ input[type="date"] {
 }
 
 /* Reports Table Specific Widths */
-.reports-table th:nth-child(1) {
+.reports-table th:nth-child(1) { /* Order ID */
+    width: 11% !important;
+}
+
+.reports-table th:nth-child(2) { /* Date */
+    width: 13% !important;
+}
+
+.reports-table th:nth-child(3) { /* Customer */
     width: 18% !important;
 }
 
-/* Order ID */
-.reports-table th:nth-child(2) {
-    width: 12% !important;
-}
-
-/* Date */
-.reports-table th:nth-child(3) {
-    width: 15% !important;
-}
-
-/* Customer */
-.reports-table th:nth-child(4) {
+.reports-table th:nth-child(4) { /* Products */
     width: 25% !important;
 }
 
-/* Products */
-.reports-table th:nth-child(5) {
-    width: 10% !important;
+.reports-table th:nth-child(5) { /* Payment */
+    width: 11% !important;
 }
 
-/* Payment */
-.reports-table th:nth-child(6) {
-    width: 10% !important;
+.reports-table th:nth-child(6) { /* Total */
+    width: 8% !important;
 }
 
-/* Total */
-.reports-table th:nth-child(7) {
-    width: 10% !important;
+.reports-table th:nth-child(7) { /* Status */
+    width: 14% !important;
 }
 
 /* Status */
@@ -704,6 +698,7 @@ input[type="date"] {
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
+    white-space: nowrap;
 }
 
 
@@ -1664,9 +1659,9 @@ textarea.form-control {
     }
 
     .header-actions {
-        flex-direction: column;
-        align-items: stretch;
-        gap: 0.75rem;
+        flex-direction: row;
+        align-items: center;
+        gap: 0.5rem;
     }
 
     .content header.flex.justify-between.items-center {
@@ -3567,11 +3562,21 @@ textarea.form-control {
 
 /* Reports Specific Styles */
 .reports-filter-container {
+    margin-bottom: 1.5rem;
+}
+
+.reports-filter-container form {
     display: flex;
     align-items: center;
     gap: 1rem;
     flex-wrap: wrap;
-    margin-bottom: 1.5rem;
+    width: 100%;
+}
+
+.custom-date-group {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
 }
 
 .reports-search-input {
@@ -3638,28 +3643,34 @@ textarea.form-control {
 
 /* Responsive Reports Page */
 @media (max-width: 768px) {
-    .reports-filter-container {
+    .reports-filter-container form {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
         gap: 0.75rem;
-        flex-direction: column;
-        align-items: stretch;
     }
 
     .reports-search-input {
         width: 100% !important;
     }
 
-    .reports-filter-container>.search-group {
+    .reports-filter-container form>.search-group {
         margin-bottom: 0px !important;
-    }
-
-    /* Wrap filter and summary in a row */
-    .reports-filter-container {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-    }
-
-    .reports-filter-container>.search-group {
         grid-column: span 2;
+    }
+
+    .reports-filter-container form>.custom-date-group {
+        grid-column: span 2;
+        flex-wrap: wrap;
+    }
+
+    .reports-filter-container form>.custom-date-group>.w-filter {
+        width: calc(50% - 1.5rem) !important;
+        flex: 1 1 auto !important;
+    }
+
+    .reports-filter-container form>.custom-date-group>.btn {
+        width: 100%;
+        margin-top: 0.25rem;
     }
 
     .w-filter {

@@ -143,8 +143,8 @@ const orderSchema = new mongoose.Schema({
 orderSchema.pre("save", function () {
 
     if (!this.orderId) {
-        const random = Math.floor(10000 + Math.random() * 90000)
-        this.orderId = `ORD-${Date.now().toString().slice(-5)}-${random}`;
+        const random = Math.floor(100000 + Math.random() * 900000);
+        this.orderId = `ORD-${random}`;
     }
 
 });

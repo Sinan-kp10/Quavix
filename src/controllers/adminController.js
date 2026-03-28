@@ -907,7 +907,10 @@ export const loadReports=async(req,res)=>{
         const page=parseInt(req.query.page)||1
         const limit=10
 
-        const {orderList,totalOrders}=await reportService(search,filter,page,limit)
+        const startDate=req.query.startDate || null
+        const endDate=req.query.endDate || null
+
+        const {orderList,totalOrders}=await reportService(search,filter,page,limit,startDate,endDate)
 
         const totalPages = Math.ceil(totalOrders / limit)
 
@@ -919,7 +922,9 @@ export const loadReports=async(req,res)=>{
             currentPage:page,
             totalPages,
             search,
-            filter
+            filter,
+            startDate,
+            endDate
 
         })
 
@@ -936,7 +941,10 @@ export const exportExcel = async (req, res) => {
         const search = req.query.search || "";
         const filter = req.query.filter || "all";
 
-        const { orderList } = await reportService(search, filter, 1, 100000);
+        const startDate=req.query.startDate || null
+        const endDate=req.query.endDate || null
+
+        const { orderList } = await reportService(search, filter, 1, 100000,startDate,endDate);
 
         const data = [];
 
@@ -998,7 +1006,10 @@ export const exportPDF = async (req, res) => {
         const search = req.query.search || "";
         const filter = req.query.filter || "all";
 
-        const { orderList } = await reportService(search, filter, 1, 100000);
+        const startDate=req.query.startDate || null
+        const endDate=req.query.endDate || null
+
+        const { orderList } = await reportService(search, filter, 1, 100000,startDate,endDate);
 
         const doc = new PDFDocument({ margin: 40 });
 

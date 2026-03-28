@@ -428,7 +428,7 @@ export const getAllOrders = async (search = "", status = "all", page = 1, limit 
     }
 }
 
-export const reportService=async(search="",filter="all",page=1,limit=10)=>{
+export const reportService=async(search="",filter="all",page=1,limit=10,startDate=null,endDate=null)=>{
 
     const skip=(page-1)*limit
 
@@ -462,6 +462,13 @@ export const reportService=async(search="",filter="all",page=1,limit=10)=>{
     if (filter === "year") {
         const start = new Date(now.getFullYear(), 0, 1);
         query.createdAt = { $gte: start };
+    }
+
+    if (filter === "custom" && startDate && endDate) {
+        query.createdAt = {
+            $gte: new Date(startDate),
+            $lte: new Date(endDate + "T23:59:59.999Z")
+        };
     }
 
     const orderList=await orderModel.find(query).sort({createdAt:-1}).populate("user").skip(skip).limit(limit)

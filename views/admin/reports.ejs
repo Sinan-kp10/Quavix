@@ -1,4 +1,6 @@
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet">
 
 <body>
 
@@ -42,14 +44,12 @@
             <header class="flex justify-between items-center mb-4">
                 <h2>Sales Report</h2>
                 <div class="header-actions flex gap-2">
-                    <a  href="/admin/reports/pdf?search=<%= search %>&filter=<%= filter %>" 
-                        class="btn btn-outline">
-                            <i class="fa-solid fa-file-pdf"></i> Export PDF
+                    <a href="/admin/reports/pdf?search=<%= search %>&filter=<%= filter %>" class="btn btn-outline">
+                        <i class="fa-solid fa-file-pdf"></i> Export PDF
                     </a>
 
-                    <a  href="/admin/reports/excel?search=<%= search %>&filter=<%= filter %>" 
-                        class="btn btn-outline">
-                            <i class="fa-solid fa-file-excel"></i> Export Excel
+                    <a href="/admin/reports/excel?search=<%= search %>&filter=<%= filter %>" class="btn btn-outline">
+                        <i class="fa-solid fa-file-excel"></i> Export Excel
                     </a>
                 </div>
             </header>
@@ -61,39 +61,44 @@
                     <form method="GET" action="/admin/reports">
 
                         <div class="search-group" style="position: relative;">
-                            <input 
-                                type="text"
-                                name="search"
-                                value="<%= search || '' %>"
-                                class="form-input"
-                                placeholder="Search reports..."
-                                style="width: 250px;">
-                            <input type="hidden" name="filter" value="<%= filter %>">
+                            <input type="text" name="search" value="<%= search || '' %>" class="form-input"
+                                placeholder="Search reports..." style="width: 250px;">
+
 
 
                             <% if (search) { %>
-                                <a href="/admin/reports?filter=<%= filter %>" 
-                                    class="search-clear active">
+                                <a href="/admin/reports?filter=<%= filter %>" class="search-clear active">
                                     <i class="fa-solid fa-xmark"></i>
                                 </a>
-                            <% } %>
+                                <% } %>
 
 
-                            <button type="submit" class="btn btn-primary" style="height: 50px;">
-                                <i class="fa-solid fa-magnifying-glass"></i>
-                            </button>
+                                    <button type="submit" class="btn btn-primary" style="height: 50px;">
+                                        <i class="fa-solid fa-magnifying-glass"></i>
+                                    </button>
 
                         </div>
-                    </form>
 
-                    <!-- FILTER -->
-                    <select class="form-select w-filter" onchange="handleFilter(this.value)">
-                        <option value="all" <%= filter === "all" ? "selected" : "" %>>All Time</option>
-                        <option value="today" <%= filter === "today" ? "selected" : "" %>>Today</option>
-                        <option value="week" <%= filter === "week" ? "selected" : "" %>>This Week</option>
-                        <option value="month" <%= filter === "month" ? "selected" : "" %>>This Month</option>
-                        <option value="year" <%= filter === "year" ? "selected" : "" %>>This Year</option>
-                    </select>
+
+                        <!-- FILTER -->
+                        <select id="dateRangeSelect" name="filter" class="form-select w-filter"
+                            onchange="handleFilter(this.value)">
+                            <option value="all" <%=filter==="all" ? "selected" : "" %>>All Time</option>
+                            <option value="today" <%=filter==="today" ? "selected" : "" %>>Today</option>
+                            <option value="week" <%=filter==="week" ? "selected" : "" %>>This Week</option>
+                            <option value="month" <%=filter==="month" ? "selected" : "" %>>This Month</option>
+                            <option value="year" <%=filter==="year" ? "selected" : "" %>>This Year</option>
+                            <option value="custom" <%= filter === "custom" ? "selected" : "" %>>Custom Range</option>
+                        </select>
+
+                        <div id="customDateRange" class="custom-date-group" style="display: none;">
+                            <input type="date" name="startDate" class="form-input w-filter" title="Start Date" value="<%= startDate || '' %>" >
+                            <span class="text-muted">to</span>
+                            <input type="date" name="endDate" class="form-input w-filter" title="End Date" value="<%= endDate || '' %>" >
+                            <button class="btn btn-primary" type="submit" title="Apply Filter"><i
+                                    class="fa-solid fa-check"></i></button>
+                        </div>
+                    </form>
 
                 </div>
 
@@ -116,64 +121,73 @@
                             <% if(order.length > 0){ %>
 
                                 <% order.forEach(ord => { %>
-                                    <tr>
-                                        <td>
-                                            <span class="font-medium">#<%= ord.orderId %></span>
-                                        </td>
 
-                                        <td class="text-muted text-sm">
-                                            <%= new Date(ord.createdAt).toDateString() %>
-                                        </td>
+                                    <% ord.items.forEach(item => { %>
 
-                                        <td>
-                                            <div class="font-medium"><%= ord.user?.name || "N/A" %></div>
-                                            <div class="text-xs text-muted"><%= ord.user?.email || "" %></div>
-                                        </td>
+                                        <tr>
+                                            <td>
+                                                <span class="font-medium">#<%= ord.orderId %></span>
+                                            </td>
 
-                                        <!-- PRODUCTS -->
-                                        <td>
-                                            <div class="report-products">
-                                                <% ord.items.forEach(item => { %>
+                                            <td class="text-muted text-sm">
+                                                <%= new Date(ord.createdAt).toDateString() %>
+                                            </td>
+
+                                            <td>
+                                                <div class="font-medium">
+                                                    <%= ord.user?.name || "N/A" %>
+                                                </div>
+                                                <div class="text-xs text-muted">
+                                                    <%= ord.user?.email || "" %>
+                                                </div>
+                                            </td>
+
+                                            <!-- PRODUCTS -->
+                                            <td>
+                                                <div class="report-products">
                                                     <div class="report-product-item">
-                                                        <span class="product-name"><%= item.productName %></span>
+                                                        <span class="product-name">
+                                                            <%= item.productName %>
+                                                        </span>
                                                         <span class="product-qty">x<%= item.quantity %></span>
                                                     </div>
-                                                <% }) %>
-                                            </div>
-                                        </td>
+                                                </div>
+                                            </td>
 
-                                        <!-- PAYMENT -->
-                                        <td class="text-sm">
-                                            <%= ord.paymentMethod.toUpperCase() %>
-                                        </td>
+                                            <!-- PAYMENT -->
+                                            <td class="text-sm">
+                                                <%= ord.paymentMethod.toUpperCase() %>
+                                            </td>
 
-                                        <!-- TOTAL -->
-                                        <td class="font-medium">
-                                            ₹<%= ord.totalAmount %>
-                                        </td>
+                                            <!-- TOTAL -->
+                                            <td class="font-medium">
+                                                ₹<%= item.total %>
+                                            </td>
 
-                                        <!-- STATUS -->
-                                        <td>
-                                            <% 
-                                                let status = ord.items[0]?.orderStatus || "pending";
+                                            <!-- STATUS -->
+                                            <td>
+                                                <% 
+                                                    let status = item.orderStatus || "pending";
+                                                    let badgeClass = "";
 
-                                                let badgeClass = "";
+                                                    if(status === "pending") badgeClass = "badge-pending";
+                                                    else if(status === "shipped") badgeClass = "badge-shipped";
+                                                    else if(status === "out_for_delivery") badgeClass = "badge-out-for-delivery";
+                                                    else if(status === "delivered") badgeClass = "badge-delivered";
+                                                    else if(status === "cancelled") badgeClass = "badge-cancelled";
+                                                    else if(status === "returned") badgeClass = "badge-returned";
+                                                    else if(status === "return_Request") badgeClass = "badge-return-request";
+                                                    else if(status === "return_rejected") badgeClass = "badge-return-rejected";
+                                                %>
 
-                                                if(status === "pending") badgeClass = "badge-pending";
-                                                else if(status === "shipped") badgeClass = "badge-shipped";
-                                                else if(status === "out_for_delivery") badgeClass = "badge-out-for-delivery";
-                                                else if(status === "delivered") badgeClass = "badge-delivered";
-                                                else if(status === "cancelled") badgeClass = "badge-cancelled";
-                                                else if(status === "returned") badgeClass = "badge-returned";
-                                                else if(status === "return_Request") badgeClass = "badge-return-request";
-                                                else if(status === "return_rejected") badgeClass = "badge-return-rejected";
-                                            %>
+                                                <span class="order-status-badge <%= badgeClass %>">
+                                                    <%= status.replaceAll("_", " ") %>
+                                                </span>
+                                            </td>
+                                        </tr>
 
-                                            <span class="order-status-badge <%= badgeClass %>">
-                                                <%= status.replaceAll("_", " ") %>
-                                            </span>
-                                        </td>
-                                    </tr>
+                                    <% }) %>
+
                                 <% }) %>
 
                             <% } else { %>
@@ -184,46 +198,51 @@
 
                             <% } %>
 
-                            </tbody>
+                        </tbody>
                     </table>
                 </div>
 
-                <div class="pagination">
+                <% if (order.length > 0 ) { %>
 
-                    <!-- PREVIOUS -->
-                    <% if(currentPage > 1){ %>
-                        <a href="?search=<%= search %>&filter=<%= filter %>&page=<%= currentPage - 1 %>"
-                        class="page-link">
-                            <i class="fa-solid fa-chevron-left"></i>
-                        </a>
-                    <% } %>
+                    <div class="pagination">
 
-                    <% 
-                        let startPage = Math.max(1, currentPage - 1);
-                        let endPage = Math.min(totalPages, startPage + 2);
+                        <!-- PREVIOUS -->
+                        <% if(currentPage > 1){ %>
+                            <a href="?search=<%= search %>&filter=<%= filter %>&page=<%= currentPage - 1 %>&startDate=<%= startDate || '' %>&endDate=<%= endDate || '' %>"
+                            class="page-link">
+                                <i class="fa-solid fa-chevron-left"></i>
+                            </a>
+                        <% } %>
 
-                        if(endPage - startPage < 2){
-                            startPage = Math.max(1, endPage - 2);
-                        }
-                    %>
+                        <% 
+                            let startPage = Math.max(1, currentPage - 1);
+                            let endPage = Math.min(totalPages, startPage + 2);
 
-                    <!-- PAGE NUMBERS -->
-                    <% for(let i = startPage; i <= endPage; i++){ %>
-                        <a href="?search=<%= search %>&filter=<%= filter %>&page=<%= i %>"
-                        class="page-link <%= currentPage === i ? 'active' : '' %>">
-                            <%= i %>
-                        </a>
-                    <% } %>
+                            if(endPage - startPage < 2){
+                                startPage = Math.max(1, endPage - 2);
+                            }
+                        %>
 
-                    <!-- NEXT -->
-                    <% if(currentPage < totalPages){ %>
-                        <a href="?search=<%= search %>&filter=<%= filter %>&page=<%= currentPage + 1 %>"
-                        class="page-link">
-                            <i class="fa-solid fa-chevron-right"></i>
-                        </a>
-                    <% } %>
+                        <!-- PAGE NUMBERS -->
+                        <% for(let i = startPage; i <= endPage; i++){ %>
+                            <a href="?search=<%= search %>&filter=<%= filter %>&page=<%= i %>&startDate=<%= startDate || '' %>&endDate=<%= endDate || '' %>"
+                            class="page-link <%= currentPage === i ? 'active' : '' %>">
+                                <%= i %>
+                            </a>
+                        <% } %>
 
-                </div>
+                        <!-- NEXT -->
+                        <% if(currentPage < totalPages){ %>
+                            <a href="?search=<%= search %>&filter=<%= filter %>&page=<%= currentPage + 1 %>&startDate=<%= startDate || '' %>&endDate=<%= endDate || '' %>"
+                            class="page-link">
+                                <i class="fa-solid fa-chevron-right"></i>
+                            </a>
+                        <% } %>
+
+                    </div>
+
+                <% } %>
+                
             </div>
         </main>
     </div>
@@ -235,10 +254,43 @@
         }
 
         function handleFilter(value) {
-            const search = "<%= search %>";
-            window.location.href = `/admin/reports?filter=${value}&search=${search}`;
+
+            if (value === "custom") {
+
+                const customRange = document.getElementById("customDateRange");
+
+                customRange.style.display = "flex";
+
+                document.querySelector('input[name="startDate"]').value = "";
+                document.querySelector('input[name="endDate"]').value = "";
+
+                return;
+            }
+
+            document.querySelector("form").submit();
         }
+
+        function toggleCustomDateRange() {
+            const select = document.getElementById('dateRangeSelect');
+            const customRange = document.getElementById('customDateRange');
+
+            if (!select) return;
+
+            if (select.value === 'custom') {
+                customRange.style.display = 'flex';
+            } else {
+                customRange.style.display = 'none';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const select = document.getElementById('dateRangeSelect');
+            const customRange = document.getElementById('customDateRange');
+
+            if (select && select.value === 'custom') {
+                customRange.style.display = 'flex';
+            }
+        });
 
     </script>
 </body>
-
