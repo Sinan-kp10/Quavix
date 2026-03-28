@@ -880,6 +880,111 @@ export const loadDashboard = async (req, res) => {
             weeklyOrders[day]++;
         });
 
+
+         const topProducts = await orderModel.aggregate([
+            { $match: dateFilter },
+
+            { $unwind: "$items" },
+
+            {
+                $match: {
+                    "items.orderStatus": ORDER_STATUS.DELIVERED,
+                    "items.returnedAt": { $exists: false }
+                }
+            },
+
+            {
+                $group: {
+                    _id: "$items.product",
+                    productName: { $first: "$items.productName" },
+                    productImage: { $first: "$items.productImage" },
+                    totalSold: { $sum: "$items.quantity" }
+                }
+            },
+
+
+            {
+                $lookup: {
+                    from: "products",
+                    localField: "_id",
+                    foreignField: "_id",
+                    as: "productData"
+                }
+            },
+
+            { $unwind: "$productData" },
+
+            {
+                $lookup: {
+                    from: "categories",
+                    localField: "productData.category",
+                    foreignField: "_id",
+                    as: "categoryData"
+                }
+            },
+
+            { $unwind: "$categoryData" },
+
+
+            {
+                $project: {
+                    productName: 1,
+                    productImage: 1,
+                    totalSold: 1,
+                    categoryName: "$categoryData.name"
+                }
+            },
+
+            { $sort: { totalSold: -1 } },
+            { $limit: 3 }
+        ]);
+        const topCategories = await orderModel.aggregate([
+            { $match: dateFilter },
+
+            { $unwind: "$items" },
+
+            {
+                $match: {
+                    "items.orderStatus": ORDER_STATUS.DELIVERED,
+                    "items.returnedAt": { $exists: false }
+                }
+            },
+
+            {
+                $lookup: {
+                    from: "products",
+                    localField: "items.product",
+                    foreignField: "_id",
+                    as: "productData"
+                }
+            },
+
+            { $unwind: "$productData" },
+
+            {
+                $lookup: {
+                    from: "categories",
+                    localField: "productData.category",
+                    foreignField: "_id",
+                    as: "categoryData"
+                }
+            },
+
+            { $unwind: "$categoryData" },
+
+            {
+                $group: {
+                    _id: "$categoryData._id",
+                    categoryName: { $first: "$categoryData.name" },
+                    totalSold: { $sum: "$items.quantity" }
+                }
+            },
+
+            { $sort: { totalSold: -1 } },
+
+            { $limit: 5 }
+        ]);
+
         res.render("admin/dashboard", {
             title: "Admin Dashboard - Quavix",
             css: "adminStyle",
@@ -890,7 +995,9 @@ export const loadDashboard = async (req, res) => {
             totalRevenue,
             monthlyRevenue,
             weeklyOrders,
-            filter
+            filter,
+            topProducts,
+            topCategories
         });
 
     } catch (err) {
@@ -1217,16 +1324,3 @@ export const exportPDF = async (req, res) => {
         res.status(500).send("PDF Error");
     }
 };
-
-
-
-// export const topSellingProducts= async (req,res)=>{
-
-//     try {
-
-//         const {topProducts}=await findProducts()
-        
-//     } catch (err) {
-        
-//     }
-// }
