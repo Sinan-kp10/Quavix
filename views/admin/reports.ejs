@@ -44,12 +44,15 @@
             <header class="flex justify-between items-center mb-4">
                 <h2>Sales Report</h2>
                 <div class="header-actions flex gap-2">
-                    <a href="/admin/reports/pdf?search=<%= search %>&filter=<%= filter %>" class="btn btn-outline">
+
+                    <a href="/admin/reports/pdf?search=<%= search %>&filter=<%= filter %>&startDate=<%= startDate || '' %>&endDate=<%= endDate || '' %>" class="btn btn-outline">
                         <i class="fa-solid fa-file-pdf"></i> Export PDF
                     </a>
 
-                    <a href="/admin/reports/excel?search=<%= search %>&filter=<%= filter %>" class="btn btn-outline">
-                        <i class="fa-solid fa-file-excel"></i> Export Excel
+                    
+
+                    <a href="/admin/reports/excel?search=<%= search %>&filter=<%= filter %>&startDate=<%= startDate || '' %>&endDate=<%= endDate || '' %>" class="btn btn-outline">
+                       <i class="fa-solid fa-file-excel"></i> Export Excel
                     </a>
                 </div>
             </header>

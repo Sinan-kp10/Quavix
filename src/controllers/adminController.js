@@ -9,6 +9,7 @@ import userModal from "../models/userModal.js";
 import walletModel from "../models/walletModel.js";
 import ProductModel from "../models/productModal.js";
 import XLSX from "xlsx";
+import XLSXStyle from "xlsx-style";
 import PDFDocument from "pdfkit";
 import { ORDER_STATUS, PAYMENT_STATUS } from "../utils/orderStatus.js";
 
@@ -940,50 +941,134 @@ export const exportExcel = async (req, res) => {
 
         const search = req.query.search || "";
         const filter = req.query.filter || "all";
+        const startDate = req.query.startDate || null;
+        const endDate = req.query.endDate || null;
 
-        const startDate=req.query.startDate || null
-        const endDate=req.query.endDate || null
+        const { orderList } = await reportService(
+            search, filter, 1, 100000, startDate, endDate
+        );
 
-        const { orderList } = await reportService(search, filter, 1, 100000,startDate,endDate);
+        const formatDate = (date) =>
+            new Date(date).toLocaleDateString("en-GB");
 
+        const today = new Date();
+
+        let from = null;
+        let to = formatDate(today);
+
+        // ✅ FILTER LOGIC
+        if (filter === "week") {
+            const start = new Date();
+            start.setDate(start.getDate() - 7);
+            from = formatDate(start);
+        } 
+        else if (filter === "month") {
+            from = formatDate(new Date(today.getFullYear(), today.getMonth(), 1));
+        } 
+        else if (filter === "year") {
+            from = formatDate(new Date(today.getFullYear(), 0, 1));
+        } 
+        else if (filter === "custom" && startDate && endDate) {
+            from = formatDate(startDate);
+            to = formatDate(endDate);
+        }
+
+        const formatStatus = (status) =>
+            status
+                ?.replaceAll("_", " ")
+                .replace(/\b\w/g, c => c.toUpperCase()) || "Pending";
+
+        const worksheet = XLSX.utils.aoa_to_sheet([]);
+
+        // ✅ HEADER
+        const header = [
+            ["Sales Report"],
+            [`Generated: ${new Date().toLocaleString()}`]
+        ];
+
+        if (
+            filter === "week" ||
+            filter === "month" ||
+            filter === "year" ||
+            (filter === "custom" && startDate && endDate)
+        ) {
+            header.push([`Period: ${from} to ${to}`]);
+        }
+
+        header.push([]);
+
+        XLSX.utils.sheet_add_aoa(worksheet, header, { origin: "A1" });
+
+        // TABLE HEADERS
+        XLSX.utils.sheet_add_aoa(worksheet, [[
+            "OrderID","Date","Customer","Email",
+            "Product","Quantity","Price","Total",
+            "Payment","Status"
+        ]], { origin: "A5" });
+
+        // DATA
         const data = [];
-
         orderList.forEach(order => {
             order.items.forEach(item => {
-                data.push({
-                    OrderID: order.orderId,
-                    Date: new Date(order.createdAt).toLocaleDateString(),
-                    Customer: order.user?.name || "N/A",
-                    Email: order.user?.email || "",
-                    Product: item.productName,
-                    Quantity: item.quantity,
-                    Price: item.price,
-                    Total: item.total,
-                    Payment: order.paymentMethod,
-                    Status: item.orderStatus
-                });
+                data.push([
+                    order.orderId,
+                    formatDate(order.createdAt),
+                    order.user?.name || "N/A",
+                    order.user?.email || "",
+                    item.productName,
+                    item.quantity,
+                    item.price,
+                    item.total,
+                    order.paymentMethod,
+                    formatStatus(item.orderStatus)
+                ]);
             });
         });
 
-        const workbook = XLSX.utils.book_new();
-        const worksheet = XLSX.utils.json_to_sheet(data);
+        XLSX.utils.sheet_add_aoa(worksheet, data, { origin: "A6" });
 
         worksheet["!cols"] = [
-            { wch: 18 }, // OrderID
-            { wch: 12 }, // Date
-            { wch: 15 }, // Customer
-            { wch: 25 }, // Email
-            { wch: 25 }, // Product
-            { wch: 10 }, // Quantity
-            { wch: 12 }, // Price
-            { wch: 12 }, // Total
-            { wch: 12 }, // Payment
-            { wch: 15 }  // Status
+            { wch: 18 }, { wch: 12 }, { wch: 15 }, { wch: 25 },
+            { wch: 30 }, { wch: 10 }, { wch: 12 }, { wch: 12 },
+            { wch: 12 }, { wch: 18 }
         ];
 
+        // MERGE
+        worksheet["!merges"] = [
+            { s: { r: 0, c: 0 }, e: { r: 0, c: 9 } },
+            { s: { r: 1, c: 0 }, e: { r: 1, c: 9 } },
+            { s: { r: 2, c: 0 }, e: { r: 2, c: 9 } }
+        ];
+
+        // STYLES
+        const titleStyle = {
+            alignment: { horizontal: "center" },
+            font: { bold: true, sz: 14 }
+        };
+
+        const subStyle = {
+            alignment: { horizontal: "center" },
+            font: { sz: 11 }
+        };
+
+        if (worksheet["A1"]) worksheet["A1"].s = titleStyle;
+        if (worksheet["A2"]) worksheet["A2"].s = subStyle;
+        if (worksheet["A3"]) worksheet["A3"].s = subStyle;
+
+        const headerStyle = {
+            font: { bold: true },
+            alignment: { horizontal: "center" }
+        };
+
+        ["A","B","C","D","E","F","G","H","I","J"].forEach(col => {
+            const cell = worksheet[col + "5"];
+            if (cell) cell.s = headerStyle;
+        });
+
+        const workbook = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(workbook, worksheet, "Reports");
 
-        const buffer = XLSX.write(workbook, {
+        const buffer = XLSXStyle.write(workbook, {
             type: "buffer",
             bookType: "xlsx"
         });
@@ -995,9 +1080,9 @@ export const exportExcel = async (req, res) => {
 
     } catch (err) {
         console.log(err);
-        res.status(500).send("Error generating Excel");
+        res.status(500).send("Excel Error");
     }
-}
+};
 
 
 export const exportPDF = async (req, res) => {
@@ -1005,53 +1090,105 @@ export const exportPDF = async (req, res) => {
 
         const search = req.query.search || "";
         const filter = req.query.filter || "all";
+        const startDate = req.query.startDate || null;
+        const endDate = req.query.endDate || null;
 
-        const startDate=req.query.startDate || null
-        const endDate=req.query.endDate || null
-
-        const { orderList } = await reportService(search, filter, 1, 100000,startDate,endDate);
+        const { orderList } = await reportService(
+            search, filter, 1, 100000, startDate, endDate
+        );
 
         const doc = new PDFDocument({ margin: 40 });
+        doc.pipe(res);
 
         res.setHeader("Content-Type", "application/pdf");
         res.setHeader("Content-Disposition", "attachment; filename=reports.pdf");
 
-        doc.pipe(res);
+        const formatDate = (date) =>
+            new Date(date).toLocaleDateString("en-GB");
 
+        const today = new Date();
+
+        let from = null;
+        let to = formatDate(today);
+
+        // ✅ FILTER LOGIC
+        if (filter === "week") {
+            const start = new Date();
+            start.setDate(start.getDate() - 7);
+            from = formatDate(start);
+        }
+        else if (filter === "month") {
+            from = formatDate(new Date(today.getFullYear(), today.getMonth(), 1));
+        }
+        else if (filter === "year") {
+            from = formatDate(new Date(today.getFullYear(), 0, 1));
+        }
+        else if (filter === "custom" && startDate && endDate) {
+            from = formatDate(startDate);
+            to = formatDate(endDate);
+        }
 
         doc.fontSize(16).text("Sales Report", { align: "center" });
+        doc.moveDown(0.5);
+
+        doc.fontSize(10)
+            .text(`Generated: ${new Date().toLocaleString()}`, { align: "center" });
+
+        if (
+            filter === "week" ||
+            filter === "month" ||
+            filter === "year" ||
+            (filter === "custom" && startDate && endDate)
+        ) {
+            doc.text(`Period: ${from} to ${to}`, { align: "center" });
+        }
+
         doc.moveDown();
 
         let y = doc.y;
 
+        const startX = 40;
+
+        const cols = {
+            order: startX,
+            date: startX + 80,
+            customer: startX + 140,
+            product: startX + 230,
+            qty: startX + 370,
+            total: startX + 400,
+            status: startX + 460
+        };
+
         doc.font("Helvetica-Bold").fontSize(10);
 
-        doc.text("OrderID", 40, y);
-        doc.text("Date", 140, y);
-        doc.text("Customer", 210, y);
-        doc.text("Product", 320, y);
-        doc.text("Qty", 440, y);
-        doc.text("Total", 480, y);
-        doc.text("Status", 530, y);
+        doc.text("OrderID", cols.order, y);
+        doc.text("Date", cols.date, y);
+        doc.text("Customer", cols.customer, y);
+        doc.text("Product", cols.product, y);
+        doc.text("Qty", cols.qty, y);
+        doc.text("Total", cols.total, y);
+        doc.text("Status", cols.status, y);
 
         y += 15;
-
-        doc.moveTo(40, y).lineTo(580, y).stroke();
+        doc.moveTo(startX, y).lineTo(startX + 500, y).stroke();
 
         y += 5;
-
         doc.font("Helvetica").fontSize(9);
 
         orderList.forEach(order => {
             order.items.forEach(item => {
 
-                doc.text(order.orderId, 40, y);
-                doc.text(new Date(order.createdAt).toLocaleDateString(), 140, y);
-                doc.text(order.user?.name || "N/A", 210, y);
-                doc.text(item.productName.substring(0, 18), 320, y);
-                doc.text(item.quantity.toString(), 440, y);
-                doc.text("₹" + item.total, 480, y);
-                doc.text(item.orderStatus, 530, y);
+                const status = item.orderStatus
+                    ?.replaceAll("_", " ")
+                    .replace(/\b\w/g, c => c.toUpperCase());
+
+                doc.text(order.orderId, cols.order, y);
+                doc.text(formatDate(order.createdAt), cols.date, y);
+                doc.text(order.user?.name || "N/A", cols.customer, y);
+                doc.text(item.productName.substring(0, 25), cols.product, y);
+                doc.text(item.quantity.toString(), cols.qty, y);
+                doc.text(item.total.toString(), cols.total, y);
+                doc.text(status, cols.status, y);
 
                 y += 18;
 
@@ -1066,9 +1203,10 @@ export const exportPDF = async (req, res) => {
 
     } catch (err) {
         console.log(err);
-        res.status(500).send("Error generating PDF");
+        res.status(500).send("PDF Error");
     }
-}
+};
+
 
 
 // export const topSellingProducts= async (req,res)=>{
