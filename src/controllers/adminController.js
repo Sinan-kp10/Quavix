@@ -956,7 +956,7 @@ export const exportExcel = async (req, res) => {
         let from = null;
         let to = formatDate(today);
 
-        // ✅ FILTER LOGIC
+
         if (filter === "week") {
             const start = new Date();
             start.setDate(start.getDate() - 7);
@@ -971,6 +971,10 @@ export const exportExcel = async (req, res) => {
         else if (filter === "custom" && startDate && endDate) {
             from = formatDate(startDate);
             to = formatDate(endDate);
+        } 
+        else if (filter === "all" && orderList.length > 0) {
+            const firstOrder = orderList[orderList.length - 1];
+            from = formatDate(firstOrder.createdAt);
         }
 
         const formatStatus = (status) =>
@@ -980,13 +984,14 @@ export const exportExcel = async (req, res) => {
 
         const worksheet = XLSX.utils.aoa_to_sheet([]);
 
-        // ✅ HEADER
+
         const header = [
             ["Sales Report"],
             [`Generated: ${new Date().toLocaleString()}`]
         ];
 
         if (
+            filter === "all" ||  
             filter === "week" ||
             filter === "month" ||
             filter === "year" ||
@@ -999,15 +1004,15 @@ export const exportExcel = async (req, res) => {
 
         XLSX.utils.sheet_add_aoa(worksheet, header, { origin: "A1" });
 
-        // TABLE HEADERS
+
         XLSX.utils.sheet_add_aoa(worksheet, [[
             "OrderID","Date","Customer","Email",
             "Product","Quantity","Price","Total",
             "Payment","Status"
         ]], { origin: "A5" });
 
-        // DATA
         const data = [];
+
         orderList.forEach(order => {
             order.items.forEach(item => {
                 data.push([
@@ -1033,14 +1038,12 @@ export const exportExcel = async (req, res) => {
             { wch: 12 }, { wch: 18 }
         ];
 
-        // MERGE
         worksheet["!merges"] = [
             { s: { r: 0, c: 0 }, e: { r: 0, c: 9 } },
             { s: { r: 1, c: 0 }, e: { r: 1, c: 9 } },
             { s: { r: 2, c: 0 }, e: { r: 2, c: 9 } }
         ];
 
-        // STYLES
         const titleStyle = {
             alignment: { horizontal: "center" },
             font: { bold: true, sz: 14 }
@@ -1098,10 +1101,11 @@ export const exportPDF = async (req, res) => {
         );
 
         const doc = new PDFDocument({ margin: 40 });
-        doc.pipe(res);
 
         res.setHeader("Content-Type", "application/pdf");
         res.setHeader("Content-Disposition", "attachment; filename=reports.pdf");
+
+        doc.pipe(res);
 
         const formatDate = (date) =>
             new Date(date).toLocaleDateString("en-GB");
@@ -1111,7 +1115,8 @@ export const exportPDF = async (req, res) => {
         let from = null;
         let to = formatDate(today);
 
-        // ✅ FILTER LOGIC
+
+
         if (filter === "week") {
             const start = new Date();
             start.setDate(start.getDate() - 7);
@@ -1127,6 +1132,11 @@ export const exportPDF = async (req, res) => {
             from = formatDate(startDate);
             to = formatDate(endDate);
         }
+        else if (filter === "all" && orderList.length > 0) {
+            const firstOrder = orderList[orderList.length - 1];
+            from = formatDate(firstOrder.createdAt);
+        }
+
 
         doc.fontSize(16).text("Sales Report", { align: "center" });
         doc.moveDown(0.5);
@@ -1135,6 +1145,7 @@ export const exportPDF = async (req, res) => {
             .text(`Generated: ${new Date().toLocaleString()}`, { align: "center" });
 
         if (
+            filter === "all" || 
             filter === "week" ||
             filter === "month" ||
             filter === "year" ||
