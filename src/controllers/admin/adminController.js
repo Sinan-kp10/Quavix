@@ -691,7 +691,7 @@ export const editOrderStatus = async (req, res) => {
         console.log(error);
         res.redirect("/admin/orders");
     }
-};
+}
 
 export const OrderDetails = async (req, res) => {
     try {
@@ -839,7 +839,7 @@ export const loadDashboard = async (req, res) => {
         console.log(err);
         res.redirect("/admin/dashboard");
     }
-};
+}
 
 export const loadReports=async(req,res)=>{
 
@@ -1027,7 +1027,7 @@ export const exportExcel = async (req, res) => {
         console.log(err);
         res.status(500).send("Excel Error");
     }
-};
+}
 
 
 export const exportPDF = async (req, res) => {
@@ -1158,4 +1158,4 @@ export const exportPDF = async (req, res) => {
         console.log(err);
         res.status(500).send("PDF Error");
     }
-};
+}

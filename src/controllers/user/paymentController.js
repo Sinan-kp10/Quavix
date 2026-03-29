@@ -102,7 +102,7 @@ export const createRazorpay = async (req, res) => {
         });
 
     }
-};
+}
 
 export const verifyRazorpay = async (req, res) => {
     try {

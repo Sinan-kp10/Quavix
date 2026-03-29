@@ -23,9 +23,6 @@ export  const adminLoginAccess=async(email,password)=>{
     }
 
     return true
-
-
-
 }
 
 export const getAllUsers=async(search="",status="all",page=1,limit=10)=>{
@@ -569,7 +566,7 @@ export const getTopProducts = async (dateFilter) => {
         { $sort: { totalSold: -1 } },
         { $limit: 3 }
     ]);
-};
+}
 
 export const getTopCategories = async (dateFilter) => {
 
@@ -619,7 +616,7 @@ export const getTopCategories = async (dateFilter) => {
         { $sort: { totalSold: -1 } },
         { $limit: 5 }
     ]);
-};
+}
 
 export const reportService=async(search="",filter="all",page=1,limit=10,startDate=null,endDate=null)=>{
 

@@ -131,7 +131,7 @@ export const filterProducts = async (req, res) => {
         console.log(err);
         res.status(500).json({ success: false });
     }
-};
+}
 
 export const searchProducts = async (req, res) => {
     try {
@@ -262,8 +262,7 @@ export const loadProductDetials = async (req, res) => {
         console.log(err);
         res.redirect("/products");
     }
-};
-
+}
 
 export const loadWishlist = async (req, res) => {
     try {

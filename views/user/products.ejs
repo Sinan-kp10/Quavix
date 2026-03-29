@@ -275,11 +275,6 @@
                                     <% } %>
                                 </h3>
 
-                                <!-- <span class="rating-badge rating-mobile ms-1">
-                                    <%= product.rating.toFixed(1) %>
-                                    <i class="fa-solid fa-star"></i>
-                                </span> -->
-
                                 <!-- HIGHLIGHTS -->
                                 <ul class="product-highlights">
                                     <% 
@@ -304,11 +299,6 @@
                                     <span class="price-lg">
                                         ₹<%= discountedPrice.toLocaleString() %>
                                     </span>
-
-                                    <!-- <span class="rating-badge ms-2">
-                                        <%= product.rating.toFixed(1) %>
-                                        <i class="fa-solid fa-star"></i>
-                                    </span> -->
                                 </div>
 
                                 <% if (offer > 0) { %>
@@ -529,7 +519,7 @@
                     ? product.finalPrice
                     : Math.round(variant.price - (variant.price * offer / 100));
 
-                const rating = Number(product.rating) || 0;
+
 
                 const attributes = variant.attributes || [];
 
@@ -608,10 +598,7 @@
                                 ${titleExtra ? `(${titleExtra})` : ""}
                             </h3>
 
-                            <span class="rating-badge rating-mobile ms-1">
-                                ${rating.toFixed(1)}
-                                <i class="fa-solid fa-star"></i>
-                            </span>
+
 
                             <ul class="product-highlights">
                                 ${highlightsHTML}
@@ -626,10 +613,6 @@
                                     ₹${finalPrice.toLocaleString()}
                                 </span>
 
-                                <span class="rating-badge ms-2">
-                                    ${rating.toFixed(1)}
-                                    <i class="fa-solid fa-star"></i>
-                                </span>
                             </div>
 
                             ${oldPriceHTML}
