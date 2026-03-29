@@ -1,5 +1,5 @@
 import multer from "multer";
-import upload from "../config/multer.js";
+import upload from "../../config/multer.js";
 
 export const profileUploadValidation = (req, res, next) => {
 

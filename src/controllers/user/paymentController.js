@@ -1,12 +1,12 @@
 
 import crypto from "crypto"
-import {createRazorpayPayment,} from "../services/paymentServices.js"
-import { createOrder } from "../services/userProductService.js"
-import productModel from "../models/productModal.js"
-import cartModel from "../models/cartModel.js"
-import userModal from "../models/userModal.js"
-import walletModel from "../models/walletModel.js"
-import couponsModel from "../models/couponsModel.js"
+import {createRazorpayPayment,} from "../../services/user/paymentServices.js"
+import { createOrder } from "../../services/user/userProductService.js"
+import productModel from "../../models/productModal.js"
+import cartModel from "../../models/cartModel.js"
+import userModal from "../../models/userModal.js"
+import walletModel from "../../models/walletModel.js"
+import couponsModel from "../../models/couponsModel.js"
 
 export const createRazorpay = async (req, res) => {
     try {

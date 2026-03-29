@@ -1,11 +1,12 @@
-import categoryModal from "../models/category.js"
-import productModel from "../models/productModal.js"
-import cloudinary from "../config/cloudinary.js";
+import categoryModal from "../../models/category.js"
+import productModel from "../../models/productModal.js"
+import cloudinary from "../../config/cloudinary.js";
 import slugify from "slugify";
 import dotenv from "dotenv"
 dotenv.config();
-import users from "../models/userModal.js"
-import orderModel from "../models/orderModel.js";
+import users from "../../models/userModal.js"
+import orderModel from "../../models/orderModel.js";
+import { ORDER_STATUS } from "../../utils/orderStatus.js";
 
 
 export  const adminLoginAccess=async(email,password)=>{
@@ -427,6 +428,198 @@ export const getAllOrders = async (search = "", status = "all", page = 1, limit 
         totalItems
     }
 }
+
+const buildDateFilter = (filter) => {
+    let dateFilter = {};
+    const now = new Date();
+
+    if (filter === "today") {
+        const start = new Date(now.setHours(0, 0, 0, 0));
+        dateFilter = { createdAt: { $gte: start } };
+    }
+
+    if (filter === "week") {
+        const start = new Date();
+        start.setDate(start.getDate() - 7);
+        dateFilter = { createdAt: { $gte: start } };
+    }
+
+    if (filter === "month") {
+        const start = new Date(now.getFullYear(), now.getMonth(), 1);
+        dateFilter = { createdAt: { $gte: start } };
+    }
+
+    if (filter === "year") {
+        const start = new Date(now.getFullYear(), 0, 1);
+        dateFilter = { createdAt: { $gte: start } };
+    }
+
+    return dateFilter;
+}
+
+export const getDashboardData = async (filter) => {
+
+    const dateFilter = buildDateFilter(filter);
+
+    const orders = await orderModel.find(dateFilter);
+
+    const totalOrders = orders.length;
+    const totalUsers = await users.countDocuments();
+    const filteredUsers = await users.countDocuments(dateFilter);
+    const totalProducts = await productModel.countDocuments();
+
+
+    let totalRevenue = 0;
+
+    orders.forEach(order => {
+        order.items.forEach(item => {
+            if (item.orderStatus === ORDER_STATUS.DELIVERED) {
+                totalRevenue += item.total;
+            }
+        });
+    });
+
+    let monthlyRevenue = Array(12).fill(0);
+
+    orders.forEach(order => {
+        const month = new Date(order.createdAt).getMonth();
+
+        order.items.forEach(item => {
+            if (item.orderStatus === ORDER_STATUS.DELIVERED) {
+                monthlyRevenue[month] += item.total;
+            }
+        });
+    });
+
+
+    let weeklyOrders = Array(7).fill(0);
+
+    orders.forEach(order => {
+        const day = new Date(order.createdAt).getDay();
+        weeklyOrders[day]++;
+    });
+
+    return {
+        totalOrders,
+        totalUsers,
+        filteredUsers,
+        totalProducts,
+        totalRevenue,
+        monthlyRevenue,
+        weeklyOrders,
+        dateFilter
+    }
+}
+
+export const getTopProducts = async (dateFilter) => {
+
+    return await orderModel.aggregate([
+
+        { $match: dateFilter },
+
+        { $unwind: "$items" },
+
+        {
+            $match: {
+                "items.orderStatus": ORDER_STATUS.DELIVERED,
+                "items.returnedAt": { $exists: false }
+            }
+        },
+
+        {
+            $group: {
+                _id: "$items.product",
+                productName: { $first: "$items.productName" },
+                productImage: { $first: "$items.productImage" },
+                totalSold: { $sum: "$items.quantity" }
+            }
+        },
+
+        {
+            $lookup: {
+                from: "products",
+                localField: "_id",
+                foreignField: "_id",
+                as: "productData"
+            }
+        },
+
+        { $unwind: "$productData" },
+
+        {
+            $lookup: {
+                from: "categories",
+                localField: "productData.category",
+                foreignField: "_id",
+                as: "categoryData"
+            }
+        },
+
+        { $unwind: "$categoryData" },
+
+        {
+            $project: {
+                productName: 1,
+                productImage: 1,
+                totalSold: 1,
+                categoryName: "$categoryData.name"
+            }
+        },
+
+        { $sort: { totalSold: -1 } },
+        { $limit: 3 }
+    ]);
+};
+
+export const getTopCategories = async (dateFilter) => {
+
+    return await orderModel.aggregate([
+
+        { $match: dateFilter },
+
+        { $unwind: "$items" },
+
+        {
+            $match: {
+                "items.orderStatus": ORDER_STATUS.DELIVERED,
+                "items.returnedAt": { $exists: false }
+            }
+        },
+
+        {
+            $lookup: {
+                from: "products",
+                localField: "items.product",
+                foreignField: "_id",
+                as: "productData"
+            }
+        },
+
+        { $unwind: "$productData" },
+
+        {
+            $lookup: {
+                from: "categories",
+                localField: "productData.category",
+                foreignField: "_id",
+                as: "categoryData"
+            }
+        },
+
+        { $unwind: "$categoryData" },
+
+        {
+            $group: {
+                _id: "$categoryData._id",
+                categoryName: { $first: "$categoryData.name" },
+                totalSold: { $sum: "$items.quantity" }
+            }
+        },
+
+        { $sort: { totalSold: -1 } },
+        { $limit: 5 }
+    ]);
+};
 
 export const reportService=async(search="",filter="all",page=1,limit=10,startDate=null,endDate=null)=>{
 

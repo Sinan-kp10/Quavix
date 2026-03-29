@@ -1,5 +1,5 @@
-import couponsModel from "../models/couponsModel.js"
-import { getAllCoupons,addCouponService,updateCoupon,deleteCoupon } from "../services/adminCouponsService.js"
+import couponsModel from "../../models/couponsModel.js"
+import { getAllCoupons,addCouponService,updateCoupon,deleteCoupon } from "../../services/admin/adminCouponsService.js"
 
 export const loadCoupons=async(req,res)=>{
     try {

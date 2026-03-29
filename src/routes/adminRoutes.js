@@ -2,8 +2,8 @@ import express from "express"
 import upload from "../config/multer.js"
 import multer from "multer";
 const router=express.Router()
-import {isLogin,checkSession} from "../middleware/adminAuth.js"
-import { loadCoupons,addCoupon,editCoupon,removeCoupon} from "../controllers/adminCouponsController.js"
+import {isLogin,checkSession} from "../middleware/admin/adminAuth.js"
+import { loadCoupons,addCoupon,editCoupon,removeCoupon} from "../controllers/admin/adminCouponsController.js"
 import {
     loadLogin,
     loadDashboard,
@@ -30,7 +30,7 @@ import {
     exportExcel,
     exportPDF
     
-} from "../controllers/adminController.js"
+} from "../controllers/admin/adminController.js"
 
 
 router.get("/admin/login", checkSession, loadLogin)

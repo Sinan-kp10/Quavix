@@ -1,17 +1,16 @@
 
-import categoryModal from "../models/category.js"
+import categoryModal from "../../models/category.js"
 import slugify from "slugify";
-import productModel from "../models/productModal.js"
-import cloudinary from "../config/cloudinary.js";
-import { compressImage } from "../utils/imageUpload.js";
-import orderModel from "../models/orderModel.js";
-import userModal from "../models/userModal.js";
-import walletModel from "../models/walletModel.js";
-import ProductModel from "../models/productModal.js";
+import productModel from "../../models/productModal.js"
+import cloudinary from "../../config/cloudinary.js";
+import { compressImage } from "../../utils/imageUpload.js";
+import orderModel from "../../models/orderModel.js";
+import userModal from "../../models/userModal.js";
+import walletModel from "../../models/walletModel.js";
 import XLSX from "xlsx";
 import XLSXStyle from "xlsx-style";
 import PDFDocument from "pdfkit";
-import { ORDER_STATUS, PAYMENT_STATUS } from "../utils/orderStatus.js";
+import { ORDER_STATUS, PAYMENT_STATUS } from "../../utils/orderStatus.js";
 
 
 
@@ -29,9 +28,12 @@ import {
     updateProduct,
     deleteProduct,
     getAllOrders,
+    getDashboardData,
+    getTopProducts,
+    getTopCategories,
     reportService
 
-} from "../services/adminService.js"
+} from "../../services/admin/adminService.js"
 
 
 
@@ -813,198 +815,31 @@ export const handleReturnRequest = async (req, res) => {
     }
 }
 
+
 export const loadDashboard = async (req, res) => {
     try {
 
         const filter = req.query.filter || "all";
 
-        let dateFilter = {};
+        const data = await getDashboardData(filter);
 
-        const now = new Date();
-
-        if (filter === "today") {
-            const start = new Date(now.setHours(0, 0, 0, 0));
-            dateFilter = { createdAt: { $gte: start } };
-        }
-
-        if (filter === "week") {
-            const start = new Date();
-            start.setDate(start.getDate() - 7);
-            dateFilter = { createdAt: { $gte: start } };
-        }
-
-        if (filter === "month") {
-            const start = new Date(now.getFullYear(), now.getMonth(), 1);
-            dateFilter = { createdAt: { $gte: start } };
-        }
-
-        if (filter === "year") {
-            const start = new Date(now.getFullYear(), 0, 1);
-            dateFilter = { createdAt: { $gte: start } };
-        }
-
-        const orders = await orderModel.find(dateFilter);
-
-        const totalOrders = orders.length;
-        const totalUsers = await userModal.countDocuments();
-        const filteredUsers = await userModal.countDocuments(dateFilter);
-        const totalProducts = await ProductModel.countDocuments();
-
-        let totalRevenue = 0;
-
-        orders.forEach(order => {
-            order.items.forEach(item => {
-                if (item.orderStatus === ORDER_STATUS.DELIVERED) {
-                    totalRevenue += item.total;
-                }
-            });
-        });
-
-        let monthlyRevenue = Array(12).fill(0);
-
-        orders.forEach(order => {
-            const month = new Date(order.createdAt).getMonth();
-
-            order.items.forEach(item => {
-                if (item.orderStatus === ORDER_STATUS.DELIVERED) {
-                    monthlyRevenue[month] += item.total;
-                }
-            });
-        });
-
-
-        let weeklyOrders = Array(7).fill(0);
-
-        orders.forEach(order => {
-            const day = new Date(order.createdAt).getDay();
-            weeklyOrders[day]++;
-        });
-
-
-         const topProducts = await orderModel.aggregate([
-            { $match: dateFilter },
-
-            { $unwind: "$items" },
-
-            {
-                $match: {
-                    "items.orderStatus": ORDER_STATUS.DELIVERED,
-                    "items.returnedAt": { $exists: false }
-                }
-            },
-
-            {
-                $group: {
-                    _id: "$items.product",
-                    productName: { $first: "$items.productName" },
-                    productImage: { $first: "$items.productImage" },
-                    totalSold: { $sum: "$items.quantity" }
-                }
-            },
-
-
-            {
-                $lookup: {
-                    from: "products",
-                    localField: "_id",
-                    foreignField: "_id",
-                    as: "productData"
-                }
-            },
-
-            { $unwind: "$productData" },
-
-            {
-                $lookup: {
-                    from: "categories",
-                    localField: "productData.category",
-                    foreignField: "_id",
-                    as: "categoryData"
-                }
-            },
-
-            { $unwind: "$categoryData" },
-
-
-            {
-                $project: {
-                    productName: 1,
-                    productImage: 1,
-                    totalSold: 1,
-                    categoryName: "$categoryData.name"
-                }
-            },
-
-            { $sort: { totalSold: -1 } },
-            { $limit: 3 }
-        ]);
-        const topCategories = await orderModel.aggregate([
-            { $match: dateFilter },
-
-            { $unwind: "$items" },
-
-            {
-                $match: {
-                    "items.orderStatus": ORDER_STATUS.DELIVERED,
-                    "items.returnedAt": { $exists: false }
-                }
-            },
-
-            {
-                $lookup: {
-                    from: "products",
-                    localField: "items.product",
-                    foreignField: "_id",
-                    as: "productData"
-                }
-            },
-
-            { $unwind: "$productData" },
-
-            {
-                $lookup: {
-                    from: "categories",
-                    localField: "productData.category",
-                    foreignField: "_id",
-                    as: "categoryData"
-                }
-            },
-
-            { $unwind: "$categoryData" },
-
-            {
-                $group: {
-                    _id: "$categoryData._id",
-                    categoryName: { $first: "$categoryData.name" },
-                    totalSold: { $sum: "$items.quantity" }
-                }
-            },
-
-            { $sort: { totalSold: -1 } },
-
-            { $limit: 5 }
-        ]);
+        const topProducts = await getTopProducts(data.dateFilter);
+        const topCategories = await getTopCategories(data.dateFilter);
 
         res.render("admin/dashboard", {
             title: "Admin Dashboard - Quavix",
             css: "adminStyle",
-            totalOrders,
-            totalUsers,
-            filteredUsers,
-            totalProducts,
-            totalRevenue,
-            monthlyRevenue,
-            weeklyOrders,
             filter,
             topProducts,
-            topCategories
+            topCategories,
+            ...data
         });
 
     } catch (err) {
         console.log(err);
         res.redirect("/admin/dashboard");
     }
-}
+};
 
 export const loadReports=async(req,res)=>{
 

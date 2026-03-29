@@ -1,7 +1,7 @@
-import category from "../models/category.js"
-import userModel from "../models/userModal.js"
-import wishlistModel from "../models/wishlistModel.js"
-import walletModel from "../models/walletModel.js"
+import category from "../../models/category.js"
+import userModel from "../../models/userModal.js"
+import wishlistModel from "../../models/wishlistModel.js"
+import walletModel from "../../models/walletModel.js"
 
 import {
     loginUser,
@@ -20,7 +20,7 @@ import {
     getHomepageProducts,
     getAllCoupons
 
-} from "../services/userService.js"
+} from "../../services/user/userService.js"
 
 
 export const login=async(req,res)=>{

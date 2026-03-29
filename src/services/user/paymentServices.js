@@ -1,4 +1,4 @@
-import { razorpay } from "../config/razorpay.js";
+import { razorpay } from "../../config/razorpay.js";
 
 
 export const createRazorpayPayment = async(amount)=>{

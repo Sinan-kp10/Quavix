@@ -11,7 +11,7 @@ import nocache from "nocache";
 import { toastMiddleware } from "./src/middleware/toastMiddleware.js"
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
-import { cartCountMiddleware } from "./src/middleware/cartCount.js"
+import { cartCountMiddleware } from "./src/middleware/user/cartCount.js"
 const app=express()
 dotenv.config();
 import passport from "./src/config/passport.js";

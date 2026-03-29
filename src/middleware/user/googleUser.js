@@ -1,4 +1,4 @@
-import users from "../models/userModal.js"
+import users from "../../models/userModal.js"
 
 export const googleUserStatus = async (req, res, next) => {
   try {

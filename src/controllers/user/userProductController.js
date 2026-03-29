@@ -1,11 +1,11 @@
-import userModel from "../models/userModal.js"
-import productModel from "../models/productModal.js"
-import categoryModel from "../models/category.js"
-import wishlistModel from "../models/wishlistModel.js"
-import cartModel from "../models/cartModel.js"
-import orderModel from "../models/orderModel.js"
-import walletModel from "../models/walletModel.js"
-import couponsModel from "../models/couponsModel.js"
+import userModel from "../../models/userModal.js"
+import productModel from "../../models/productModal.js"
+import categoryModel from "../../models/category.js"
+import wishlistModel from "../../models/wishlistModel.js"
+import cartModel from "../../models/cartModel.js"
+import orderModel from "../../models/orderModel.js"
+import walletModel from "../../models/walletModel.js"
+import couponsModel from "../../models/couponsModel.js"
 import pdf from "html-pdf-node"
 import ejs from "ejs"
 import path from "path"
@@ -23,7 +23,7 @@ import {
     getAllOrders,
     getOrderRequest
 
-} from "../services/userProductService.js"
+} from "../../services/user/userProductService.js"
 
 
 

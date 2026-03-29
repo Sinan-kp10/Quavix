@@ -1,4 +1,4 @@
-import couponsModel from "../models/couponsModel.js";
+import couponsModel from "../../models/couponsModel.js";
 
 export const getAllCoupons=async(search="",status="all",page=1,limit=12)=>{
 

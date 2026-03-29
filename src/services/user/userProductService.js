@@ -1,9 +1,9 @@
-import productModel from "../models/productModal.js"
-import wishlistModel from "../models/wishlistModel.js"
-import cartModel from "../models/cartModel.js";
-import userModal from "../models/userModal.js";
-import orderModel from "../models/orderModel.js";
-import couponsModel from "../models/couponsModel.js";
+import productModel from "../../models/productModal.js"
+import wishlistModel from "../../models/wishlistModel.js"
+import cartModel from "../../models/cartModel.js"
+import userModal from "../../models/userModal.js"
+import orderModel from "../../models/orderModel.js"
+import couponsModel from "../../models/couponsModel.js"
 
 
 

@@ -1,10 +1,10 @@
 import express from "express"
 const router = express.Router()
-import { isLogin } from "../middleware/auth.js"
+import { isLogin } from "../middleware/user/auth.js"
 import upload from "../config/multer.js"
 import multer from "multer";
-import { profileUploadValidation } from "../middleware/profileUploadValidation.js"
-import { googleUserStatus } from "../middleware/googleUser.js"
+import { profileUploadValidation } from "../middleware/user/profileUploadValidation.js"
+import { googleUserStatus } from "../middleware/user/googleUser.js"
 import passport from "passport"
 
 import {
@@ -39,7 +39,7 @@ import {
   applyCoupon,
   removeCoupon
 
-} from "../controllers/userController.js"
+} from "../controllers/user/userController.js"
 
 import { 
 
@@ -64,7 +64,7 @@ import {
   orderRequest,
   downloadInvoice,
 
-} from "../controllers/userProductController.js"
+} from "../controllers/user/userProductController.js"
 
 import {
 
@@ -73,7 +73,7 @@ import {
   loadPaymentFailed,
   loadWallet
 
-} from "../controllers/paymentController.js"
+} from "../controllers/user/paymentController.js"
 
 router.get("/", loadHome)
 router.get("/login", loadLogin)

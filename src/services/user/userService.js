@@ -1,11 +1,11 @@
-import userModel from "../models/userModal.js"
-import cloudinary from "../config/cloudinary.js"
+import userModel from "../../models/userModal.js"
+import cloudinary from "../../config/cloudinary.js"
 import bcrypt from "bcrypt"
 import nodemailer from "nodemailer"
 import dotenv from "dotenv"
-import categoryModal from "../models/category.js"
-import productModel from "../models/productModal.js"
-import couponsModel from "../models/couponsModel.js"
+import categoryModal from "../../models/category.js"
+import productModel from "../../models/productModal.js"
+import couponsModel from "../../models/couponsModel.js"
 dotenv.config();
 const saltround=10
 
