@@ -36,7 +36,14 @@
                     <a href="/products"><i class="fa-solid fa-shop"></i> Shop</a>
                     <a href="/order-history"><i class="fa-solid fa-box"></i> Orders</a>
                     <a href="/wishlist"><i class="fa-regular fa-heart"></i> Wishlist</a>
-                    <a href="/cart"><i class="fa-solid fa-cart-shopping"></i> Cart</a>
+                    <a href="/cart" class="relative">
+                        <i class="fa-solid fa-cart-shopping"></i> Cart
+
+                        <% if (cartCount > 0) { %>
+                            <span class="badge cart-sidebar-badge"><%= cartCount %></span>
+                        <% } %>
+
+                    </a>
                     <% if (user) { %>
                             <a href="/profile"><i class="fa-solid fa-user"></i> Profile</a>
                             <a href="/logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
@@ -209,7 +216,7 @@
                         .forEach(activeVariant => { 
 
                         const price = activeVariant.price;
-                        const offer = product.offerPercentage || 0;
+                        const offer = Math.max(product.offerPercentage || 0, product.category?.categoryOffer || 0);
 
                         const discountedPrice = offer > 0
                             ? Math.round(price - (price * offer / 100))
@@ -268,11 +275,6 @@
                                     <% } %>
                                 </h3>
 
-                                <span class="rating-badge rating-mobile ms-1">
-                                    <%= product.rating.toFixed(1) %>
-                                    <i class="fa-solid fa-star"></i>
-                                </span>
-
                                 <!-- HIGHLIGHTS -->
                                 <ul class="product-highlights">
                                     <% 
@@ -297,11 +299,6 @@
                                     <span class="price-lg">
                                         ₹<%= discountedPrice.toLocaleString() %>
                                     </span>
-
-                                    <span class="rating-badge ms-2">
-                                        <%= product.rating.toFixed(1) %>
-                                        <i class="fa-solid fa-star"></i>
-                                    </span>
                                 </div>
 
                                 <% if (offer > 0) { %>
@@ -314,7 +311,11 @@
                                     </span>
                                 </div>
                                 <% } %>
-
+                                <% if (activeVariant.stock === 0) { %>
+                                    <span class="stock-status text-red font-bold text-sm">
+                                        Out of Stock
+                                    </span>
+                                <% } %>
                             </div>
 
                         </div>
@@ -493,7 +494,6 @@
 
         updateSliderTrack();
 
-
         function renderProducts(products) {
 
             const grid = document.querySelector(".product-grid");
@@ -513,13 +513,13 @@
                 const variant = product.variants?.[0];
                 if (!variant) return;
 
-                const offer = product.offerPercentage || 0;
+                const offer = Math.max(product.offerPercentage || 0, product.category?.categoryOffer || 0);
 
                 const finalPrice = product.finalPrice
                     ? product.finalPrice
                     : Math.round(variant.price - (variant.price * offer / 100));
 
-                const rating = Number(product.rating) || 0;
+
 
                 const attributes = variant.attributes || [];
 
@@ -532,6 +532,7 @@
                 const rom   = romAttr?.value || "";
 
                 const titleExtra = [color, rom].filter(Boolean).join(", ");
+
                 let memoryHTML = "";
                 let highlightLimit = 4;
 
@@ -562,6 +563,14 @@
                     `
                     : "";
 
+                const stock = variant.stock || 0;
+
+                const stockHTML = stock === 0
+                    ? `<span class="stock-status text-red font-bold text-sm">
+                            Out of Stock
+                    </span>`
+                    : "";
+
                 grid.innerHTML += `
                 <div class="product-card-horizontal">
 
@@ -589,10 +598,7 @@
                                 ${titleExtra ? `(${titleExtra})` : ""}
                             </h3>
 
-                            <span class="rating-badge rating-mobile ms-1">
-                                ${rating.toFixed(1)}
-                                <i class="fa-solid fa-star"></i>
-                            </span>
+
 
                             <ul class="product-highlights">
                                 ${highlightsHTML}
@@ -607,13 +613,11 @@
                                     ₹${finalPrice.toLocaleString()}
                                 </span>
 
-                                <span class="rating-badge ms-2">
-                                    ${rating.toFixed(1)}
-                                    <i class="fa-solid fa-star"></i>
-                                </span>
                             </div>
 
                             ${oldPriceHTML}
+
+                            ${stockHTML}
 
                         </div>
 
@@ -623,7 +627,9 @@
                 `;
             });
         }
+        
 
+        //pagination
         function renderPagination(totalPages, currentPage) {
 
             const container = document.querySelector(".pagination");

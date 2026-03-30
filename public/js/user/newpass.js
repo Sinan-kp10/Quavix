@@ -16,13 +16,13 @@ document.addEventListener("DOMContentLoaded", function(){
     clearErrors();
     let isValid = true;
 
-    // Empty check
+
     if (passwordInput.value.trim() === ""){
       passwordError.textContent = "Password is required";
       passwordInput.classList.add("input-error");
       isValid = false;
     }
-    // Length check
+
     else if (passwordInput.value.trim().length < 6){
       passwordError.textContent = "Password must be at least 6 characters";
       passwordInput.classList.add("input-error");
@@ -34,7 +34,6 @@ document.addEventListener("DOMContentLoaded", function(){
     }
   });
 
-     // Toggle password visibility
     toggleBtn.addEventListener("click", function(){
 
     if (passwordInput.type === "password"){

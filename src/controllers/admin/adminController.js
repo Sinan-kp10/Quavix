@@ -1,10 +1,17 @@
 
-import categoryModal from "../models/category.js"
+import categoryModal from "../../models/category.js"
 import slugify from "slugify";
-import productModel from "../models/productModal.js"
-import cloudinary from "../config/cloudinary.js";
-import { compressImage } from "../utils/imageUpload.js";
-import orderModel from "../models/orderModel.js";
+import productModel from "../../models/productModal.js"
+import cloudinary from "../../config/cloudinary.js";
+import { compressImage } from "../../utils/imageUpload.js";
+import orderModel from "../../models/orderModel.js";
+import userModal from "../../models/userModal.js";
+import walletModel from "../../models/walletModel.js";
+import XLSX from "xlsx";
+import XLSXStyle from "xlsx-style";
+import PDFDocument from "pdfkit";
+import { ORDER_STATUS, PAYMENT_STATUS } from "../../utils/orderStatus.js";
+
 
 
 import {
@@ -21,8 +28,12 @@ import {
     updateProduct,
     deleteProduct,
     getAllOrders,
+    getDashboardData,
+    getTopProducts,
+    getTopCategories,
+    reportService
 
-} from "../services/adminService.js"
+} from "../../services/admin/adminService.js"
 
 
 
@@ -110,10 +121,6 @@ export const loadLogin=(req,res)=>{
     res.render("admin/login",{ title: "Login Admin-Quavix",css: "adminStyle" })
 }
 
-export const loadDashboard=(req,res)=>{
-    res.render("admin/dashboard",{ title: "Users Admin-Quavix",css: "adminStyle" })
-}
-
 export const adminLogout=(req,res)=>{
     delete req.session.admin
     res.redirect("/admin/login")
@@ -152,8 +159,8 @@ export const loadCategory=async(req,res)=>{
 export const addCategory=async(req,res)=>{
     try {
         
-        const {name}=req.body
-        const result=await createCategory(name,req.file)
+        const {name,offer}=req.body
+        const result=await createCategory(name,offer,req.file)
         if (!result) {
             req.session.toastMessage = "Please select an image.";
             req.session.toastType = "error";
@@ -198,8 +205,8 @@ export const removeCategory = async (req, res) => {
 export const editCategory=async(req,res)=>{
     try {
         const {id}=req.params
-        const {name}=req.body
-        await updateCategory(id,name,req.file)
+        const {name,offer}=req.body
+        await updateCategory(id,name,offer,req.file)
         req.session.toastMessage = "Category updated successfully!";
         req.session.toastType = "success";
         res.redirect("/admin/category");
@@ -615,11 +622,13 @@ export const loadOrders = async (req, res) => {
         const search = req.query.search || ""
         const status = req.query.status || "all"
         const page = parseInt(req.query.page) || 1
-        const limit = 4
+        const limit = 6
 
         const { items, totalItems } = await getAllOrders(search, status, page, limit)
 
         const totalPages = Math.ceil(totalItems / limit)
+
+        const returnRequests = await orderModel.find({"items.orderStatus": ORDER_STATUS.RETURN_REQUEST}).populate("user", "email")
 
         res.render("admin/orders", {
             title: "Manage Orders - Quavix",
@@ -628,7 +637,8 @@ export const loadOrders = async (req, res) => {
             status,
             search,
             currentPage: page,
-            totalPages
+            totalPages,
+            returnRequests
         })
 
     } catch (err) {
@@ -642,39 +652,44 @@ export const loadOrders = async (req, res) => {
 export const editOrderStatus = async (req, res) => {
     try {
 
-        const { orderId, itemIndex, status } = req.body
+        const { orderId, itemIndex, status } = req.body;
 
-        const order = await orderModel.findById(orderId)
+        const order = await orderModel.findById(orderId);
 
         if (!order) {
-            return res.redirect("/admin/orders")
+            return res.redirect("/admin/orders");
         }
 
-        const item = order.items[Number(itemIndex)]
+        const item = order.items[Number(itemIndex)];
 
-        if (item.orderStatus === "cancelled" || item.orderStatus === "returned") {
-            return res.redirect("/admin/orders")
+
+        if (
+            item.orderStatus === ORDER_STATUS.CANCELLED ||
+            item.orderStatus === ORDER_STATUS.RETURNED
+        ) {
+            return res.redirect("/admin/orders");
         }
 
         if (status) {
-            item.orderStatus = status
+            item.orderStatus = status; 
         }
 
-        if (status === "delivered") {
-            item.deliveredAt = new Date()
+        if (status === ORDER_STATUS.DELIVERED) {
+            item.deliveredAt = new Date();
+            item.paymentStatus = PAYMENT_STATUS.PAID;
         }
 
-        if (status === "cancelled") {
-            item.cancelledAt = new Date()
+        if (status === ORDER_STATUS.CANCELLED) {
+            item.cancelledAt = new Date();
         }
 
-        await order.save()
+        await order.save();
 
-        res.redirect("/admin/orders")
+        res.redirect("/admin/orders");
 
     } catch (error) {
-        console.log(error)
-        res.redirect("/admin/orders")
+        console.log(error);
+        res.redirect("/admin/orders");
     }
 }
 
@@ -683,9 +698,7 @@ export const OrderDetails = async (req, res) => {
 
         const { id, itemIndex } = req.params
 
-        const order = await orderModel
-            .findById(id)
-            .populate("user", "email")
+        const order = await orderModel.findById(id).populate("user", "email")
 
         if (!order) {
             return res.redirect("/admin/orders")
@@ -696,16 +709,453 @@ export const OrderDetails = async (req, res) => {
         if (!item) {
             return res.redirect("/admin/orders")
         }
+        let finalItemTotal = item.total
+
+        if(order.couponDiscount && order.subtotal > 0){
+
+            const itemShare = item.total / order.subtotal
+            const couponShare = order.couponDiscount * itemShare
+
+            finalItemTotal = Math.round(item.total - couponShare)
+        }
 
         res.render("admin/orderDetails", {
             title: "Order Details - Quavix",
             css: "adminStyle",
             order,
-            item
+            item,
+            finalItemTotal
         })
 
     } catch (err) {
         console.log(err)
         res.redirect("/admin/orders")
+    }
+}
+
+export const handleReturnRequest = async (req, res) => {
+
+    try {
+
+        const { orderId, variantId, action, rejectReason } = req.body;
+
+        const order = await orderModel.findById(orderId);
+        if (!order) return res.redirect("/admin/orders");
+
+        const itemIndex = order.items.findIndex(
+            i => i.variantId.toString() === variantId
+        );
+
+        if (itemIndex === -1) return res.redirect("/admin/orders");
+
+        const item = order.items[itemIndex];
+
+        if (item.orderStatus !== ORDER_STATUS.RETURN_REQUEST) {
+            return res.redirect(`/admin/orders/${orderId}/${itemIndex}`);
+        }
+
+        if (action === "approve") {
+
+            item.orderStatus = ORDER_STATUS.RETURNED;
+
+            const user = await userModal.findById(order.user);
+
+            let wallet = await walletModel.findOne({ userId: user.id });
+
+            if (!wallet) {
+                wallet = new walletModel({
+                    userId: user.id,
+                    balance: 0,
+                    transactions: []
+                });
+            }
+
+            let refundAmount = item.total;
+
+            if (order.couponDiscount && order.subtotal > 0) {
+
+                const itemShare = item.total / order.subtotal;
+                const couponShare = order.couponDiscount * itemShare;
+
+                refundAmount = Math.round(item.total - couponShare);
+            }
+
+            wallet.balance += refundAmount;
+
+            wallet.transactions.push({
+                date: new Date(),
+                description: "Return refund",
+                type: "credit",
+                amount: refundAmount,
+                orderId: order._id
+            });
+
+            item.paymentStatus = PAYMENT_STATUS.REFUNDED;
+
+            await wallet.save();
+        }
+
+        if (action === "reject") {
+
+            if (rejectReason.length < 3) {
+                throw new Error("Please provide a reason for rejection");
+            }
+
+            item.orderStatus = ORDER_STATUS.RETURN_REJECTED;
+            item.returnRejectReason = rejectReason;
+        }
+
+        await order.save();
+
+        res.redirect(`/admin/orders/${orderId}/${itemIndex}`);
+
+    } catch (err) {
+        console.log(err);
+        res.redirect("/admin/orders");
+    }
+}
+
+
+export const loadDashboard = async (req, res) => {
+    try {
+
+        const filter = req.query.filter || "all";
+
+        const data = await getDashboardData(filter);
+
+        const topProducts = await getTopProducts(data.dateFilter);
+        const topCategories = await getTopCategories(data.dateFilter);
+
+        res.render("admin/dashboard", {
+            title: "Admin Dashboard - Quavix",
+            css: "adminStyle",
+            filter,
+            topProducts,
+            topCategories,
+            ...data
+        });
+
+    } catch (err) {
+        console.log(err);
+        res.redirect("/admin/dashboard");
+    }
+}
+
+export const loadReports=async(req,res)=>{
+
+    try {
+
+        const search=req.query.search||""
+        const filter = req.query.filter || "all";
+        const page=parseInt(req.query.page)||1
+        const limit=10
+
+        const startDate=req.query.startDate || null
+        const endDate=req.query.endDate || null
+
+        const {orderList,totalOrders}=await reportService(search,filter,page,limit,startDate,endDate)
+
+        const totalPages = Math.ceil(totalOrders / limit)
+
+
+        res.render("admin/reports",{ 
+            title: "Sales and Reports -Quavix",
+            css: "adminStyle",
+            order:orderList,
+            currentPage:page,
+            totalPages,
+            search,
+            filter,
+            startDate,
+            endDate
+
+        })
+
+        
+    } catch (err) {
+        console.log(err)
+        res.redirect("/admin/dashboard") 
+    }
+}
+
+export const exportExcel = async (req, res) => {
+    try {
+
+        const search = req.query.search || "";
+        const filter = req.query.filter || "all";
+        const startDate = req.query.startDate || null;
+        const endDate = req.query.endDate || null;
+
+        const { orderList } = await reportService(
+            search, filter, 1, 100000, startDate, endDate
+        );
+
+        const formatDate = (date) =>
+            new Date(date).toLocaleDateString("en-GB");
+
+        const today = new Date();
+
+        let from = null;
+        let to = formatDate(today);
+
+
+        if (filter === "week") {
+            const start = new Date();
+            start.setDate(start.getDate() - 7);
+            from = formatDate(start);
+        } 
+        else if (filter === "month") {
+            from = formatDate(new Date(today.getFullYear(), today.getMonth(), 1));
+        } 
+        else if (filter === "year") {
+            from = formatDate(new Date(today.getFullYear(), 0, 1));
+        } 
+        else if (filter === "custom" && startDate && endDate) {
+            from = formatDate(startDate);
+            to = formatDate(endDate);
+        } 
+        else if (filter === "all" && orderList.length > 0) {
+            const firstOrder = orderList[orderList.length - 1];
+            from = formatDate(firstOrder.createdAt);
+        }
+
+        const formatStatus = (status) =>
+            status
+                ?.replaceAll("_", " ")
+                .replace(/\b\w/g, c => c.toUpperCase()) || "Pending";
+
+        const worksheet = XLSX.utils.aoa_to_sheet([]);
+
+
+        const header = [
+            ["Sales Report"],
+            [`Generated: ${new Date().toLocaleString()}`]
+        ];
+
+        if (
+            filter === "all" ||  
+            filter === "week" ||
+            filter === "month" ||
+            filter === "year" ||
+            (filter === "custom" && startDate && endDate)
+        ) {
+            header.push([`Period: ${from} to ${to}`]);
+        }
+
+        header.push([]);
+
+        XLSX.utils.sheet_add_aoa(worksheet, header, { origin: "A1" });
+
+
+        XLSX.utils.sheet_add_aoa(worksheet, [[
+            "OrderID","Date","Customer","Email",
+            "Product","Quantity","Price","Total",
+            "Payment","Status"
+        ]], { origin: "A5" });
+
+        const data = [];
+
+        orderList.forEach(order => {
+            order.items.forEach(item => {
+                data.push([
+                    order.orderId,
+                    formatDate(order.createdAt),
+                    order.user?.name || "N/A",
+                    order.user?.email || "",
+                    item.productName,
+                    item.quantity,
+                    item.price,
+                    item.total,
+                    order.paymentMethod,
+                    formatStatus(item.orderStatus)
+                ]);
+            });
+        });
+
+        XLSX.utils.sheet_add_aoa(worksheet, data, { origin: "A6" });
+
+        worksheet["!cols"] = [
+            { wch: 18 }, { wch: 12 }, { wch: 15 }, { wch: 25 },
+            { wch: 30 }, { wch: 10 }, { wch: 12 }, { wch: 12 },
+            { wch: 12 }, { wch: 18 }
+        ];
+
+        worksheet["!merges"] = [
+            { s: { r: 0, c: 0 }, e: { r: 0, c: 9 } },
+            { s: { r: 1, c: 0 }, e: { r: 1, c: 9 } },
+            { s: { r: 2, c: 0 }, e: { r: 2, c: 9 } }
+        ];
+
+        const titleStyle = {
+            alignment: { horizontal: "center" },
+            font: { bold: true, sz: 14 }
+        };
+
+        const subStyle = {
+            alignment: { horizontal: "center" },
+            font: { sz: 11 }
+        };
+
+        if (worksheet["A1"]) worksheet["A1"].s = titleStyle;
+        if (worksheet["A2"]) worksheet["A2"].s = subStyle;
+        if (worksheet["A3"]) worksheet["A3"].s = subStyle;
+
+        const headerStyle = {
+            font: { bold: true },
+            alignment: { horizontal: "center" }
+        };
+
+        ["A","B","C","D","E","F","G","H","I","J"].forEach(col => {
+            const cell = worksheet[col + "5"];
+            if (cell) cell.s = headerStyle;
+        });
+
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Reports");
+
+        const buffer = XLSXStyle.write(workbook, {
+            type: "buffer",
+            bookType: "xlsx"
+        });
+
+        res.setHeader("Content-Disposition", "attachment; filename=reports.xlsx");
+        res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+
+        res.send(buffer);
+
+    } catch (err) {
+        console.log(err);
+        res.status(500).send("Excel Error");
+    }
+}
+
+
+export const exportPDF = async (req, res) => {
+    try {
+
+        const search = req.query.search || "";
+        const filter = req.query.filter || "all";
+        const startDate = req.query.startDate || null;
+        const endDate = req.query.endDate || null;
+
+        const { orderList } = await reportService(
+            search, filter, 1, 100000, startDate, endDate
+        );
+
+        const doc = new PDFDocument({ margin: 40 });
+
+        res.setHeader("Content-Type", "application/pdf");
+        res.setHeader("Content-Disposition", "attachment; filename=reports.pdf");
+
+        doc.pipe(res);
+
+        const formatDate = (date) =>
+            new Date(date).toLocaleDateString("en-GB");
+
+        const today = new Date();
+
+        let from = null;
+        let to = formatDate(today);
+
+
+
+        if (filter === "week") {
+            const start = new Date();
+            start.setDate(start.getDate() - 7);
+            from = formatDate(start);
+        }
+        else if (filter === "month") {
+            from = formatDate(new Date(today.getFullYear(), today.getMonth(), 1));
+        }
+        else if (filter === "year") {
+            from = formatDate(new Date(today.getFullYear(), 0, 1));
+        }
+        else if (filter === "custom" && startDate && endDate) {
+            from = formatDate(startDate);
+            to = formatDate(endDate);
+        }
+        else if (filter === "all" && orderList.length > 0) {
+            const firstOrder = orderList[orderList.length - 1];
+            from = formatDate(firstOrder.createdAt);
+        }
+
+
+        doc.fontSize(16).text("Sales Report", { align: "center" });
+        doc.moveDown(0.5);
+
+        doc.fontSize(10)
+            .text(`Generated: ${new Date().toLocaleString()}`, { align: "center" });
+
+        if (
+            filter === "all" || 
+            filter === "week" ||
+            filter === "month" ||
+            filter === "year" ||
+            (filter === "custom" && startDate && endDate)
+        ) {
+            doc.text(`Period: ${from} to ${to}`, { align: "center" });
+        }
+
+        doc.moveDown();
+
+        let y = doc.y;
+
+        const startX = 40;
+
+        const cols = {
+            order: startX,
+            date: startX + 80,
+            customer: startX + 140,
+            product: startX + 230,
+            qty: startX + 370,
+            total: startX + 400,
+            status: startX + 460
+        };
+
+        doc.font("Helvetica-Bold").fontSize(10);
+
+        doc.text("OrderID", cols.order, y);
+        doc.text("Date", cols.date, y);
+        doc.text("Customer", cols.customer, y);
+        doc.text("Product", cols.product, y);
+        doc.text("Qty", cols.qty, y);
+        doc.text("Total", cols.total, y);
+        doc.text("Status", cols.status, y);
+
+        y += 15;
+        doc.moveTo(startX, y).lineTo(startX + 500, y).stroke();
+
+        y += 5;
+        doc.font("Helvetica").fontSize(9);
+
+        orderList.forEach(order => {
+            order.items.forEach(item => {
+
+                const status = item.orderStatus
+                    ?.replaceAll("_", " ")
+                    .replace(/\b\w/g, c => c.toUpperCase());
+
+                doc.text(order.orderId, cols.order, y);
+                doc.text(formatDate(order.createdAt), cols.date, y);
+                doc.text(order.user?.name || "N/A", cols.customer, y);
+                doc.text(item.productName.substring(0, 25), cols.product, y);
+                doc.text(item.quantity.toString(), cols.qty, y);
+                doc.text(item.total.toString(), cols.total, y);
+                doc.text(status, cols.status, y);
+
+                y += 18;
+
+                if (y > 750) {
+                    doc.addPage();
+                    y = 40;
+                }
+            });
+        });
+
+        doc.end();
+
+    } catch (err) {
+        console.log(err);
+        res.status(500).send("PDF Error");
     }
 }

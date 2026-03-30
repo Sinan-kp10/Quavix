@@ -166,6 +166,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const editButtons = document.querySelectorAll(".edit-btn");
     const statusSelect = document.querySelector("select[name='status']");
 
+
     editButtons.forEach(button => {
 
         button.addEventListener("click", function () {
@@ -174,6 +175,9 @@ document.addEventListener("DOMContentLoaded", function () {
             const nameValue = this.dataset.name;
             const statusValue = this.dataset.status;
             const imageUrl = this.dataset.image;
+
+            const offerInput = document.getElementById("offer")
+            offerInput.value = this.dataset.offer || 0;  
 
             form.action = `/admin/category/edit/${id}`;
             name.value = nameValue;

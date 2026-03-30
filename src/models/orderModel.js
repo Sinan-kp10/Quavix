@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { ORDER_STATUS, PAYMENT_STATUS } from "../utils/orderStatus.js"
 
 const orderItemSchema = new mongoose.Schema({
     product: {
@@ -46,16 +47,14 @@ const orderItemSchema = new mongoose.Schema({
 
     orderStatus: {
         type: String,
-        enum: [
-            "pending",
-            "shipped",
-            "out_for_delivery",
-            "delivered",
-            "cancelled",
-            "returnRequest",
-            "returned"
-        ],
-        default: "pending"
+        enum: Object.values(ORDER_STATUS),
+        default: ORDER_STATUS.PENDING
+    },
+
+    paymentStatus: {
+        type: String,
+        enum: Object.values(PAYMENT_STATUS),
+        default: PAYMENT_STATUS.PENDING
     },
 
     returnVariantId: {
@@ -78,12 +77,16 @@ const orderItemSchema = new mongoose.Schema({
     returnDescription: {
         type: String
     },
+    
+    returnRejectReason: {
+        type: String
+    },
 
     returnedAt: {
         type: Date
     },
     
-    deliveredAt: {   
+    deliveredAt: {
         type: Date
     }
 
@@ -123,12 +126,6 @@ const orderSchema = new mongoose.Schema({
         required: true
     },
 
-    paymentStatus: {
-        type: String,
-        enum: ["pending", "paid", "failed", "refunded"],
-        default: "pending"
-    },
-
     subtotal: { type: Number, required: true },
     discount: { type: Number, default: 0 },
     shippingCharge: { type: Number, default: 0 },
@@ -146,8 +143,8 @@ const orderSchema = new mongoose.Schema({
 orderSchema.pre("save", function () {
 
     if (!this.orderId) {
-        const random = Math.floor(10000 + Math.random() * 90000)
-        this.orderId = `ORD-${Date.now().toString().slice(-5)}-${random}`;
+        const random = Math.floor(100000 + Math.random() * 900000);
+        this.orderId = `ORD-${random}`;
     }
 
 });

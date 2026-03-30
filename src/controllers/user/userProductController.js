@@ -1,9 +1,11 @@
-import userModel from "../models/userModal.js"
-import productModel from "../models/productModal.js"
-import categoryModel from "../models/category.js"
-import wishlistModel from "../models/wishlistModel.js"
-import cartModel from "../models/cartModel.js"
-import orderModel from "../models/orderModel.js"
+import userModel from "../../models/userModal.js"
+import productModel from "../../models/productModal.js"
+import categoryModel from "../../models/category.js"
+import wishlistModel from "../../models/wishlistModel.js"
+import cartModel from "../../models/cartModel.js"
+import orderModel from "../../models/orderModel.js"
+import walletModel from "../../models/walletModel.js"
+import couponsModel from "../../models/couponsModel.js"
 import pdf from "html-pdf-node"
 import ejs from "ejs"
 import path from "path"
@@ -21,7 +23,7 @@ import {
     getAllOrders,
     getOrderRequest
 
-} from "../services/userProductService.js"
+} from "../../services/user/userProductService.js"
 
 
 
@@ -30,9 +32,10 @@ export const loadProducts = async (req, res) => {
 
         const page = Number(req.query.page) || 1;
         const limit = 6;
+        const category = req.query.category || null;
 
         const result = await getFilterdProduct(
-            null,
+            category,
             null,
             null,
             null,
@@ -42,13 +45,13 @@ export const loadProducts = async (req, res) => {
 
         const categories = await categoryModel.find({ status: "Active" });
 
-        const products = await productModel.find({ isDeleted: false });
+        const products = await productModel.find({ isDeleted: false }).populate("category");
 
         let prices = [];
 
         products.forEach(product => {
 
-            const offer = product.offerPercentage || 0;
+            const offer = Math.max(product.offerPercentage || 0, product.category?.categoryOffer || 0);
 
             product.variants
                 .filter(v => v.status === "Active")
@@ -90,7 +93,8 @@ export const loadProducts = async (req, res) => {
             totalPages: result.totalPages,
             currentPage: page,
             minPrice,
-            maxPrice
+            maxPrice,
+            selectedCategory: category
         });
 
     } catch (err) {
@@ -127,7 +131,7 @@ export const filterProducts = async (req, res) => {
         console.log(err);
         res.status(500).json({ success: false });
     }
-};
+}
 
 export const searchProducts = async (req, res) => {
     try {
@@ -141,21 +145,41 @@ export const searchProducts = async (req, res) => {
 
         const categories = await categoryModel.find({})
 
-        let wishlistItems = [];
+        let prices = []
+
+        products.forEach(product => {
+
+            const offer = Math.max(product.offerPercentage || 0, product.category?.categoryOffer || 0);
+
+            product.variants.forEach(variant => {
+
+                const finalPrice = Math.round(
+                    variant.price - (variant.price * offer / 100)
+                )
+
+                prices.push(finalPrice)
+            })
+
+        })
+
+        const minPrice = prices.length ? Math.min(...prices) : 0
+        const maxPrice = prices.length ? Math.max(...prices) : 200000
+
+
+        let wishlistItems = []
 
         if (req.session.user) {
             const wishlist = await wishlistModel.findOne({
                 user: req.session.user.id
-            });
+            })
 
             if (wishlist) {
                 wishlistItems = wishlist.items.map(item => ({
                     product: item.product.toString(),
                     variant: item.variant.toString()
-                }));
+                }))
             }
         }
-
 
         res.render("user/products", {
             title: "products-Quavix",
@@ -165,12 +189,13 @@ export const searchProducts = async (req, res) => {
             searchQuery: q,
             wishlistItems,
             totalPages: 1,
-            currentPage: 1
+            currentPage: 1,
+            minPrice,
+            maxPrice
         })
 
     } catch (err) {
         res.status(500).json({ success: false })
-
     }
 }
 
@@ -213,6 +238,14 @@ export const loadProductDetials = async (req, res) => {
                 );
             }
         }
+        const storageVariants = product.variants.filter(v =>
+            v.attributes.some(attr =>
+                attr.name && (
+                attr.name.toLowerCase().includes("storage") ||
+                attr.name.toLowerCase().includes("rom")
+                )
+            )
+        )
 
         res.render("user/productDetails", {
             title: `${product.name} - Quavix`,
@@ -220,6 +253,7 @@ export const loadProductDetials = async (req, res) => {
             product,
             activeVariant,
             colorVariants,
+            storageVariants, 
             relatedProducts,
             isWishlisted
         })
@@ -228,8 +262,7 @@ export const loadProductDetials = async (req, res) => {
         console.log(err);
         res.redirect("/products");
     }
-};
-
+}
 
 export const loadWishlist = async (req, res) => {
     try {
@@ -318,7 +351,7 @@ export const loadCart = async (req, res) => {
 
         const userId = req.session.user.id;
 
-        const cart = await cartModel.findOne({ user: userId }).populate("items.product");
+        const cart = await cartModel.findOne({ user: userId }).populate({ path: "items.product", populate: { path: "category" } });
 
         res.render("user/cart", {
             title: "My Cart - Quavix",
@@ -343,9 +376,9 @@ export const addToCart=async(req,res)=>{
         const userId=req.session.user.id
         const {productId,variantId}=req.body
 
-        await addToCartService(userId,productId,variantId)
+        const totalQty=await addToCartService(userId,productId,variantId)
 
-        res.json({success:true,message:"Product added to cart!"})
+        res.json({success:true,message:"Product added to cart!",cartCount: totalQty})
 
     }catch(err){
         res.status(400).json({ success: false });
@@ -441,7 +474,7 @@ export const checkoutFromCart = async (req, res) => {
       });
     }
 
-    const cart = await cartModel.findOne({ user: req.session.user.id }).populate("items.product");
+    const cart = await cartModel.findOne({ user: req.session.user.id }).populate({ path: "items.product", populate: { path: "category" } });
 
     if (!cart || cart.items.length === 0) {
       return res.json({ success: false, message: "Cart empty" });
@@ -473,23 +506,25 @@ export const checkoutFromCart = async (req, res) => {
       message: "Something went wrong while processing checkout."
     });
   }
-};
+}
 
 export const loadCheckout = async (req, res) => {
     try {
 
         const userId = req.session.user.id;
 
-        const user = await userModel.findById(userId);
+        const user = await userModel.findById(userId)
+        const wallet = await walletModel.findOne({ userId });
+        const walletBalance = wallet ? wallet.balance : 0;
 
         if (req.session.buyNow) {
 
             const { productId, variantId, quantity } = req.session.buyNow;
 
-            const product = await productModel.findById(productId);
+            const product = await productModel.findById(productId).populate("category");
             const variant = product.variants.id(variantId);
 
-            const offer = product.offerPercentage || 0;
+            const offer = Math.max(product.offerPercentage || 0, product.category?.categoryOffer || 0);
             const discount = (variant.price * offer) / 100;
             const finalPrice = Math.round(variant.price - discount);
 
@@ -497,6 +532,27 @@ export const loadCheckout = async (req, res) => {
             const totalDiscount = discount * quantity;
             const subtotal = finalPrice * quantity;
 
+            let couponDiscount = 0;
+            let appliedCoupon = null;
+
+            if (req.session.couponCode) {
+
+                const coupon = await couponsModel.findOne({ code: req.session.couponCode });
+
+                if (coupon &&coupon.status === "Active" &&coupon.expiryDate >= new Date() &&subtotal >= coupon.minPurchaseAmount) {
+
+                    appliedCoupon = coupon;
+                    couponDiscount = coupon.discountAmount;
+                }
+            }
+
+            const finalTotal = Math.max(0, subtotal - couponDiscount);
+
+            const coupons = await couponsModel.find({
+                status: "Active",
+                expiryDate: { $gte: new Date() },
+                minPurchaseAmount: { $lte: subtotal }
+            })
             return res.render("user/checkout", {
                 title: "Checkout - Quavix",
                 css: "userStyle",
@@ -507,15 +563,18 @@ export const loadCheckout = async (req, res) => {
                 subtotal,
                 totalMRP,
                 totalDiscount,
+                couponDiscount,
+                finalTotal,
+                appliedCoupon,
+                coupons,
+                walletBalance,
                 cancelUrl: `/product/${product.slug}`
             });
         }
 
         if (req.session.fromCart) {
 
-            const cart = await cartModel
-                .findOne({ user: userId })
-                .populate("items.product");
+            const cart = await cartModel.findOne({ user: userId }).populate({ path: "items.product", populate: { path: "category" } });
 
             if (!cart || cart.items.length === 0) {
                 return res.redirect("/cart");
@@ -531,14 +590,34 @@ export const loadCheckout = async (req, res) => {
                 const variant = product.variants.id(item.variant);
                 if (!variant) return;
 
-                const offer = product.offerPercentage || 0;
+                const offer = Math.max(product.offerPercentage || 0, product.category?.categoryOffer || 0);
                 const discount = (variant.price * offer) / 100;
                 const finalPrice = variant.price - discount;
 
                 totalMRP += variant.price * item.quantity;
                 totalDiscount += discount * item.quantity;
                 subtotal += finalPrice * item.quantity;
-            });
+            })
+            let couponDiscount = 0;
+            let appliedCoupon = null;
+
+            if (req.session.couponCode) {
+
+                const coupon = await couponsModel.findOne({ code: req.session.couponCode });
+
+                if ( coupon && coupon.status === "Active" && coupon.expiryDate >= new Date() && subtotal >= coupon.minPurchaseAmount) {
+
+                    appliedCoupon = coupon;
+                    couponDiscount = coupon.discountAmount;
+                }
+            }
+
+            const finalTotal = Math.max(0, subtotal - couponDiscount);
+            const coupons = await couponsModel.find({
+                status: "Active",
+                expiryDate: { $gte: new Date() },
+                minPurchaseAmount: { $lte: subtotal }
+            })
 
             return res.render("user/checkout", {
                 title: "Checkout - Quavix",
@@ -548,6 +627,11 @@ export const loadCheckout = async (req, res) => {
                 subtotal,
                 totalMRP,
                 totalDiscount,
+                couponDiscount,
+                finalTotal,
+                appliedCoupon,
+                coupons,
+                walletBalance,
                 cancelUrl: "/cart" 
             });
         }
@@ -570,35 +654,88 @@ export const placeOrder = async (req, res) => {
             throw new Error("Invalid payment method");
         }
 
-        const buyNowData=req.session.buyNow || null
+        if (paymentMethod === "razorpay") {
+
+            req.session.checkoutData = {
+                userId,
+                addressId,
+                paymentMethod,
+                buyNow: req.session.buyNow || null,
+                couponCode: req.session.couponCode || null
+            };
+
+            return res.json({
+                success: true,
+                razorpay: true
+            });
+        }
+
+
+        let wallet;
+
+        if (paymentMethod === "wallet") {
+
+            wallet = await walletModel.findOne({ userId });
+
+            if (!wallet) {
+                throw new Error("Wallet not found");
+            }
+
+            const walletCalculation = await createOrder({
+                userId,
+                addressId,
+                paymentMethod,
+                buyNowData: req.session.buyNow || null,
+                couponCode: req.session.couponCode || null,
+                walletCalculation: true
+            });
+
+            if (wallet.balance < walletCalculation.totalAmount) {
+                throw new Error("Insufficient wallet balance");
+            }
+
+            wallet.balance -= walletCalculation.totalAmount;
+
+            wallet.transactions.push({
+                date: new Date(),
+                description: "Order Payment",
+                type: "debit",
+                amount: walletCalculation.totalAmount
+            });
+
+            await wallet.save();
+        }
+
+
         const result = await createOrder({
             userId,
             addressId,
             paymentMethod,
-            buyNowData
+            buyNowData: req.session.buyNow || null,
+            couponCode: req.session.couponCode || null
         });
 
-        if (paymentMethod !== "razorpay") {
-            req.session.buyNow = null;
-            req.session.fromCart = null;
-        }
+
+
+        req.session.buyNow = null;
+        req.session.fromCart = null;
+        req.session.couponCode = null;
+
+
 
         res.json({
             success: true,
-            orderId: result.orderId,
-            paymentMethod
-        })
+            orderId: result.orderId
+        });
 
     } catch (error) {
-
-        console.error(error);
 
         res.json({
             success: false,
             message: error.message
         });
-    }
 
+    }
 }
 
 export const loadOrderSuccess=async(req,res)=>{
@@ -677,13 +814,37 @@ export const loadOrderDetails = async (req, res) => {
 
         const requestData = getOrderRequest(order)
 
+        let finalItemTotal = item.total
+        let itemDiscount = 0
+
+
+        if(item.discountPercentage){
+            const productDiscount = (item.price * item.discountPercentage) / 100
+            itemDiscount += productDiscount * item.quantity
+        }
+
+
+        if(order.couponDiscount && order.subtotal > 0){
+            const itemShare = item.total / order.subtotal
+            const couponShare = order.couponDiscount * itemShare
+
+            itemDiscount += couponShare
+        }
+
+
+        finalItemTotal = Math.round(item.total - itemDiscount)
+        const finalPrice = Math.round(finalItemTotal / item.quantity)
+
         res.render("user/orderDetails", {
             title: "Order Details - Quavix",
             css: "userStyle",
             order,
             item,   
             requestType: requestData.requestType,
-            requestAllowed: requestData.requestAllowed
+            requestAllowed: requestData.requestAllowed,
+            finalItemTotal,
+            itemDiscount,
+            finalPrice
         })
 
     } catch (err) {
@@ -737,25 +898,87 @@ export const orderRequest = async (req,res)=>{
             item.returnDescription = description
             item.returnedAt = new Date()
 
-            item.orderStatus = "returned"
+            item.orderStatus = "return_Request"
+
+            req.session.toastMessage = "Return request submitted. Waiting for admin approval"
+            req.session.toastType = "success"
 
         }else{
 
-            item.cancelReason = reason
-            item.cancelDescription = description
-            item.cancelledAt = new Date()
-            item.orderStatus = "cancelled"
+            if(item.paymentStatus=="paid"){
 
-            await productModel.updateOne(
-                { "variants._id": item.variantId },
-                { $inc: { "variants.$.stock": item.quantity } }
-            )
+                item.cancelReason = reason
+                item.cancelDescription = description
+                item.cancelledAt = new Date()
+                item.orderStatus = "cancelled"
+
+                await productModel.updateOne(
+                    { "variants._id": item.variantId },
+                    { $inc: { "variants.$.stock": item.quantity } }
+                )
+
+                const user=await userModel.findById(req.session.user.id)
+
+                let wallet= await walletModel.findOne({userId:user.id})
+
+                if(!wallet){
+
+                    wallet=new walletModel({
+                        userId:user,
+                        balance:0,
+                        transactions: []
+
+                    })
+                }
+
+                let refundAmount = item.total
+
+                if(order.couponDiscount && order.subtotal > 0){
+
+                    const itemShare = item.total / order.subtotal
+
+                    const couponShare = order.couponDiscount * itemShare
+
+                    refundAmount = Math.round(item.total - couponShare)
+
+                }
+
+                wallet.balance += refundAmount
+
+                wallet.transactions.push({
+                    date:new Date(),
+                    description: "Cancellation refund",
+                    type: "credit",
+                    amount: refundAmount,
+                    orderId: order._id
+                })
+
+                item.paymentStatus ="refunded"
+
+                req.session.toastMessage = "Refund successfully added to your wallet"
+                req.session.toastType = "success"
+                await wallet.save()
+
+
+            }else{
+
+                item.cancelReason = reason
+                item.cancelDescription = description
+                item.cancelledAt = new Date()
+                item.orderStatus = "cancelled"
+
+                await productModel.updateOne(
+                    { "variants._id": item.variantId },
+                    { $inc: { "variants.$.stock": item.quantity } }
+                )
+            }
+            
 
         }
 
         await order.save()
 
-        res.redirect("/order-details/" + order.orderId)
+        res.redirect(`/order-details/${order.orderId}?item=${variantId}`)
 
     }catch(err){
         console.log(err)
@@ -765,45 +988,88 @@ export const orderRequest = async (req,res)=>{
 }
 
 export const downloadInvoice = async (req, res) => {
-
     try {
 
-        const { orderId } = req.params
+        const { orderId } = req.params;
+        const itemId = req.query.itemId;
 
-        const order = await orderModel
-            .findOne({ orderId })
-            .populate("user")
+        const order = await orderModel.findOne({ orderId }).populate("user");
 
         if (!order) {
-            return res.redirect("/order-history")
+            return res.redirect("/order-history");
         }
 
-        const templatePath = path.join(process.cwd(), "views", "user", "invoice.ejs")
+        const item = order.items.find(i => i.variantId && i.variantId.toString() === itemId)
 
-        const html = await ejs.renderFile(templatePath, { order })
-
-        const file = { content: html }
-
-        const options = {
-            format: "A4",
-            printBackground: true
+        if (!item) {
+            return res.redirect("/order-history");
         }
 
-        const pdfBuffer = await pdf.generatePdf(file, options)
+        const product = await productModel.findById(item.product).populate("category");
+        const offer = Math.max(product?.offerPercentage || 0, product?.category?.categoryOffer || 0);
 
-        res.setHeader("Content-Type", "application/pdf")
+        const templatePath = path.join(
+            process.cwd(),
+            "views",
+            "user",
+            "invoice.ejs"
+        );
+
+
+        let finalItemTotal = item.total;
+        let couponDiscount = 0;
+
+        if (order.couponDiscount > 0 && order.subtotal > 0) {
+            const itemShare = item.total / order.subtotal;
+            couponDiscount = Math.round(order.couponDiscount * itemShare);
+
+            finalItemTotal = Math.round(item.total - couponDiscount);
+        }
+
+        let originalPrice = item.price;
+        let originalTotal = item.total;
+        let productDiscount = 0;
+
+        if (offer > 0) {
+            originalPrice = Math.round(item.price / (1 - offer / 100));
+            originalTotal = originalPrice * item.quantity;
+            productDiscount = originalTotal - item.total;
+        }
+
+
+        const itemDiscount = productDiscount + couponDiscount;
+
+        const finalPrice = Math.round(finalItemTotal / item.quantity);
+
+
+        const html = await ejs.renderFile(templatePath, {
+            order,
+            item,
+            finalItemTotal,
+            finalPrice,
+            originalPrice,
+            originalTotal,
+            productDiscount,
+            couponDiscount,
+            itemDiscount, 
+            offer
+        });
+
+        const pdfBuffer = await pdf.generatePdf(
+            { content: html },
+            { format: "A4", printBackground: true }
+        );
+
+        res.setHeader("Content-Type", "application/pdf");
         res.setHeader(
             "Content-Disposition",
-            `attachment; filename=invoice-${order.orderId}.pdf`
-        )
+            `attachment; filename=invoice-${order.orderId}-${itemId}.pdf`
+        );
 
-        res.send(pdfBuffer)
+        res.send(pdfBuffer);
 
     } catch (error) {
-
-        console.log(error)
-        res.redirect("/order-history")
-
+        console.log(error);
+        res.redirect("/order-history");
     }
-
-}
+};

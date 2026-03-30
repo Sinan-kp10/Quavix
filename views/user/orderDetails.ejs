@@ -3,6 +3,11 @@
     rel="stylesheet">
 
 <body class="order-details-page">
+    <% if (typeof toastMessage !== "undefined") { %>
+        <div id="toast" class="toast <%= toastType %>">
+            <%= toastMessage %>
+        </div>
+    <% } %>
 
     <!-- Navbar -->
     <nav class="navbar">
@@ -36,7 +41,6 @@
                     <a href="/order-history" class="text-primary"><i class="fa-solid fa-box text-primary"></i>
                         Orders</a>
                     <a href="/wishlist"><i class="fa-regular fa-heart"></i> Wishlist</a>
-                    <a href="/cart" class="relative">
                     <a href="/cart" class="relative">
                         <i class="fa-solid fa-cart-shopping"></i> Cart
 
@@ -131,7 +135,12 @@
 
             <div class="mb-1 flex items-center gap-6">
 
-                <% if(status !== "cancelled" && status !== "returned"){ %>
+                <% if(
+                    status !== "cancelled" &&
+                    status !== "returned" &&
+                    status !== "return_Request" &&
+                    status !== "return_rejected"
+                ){ %>
 
                     <% if(status === "delivered"){ %>
 
@@ -154,18 +163,16 @@
 
                 <!-- Divider -->
                 <% if(status === "delivered"){ %>
-                <div class="h-4 w-px bg-slate-200"></div>
+                    <div class="h-4 w-px bg-slate-200"></div>
 
                 <!-- INVOICE -->
-                <a href="/invoice/<%= order.orderId %>" 
-                class="text-sm font-medium text-primary hover:underline flex items-center gap-2"
-                title="Download Invoice">
-                <i class="fa-solid fa-file-arrow-down opacity-80"></i>
-                Download Invoice
-                </a>
+                    <a href="/invoice/<%= order.orderId %>?itemId=<%= item.variantId %>" class="text-sm font-medium text-primary hover:underline flex items-center gap-2" title="Download Invoice">
+                        <i class="fa-solid fa-file-arrow-down opacity-80"></i>
+                        Download Invoice
+                    </a>
                 <% } %>
 
-                </div>
+            </div>
         </div>
 
         <!-- Order Status Banner -->
@@ -182,15 +189,34 @@
             <div>
                 <p class="text-xs text-muted font-medium tracking-wider">Status</p>
 
-                <div class="status-badge badge-<%= item.orderStatus.replaceAll('_','-') %>">
-                    <i class="fa-solid fa-circle-check"></i>
-
-                    <%= item.orderStatus.replaceAll("_"," ").toUpperCase() %>
-
-                </div>
+            <div class="status-badge badge-<%= item.orderStatus.toLowerCase().replaceAll('_','-') %>">
+                <i class="fa-solid fa-circle-check"></i>
+                <%= item.orderStatus.replaceAll("_"," ").replace(/\b\w/g, l => l.toUpperCase()) %>
+            </div>
 
             </div>
         </div>
+        <% if(status === "return_Request"){ %>
+
+
+            <p class="text-sm font-medium text-yellow-700" style="color: red;">
+                 Your return request has been submitted and is waiting for admin approval.
+            </p>
+
+        <% } %>
+
+        <% if(status === "return_rejected"){ %>
+
+
+            <p class="text-sm font-medium text-red-600" style="color: #6041E8;">
+                Your return request was rejected by admin.
+            </p>
+            <p class="text-sm text-red-600 mt-1">
+                Reason: <%= item.returnRejectReason || "No reason provided" %>
+            </p>
+
+
+        <% } %>
 
         <!-- Main Combined Layout -->
         <div class="order-combined-layout">
@@ -217,8 +243,22 @@
                                         <%= item.productName %>
                                     </h3>
 
+                                    <%
+                                    let itemPriceAfterCoupon = item.price;
+
+                                    if(order.couponDiscount && order.subtotal > 0){
+
+                                        const itemShare = item.total / order.subtotal
+                                        const couponShare = order.couponDiscount * itemShare
+
+                                        const perUnitCoupon = couponShare / item.quantity
+
+                                        itemPriceAfterCoupon = Math.round(item.price - perUnitCoupon)
+                                    }
+                                    %>
+
                                     <p class="font-bold text-lg text-primary">
-                                        ₹<%= item.price.toLocaleString() %>
+                                        ₹<%= itemPriceAfterCoupon.toLocaleString("en-IN") %>
                                     </p>
 
                                 </div>
@@ -234,8 +274,6 @@
                                     <span class="font-medium mt-1">
                                         Qty: <%= item.quantity %>
                                     </span>
-
-                                    
 
                                 </div>
 
@@ -269,9 +307,27 @@
 
                     <!-- Payment Summary -->
                     <div class="card p-6">
-                        <h3 class="font-bold text-lg mb-6 flex items-center gap-2">
-                            <i class="fa-solid fa-receipt text-primary"></i> Payment Summary
-                        </h3>
+
+                        <div class="flex justify-between items-center mb-6">
+
+                            <h3 class="font-bold text-lg flex items-center gap-2">
+                                <i class="fa-solid fa-receipt text-primary"></i>
+                                Payment Summary
+                            </h3>
+
+                            <% const payStatus = item.paymentStatus || "pending" %>
+
+                            <% if(order.paymentMethod !== "cod" || payStatus === "refunded"){ %>
+
+                                <span class="pay-status-badge pay-status-<%= payStatus %>">
+                                    <%= payStatus.toUpperCase() %>
+                                </span>
+
+                            <% } %>
+
+                        </div>
+
+
                         <div class="text-sm">
 
                             <div class="flex flex-col gap-3 mb-6">
@@ -284,21 +340,28 @@
                                     </span>
                                 </div>
 
+
                                 <div class="flex justify-between">
-                                    <span class="text-slate-500">Item Price</span>
+                                    <span class="text-slate-500">Items Total</span>
 
                                     <span class="font-medium text-main">
-                                        ₹<%= item.price.toLocaleString() %>
+                                        ₹<%= order.subtotal.toLocaleString() %>
                                     </span>
                                 </div>
 
-                                <div class="flex justify-between">
-                                    <span class="text-slate-500">Quantity</span>
 
-                                    <span class="font-medium text-main">
-                                        <%= item.quantity %>
+                                <% if(order.couponDiscount && order.couponDiscount > 0){ %>
+
+                                <div class="flex justify-between">
+                                    <span class="text-slate-500">Coupon Discount</span>
+
+                                    <span class="text-green-600 font-medium">
+                                        - ₹<%= order.couponDiscount.toLocaleString() %>
                                     </span>
                                 </div>
+
+                                <% } %>
+
 
                                 <div class="flex justify-between">
                                     <span class="text-slate-500">Shipping</span>
@@ -308,17 +371,21 @@
                                     </span>
                                 </div>
 
+
                                 <div class="flex justify-between items-center font-bold text-main mt-4 border-t pt-4">
 
                                     <span>Total Amount</span>
 
                                     <span class="text-primary">
-                                        ₹<%= item.total.toLocaleString() %>
+                                        ₹<%= order.totalAmount.toLocaleString() %>
                                     </span>
 
                                 </div>
+
                             </div>
+
                         </div>
+
                     </div>
                 </div>
 
@@ -337,6 +404,8 @@
                 if(currentStatus === "out_for_delivery") progressClass = "progress-h-75";
                 if(currentStatus === "delivered") progressClass = "progress-h-100";
                 if(currentStatus === "returned" || currentStatus === "cancelled") progressClass = "progress-h-100";
+                if(currentStatus === "return_request") progressClass = "progress-h-100";
+                if(currentStatus === "return_rejected") progressClass = "progress-h-100";
             %>
 
             <!-- Right Col: Vertical Stepper -->
@@ -417,6 +486,38 @@
                         </div>
 
                     </div>
+
+                    <% if(currentStatus === "return_request"){ %>
+
+                        <div class="step-item completed active returned-step">
+
+                            <div class="step-icon">
+                                <i class="fa-solid fa-arrow-rotate-left"></i>
+                            </div>
+
+                            <div class="step-info">
+                                <p class="step-label">Return Requested</p>
+                            </div>
+
+                        </div>
+
+                    <% } %>
+
+                    <% if(currentStatus === "return_rejected"){ %>
+
+                        <div class="step-item completed active return-rejected-step">
+
+                            <div class="step-icon">
+                                <i class="fa-solid fa-circle-xmark"></i>
+                            </div>
+
+                            <div class="step-info">
+                                <p class="step-label">Return Rejected</p>
+                            </div>
+
+                        </div>
+
+                    <% } %>
 
 
                     <!-- RETURNED -->
@@ -659,6 +760,18 @@
             }
 
         })
+        const toast = document.getElementById("toast");
+
+        if (toast) {
+            setTimeout(() => {
+            toast.classList.add("show");
+            }, 100);
+
+            setTimeout(() => {
+            toast.classList.remove("show");
+            }, 3000);
+        }
+  
 
     </script>
 

@@ -1,8 +1,9 @@
-import productModel from "../models/productModal.js"
-import wishlistModel from "../models/wishlistModel.js"
-import cartModel from "../models/cartModel.js";
-import userModal from "../models/userModal.js";
-import orderModel from "../models/orderModel.js";
+import productModel from "../../models/productModal.js"
+import wishlistModel from "../../models/wishlistModel.js"
+import cartModel from "../../models/cartModel.js"
+import userModal from "../../models/userModal.js"
+import orderModel from "../../models/orderModel.js"
+import couponsModel from "../../models/couponsModel.js"
 
 
 
@@ -29,7 +30,7 @@ export const getFilterdProduct = async (
     let variantList = [];
     products.forEach(product => {
 
-        const offer = product.offerPercentage || 0;
+        const offer = Math.max(product.offerPercentage || 0, product.category?.categoryOffer || 0);
 
         product.variants
             .filter(v => v.status === "Active")
@@ -121,7 +122,7 @@ export const findProducts = async (search) => {
         };
     }
 
-    let products = await productModel.find(mongoQuery);
+    let products = await productModel.find(mongoQuery).populate("category");
 
     products = products.map(product => {
 
@@ -217,6 +218,7 @@ export const addToCartService = async (userId, productId, variantId) => {
         }
 
         existingItem.quantity += 1;
+        
 
     } else {
 
@@ -230,10 +232,10 @@ export const addToCartService = async (userId, productId, variantId) => {
     }
 
     
+    
+    await cart.save()
 
-    await cart.save();
-
-    return true;
+    return cart.items.reduce((sum, item) => sum + item.quantity, 0);
 }
 
 export const removeFromCartService = async (userId, productId, variantId) => {
@@ -286,7 +288,7 @@ export const updateCartQuantityService = async (userId,productId,variantId,chang
     return item.quantity
 }
 
-export const createOrder = async ({ userId, addressId, paymentMethod, buyNowData }) => {
+export const createOrder = async ({ userId,addressId, paymentMethod,buyNowData,couponCode,walletCalculation = false}) => {
 
     const user = await userModal.findById(userId);
 
@@ -303,12 +305,16 @@ export const createOrder = async ({ userId, addressId, paymentMethod, buyNowData
     let items = [];
     let subtotal = 0;
     let totalDiscount = 0;
+    let couponDiscount = 0;
+    let finalTotal = 0;
+
+
 
     if (buyNowData) {
 
         const { productId, variantId, quantity } = buyNowData;
 
-        const product = await productModel.findById(productId);
+        const product = await productModel.findById(productId).populate("category");
 
         if (!product) {
             throw new Error("Product not found");
@@ -324,7 +330,7 @@ export const createOrder = async ({ userId, addressId, paymentMethod, buyNowData
             throw new Error("Insufficient stock");
         }
 
-        const offer = product.offerPercentage || 0;
+        const offer = Math.max(product.offerPercentage || 0, product.category?.categoryOffer || 0);
 
         const discount = (variant.price * offer) / 100;
 
@@ -335,7 +341,6 @@ export const createOrder = async ({ userId, addressId, paymentMethod, buyNowData
         subtotal = total;
         totalDiscount = discount * quantity;
 
-
         items.push({
             product: product._id,
             productName: product.name,
@@ -344,21 +349,20 @@ export const createOrder = async ({ userId, addressId, paymentMethod, buyNowData
             attributes: variant.attributes,
             quantity,
             price: finalPrice,
-            total
+            total,
+            paymentStatus: paymentMethod === "cod" ? "pending" : "paid"
         });
 
-        if (paymentMethod === "cod") {
+        if (!walletCalculation) {
             variant.stock -= quantity;
             await product.save();
         }
-
     }
+
 
     else {
 
-        const cart = await cartModel
-            .findOne({ user: userId })
-            .populate("items.product");
+        const cart = await cartModel.findOne({ user: userId }).populate({ path: "items.product", populate: { path: "category" } });
 
         if (!cart || cart.items.length === 0) {
             throw new Error("Cart is empty");
@@ -376,7 +380,7 @@ export const createOrder = async ({ userId, addressId, paymentMethod, buyNowData
                 throw new Error(`${product.name} is out of stock`);
             }
 
-            const offer = product.offerPercentage || 0;
+            const offer = Math.max(product.offerPercentage || 0, product.category?.categoryOffer || 0);
 
             const discount = (variant.price * offer) / 100;
 
@@ -395,17 +399,45 @@ export const createOrder = async ({ userId, addressId, paymentMethod, buyNowData
                 attributes: variant.attributes,
                 quantity: item.quantity,
                 price: finalPrice,
-                total
+                total,
+                paymentStatus: paymentMethod === "cod" ? "pending" : "paid"
             });
 
-            variant.stock -= item.quantity;
-            await product.save();
+            if (!walletCalculation) {
+                variant.stock -= item.quantity;
+                await product.save();
+            }
         }
 
-        await cartModel.findOneAndUpdate(
-            { user: userId },
-            { $set: { items: [] } }
-        );
+        if (!walletCalculation) {
+            await cartModel.updateOne(
+                { user: userId },
+                { $set: { items: [] } }
+            );
+        }
+    }
+
+
+    if (couponCode) {
+
+        const coupon = await couponsModel.findOne({
+            code: couponCode,
+            status: "Active",
+            expiryDate: { $gte: new Date() }
+        });
+
+        if (coupon && subtotal >= coupon.minPurchaseAmount) {
+
+            couponDiscount = coupon.discountAmount;
+        }
+    }
+
+    finalTotal = Math.max(0, subtotal - couponDiscount);
+
+    if (walletCalculation) {
+        return {
+            totalAmount: finalTotal
+        };
     }
 
     const order = new orderModel({
@@ -416,14 +448,15 @@ export const createOrder = async ({ userId, addressId, paymentMethod, buyNowData
         subtotal,
         discount: totalDiscount,
         shippingCharge: 0,
-        couponDiscount: 0,
-        totalAmount: subtotal
+        couponDiscount,
+        totalAmount: finalTotal
     });
 
     await order.save();
 
     return {
-        orderId: order.orderId
+        orderId: order.orderId,
+        totalAmount: finalTotal
     };
 }
 
@@ -440,9 +473,7 @@ export const getAllOrders = async (userId, status = "all", search = "", page = 1
 
     const skip = Math.max((page - 1) * limit, 0)
 
-    const orders = await orderModel
-        .find(query)
-        .sort({ createdAt: -1 })
+    const orders = await orderModel.find(query).sort({ createdAt: -1 })
 
     let items = []
 
@@ -455,7 +486,8 @@ export const getAllOrders = async (userId, status = "all", search = "", page = 1
             items.push({
                 ...item.toObject(),
                 orderId: order.orderId,
-                createdAt: order.createdAt
+                createdAt: order.createdAt,
+                totalAmount: order.totalAmount
             })
 
         })
@@ -472,14 +504,16 @@ export const getAllOrders = async (userId, status = "all", search = "", page = 1
     }
 }
 
-export const getOrderRequest = (order) => {
-
-    const item = order.items[0]
+export const getOrderRequest = (item) => {
 
     let requestType = null
     let requestAllowed = false
 
-    if(item.orderStatus === "pending" || item.orderStatus === "shipped" || item.orderStatus === "out_for_delivery"){
+    if(
+        item.orderStatus === "pending" ||
+        item.orderStatus === "shipped" ||
+        item.orderStatus === "out_for_delivery"
+    ){
         requestType = "cancel"
         requestAllowed = true
     }
@@ -497,12 +531,10 @@ export const getOrderRequest = (order) => {
             requestType = "return"
             requestAllowed = true
         }
-
     }
 
     return {
         requestType,
         requestAllowed
     }
-
 }

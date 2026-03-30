@@ -1,6 +1,7 @@
-import category from "../models/category.js"
-import userModel from "../models/userModal.js"
-import wishlistModel from "../models/wishlistModel.js"
+import category from "../../models/category.js"
+import userModel from "../../models/userModal.js"
+import wishlistModel from "../../models/wishlistModel.js"
+import walletModel from "../../models/walletModel.js"
 
 import {
     loginUser,
@@ -16,9 +17,10 @@ import {
     updateUserProfileImage,
     removeUserProfileImage,
     getActiveCategories,
-    getHomepageProducts
+    getHomepageProducts,
+    getAllCoupons
 
-} from "../services/userService.js"
+} from "../../services/user/userService.js"
 
 
 export const login=async(req,res)=>{
@@ -70,19 +72,22 @@ export const login=async(req,res)=>{
 
 export const register=async(req,res)=>{
     try{
-        const {name,email,password}=req.body
+        const {name,email,password,referral}=req.body
         const result=await registerUser({name,email,password})
 
         req.session.userOtp = result.otp;
         req.session.userData = result.userData;
         req.session.otpExpiry = Date.now() + (2 * 60 * 1000);
+        if(referral){
+            req.session.referral = referral
+        }
         
         return res.render("user/otp", {
             title: "Login-Quavix",
             css: "userStyle", 
             expiryTime: req.session.otpExpiry|| 0,
             formAction: "/loginVerify"
-        });
+        })
 
 
     }catch(err){
@@ -151,10 +156,65 @@ export const verifyOtp = async (req, res)=>{
 
     
     const newUser = new userModel(req.session.userData);
-    await newUser.save();
+    await newUser.save()
 
-    req.session.userOtp = null;
-    req.session.userData = null;
+    if(req.session.referral){
+
+        const referralCode= req.session.referral
+
+        const referrer=await userModel.findOne({referralCode})
+
+        if (referrer) {
+
+            let wallet = new walletModel({
+                userId: newUser._id,
+                balance: 0,
+                transactions: []
+            });
+
+            wallet.balance += 50;
+
+            wallet.transactions.push({
+                date: new Date(),
+                description: "Referral Signup Bonus",
+                type: "credit",
+                amount: 50,
+            });
+
+            await wallet.save();
+
+
+
+            let referrerWallet = await walletModel.findOne({ userId: referrer._id });
+
+            if (!referrerWallet) {
+                referrerWallet = new walletModel({
+                    userId: referrer._id,
+                    balance: 0,
+                    transactions: []
+                });
+            }
+
+            referrerWallet.balance += 50;
+
+            referrerWallet.transactions.push({
+                date: new Date(),
+                description: "Referral Signup Bonus",
+                type: "credit",
+                amount: 50,
+            });
+
+            await referrerWallet.save();
+
+            req.session.referral = null;
+        }
+
+
+    }
+
+    req.session.userOtp = null
+    req.session.userData = null
+
 
     return res.render("user/login", {
         title: "Login-Quavix",
@@ -708,3 +768,71 @@ export const logout = (req, res) => {
     res.redirect("/login")
 }
 
+export const loadReferral=async (req,res)=>{
+
+    try {
+
+        const user=await userModel.findById(req.session.user.id)
+
+        if(!req.session.user) {
+            return res.redirect("/login");
+        }
+
+
+        res.render("user/referral", {
+            title: "Refer & Earn -Quavix",
+            css: "userStyle",
+            user: user,
+
+        });
+        
+    } catch (err) {
+        console.log(err);
+        res.redirect("/");
+    }
+}
+
+export const loadCoupons=async(req,res)=>{
+    try {
+
+        const page=parseInt(req.query.page) || 1
+        const limit = 9
+
+        const {couponsList,totalCoupons}=await getAllCoupons(page,limit)
+
+        const totalPages= Math.ceil(totalCoupons/limit)
+
+        res.render("user/coupons", {
+            title: "My Coupons- Quavix",
+            css: "userStyle",
+            couponsList:couponsList,
+            currentPage:page,
+            totalPages,
+            noCoupons:couponsList.length===0
+        })
+        
+    } catch (err) {
+        console.log(err)
+        res.redirect("/")
+    }
+}
+
+export const applyCoupon = (req,res)=>{
+
+    const { couponCode } = req.body
+
+    req.session.couponCode = couponCode
+
+    res.json({
+        success:true
+    })
+}
+export const removeCoupon = (req,res)=>{
+
+    req.session.couponCode = null
+
+    res.json({
+        success:true
+    })
+
+}

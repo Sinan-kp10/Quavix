@@ -25,7 +25,7 @@
 
         .invoice-page {
             background-color: #ffffff;
-            min-height: 100vh;
+            min-height: 50vh;
             padding: 40px 0;
             color: #000000;
         }
@@ -166,6 +166,7 @@
             font-weight: 500;
         }
 
+        .invoice-table th.total-cell,
         .total-cell {
             text-align: right;
             font-weight: 600;
@@ -505,11 +506,11 @@
             </div>
             <div class="info-block">
                 <h4>Shipping Address</h4>
-                <p><strong>John Doe</strong></p>
-                <p>123 Main Street, Green Park Avenue</p>
-                <p>Near Central Mall</p>
-                <p>New Delhi - 110016</p>
-                <p>Shipping via BlueDart Express</p>
+                <p><strong><%= order.shippingAddress.fullname %></strong></p>
+                <p><%= order.shippingAddress.street %></p>
+                <p><%= order.shippingAddress.city %> - <%= order.shippingAddress.pincode %></p>
+                <p><%= order.shippingAddress.state %></p>
+                <p>Phone: <%= order.shippingAddress.phone %></p>
             </div>
         </div>
 
@@ -526,8 +527,6 @@
                 </thead>
                     <tbody>
 
-                        <% order.items.forEach(item => { %>
-
                         <tr>
                             <td>
                                 <div>
@@ -540,18 +539,18 @@
                                 </div>
                             </td>
 
+
                             <td class="price-cell">
-                                ₹<%= item.price.toLocaleString("en-IN") %>
+                                ₹<%= finalPrice.toLocaleString("en-IN") %>
                             </td>
 
                             <td class="qty-cell"><%= item.quantity %></td>
 
-                            <td class="total-cell">₹<%= item.total.toLocaleString("en-IN") %></td>
+                            <td class="total-cell">
+                                ₹<%= finalItemTotal.toLocaleString("en-IN") %>
+                            </td>
 
                         </tr>
-
-                        <% }) %>
-
                     </tbody>
             </table>
         </div>
@@ -559,33 +558,39 @@
         <!-- Summary -->
         <div class="invoice-summary-section">
             <div class="summary-box">
+
+                <!-- Sub Total -->
                 <div class="summary-row">
                     <span class="summary-label">Sub Total</span>
                     <span class="summary-value">
-                        ₹<%= order.subtotal.toLocaleString("en-IN") %>
+                        ₹<%= originalTotal.toLocaleString("en-IN") %>
                     </span>
                 </div>
 
+                <!-- Discount -->
                 <div class="summary-row">
                     <span class="summary-label">Discount</span>
                     <span class="summary-value text-green-700">
-                        - ₹<%= order.discount.toLocaleString("en-IN") %>
+                        - ₹<%= itemDiscount.toLocaleString("en-IN") %>
                     </span>
                 </div>
 
+                <!-- Shipping -->
                 <div class="summary-row">
                     <span class="summary-label">Shipping</span>
                     <span class="summary-value">
-                        ₹<%= order.shippingCharge.toLocaleString("en-IN") %>
+                        ₹0
                     </span>
                 </div>
 
+                <!-- Grand Total -->
                 <div class="summary-total summary-row">
                     <span>Grand Total</span>
                     <span>
-                        ₹<%= order.totalAmount.toLocaleString("en-IN") %>
+                        ₹<%= finalItemTotal.toLocaleString("en-IN") %>
                     </span>
                 </div>
+
             </div>
         </div>
     </div>

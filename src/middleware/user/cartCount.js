@@ -1,4 +1,4 @@
-import cartModel from "../models/cartModel.js"
+import cartModel from "../../models/cartModel.js"
 
 export const cartCountMiddleware = async (req, res, next) => {
 

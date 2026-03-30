@@ -34,9 +34,16 @@
                 </div>
                 <div class="sidebar-content">
                     <a href="/products"><i class="fa-solid fa-shop"></i> Shop</a>
-                    <a href="order-history.html"><i class="fa-solid fa-box"></i> Orders</a>
-                    <a href="wishlist.html"><i class="fa-regular fa-heart"></i> Wishlist</a>
-                    <a href="cart.html"><i class="fa-solid fa-cart-shopping"></i> Cart</a>
+                    <a href="/order-history"><i class="fa-solid fa-box"></i> Orders</a>
+                    <a href="/wishlist"><i class="fa-regular fa-heart"></i> Wishlist</a>
+                    <a href="/cart" class="relative">
+                        <i class="fa-solid fa-cart-shopping"></i> Cart
+
+                        <% if (cartCount > 0) { %>
+                            <span class="badge cart-sidebar-badge"><%= cartCount %></span>
+                        <% } %>
+
+                    </a>
                     <% if(user){ %>
                             <a href="/profile"><i class="fa-solid fa-user"></i> Profile</a>
                             <a href="/logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
@@ -152,13 +159,13 @@
                         <a href="/wishlist" class="profile-nav-link">
                             <i class="fa-regular fa-heart"></i> My Wishlist
                         </a>
-                        <a href="coupons.html" class="profile-nav-link">
+                        <a href="/coupons" class="profile-nav-link">
                             <i class="fa-solid fa-ticket"></i> My Coupons
                         </a>
-                        <a href="wallet.html" class="profile-nav-link">
+                        <a href="/wallet" class="profile-nav-link">
                             <i class="fa-solid fa-wallet"></i> My Wallet
                         </a>
-                        <a href="referral.html" class="profile-nav-link">
+                        <a href="/referral" class="profile-nav-link">
                             <i class="fa-solid fa-share-nodes"></i> Refer & Earn
                         </a>
                         <a href="/logout" class="btn btn-outline-danger w-full mt-4 text-left">
@@ -197,12 +204,12 @@
 
                             <div class="form-group">
                                 <label class="form-label">New Password</label>
-                                <div class="password-group">
-                                <input type="password" id="newPassword" name="newPassword" class="form-input" placeholder="Enter your password">
-                                <button type="button" class="password-toggle" data-target="newPassword">
-                                    <i class="fa-regular fa-eye-slash"></i>
-                                </button>
-                            </div>
+                                    <div class="password-group">
+                                    <input type="password" id="newPassword" name="newPassword" class="form-input" placeholder="Enter your password">
+                                    <button type="button" class="password-toggle" data-target="newPassword">
+                                        <i class="fa-regular fa-eye-slash"></i>
+                                    </button>
+                                </div>
                                 <small class="error-message"></small>
                             </div>
                             <br>

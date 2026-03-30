@@ -76,12 +76,14 @@
                 <a href="/wishlist" class="relative">
                     <i class="fa-regular fa-heart nav-icon-lg"></i>
                 </a>
+                
                 <a href="/cart" class="relative">
-                    <i class="fa-solid fa-cart-shopping nav-icon-lg text-primary"></i>
+                    <i class="fa-solid fa-cart-shopping nav-icon-lg"></i>
+
                     <% if (cartCount > 0) { %>
                         <span class="badge cart-badge"><%= cartCount %></span>
                     <% } %>
-                </a>
+                </a>    
                 <% if (user) { %>
                     <a href="/profile" class="nav-profile-icon">
 
@@ -133,7 +135,7 @@
                     if (!variant) return;
 
                     const originalPrice = variant.price;
-                    const offer = product.offerPercentage || 0;
+                    const offer = Math.max(product.offerPercentage || 0, product.category?.categoryOffer || 0);
 
                     const discountPerUnit = (originalPrice * offer) / 100;
                     const finalPrice = Math.round(originalPrice - discountPerUnit);
@@ -384,7 +386,7 @@
                 if (!data.success) {
                     return triggerToast(data.message, "error");
                 }
-                location.reload()
+                updateCartUI(cartItem, data.quantity, type);
 
             } catch (err) {
                 triggerToast("Something went wrong", "error");
@@ -409,6 +411,68 @@
             }else{
                 triggerToast(data.message || "Something went wrong","error");
             }
+        }
+
+        function updateCartUI(cartItem, newQty) {
+
+            const qtyInput = cartItem.querySelector(".qty-input");
+            const itemTotalEl = cartItem.querySelector(".item-total");
+            const wrapper = cartItem.querySelector(".quantity-wrapper");
+
+            const minusBtn = cartItem.querySelector(".qty-minus");
+            const plusBtn = cartItem.querySelector(".qty-plus");
+
+            qtyInput.value = newQty;
+
+            const final = Number(wrapper.dataset.final);
+
+            const newTotal = final * newQty;
+            itemTotalEl.innerText = "₹" + newTotal.toLocaleString();
+
+            minusBtn.disabled = newQty <= 1;
+            plusBtn.disabled = newQty >= 10;
+
+
+            updateSummary();
+        }
+        
+        function updateSummary() {
+
+            const cartItems = document.querySelectorAll(".cart-item");
+
+            let totalItems = 0;
+            let totalMRP = 0;
+            let totalDiscount = 0;
+            let grandTotal = 0;
+
+            cartItems.forEach(item => {
+
+                const qty = Number(item.querySelector(".qty-input").value);
+
+                const wrapper = item.querySelector(".quantity-wrapper");
+
+                const original = Number(wrapper.dataset.original);
+                const final = Number(wrapper.dataset.final);
+                const discount = Number(wrapper.dataset.discount);
+
+                totalItems += qty;
+                totalMRP += original * qty;
+                totalDiscount += discount * qty;
+                grandTotal += final * qty;
+            });
+
+            document.getElementById("summary-items").innerText = totalItems;
+            document.getElementById("summary-mrp").innerText = totalMRP.toLocaleString();
+            document.getElementById("summary-discount").innerText = totalDiscount.toLocaleString();
+            document.getElementById("summary-total").innerText = grandTotal.toLocaleString();
+            document.getElementById("summary-save").innerText = totalDiscount.toLocaleString();
+
+
+            const cartBadge = document.querySelector(".cart-badge");
+            const cartSidebarBadge = document.querySelector(".cart-sidebar-badge");
+
+            if (cartBadge) cartBadge.innerText = totalItems;
+            if (cartSidebarBadge) cartSidebarBadge.innerText = totalItems;
         }
 
         const toast = document.getElementById("toast");

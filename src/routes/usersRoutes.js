@@ -1,11 +1,12 @@
 import express from "express"
 const router = express.Router()
-import { isLogin } from "../middleware/auth.js"
+import { isLogin } from "../middleware/user/auth.js"
 import upload from "../config/multer.js"
 import multer from "multer";
-import { profileUploadValidation } from "../middleware/profileUploadValidation.js"
-import { googleUserStatus } from "../middleware/googleUser.js"
+import { profileUploadValidation } from "../middleware/user/profileUploadValidation.js"
+import { googleUserStatus } from "../middleware/user/googleUser.js"
 import passport from "passport"
+
 import {
   loadLogin,
   loadSingnup,
@@ -32,9 +33,13 @@ import {
   deleteAddress,
   uploadProfileImage,
   removeProfileImage,
-  notFound
+  notFound,
+  loadReferral,
+  loadCoupons,
+  applyCoupon,
+  removeCoupon
 
-} from "../controllers/userController.js"
+} from "../controllers/user/userController.js"
 
 import { 
 
@@ -57,15 +62,18 @@ import {
   loadOrderHistory,
   loadOrderDetails,
   orderRequest,
-  downloadInvoice
+  downloadInvoice,
 
-} from "../controllers/userProductController.js"
+} from "../controllers/user/userProductController.js"
 
 import {
 
-  createRazorpay
+  createRazorpay,
+  verifyRazorpay,
+  loadPaymentFailed,
+  loadWallet
 
-} from "../controllers/paymentController.js"
+} from "../controllers/user/paymentController.js"
 
 router.get("/", loadHome)
 router.get("/login", loadLogin)
@@ -116,8 +124,7 @@ router.get("/auth/google/callback", passport.authenticate("google", { failureRed
   }
 
   res.redirect("/");
-}
-)
+})
 
 router.get("/products", loadProducts)
 router.get("/products/filter", filterProducts)
@@ -142,8 +149,17 @@ router.get("/order-history", isLogin, loadOrderHistory)
 router.get("/order-details/:id",isLogin, loadOrderDetails)
 router.post("/order-request",isLogin, orderRequest)
 router.post("/razorpay",isLogin, createRazorpay);
+router.post("/verify-razorpay", isLogin,verifyRazorpay)
+router.get("/payment-failed",isLogin, loadPaymentFailed)
+router.get("/invoice/:orderId", isLogin, downloadInvoice)
 
-router.get("/invoice/:orderId",isLogin, downloadInvoice)
+router.get("/coupons",isLogin,loadCoupons)
+router.post("/apply-coupon",isLogin, applyCoupon)
+router.post("/remove-coupon",isLogin, removeCoupon)
+
+
+router.get("/wallet",isLogin , loadWallet)
+router.get("/referral",isLogin,loadReferral)
 
 router.get("/not-found", notFound)
 

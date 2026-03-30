@@ -1,5 +1,5 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@400;500;600;700;800&display=swap"rel="stylesheet">
-<body>
+<body data-final="<%= finalTotal %>">
     <% if (typeof toastMessage !== "undefined") { %>
         <div id="toast" class="toast <%= toastType %>">
             <%= toastMessage %>
@@ -8,15 +8,13 @@
 
     <nav class="navbar">
         <div class="container nav-container">
-            <a href="/" class="logo">
-                <i class="fa-solid fa-bolt text-gradient-clip"></i>
-                <span class="text-gradient">Quavix</span>
-            </a>
+            <a href="<%= cancelUrl %>" class="text-muted nav-cancel-link"><i class="fa-solid fa-xmark"></i> Cancel</a>
             <div class="nav-menu">
                 <span class="text-muted">Secure Checkout</span>
             </div>
-            <a href="<%= cancelUrl %>" class="text-muted nav-cancel-link">
-                <i class="fa-solid fa-xmark"></i> Cancel
+            <a href="/" class="logo">
+                <i class="fa-solid fa-bolt text-gradient-clip"></i>
+                <span class="text-gradient">Quavix</span>
             </a>
         </div>
     </nav>
@@ -108,6 +106,10 @@
                                 <i class="fa-solid fa-wallet text-primary payment-icon-lg"></i>
                                 <span class="font-medium">My Wallet</span>
                             </div>
+                            <span class="text-sm font-semibold text-success">
+                               (₹<%= walletBalance.toLocaleString() %>)
+                            </span>
+
                         </label>
 
                         <label class="card payment-option cursor-pointer">
@@ -127,20 +129,83 @@
             <!-- ================= RIGHT SIDE ================= -->
             <div class="card">
                 <h3 class="mb-4">Order Summary</h3>
-                <!-- Coupon Code -->
-                <div class="mb-4">
-                    <div class="flex gap-2">
-                        <input type="text"
-                            id="couponInput"
-                            class="form-input checkout-coupon-input"
-                            placeholder="Coupon Code">
+                <!-- ================= COUPON SECTION ================= -->
 
-                        <button type="button"id="applyCouponBtn" class="btn btn-primary checkout-coupon-btn">
-                            Apply
-                        </button>
-                    </div>
+                <% if(!appliedCoupon){ %>
+
+                <!-- Coupon Select -->
+                <div class="coupon-action-box" id="coupon-input-container">
+
+                    <select class="form-input checkout-coupon-select" id="checkout-coupon-select">
+
+                        <option value="">Applicable Coupons</option>
+
+                        <% if(coupons && coupons.length > 0){ %>
+
+                            <% coupons.forEach(coupon => { %>
+
+                                <option value="<%= coupon.code %>">
+                                    <%= coupon.code %> (₹<%= coupon.discountAmount %> OFF)
+                                </option>
+
+                            <% }) %>
+
+                        <% } else { %>
+
+                            <option disabled>No applicable coupons</option>
+
+                        <% } %>
+
+                    </select>
+
+                    <button class="btn btn-primary checkout-coupon-btn"
+                        onclick="applyCheckoutCoupon()">
+                        Apply
+                    </button>
+
                 </div>
 
+                <% } else { %>
+
+                <!-- Applied Coupon Banner -->
+                <div class="coupon-applied-box">
+
+                    <div class="applied-coupon-info">
+
+                        <div class="applied-success-icon">
+                            <i class="fa-solid fa-check"></i>
+                        </div>
+
+                        <div class="applied-text-content">
+
+                            <p class="applied-title">
+
+                                <%= appliedCoupon.code %>
+
+                                <span class="applied-badge">Applied</span>
+
+                            </p>
+
+                            <p class="applied-subtitle">
+                                Coupon applied successfully!
+                            </p>
+
+                        </div>
+
+                    </div>
+
+                    <button class="btn-remove-coupon"
+                        onclick="removeCheckoutCoupon()">
+
+                        <i class="fa-solid fa-trash-can"></i> Remove
+
+                    </button>
+
+                </div>
+
+                <% } %>
+                
+                <br>
                 <div class="checkout-items-list mb-4">
 
                     <!-- BUY NOW -->
@@ -165,7 +230,7 @@
                                         ₹<%= variant.price.toLocaleString() %>
                                     </span>
                                     <span>₹<%= (variant.price - (variant.price *
-                                            (product.offerPercentage||0)/100)).toLocaleString() %></span>
+                                            (Math.max(product.offerPercentage || 0, product.category?.categoryOffer || 0))/100)).toLocaleString() %></span>
                                     <span class="text-muted">x</span>
                                     <span>
                                         <%= quantity %>
@@ -189,7 +254,7 @@
                                     const variant = product.variants.id(item.variant);
                                     if(!variant) return;
 
-                                    const offer = product.offerPercentage || 0;
+                                    const offer = Math.max(product.offerPercentage || 0, product.category?.categoryOffer || 0);
                                     const discount = (variant.price * offer) / 100;
                                     const finalPrice = variant.price - discount;
                                     const itemTotal = finalPrice * item.quantity;
@@ -255,18 +320,20 @@
                 <!-- Coupon -->
                 <div class="flex justify-between mb-4">
                     <span class="text-muted">Coupon</span>
-                    <span class="font-medium">₹0.00</span>
+                    <span class="font-medium text-success">
+                        - ₹<%= (couponDiscount || 0).toLocaleString() %>
+                    </span>
                 </div>
 
                 <div class="flex justify-between mb-4 border-t pt-4">
                     <span class="font-bold">Total Amount</span>
                     <span class="font-bold text-lg text-primary">
-                        ₹<%= subtotal.toLocaleString() %>
+                        ₹<%= finalTotal.toLocaleString() %>
                     </span>
                 </div>
 
                 <div class="savings-badge mb-4">
-                    You will save ₹<%= totalDiscount.toLocaleString() %> on this order
+                    You will save ₹<%= (totalDiscount + (couponDiscount || 0)).toLocaleString() %> on this order
                 </div>
 
                 <button id="place-order-btn" class="btn btn-primary w-full">Place Order</button>
@@ -277,132 +344,206 @@
     </div>
 
     <script>
+        const finalAmount = Number(document.body.dataset.final);
 
-        document.getElementById("place-order-btn").addEventListener("click", async () => {
+        
+        document.addEventListener("DOMContentLoaded", () => {
 
-            const address = document.querySelector('input[name="address"]:checked');
-            const payment = document.querySelector('input[name="payment"]:checked');
+            document.getElementById("place-order-btn").addEventListener("click", async () => {
 
-            if (!address) {
-                triggerToast("Please select a delivery address", "error");
-                return;
-            }
+                const address = document.querySelector('input[name="address"]:checked');
+                const payment = document.querySelector('input[name="payment"]:checked');
 
-            if (!payment) {
-                triggerToast("Please select a payment method", "error");
-                return;
-            }
-
-            const orderData = {
-                addressId: address.value,
-                paymentMethod: payment.value
-            };
-
-            try {
-
-                const res = await fetch("/checkout", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify(orderData)
-                });
-
-                const data = await res.json();
-
-                if (!data.success) {
-                    triggerToast(data.message, "error");
+                if (!address) {
+                    triggerToast("Please select a delivery address", "error");
                     return;
                 }
 
-
-                if (payment.value !== "razorpay") {
-                    window.location.href = `/order-success/${data.orderId}`;
+                if (!payment) {
+                    triggerToast("Please select a payment method", "error");
                     return;
                 }
 
-                const paymentRes = await fetch("/razorpay", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({
-                        orderId: data.orderId
-                    })
-                });
-
-                const paymentData = await paymentRes.json();
-
-                const options = {
-                    key: paymentData.key,
-                    amount: paymentData.amount,
-                    currency: "INR",
-                    order_id: paymentData.razorpayOrderId,
-                    name: "Quavix",
-                    description: "Order Payment",
-
-                    prefill: {
-                        email: paymentData.email,
-                        contact: paymentData.contact
-                    },
-
-                    handler: function () {
-                        window.location.replace(`/order-success/${data.orderId}`);
-                    },
-                    modal: {
-                        ondismiss: function () {
-                            triggerToast("Payment cancelled");
-                        }
-                    }
+                const orderData = {
+                    addressId: address.value,
+                    paymentMethod: payment.value
                 };
 
-                const rzp = new Razorpay(options);
-                rzp.open();
+                try {
+                    const res = await fetch("/checkout", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify(orderData)
+                    });
 
-            } catch (err) {
+                    const data = await res.json();
 
-                console.error(err);
-                window.location.href = "/not-found";
 
+                    if (!data.success) {
+                        triggerToast(data.message, "error");
+                        return;
+                    }
+
+
+                    if (payment.value !== "razorpay") {
+                        window.location.href = `/order-success/${data.orderId}`;
+                        return;
+                    }
+
+                    if(payment.value == "razorpay"){
+
+                        
+
+                        const paymentRes = await fetch("/razorpay", {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json"
+                            },
+                            body: JSON.stringify({})
+                        });
+                        
+
+                        const paymentData = await paymentRes.json();
+
+                        const options = {
+                            key: paymentData.key,
+                            amount: paymentData.amount,
+                            currency: "INR",
+                            order_id: paymentData.razorpayOrderId,
+                            name: "Quavix",
+                            description: "Order Payment",
+
+                            prefill: {
+                                email: paymentData.email,
+                                contact: paymentData.contact
+                            },
+
+                            handler: async function (response) {
+
+                                const verifyRes = await fetch("/verify-razorpay",{
+                                    method:"POST",
+                                    headers:{
+                                        "Content-Type":"application/json"
+                                    },
+                                    body:JSON.stringify({
+                                        razorpayOrderId: response.razorpay_order_id,
+                                        razorpayPaymentId: response.razorpay_payment_id,
+                                        razorpaySignature: response.razorpay_signature
+                                    })
+                                })
+
+                                const verification = await verifyRes.json()
+
+                                if(verification.success){
+                                    window.location.replace(`/order-success/${verification.orderId}`)
+                                }else{
+                                    window.location.replace(`/payment-failed?amount=${finalAmount}`)
+                                }
+
+                            },
+
+                            modal:{
+                                ondismiss:function(){
+                                    window.location.replace(`/payment-failed?amount=${finalAmount}`)
+                                }
+                            }
+                        };
+
+                        const rzp = new Razorpay(options);
+                        rzp.open();
+
+                    }
+
+                    
+                } catch (err) {
+
+                    console.error(err);
+                    window.location.href = "/not-found";
+
+                }
+
+            });
+
+            function triggerToast(message, type = "error") {
+
+                let toast = document.getElementById("toast");
+
+                if (!toast) {
+                    toast = document.createElement("div");
+                    toast.id = "toast";
+                    document.body.appendChild(toast);
+                }
+
+                toast.className = `toast ${type}`;
+                toast.innerText = message;
+
+                setTimeout(() => {
+                    toast.classList.add("show");
+                }, 100);
+
+                setTimeout(() => {
+                    toast.classList.remove("show");
+                }, 3000);
             }
 
-        });
+            const toast = document.getElementById("toast");
 
-        function triggerToast(message, type = "error") {
-
-            let toast = document.getElementById("toast");
-
-            if (!toast) {
-                toast = document.createElement("div");
-                toast.id = "toast";
-                document.body.appendChild(toast);
-            }
-
-            toast.className = `toast ${type}`;
-            toast.innerText = message;
-
-            setTimeout(() => {
+            if (toast) {
+                setTimeout(() => {
                 toast.classList.add("show");
-            }, 100);
+                }, 100);
 
-            setTimeout(() => {
+                setTimeout(() => {
                 toast.classList.remove("show");
-            }, 3000);
+                }, 3000);
+            }
+        })
+        async function applyCheckoutCoupon() {
+
+            const select = document.getElementById('checkout-coupon-select')
+            const couponCode = select.value
+
+            if (!couponCode) {
+                triggerToast('Please select a coupon first.', "error")
+                return
+            }
+
+            const res = await fetch("/apply-coupon", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ couponCode })
+            })
+
+            const data = await res.json()
+
+            if (!data.success) {
+                triggerToast(data.message, "error")
+                return
+            }
+
+            location.reload()
+
         }
 
-        const toast = document.getElementById("toast");
+        async function removeCheckoutCoupon() {
 
-        if (toast) {
-            setTimeout(() => {
-            toast.classList.add("show");
-            }, 100);
+            const res = await fetch("/remove-coupon", {
+                method: "POST"
+            })
 
-            setTimeout(() => {
-            toast.classList.remove("show");
-            }, 3000);
+            const data = await res.json()
+
+            if(data.success){
+                location.reload()
+            }
+
         }
-
 
     </script>
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
 </body>

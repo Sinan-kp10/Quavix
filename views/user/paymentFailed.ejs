@@ -1,0 +1,71 @@
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<body class="bg-body">
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<body class="bg-body">
+
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="container nav-container">
+            <a href="/" class="logo">
+                <i class="fa-solid fa-bolt text-gradient-clip"></i>
+                <span class="text-gradient">Quavix</span>
+            </a>
+            <div class="nav-menu">
+                <span class="text-muted">Payment Failed</span>
+            </div>
+        </div>
+    </nav>
+
+    <main class="failed-page-wrapper">
+        <div class="error-content-wrapper">
+
+            <!-- Error Icon -->
+            <div class="crossmark-wrapper" id="error-icon">
+                <i class="fa-solid fa-xmark"></i>
+            </div>
+
+            <h1 class="error-title">Oops! Payment Failed</h1>
+
+            <p class="error-message-1">
+                We couldn't process your payment. This could be due to insufficient funds,
+                an expired card, or a temporary connection issue.
+            </p>
+
+            <!-- Error Info Card -->
+            <div class="error-info-card">
+
+
+                <div class="flex justify-between mb-2">
+                    <span class="text-muted text-sm">Amount:</span>
+                    <span class="font-bold text-sm">
+                        ₹<%= Number(amount).toLocaleString("en-IN") %>
+                    </span>
+                </div>
+
+                <div class="flex justify-between">
+                    <span class="text-muted text-sm">Status:</span>
+                    <span class="font-bold text-sm text-red-500" style="color: red;">
+                        Failed
+                    </span>
+                </div>
+
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="error-action-buttons">
+                <a href="/" class="btn btn-primary">Continue Shopping</a>
+                <a href="/checkout" class="btn btn-try-again">Try Again</a>
+            </div>
+
+        </div>
+    </main>
+
+
+</body>
+
+
+

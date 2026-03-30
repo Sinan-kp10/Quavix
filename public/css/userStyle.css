@@ -630,6 +630,38 @@ input[type=number] {
     border: 1px solid white;
 }
 
+.badge-1 {
+    position: absolute;
+    top: 0;
+    right: 0;
+    transform: translate(40%, -40%);
+
+    background: #ef4444;
+    color: white;
+
+    min-width: 18px;
+    height: 18px;
+    padding: 0 6px;
+
+    border-radius: 999px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 0.65rem;
+    font-weight: 700;
+
+    border: 2px solid white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+.cart-badge {
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+}
+
 .cart-sidebar-badge {
     position: relative !important;
     top: 0 !important;
@@ -1685,7 +1717,7 @@ input[type=number] {
 }
 
 .highlight-content span::before {
-    content: 'â€¢';
+    content: '\2022';
     color: #c2c2c2;
     margin-right: 0.5rem;
 }
@@ -3790,8 +3822,51 @@ footer a:hover {
 }
 
 .color-swatch.active {
-    /* Borders removed as per user request */
     transform: scale(1.1);
+    box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--primary-color);
+}
+
+/* Storage Selection */
+.storage-selection-container {
+    margin-top: 1.5rem;
+}
+
+.storage-label {
+    font-size: 0.875rem;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+    color: var(--text-main);
+}
+
+.storage-options {
+    display: flex;
+    gap: 0.75rem;
+}
+
+.storage-btn {
+    padding: 0.6rem 1.25rem;
+    border: 1.5px solid var(--border-color);
+    border-radius: 10px;
+    background: white;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-main);
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.storage-btn:hover {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+    background: #f8fafc;
+    transform: translateY(-1px);
+}
+
+.storage-btn.active {
+    border-color: var(--primary-color);
+    color: var(--primary-color);
+    background: rgba(79, 70, 229, 0.05);
+    box-shadow: 0 0 0 1px var(--primary-color);
 }
 
 .bg-blue {
@@ -5911,7 +5986,7 @@ footer a:hover {
 }
 
 .home-card-highlights li::before {
-    content: "â€¢";
+    content: "\2022";
     color: #cbd5e1;
     font-size: 1rem;
 }
@@ -6562,7 +6637,7 @@ footer a:hover {
     font-size: 0.7rem;
     font-weight: 600;
     border-radius: 9999px;
-    text-transform: uppercase;
+    text-transform: capitalize;
 }
 
 .order-details-page .order-status-banner .btn-primary {
@@ -7566,9 +7641,14 @@ ORDER TRACKING & STATUS BADGES CSS
     color: #ea580c;
 }
 
-.badge-returnRequest{
-    background:#fef3c7;
-    color:#b45309;
+.badge-return-request {
+    background: #e8f7fd;
+    color: #0099ff;
+}
+
+.badge-return-rejected {
+    background: #ffebc6;
+    color: #db0c0c;
 }
 
 .returned-text {
@@ -7947,16 +8027,294 @@ ORDER TRACKING & STATUS BADGES CSS
     font-size: 0.9rem;
     font-weight: 600;
     color: var(--text-main);
-    background: #f8fafc;
     padding: 0.25rem 0.75rem;
     border-radius: 20px;
+
+}
+
+.out-of-stock-label {
+    color: #dc2626;
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+/* --- Payment Failed Styles --- */
+.failed-page-wrapper {
+    min-height: calc(100vh - 70px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem 0;
+    background: var(--bg-body);
+}
+
+.error-content-wrapper {
+    max-width: 480px;
+    width: 90%;
+    margin: 0 auto;
+    text-align: center;
+    background: white;
+    padding: 2rem 1.75rem;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
     border: 1px solid #e2e8f0;
 }
 
-.out-of-stock-label{
-    color:#dc2626;
-    padding:6px 10px;
-    border-radius:6px;
-    font-size:13px;
-    font-weight:600;
+.crossmark-wrapper {
+    width: 65px;
+    height: 65px;
+    border-radius: 50%;
+    background: #fef2f2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.25rem;
+    border: 3px solid #fee2e2;
+    animation: shake 0.6s cubic-bezier(.36, .07, .19, .97) both;
+}
+
+.crossmark-wrapper i {
+    font-size: 2rem;
+    color: #ef4444;
+}
+
+@keyframes shake {
+
+    10%,
+    90% {
+        transform: translate3d(-1px, 0, 0);
+    }
+
+    20%,
+    80% {
+        transform: translate3d(2px, 0, 0);
+    }
+
+    30%,
+    50%,
+    70% {
+        transform: translate3d(-4px, 0, 0);
+    }
+
+    40%,
+    60% {
+        transform: translate3d(4px, 0, 0);
+    }
+}
+
+.error-title {
+    font-size: 1.6rem;
+    margin-bottom: 0.5rem;
+    color: #0f172a;
+    font-weight: 700;
+}
+
+.error-message-1 {
+    color: #64748b;
+    margin-bottom: 1.5rem;
+    font-size: 0.95rem;
+    line-height: 1.4;
+}
+
+.error-info-card {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+    text-align: left;
+}
+
+.error-action-buttons {
+    display: flex;
+    flex-direction: row;
+    gap: 0.75rem;
+}
+
+.error-action-buttons .btn {
+    flex: 1;
+}
+
+@media (max-width: 768px) {
+    .error-action-buttons .btn {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.75rem;
+        white-space: nowrap;
+    }
+}
+
+.btn-try-again {
+    background: #ef4444;
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    color: white;
+    box-shadow: 0 4px 6px -1px rgba(239, 68, 68, 0.4);
+}
+
+.btn-try-again:hover {
+    box-shadow: 0 10px 15px -3px rgba(239, 68, 68, 0.5);
+    transform: translateY(-2px);
+}
+
+.text-gradient-danger {
+    background: linear-gradient(to right, #ef4444, #f97316);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: 700;
+}
+
+.navbar-danger {
+    background: #fffafa !important;
+    border-bottom: 2px solid #fee2e2 !important;
+}
+
+
+.pay-status-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 10px;
+    border-radius: 999px;
+    font-size: 0.7rem;
+    font-weight: 700;
+}
+
+.pay-status-pending {
+    background: #fef3c7;
+    color: #b45309;
+}
+
+.pay-status-paid {
+    background: #dcfce7;
+    color: #16a34a;
+}
+
+.pay-status-failed {
+    background: #e79551;
+    color: #ef4444;
+}
+
+.pay-status-refunded {
+    background: #fee2e2;
+    color: #ef6644;
+}
+
+/* --- Checkout Coupon Fixes --- */
+.coupon-action-box {
+    display: flex;
+    gap: 0.75rem;
+    width: 100%;
+    align-items: stretch;
+}
+
+.checkout-coupon-select {
+    flex: 1;
+    margin-bottom: 0 !important;
+}
+
+.checkout-coupon-btn {
+    white-space: nowrap;
+    height: auto;
+}
+
+@media (max-width: 480px) {
+    .coupon-action-box {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .checkout-coupon-btn {
+        width: 100%;
+    }
+}
+
+/* Applied Coupon Box (Responsive) */
+.coupon-applied-box {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    border-radius: var(--radius-md);
+    padding: 0.6rem 1rem;
+}
+
+.applied-coupon-info {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.applied-success-icon {
+    width: 32px;
+    height: 32px;
+    background: #dcfce7;
+    color: #16a34a;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+}
+
+.applied-text-content {
+    display: flex;
+    flex-direction: column;
+}
+
+.applied-title {
+    font-weight: 700;
+    color: #15803d;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1.05rem;
+    margin-bottom: 0.15rem;
+}
+
+.applied-badge {
+    background: #16a34a;
+    color: white;
+    font-size: 0.65rem;
+    padding: 2px 6px;
+    border-radius: 20px;
+    text-transform: uppercase;
+    font-weight: 600;
+}
+
+.applied-subtitle {
+    color: #16a34a;
+    font-size: 0.8rem;
+    margin: 0;
+}
+
+.btn-remove-coupon {
+    background: none;
+    border: none;
+    color: #ef4444;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    transition: all 0.2s;
+}
+
+.btn-remove-coupon:hover {
+    color: #b91c1c;
+}
+
+@media (max-width: 480px) {
+    .coupon-applied-box {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    .btn-remove-coupon {
+        width: 100%;
+        justify-content: flex-end;
+    }
 }

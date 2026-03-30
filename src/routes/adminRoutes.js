@@ -2,7 +2,8 @@ import express from "express"
 import upload from "../config/multer.js"
 import multer from "multer";
 const router=express.Router()
-import {isLogin,checkSession} from "../middleware/adminAuth.js"
+import {isLogin,checkSession} from "../middleware/admin/adminAuth.js"
+import { loadCoupons,addCoupon,editCoupon,removeCoupon} from "../controllers/admin/adminCouponsController.js"
 import {
     loadLogin,
     loadDashboard,
@@ -23,15 +24,24 @@ import {
     removeProduct,
     loadOrders,
     editOrderStatus,
-    OrderDetails
+    OrderDetails,
+    handleReturnRequest,
+    loadReports,
+    exportExcel,
+    exportPDF
     
-} from "../controllers/adminController.js"
+} from "../controllers/admin/adminController.js"
 
 
 router.get("/admin/login", checkSession, loadLogin)
 router.post("/admin/login", adminLogin)
-router.get("/admin/users", isLogin, loadAllUsers)
 router.get("/admin/dashboard", isLogin, loadDashboard)
+
+router.get("/admin/reports",isLogin,loadReports)
+router.get("/admin/reports/excel", isLogin, exportExcel)
+router.get("/admin/reports/pdf", isLogin, exportPDF);
+
+router.get("/admin/users", isLogin, loadAllUsers)
 router.get("/admin/block/:id",isLogin, blockedUsers);
 router.get("/admin/unblock/:id",isLogin, activeUsers)
 
@@ -51,6 +61,14 @@ router.post("/admin/products/delete/:id", removeProduct)
 router.get("/admin/orders",isLogin,loadOrders)
 router.post("/admin/orders",isLogin, editOrderStatus)
 router.get("/admin/orders/:id/:itemIndex", isLogin, OrderDetails)
+router.post("/admin/return-action",isLogin, handleReturnRequest)
+
+router.get("/admin/coupons",isLogin,loadCoupons)
+router.post("/admin/coupons",isLogin,addCoupon)
+router.post("/admin/coupons/edit/:id",isLogin,editCoupon)
+router.post("/admin/coupons/delete/:id", isLogin, removeCoupon);
+
+
 
 
 
