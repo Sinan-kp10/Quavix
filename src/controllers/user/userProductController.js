@@ -12,7 +12,7 @@ import path from "path"
 import fs from "fs"
 
 import {
-    
+
     getFilterdProduct,
     findProducts,
     addWishlistService,
@@ -109,7 +109,7 @@ export const filterProducts = async (req, res) => {
         const { categories, sort, minPrice, maxPrice } = req.query;
 
         const page = Number(req.query.page) || 1;
-        const limit = 6;   
+        const limit = 6;
 
         const result = await getFilterdProduct(
             categories,
@@ -224,7 +224,7 @@ export const loadProductDetials = async (req, res) => {
 
         const colorVariants = product.variants.filter(v => v.attributes.some(attr => attr.name.toLowerCase() === "color"))
 
-        const relatedProducts = await productModel.find({ _id: { $ne: product._id },category: product.category._id, isDeleted: false}).populate("category");
+        const relatedProducts = await productModel.find({ _id: { $ne: product._id }, category: product.category._id, isDeleted: false }).populate("category");
 
         let isWishlisted = false;
 
@@ -243,8 +243,8 @@ export const loadProductDetials = async (req, res) => {
         const storageVariants = product.variants.filter(v =>
             v.attributes.some(attr =>
                 attr.name && (
-                attr.name.toLowerCase().includes("storage") ||
-                attr.name.toLowerCase().includes("rom")
+                    attr.name.toLowerCase().includes("storage") ||
+                    attr.name.toLowerCase().includes("rom")
                 )
             )
         )
@@ -255,7 +255,7 @@ export const loadProductDetials = async (req, res) => {
             product,
             activeVariant,
             colorVariants,
-            storageVariants, 
+            storageVariants,
             relatedProducts,
             isWishlisted,
             isBlocked
@@ -276,7 +276,7 @@ export const loadWishlist = async (req, res) => {
             return res.redirect("/login");
         }
 
-        const wishlist = await wishlistModel.findOne({ user: userId }).populate({path: "items.product", populate: { path: "category" }});
+        const wishlist = await wishlistModel.findOne({ user: userId }).populate({ path: "items.product", populate: { path: "category" } });
 
         res.render("user/wishlist", {
             title: "My Wishlist - Quavix",
@@ -313,14 +313,14 @@ export const AddToWishlist = async (req, res) => {
         res.json({
             success: true,
             added: result.added,
-             message: result.added
+            message: result.added
                 ? "Added to wishlist"
                 : "Removed from wishlist"
         });
 
     } catch (err) {
 
-        res.status(500).json({ success: false, message:"Something Went Wrong" });
+        res.status(500).json({ success: false, message: "Something Went Wrong" });
     }
 }
 
@@ -331,7 +331,8 @@ export const removeFromWishlist = async (req, res) => {
 
         await wishlistModel.updateOne(
             { user: userId },
-            { $pull: {
+            {
+                $pull: {
                     items: {
                         product: productId,
                         variant: variantId
@@ -360,30 +361,30 @@ export const loadCart = async (req, res) => {
             title: "My Cart - Quavix",
             css: "userStyle",
             cart
-            
+
         })
 
     } catch (err) {
- 
+
         res.redirect("/");
     }
 
 }
 
-export const addToCart=async(req,res)=>{
+export const addToCart = async (req, res) => {
     try {
-        if(!req.session.user){
-            return res.status(401).json({success:false})
+        if (!req.session.user) {
+            return res.status(401).json({ success: false })
         }
 
-        const userId=req.session.user.id
-        const {productId,variantId}=req.body
+        const userId = req.session.user.id
+        const { productId, variantId } = req.body
 
-        const totalQty=await addToCartService(userId,productId,variantId)
+        const totalQty = await addToCartService(userId, productId, variantId)
 
-        res.json({success:true,message:"Product added to cart!",cartCount: totalQty})
+        res.json({ success: true, message: "Product added to cart!", cartCount: totalQty })
 
-    }catch(err){
+    } catch (err) {
         res.status(400).json({ success: false, message: err.message });
     }
 }
@@ -392,7 +393,7 @@ export const removeFromCart = async (req, res) => {
     try {
 
         if (!req.session.user) {
-            return res.status(401).json({success: false,message: "Login required"})
+            return res.status(401).json({ success: false, message: "Login required" })
         }
 
         const userId = req.session.user.id;
@@ -420,33 +421,33 @@ export const updateCartQuantity = async (req, res) => {
         const userId = req.session.user.id;
         const { productId, variantId, type } = req.body;
 
-        const newQty = await updateCartQuantityService( userId, productId, variantId, type)
+        const newQty = await updateCartQuantityService(userId, productId, variantId, type)
 
-        res.json({success: true,quantity: newQty})
+        res.json({ success: true, quantity: newQty })
 
     } catch (err) {
-        res.status(400).json({ success: false,message: err.message});
+        res.status(400).json({ success: false, message: err.message });
     }
 }
 
-export const buyNowProduct=async(req,res)=>{
+export const buyNowProduct = async (req, res) => {
     try {
 
-        const {variantId}=req.body
+        const { variantId } = req.body
 
-        if(!variantId){
+        if (!variantId) {
             return res.json({ success: false, message: "Variant required" });
         }
 
-        const product= await productModel.findOne({"variants._id":variantId,isDeleted:false})
+        const product = await productModel.findOne({ "variants._id": variantId, isDeleted: false })
 
         if (!product) {
             return res.json({ success: false, message: "Product not found" });
         }
 
-        const variant=product.variants.id(variantId)
+        const variant = product.variants.id(variantId)
 
-        if(!variant||variant.status!=="Active"){
+        if (!variant || variant.status !== "Active") {
             return res.json({ success: false, message: "Variant not available" });
         }
 
@@ -461,61 +462,61 @@ export const buyNowProduct=async(req,res)=>{
         };
 
         res.json({ success: true });
-        
-    }catch(err){
+
+    } catch (err) {
         res.json({ success: false, message: "Something went wrong" })
     }
 }
 
 export const checkoutFromCart = async (req, res) => {
-  try {
+    try {
 
-    if (!req.session.user || !req.session.user.id) {
-      return res.json({
-        success: false,
-        message: "Please login to continue"
-      });
-    }
+        if (!req.session.user || !req.session.user.id) {
+            return res.json({
+                success: false,
+                message: "Please login to continue"
+            });
+        }
 
-    const cart = await cartModel.findOne({ user: req.session.user.id }).populate({ path: "items.product", populate: { path: "category" } });
+        const cart = await cartModel.findOne({ user: req.session.user.id }).populate({ path: "items.product", populate: { path: "category" } });
 
-    if (!cart || cart.items.length === 0) {
-      return res.json({ success: false, message: "Cart empty" });
-    }
+        if (!cart || cart.items.length === 0) {
+            return res.json({ success: false, message: "Cart empty" });
+        }
 
-    for (const item of cart.items) {
+        for (const item of cart.items) {
 
-      const product = item.product;
-      const variant = product.variants.id(item.variant);
+            const product = item.product;
+            const variant = product.variants.id(item.variant);
 
-      if (!variant || product.isDeleted) {
-        return res.json({
-          success: false,
-          message: `${product.name} is no longer available`
+            if (!variant || product.isDeleted) {
+                return res.json({
+                    success: false,
+                    message: `${product.name} is no longer available`
+                });
+            }
+
+            if (variant.stock < item.quantity) {
+                return res.json({
+                    success: false,
+                    message: `${product.name} is out of stock`
+                });
+            }
+
+        }
+
+        req.session.fromCart = true;
+        req.session.buyNow = null;
+
+        res.json({ success: true });
+
+    } catch (err) {
+        console.log(err);
+        res.json({
+            success: false,
+            message: "Something went wrong while processing checkout."
         });
-      }
-
-      if (variant.stock < item.quantity) {
-        return res.json({
-          success: false,
-          message: `${product.name} is out of stock`
-        });
-      }
-
     }
-
-    req.session.fromCart = true;
-    req.session.buyNow = null;
-
-    res.json({ success: true });
-
-  } catch (err) {
-    console.log(err);
-    res.json({
-      success: false,
-      message: "Something went wrong while processing checkout."
-    });
-  }
 }
 
 export const loadCheckout = async (req, res) => {
@@ -656,7 +657,7 @@ export const loadCheckout = async (req, res) => {
                 appliedCoupon,
                 coupons,
                 walletBalance,
-                cancelUrl: "/cart" 
+                cancelUrl: "/cart"
             });
         }
 
@@ -762,11 +763,11 @@ export const placeOrder = async (req, res) => {
     }
 }
 
-export const loadOrderSuccess=async(req,res)=>{
-    try{
+export const loadOrderSuccess = async (req, res) => {
+    try {
 
-        const {id}=req.params
-        const order=await orderModel.findOne({ orderId:id })
+        const { id } = req.params
+        const order = await orderModel.findOne({ orderId: id })
 
         if (!order) {
             return res.redirect("/not-found");
@@ -779,7 +780,7 @@ export const loadOrderSuccess=async(req,res)=>{
         });
 
 
-    }catch(err){
+    } catch (err) {
         console.log(err)
         res.redirect("/not-found")
     }
@@ -794,7 +795,7 @@ export const loadOrderHistory = async (req, res) => {
         const page = parseInt(req.query.page) || 1
         const limit = 4
 
-        const { ordersList, totalOrders } = await getAllOrders(userId, status, search,page,limit)
+        const { ordersList, totalOrders } = await getAllOrders(userId, status, search, page, limit)
 
         const totalPages = Math.ceil(totalOrders / limit)
 
@@ -826,8 +827,8 @@ export const loadOrderDetails = async (req, res) => {
             return res.redirect("/order-history")
         }
 
-  
-        let item = order.items.find(i => 
+
+        let item = order.items.find(i =>
             i.variantId.toString() === variantId
         )
 
@@ -842,13 +843,13 @@ export const loadOrderDetails = async (req, res) => {
         let itemDiscount = 0
 
 
-        if(item.discountPercentage){
+        if (item.discountPercentage) {
             const productDiscount = (item.price * item.discountPercentage) / 100
             itemDiscount += productDiscount * item.quantity
         }
 
 
-        if(order.couponDiscount && order.subtotal > 0){
+        if (order.couponDiscount && order.subtotal > 0) {
             const itemShare = item.total / order.subtotal
             const couponShare = order.couponDiscount * itemShare
 
@@ -863,7 +864,7 @@ export const loadOrderDetails = async (req, res) => {
             title: "Order Details - Quavix",
             css: "userStyle",
             order,
-            item,   
+            item,
             requestType: requestData.requestType,
             requestAllowed: requestData.requestAllowed,
             finalItemTotal,
@@ -877,46 +878,59 @@ export const loadOrderDetails = async (req, res) => {
     }
 }
 
-export const orderRequest = async (req,res)=>{
+export const orderRequest = async (req, res) => {
 
-    try{
+    try {
 
-        const {orderId, reason, description,variantId} = req.body
+        const { orderId, reason, description, variantId } = req.body
 
-        const order = await orderModel.findOne({orderId})
+        const order = await orderModel.findOne({ orderId })
 
-        if(!order){
-           return res.redirect("/order-history")
+        if (!order) {
+            return res.redirect("/order-history")
         }
 
         const item = order.items.find(i => i.variantId.toString() === variantId)
 
-        if(!item){
+        if (!item) {
             return res.redirect("/order-details/" + order.orderId)
         }
-        
-        if(!reason){
-                throw new Error("Reason required")
-            }
 
-        if(!description || description.trim().length < 6){
+
+        if (order.couponCode) {
+            const coupon = await couponsModel.findOne({ code: order.couponCode });
+            if (coupon) {
+                const remainingSubtotal = order.subtotal - item.total;
+                if (remainingSubtotal < coupon.minPurchaseAmount) {
+                    req.session.toastMessage = `Cannot cancel/return this item. The remaining order value must be at least ₹${coupon.minPurchaseAmount} to keep your coupon discount.`;
+                    req.session.toastType = "error";
+                    return res.redirect("/order-details/" + order.orderId + "?item=" + variantId);
+                }
+            }
+        }
+
+        if (!reason) {
+            throw new Error("Reason required")
+        }
+
+        if (!description || description.trim().length < 6) {
             throw new Error("Description must contain at least 6 characters")
         }
 
 
-        if(item.orderStatus === "delivered"){
+        if (item.orderStatus === "delivered") {
 
-            if(!item.deliveredAt){
+            if (!item.deliveredAt) {
                 return res.redirect("/order-details/" + order.orderId)
             }
 
             const days = (Date.now() - new Date(item.deliveredAt)) / (1000 * 60 * 60 * 24)
 
-            if(days > 7){
+            if (days > 7) {
                 return res.redirect("/order-details/" + order.orderId)
             }
 
-            
+
             item.returnVariantId = variantId
             item.returnReason = reason
             item.returnDescription = description
@@ -927,9 +941,9 @@ export const orderRequest = async (req,res)=>{
             req.session.toastMessage = "Return request submitted. Waiting for admin approval"
             req.session.toastType = "success"
 
-        }else{
+        } else {
 
-            if(item.paymentStatus=="paid"){
+            if (item.paymentStatus == "paid") {
 
                 item.cancelReason = reason
                 item.cancelDescription = description
@@ -941,15 +955,15 @@ export const orderRequest = async (req,res)=>{
                     { $inc: { "variants.$.stock": item.quantity } }
                 )
 
-                const user=await userModel.findById(req.session.user.id)
+                const user = await userModel.findById(req.session.user.id)
 
-                let wallet= await walletModel.findOne({userId:user.id})
+                let wallet = await walletModel.findOne({ userId: user.id })
 
-                if(!wallet){
+                if (!wallet) {
 
-                    wallet=new walletModel({
-                        userId:user,
-                        balance:0,
+                    wallet = new walletModel({
+                        userId: user,
+                        balance: 0,
                         transactions: []
 
                     })
@@ -957,7 +971,7 @@ export const orderRequest = async (req,res)=>{
 
                 let refundAmount = item.total
 
-                if(order.couponDiscount && order.subtotal > 0){
+                if (order.couponDiscount && order.subtotal > 0) {
 
                     const itemShare = item.total / order.subtotal
 
@@ -970,21 +984,21 @@ export const orderRequest = async (req,res)=>{
                 wallet.balance += refundAmount
 
                 wallet.transactions.push({
-                    date:new Date(),
+                    date: new Date(),
                     description: "Cancellation refund",
                     type: "credit",
                     amount: refundAmount,
                     orderId: order._id
                 })
 
-                item.paymentStatus ="refunded"
+                item.paymentStatus = "refunded"
 
                 req.session.toastMessage = "Refund successfully added to your wallet"
                 req.session.toastType = "success"
                 await wallet.save()
 
 
-            }else{
+            } else {
 
                 item.cancelReason = reason
                 item.cancelDescription = description
@@ -996,7 +1010,7 @@ export const orderRequest = async (req,res)=>{
                     { $inc: { "variants.$.stock": item.quantity } }
                 )
             }
-            
+
 
         }
 
@@ -1004,7 +1018,7 @@ export const orderRequest = async (req,res)=>{
 
         res.redirect(`/order-details/${order.orderId}?item=${variantId}`)
 
-    }catch(err){
+    } catch (err) {
         console.log(err)
         res.redirect("/order-history")
     }
@@ -1075,7 +1089,7 @@ export const downloadInvoice = async (req, res) => {
             originalTotal,
             productDiscount,
             couponDiscount,
-            itemDiscount, 
+            itemDiscount,
             offer
         });
 

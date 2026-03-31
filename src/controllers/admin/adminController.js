@@ -857,11 +857,29 @@ export const loadReports=async(req,res)=>{
 
         const totalPages = Math.ceil(totalOrders / limit)
 
+        let flattenedItems = []
+
+        orderList.forEach(order => {
+            order.items.forEach(item => {
+                flattenedItems.push({
+                    _id: order._id,
+                    orderId: order.orderId,
+                    createdAt: order.createdAt,
+                    user: order.user,
+                    paymentMethod: order.paymentMethod,
+                    subtotal: order.subtotal,
+                    couponDiscount: order.couponDiscount,
+                    totalAmount: order.totalAmount,
+                    items: item
+                })
+            })
+        })
+
 
         res.render("admin/reports",{ 
             title: "Sales and Reports -Quavix",
             css: "adminStyle",
-            order:orderList,
+            order:flattenedItems,
             currentPage:page,
             totalPages,
             search,

@@ -458,6 +458,7 @@ export const createOrder = async ({ userId,addressId, paymentMethod,buyNowData,c
         discount: totalDiscount,
         shippingCharge: 0,
         couponDiscount,
+        couponCode: couponCode || null,
         totalAmount: finalTotal
     });
 
