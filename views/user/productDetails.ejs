@@ -672,7 +672,8 @@
                     return window.location.href="/login"
                 }
                 if (response.status === 400) {
-                    if (data.message && data.message.toLowerCase().includes("out of stock")) {
+                    const msg = data.message ? data.message.toLowerCase() : "";
+                    if (msg.includes("out of stock") || msg.includes("available in stock")) {
                         triggerToast(data.message, "error");
                         return;
                     }
