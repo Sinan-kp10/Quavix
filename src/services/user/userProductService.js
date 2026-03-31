@@ -496,6 +496,8 @@ export const getAllOrders = async (userId, status = "all", search = "", page = 1
                 ...item.toObject(),
                 orderId: order.orderId,
                 createdAt: order.createdAt,
+                subtotal: order.subtotal,
+                couponDiscount: order.couponDiscount,
                 totalAmount: order.totalAmount
             })
 
