@@ -345,18 +345,18 @@
                                     <span class="text-slate-500">Items Total</span>
 
                                     <span class="font-medium text-main">
-                                        ₹<%= order.subtotal.toLocaleString() %>
+                                        ₹<%= item.total.toLocaleString() %>
                                     </span>
                                 </div>
 
 
-                                <% if(order.couponDiscount && order.couponDiscount > 0){ %>
+                                <% if(itemDiscount && itemDiscount > 0){ %>
 
                                 <div class="flex justify-between">
                                     <span class="text-slate-500">Coupon Discount</span>
 
                                     <span class="text-green-600 font-medium">
-                                        - ₹<%= order.couponDiscount.toLocaleString() %>
+                                        - ₹<%= Math.round(itemDiscount).toLocaleString() %>
                                     </span>
                                 </div>
 
@@ -367,7 +367,7 @@
                                     <span class="text-slate-500">Shipping</span>
 
                                     <span class="font-medium text-main">
-                                        ₹<%= order.shippingCharge.toLocaleString() %>
+                                        ₹<%= 0 %>
                                     </span>
                                 </div>
 
@@ -377,7 +377,7 @@
                                     <span>Total Amount</span>
 
                                     <span class="text-primary">
-                                        ₹<%= order.totalAmount.toLocaleString() %>
+                                        ₹<%= finalItemTotal.toLocaleString() %>
                                     </span>
 
                                 </div>
@@ -576,7 +576,7 @@
                     <p class="text-sm font-bold text-main mb-2">
                         Request Type:
                         <span class="text-primary">
-                        <%= requestType === "cancel" ? "Cancel Order" : "Return Order" %>
+                        <%= status === "delivered" ? "Return Order" : "Cancel Order" %>
                         </span>
                     </p>
                 </div>

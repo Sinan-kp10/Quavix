@@ -429,8 +429,15 @@ export const createOrder = async ({ userId,addressId, paymentMethod,buyNowData,c
         });
 
         if (coupon && subtotal >= coupon.minPurchaseAmount) {
-
-            couponDiscount = coupon.discountAmount;
+            if (coupon.couponType === "percentage") {
+                let discount = (subtotal * coupon.discountAmount) / 100;
+                if (coupon.maxDiscountAmount > 0 && discount > coupon.maxDiscountAmount) {
+                    discount = coupon.maxDiscountAmount;
+                }
+                couponDiscount = Math.round(discount);
+            } else {
+                couponDiscount = coupon.discountAmount;
+            }
         }
     }
 

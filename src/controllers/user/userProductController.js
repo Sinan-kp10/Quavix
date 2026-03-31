@@ -549,10 +549,17 @@ export const loadCheckout = async (req, res) => {
 
                 const coupon = await couponsModel.findOne({ code: req.session.couponCode });
 
-                if (coupon &&coupon.status === "Active" &&coupon.expiryDate >= new Date() &&subtotal >= coupon.minPurchaseAmount) {
-
+                if (coupon && coupon.status === "Active" && coupon.expiryDate >= new Date() && subtotal >= coupon.minPurchaseAmount) {
                     appliedCoupon = coupon;
-                    couponDiscount = coupon.discountAmount;
+                    if (coupon.couponType === "percentage") {
+                        let discount = (subtotal * coupon.discountAmount) / 100;
+                        if (coupon.maxDiscountAmount > 0 && discount > coupon.maxDiscountAmount) {
+                            discount = coupon.maxDiscountAmount;
+                        }
+                        couponDiscount = Math.round(discount);
+                    } else {
+                        couponDiscount = coupon.discountAmount;
+                    }
                 }
             }
 
@@ -615,10 +622,17 @@ export const loadCheckout = async (req, res) => {
 
                 const coupon = await couponsModel.findOne({ code: req.session.couponCode });
 
-                if ( coupon && coupon.status === "Active" && coupon.expiryDate >= new Date() && subtotal >= coupon.minPurchaseAmount) {
-
+                if (coupon && coupon.status === "Active" && coupon.expiryDate >= new Date() && subtotal >= coupon.minPurchaseAmount) {
                     appliedCoupon = coupon;
-                    couponDiscount = coupon.discountAmount;
+                    if (coupon.couponType === "percentage") {
+                        let discount = (subtotal * coupon.discountAmount) / 100;
+                        if (coupon.maxDiscountAmount > 0 && discount > coupon.maxDiscountAmount) {
+                            discount = coupon.maxDiscountAmount;
+                        }
+                        couponDiscount = Math.round(discount);
+                    } else {
+                        couponDiscount = coupon.discountAmount;
+                    }
                 }
             }
 

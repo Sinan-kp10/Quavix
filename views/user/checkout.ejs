@@ -145,7 +145,7 @@
                             <% coupons.forEach(coupon => { %>
 
                                 <option value="<%= coupon.code %>">
-                                    <%= coupon.code %> (₹<%= coupon.discountAmount %> OFF)
+                                    <%= coupon.code %> (<%= coupon.couponType === 'percentage' ? coupon.discountAmount + '%' : '₹' + coupon.discountAmount %> OFF)
                                 </option>
 
                             <% }) %>
@@ -187,7 +187,7 @@
                             </p>
 
                             <p class="applied-subtitle">
-                                Coupon applied successfully!
+                                <%= appliedCoupon.couponType === 'percentage' ? appliedCoupon.discountAmount + '%' : '₹' + appliedCoupon.discountAmount %> OFF applied successfully!
                             </p>
 
                         </div>
@@ -301,7 +301,7 @@
 
                 <div class="flex justify-between mb-2">
                     <span>MRP</span>
-                    <span>₹<%= totalMRP.toLocaleString() %></span>
+                    <span>₹<%= subtotal.toLocaleString() %></span>
                 </div>
 
                 <div class="flex justify-between mb-2">
