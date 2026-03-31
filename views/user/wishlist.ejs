@@ -355,6 +355,12 @@
                 }
 
                 if (response.status === 400) {
+                    if (data.message && data.message.toLowerCase().includes("out of stock")) {
+                        triggerToast(data.message, "error");
+                        cartBtn.disabled = false;
+                        return;
+                    }
+
                     Swal.fire({
                         icon: "error",
                         title: "Unavailable",

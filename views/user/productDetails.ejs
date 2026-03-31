@@ -672,6 +672,11 @@
                     return window.location.href="/login"
                 }
                 if (response.status === 400) {
+                    if (data.message && data.message.toLowerCase().includes("out of stock")) {
+                        triggerToast(data.message, "error");
+                        return;
+                    }
+
                     Swal.fire({
                         icon: "error",
                         title: "Unavailable",
@@ -751,6 +756,11 @@
             if(data.success){
                 window.location.href="/checkout";
             }else{
+                if (data.message && data.message.toLowerCase().includes("out of stock")) {
+                    triggerToast(data.message, "error");
+                    return;
+                }
+
                 Swal.fire({
                     icon: "error",
                     title: "Unavailable",
