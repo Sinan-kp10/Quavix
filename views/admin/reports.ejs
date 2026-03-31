@@ -123,25 +123,23 @@
 
                             <% if(order.length > 0){ %>
 
-                                <% order.forEach(ord => { %>
-
-                                    <% ord.items.forEach(item => { %>
+                                <% order.forEach(itemRow => { %>
 
                                         <tr>
                                             <td>
-                                                <span class="font-medium">#<%= ord.orderId %></span>
+                                                <span class="font-medium">#<%= itemRow.orderId %></span>
                                             </td>
 
                                             <td class="text-muted text-sm">
-                                                <%= new Date(ord.createdAt).toDateString() %>
+                                                <%= new Date(itemRow.createdAt).toDateString() %>
                                             </td>
 
                                             <td>
                                                 <div class="font-medium">
-                                                    <%= ord.user?.name || "N/A" %>
+                                                    <%= itemRow.user?.name || "N/A" %>
                                                 </div>
                                                 <div class="text-xs text-muted">
-                                                    <%= ord.user?.email || "" %>
+                                                    <%= itemRow.user?.email || "" %>
                                                 </div>
                                             </td>
 
@@ -150,27 +148,35 @@
                                                 <div class="report-products">
                                                     <div class="report-product-item">
                                                         <span class="product-name">
-                                                            <%= item.productName %>
+                                                            <%= itemRow.items.productName %>
                                                         </span>
-                                                        <span class="product-qty">x<%= item.quantity %></span>
+                                                        <span class="product-qty">x<%= itemRow.items.quantity %></span>
                                                     </div>
                                                 </div>
                                             </td>
 
                                             <!-- PAYMENT -->
                                             <td class="text-sm">
-                                                <%= ord.paymentMethod.toUpperCase() %>
+                                                <%= itemRow.paymentMethod.toUpperCase() %>
                                             </td>
 
                                             <!-- TOTAL -->
                                             <td class="font-medium">
-                                                ₹<%= item.total %>
+                                                <% 
+                                                    let finalItemTotal = itemRow.items.total;
+                                                    if(itemRow.couponDiscount && itemRow.subtotal > 0){
+                                                        const itemShare = itemRow.items.total / itemRow.subtotal;
+                                                        const couponShare = itemRow.couponDiscount * itemShare;
+                                                        finalItemTotal = Math.round(itemRow.items.total - couponShare);
+                                                    }
+                                                %>
+                                                ₹<%= finalItemTotal %>
                                             </td>
 
                                             <!-- STATUS -->
                                             <td>
                                                 <% 
-                                                    let status = item.orderStatus || "pending";
+                                                    let status = itemRow.items.orderStatus || "pending";
                                                     let badgeClass = "";
 
                                                     if(status === "pending") badgeClass = "badge-pending";
@@ -188,8 +194,6 @@
                                                 </span>
                                             </td>
                                         </tr>
-
-                                    <% }) %>
 
                                 <% }) %>
 

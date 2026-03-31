@@ -4,7 +4,24 @@
         <div id="toast" class="toast <%= toastType %> show">
             <%= toastMessage %>
         </div>
-        <% } %>
+    <% } %>
+
+    <% if (typeof isBlocked !== "undefined" && isBlocked) { %>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script>
+            document.addEventListener("DOMContentLoaded", () => {
+                Swal.fire({
+                    title: "Product Unavailable",
+                    text: "This product is currently not available.",
+                    icon: "error",
+                    confirmButtonColor: "#6C5CE7",
+                    confirmButtonText: "Go to Shop"
+                }).then((result) => {
+                    window.location.href = "/products";
+                });
+            });
+        </script>
+    <% } %>
 
             <!-- Navbar -->
             <nav class="navbar">
@@ -655,7 +672,15 @@
                     return window.location.href="/login"
                 }
                 if (response.status === 400) {
-                    triggerToast(data.message || "This product is currently out of stock.", "error");
+                    Swal.fire({
+                        icon: "error",
+                        title: "Unavailable",
+                        text: data.message || "This product is currently not available.",
+                        confirmButtonColor: "#6C5CE7",
+                        confirmButtonText: "Go to Shop"
+                    }).then(() => {
+                        window.location.href = "/products";
+                    });
                     return;
                 }
 
@@ -726,7 +751,15 @@
             if(data.success){
                 window.location.href="/checkout";
             }else{
-                triggerToast(data.message,"error");
+                Swal.fire({
+                    icon: "error",
+                    title: "Unavailable",
+                    text: data.message || "This product is currently not available.",
+                    confirmButtonColor: "#6C5CE7",
+                    confirmButtonText: "Go to Shop"
+                }).then(() => {
+                    window.location.href = "/products";
+                });
             }
         }
 

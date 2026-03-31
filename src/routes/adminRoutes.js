@@ -68,14 +68,6 @@ router.post("/admin/coupons",isLogin,addCoupon)
 router.post("/admin/coupons/edit/:id",isLogin,editCoupon)
 router.post("/admin/coupons/delete/:id", isLogin, removeCoupon);
 
-
-
-
-
-
-
-
-
 router.get("/admin/logout",adminLogout)
 
    

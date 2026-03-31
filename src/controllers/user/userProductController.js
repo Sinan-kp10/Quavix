@@ -204,11 +204,13 @@ export const loadProductDetials = async (req, res) => {
         const { slug } = req.params;
         const { variant } = req.query;
 
-        const product = await productModel.findOne({ slug, isDeleted: false }).populate("category")
+        const product = await productModel.findOne({ slug }).populate("category")
 
         if (!product) {
             return res.redirect("/products");
         }
+
+        const isBlocked = product.isDeleted;
 
         let activeVariant;
 
@@ -255,7 +257,8 @@ export const loadProductDetials = async (req, res) => {
             colorVariants,
             storageVariants, 
             relatedProducts,
-            isWishlisted
+            isWishlisted,
+            isBlocked
         })
 
     } catch (err) {
@@ -381,7 +384,7 @@ export const addToCart=async(req,res)=>{
         res.json({success:true,message:"Product added to cart!",cartCount: totalQty})
 
     }catch(err){
-        res.status(400).json({ success: false });
+        res.status(400).json({ success: false, message: err.message });
     }
 }
 
@@ -485,7 +488,14 @@ export const checkoutFromCart = async (req, res) => {
       const product = item.product;
       const variant = product.variants.id(item.variant);
 
-      if (!variant || variant.stock < item.quantity) {
+      if (!variant || product.isDeleted) {
+        return res.json({
+          success: false,
+          message: `${product.name} is no longer available`
+        });
+      }
+
+      if (variant.stock < item.quantity) {
         return res.json({
           success: false,
           message: `${product.name} is out of stock`

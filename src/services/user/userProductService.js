@@ -182,8 +182,8 @@ export const addWishlistService = async (userId, productId, variantId) => {
 export const addToCartService = async (userId, productId, variantId) => {
 
     const product = await productModel.findById(productId)
-    if (!product) {
-        throw new Error("Product not found");
+    if (!product || product.isDeleted) {
+        throw new Error("This product is currently not available");
     }
 
     const variant = product.variants.find(v =>
@@ -322,8 +322,8 @@ export const createOrder = async ({ userId,addressId, paymentMethod,buyNowData,c
 
         const variant = product.variants.id(variantId);
 
-        if (!variant || variant.status !== "Active") {
-            throw new Error("Variant not available");
+        if (!variant || variant.status !== "Active" || product.isDeleted) {
+            throw new Error("Product is no longer available");
         }
 
         if (variant.stock < quantity) {
@@ -374,7 +374,9 @@ export const createOrder = async ({ userId,addressId, paymentMethod,buyNowData,c
 
             const variant = product.variants.id(item.variant);
 
-            if (!variant) continue;
+            if (!variant || product.isDeleted) {
+                throw new Error(`${product.name} is no longer available`);
+            }
 
             if (variant.stock < item.quantity) {
                 throw new Error(`${product.name} is out of stock`);

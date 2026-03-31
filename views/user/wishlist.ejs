@@ -207,7 +207,11 @@
 
                     <div class="wishlist-btn-group">
 
-                        <% if (variant.stock > 0) { %>
+                        <% if (product.isDeleted) { %>
+                            <span class="out-of-stock-label" style="background: #fee2e2; color: #ef4444; padding: 0.5rem 1rem; border-radius: 0.5rem; font-weight: 600;">
+                                Product Unavailable
+                            </span>
+                        <% } else if (variant.stock > 0) { %>
 
                             <button 
                                 class="btn btn-primary move-to-cart"
@@ -351,7 +355,16 @@
                 }
 
                 if (response.status === 400) {
-                    triggerToast(data.message || "This product is currently out of stock.", "error");
+                    Swal.fire({
+                        icon: "error",
+                        title: "Unavailable",
+                        text: data.message || "This product is currently not available.",
+                        confirmButtonColor: "#6C5CE7",
+                        confirmButtonText: "Go to Shop"
+                    }).then(() => {
+                        window.location.href = "/products";
+                    });
+                    cartBtn.disabled = false;
                     return;
                 }
 
