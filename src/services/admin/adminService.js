@@ -9,96 +9,96 @@ import orderModel from "../../models/orderModel.js";
 import { ORDER_STATUS } from "../../utils/orderStatus.js";
 
 
-export  const adminLoginAccess=async(email,password)=>{
+export const adminLoginAccess = async (email, password) => {
 
-    const adminEmail=process.env.ADMIN_EMAIL
-    const adminPassword=process.env.ADMIN_PASSWORD
+    const adminEmail = process.env.ADMIN_EMAIL
+    const adminPassword = process.env.ADMIN_PASSWORD
 
-    if(adminEmail!==email){
+    if (adminEmail !== email) {
         throw new Error("Invalid Email")
     }
 
-    if(adminPassword!==password){
+    if (adminPassword !== password) {
         throw new Error("Incorrect password")
     }
 
     return true
 }
 
-export const getAllUsers=async(search="",status="all",page=1,limit=10)=>{
+export const getAllUsers = async (search = "", status = "all", page = 1, limit = 10) => {
 
-    let query={}
+    let query = {}
 
-    if(search){
-        query.$or=[
-            {name:{$regex:search , $options:"i" }},
-            {email:{$regex:search,$options:"i" }}
+    if (search) {
+        query.$or = [
+            { name: { $regex: search, $options: "i" } },
+            { email: { $regex: search, $options: "i" } }
         ]
     }
 
-    if(status !== "all"){
+    if (status !== "all") {
         query.status = status;
     }
 
-    const skip=(page-1)*limit
-    const usersList=await users.find(query).sort({createdAt:-1}).skip(skip).limit(limit)
+    const skip = (page - 1) * limit
+    const usersList = await users.find(query).sort({ createdAt: -1 }).skip(skip).limit(limit)
 
-    const totalUsers=await users.countDocuments(query)
+    const totalUsers = await users.countDocuments(query)
 
     return {
-        usersList,totalUsers
+        usersList, totalUsers
     }
 }
 
-export const allBlockedUser=async(id)=>{
-    return await users.findByIdAndUpdate(id,{ status: "blocked"},{new:true})
+export const allBlockedUser = async (id) => {
+    return await users.findByIdAndUpdate(id, { status: "blocked" }, { new: true })
 }
 
-export const allActiveUsers=async(id)=>{
+export const allActiveUsers = async (id) => {
 
-    return await users.findByIdAndUpdate(id,{status: "active"},{new:true})
+    return await users.findByIdAndUpdate(id, { status: "active" }, { new: true })
 }
 
-export const getAllCategory=async(search="",status="all",page=1,limit=10)=>{
+export const getAllCategory = async (search = "", status = "all", page = 1, limit = 10) => {
 
-    let query ={}
+    let query = {}
 
-    if(search){
-        query.name={$regex:search , $options:"i" } 
+    if (search) {
+        query.name = { $regex: search, $options: "i" }
     }
 
-    if(status!="all"){
-        query.status=status
+    if (status != "all") {
+        query.status = status
     }
 
-    const skip=(page-1)*limit
-    const categories=await categoryModal.find(query).sort({createdAt:-1}).skip(skip).limit(limit)
+    const skip = (page - 1) * limit
+    const categories = await categoryModal.find(query).sort({ createdAt: -1 }).skip(skip).limit(limit)
 
     for (let category of categories) {
-        const count = await productModel.countDocuments({category: category._id,isDeleted: false});
+        const count = await productModel.countDocuments({ category: category._id, isDeleted: false });
 
         category.productCount = count;
     }
 
-    const totalCategory=await categoryModal.countDocuments(query)
+    const totalCategory = await categoryModal.countDocuments(query)
     return {
         categoryList: categories,
         totalCategory
     }
 }
 
-export const createCategory=async(name,offer,file)=>{
+export const createCategory = async (name, offer, file) => {
 
     if (!name || name.trim().length < 3) {
         throw new Error("Category name must be at least 3 characters");
     }
 
-    if(!file){
+    if (!file) {
         return null
     }
     const slug = slugify(name, { lower: true, strict: true });
-    const existing = await categoryModal.findOne({slug});
-    if(existing){
+    const existing = await categoryModal.findOne({ slug });
+    if (existing) {
         throw new Error("Category already exist")
     }
     const result = await cloudinary.uploader.upload(
@@ -110,7 +110,7 @@ export const createCategory=async(name,offer,file)=>{
     const newCategory = new categoryModal({
         name,
         slug,
-        categoryOffer: offer || 0, 
+        categoryOffer: offer || 0,
         categoryImage: result.secure_url,
         categoryImageId: result.public_id,
     });
@@ -139,30 +139,30 @@ export const deleteCategory = async (categoryId) => {
     return true;
 }
 
-export const updateCategory=async(categoryId,name,offer,file)=>{
+export const updateCategory = async (categoryId, name, offer, file) => {
 
-    const category=await categoryModal.findById(categoryId)
-    if(!category){
+    const category = await categoryModal.findById(categoryId)
+    if (!category) {
         throw new Error("Category not found")
     }
     let imageUpdated = false;
 
-    if(!name||name.trim().length<3){
+    if (!name || name.trim().length < 3) {
         throw new Error("Category name must be at least 3 characters")
     }
 
-    const existing = await categoryModal.findOne({name: name.trim(),_id: { $ne: categoryId }})
+    const existing = await categoryModal.findOne({ name: name.trim(), _id: { $ne: categoryId } })
 
     if (existing) {
         throw new Error("Category already exists");
     }
-    
-    if(category.name==name && !file && category.categoryOffer==offer){
+
+    if (category.name == name && !file && category.categoryOffer == offer) {
         throw new Error("No changes were made")
     }
-    if(file){
+    if (file) {
 
-        
+
         await cloudinary.uploader.destroy(category.categoryImageId);
 
         const result = await cloudinary.uploader.upload(
@@ -184,16 +184,16 @@ export const updateCategory=async(categoryId,name,offer,file)=>{
     return category;
 }
 
-export const getAllProducts=async(search="",status="all",stock="",selectedCategory="",page=1,limit=10)=>{
+export const getAllProducts = async (search = "", status = "all", stock = "", selectedCategory = "", page = 1, limit = 10) => {
 
-    let query ={}
+    let query = {}
 
-    if(search){
-        query.name={$regex:search , $options:"i" } 
+    if (search) {
+        query.name = { $regex: search, $options: "i" }
     }
 
-    if(selectedCategory){
-        query.category=selectedCategory
+    if (selectedCategory) {
+        query.category = selectedCategory
     }
 
     if (status === "Active") {
@@ -203,21 +203,21 @@ export const getAllProducts=async(search="",status="all",stock="",selectedCatego
         query.isDeleted = true;
     }
 
-    if(stock==="in"){
-        query["variants.stock"]= {$gt:0}
+    if (stock === "in") {
+        query["variants.stock"] = { $gt: 0 }
     }
 
-    if(stock=="out"){
-        query["variants.stock"]={$not:{$gt:0}}
+    if (stock == "out") {
+        query["variants.stock"] = { $not: { $gt: 0 } }
     }
 
-    const skip=(page-1)*limit
-    const productsList=await productModel.find(query).populate("category").sort({createdAt:-1}).skip(skip).limit(limit)
+    const skip = (page - 1) * limit
+    const productsList = await productModel.find(query).populate("category").sort({ createdAt: -1 }).skip(skip).limit(limit)
 
-    const totalProducts=await productModel.countDocuments(query)
+    const totalProducts = await productModel.countDocuments(query)
 
     return {
-        productsList,totalProducts
+        productsList, totalProducts
     }
 
 }
@@ -244,23 +244,23 @@ export const createProducts = async (data) => {
         };
 
         const safeGallery = Array.isArray(v.images?.gallery)
-        ? v.images.gallery
-            .filter(img => img && img.url && img.publicId)
-            .map(img => ({
-                url: img.url,
-                publicId: img.publicId
-            }))
-        : [];
+            ? v.images.gallery
+                .filter(img => img && img.url && img.publicId)
+                .map(img => ({
+                    url: img.url,
+                    publicId: img.publicId
+                }))
+            : [];
 
         return {
-        attributes: Array.isArray(v.attributes)
-            ? v.attributes
-                .filter(attr => attr.name && attr.value)
-                .map(attr => ({
-                name: attr.name.trim(),
-                value: attr.value.trim()
-                }))
-            : [],
+            attributes: Array.isArray(v.attributes)
+                ? v.attributes
+                    .filter(attr => attr.name && attr.value)
+                    .map(attr => ({
+                        name: attr.name.trim(),
+                        value: attr.value.trim()
+                    }))
+                : [],
 
             price: Number(v.price),
             stock: Number(v.stock),
@@ -270,7 +270,7 @@ export const createProducts = async (data) => {
                 gallery: safeGallery
             },
 
-        status: v.status || "Active"
+            status: v.status || "Active"
         };
     });
 
@@ -292,7 +292,7 @@ export const createProducts = async (data) => {
         maxPrice
     });
 
-  return await newProduct.save();
+    return await newProduct.save();
 }
 
 export const updateProduct = async (id, data) => {
@@ -312,27 +312,27 @@ export const updateProduct = async (id, data) => {
     const formattedVariants = variants.map(v => {
 
         const safePrimary = {
-        url: v.images?.primary?.url || "",
-        publicId: v.images?.primary?.publicId || ""
+            url: v.images?.primary?.url || "",
+            publicId: v.images?.primary?.publicId || ""
         };
 
         const safeGallery = Array.isArray(v.images?.gallery)
-        ? v.images.gallery
-            .filter(img => img && img.url && img.publicId)
-            .map(img => ({
-                url: img.url,
-                publicId: img.publicId
-            }))
-        : [];
+            ? v.images.gallery
+                .filter(img => img && img.url && img.publicId)
+                .map(img => ({
+                    url: img.url,
+                    publicId: img.publicId
+                }))
+            : [];
 
-            return {
-                _id: v._id || undefined,  
-                attributes: Array.isArray(v.attributes)
+        return {
+            _id: v._id || undefined,
+            attributes: Array.isArray(v.attributes)
                 ? v.attributes
                     .filter(attr => attr.name && attr.value)
                     .map(attr => ({
-                    name: attr.name.trim(),
-                    value: attr.value.trim()
+                        name: attr.name.trim(),
+                        value: attr.value.trim()
                     }))
                 : [],
 
@@ -348,31 +348,31 @@ export const updateProduct = async (id, data) => {
         };
     });
 
-  const prices = formattedVariants.map(v => v.price);
-  const minPrice = prices.length ? Math.min(...prices) : 0;
+    const prices = formattedVariants.map(v => v.price);
+    const minPrice = prices.length ? Math.min(...prices) : 0;
 
-  return await productModel.findByIdAndUpdate(
-    id,
-    {
-      name,
-      slug,
-      category,
-      offerPercentage,
-      showOnHomepage,
-      highlights,
-      services,
-      description,
-      variants: formattedVariants,
-      minPrice
-    },
-    { new: true }
-  );
+    return await productModel.findByIdAndUpdate(
+        id,
+        {
+            name,
+            slug,
+            category,
+            offerPercentage,
+            showOnHomepage,
+            highlights,
+            services,
+            description,
+            variants: formattedVariants,
+            minPrice
+        },
+        { new: true }
+    );
 }
-export const deleteProduct =async(id)=>{
+export const deleteProduct = async (id) => {
 
-    const product =await productModel.findById(id)
+    const product = await productModel.findById(id)
 
-    if(!product){
+    if (!product) {
         throw new Error("Product not found")
     }
 
@@ -470,8 +470,15 @@ export const getDashboardData = async (filter) => {
 
     orders.forEach(order => {
         order.items.forEach(item => {
+
             if (item.orderStatus === ORDER_STATUS.DELIVERED) {
-                totalRevenue += item.total;
+                let finalItemTotal = item.total;
+                if (order.couponDiscount && order.subtotal > 0) {
+                    const itemShare = item.total / order.subtotal;
+                    const couponShare = order.couponDiscount * itemShare;
+                    finalItemTotal = Math.round(item.total - couponShare);
+                }
+                totalRevenue += finalItemTotal;
             }
         });
     });
@@ -483,7 +490,13 @@ export const getDashboardData = async (filter) => {
 
         order.items.forEach(item => {
             if (item.orderStatus === ORDER_STATUS.DELIVERED) {
-                monthlyRevenue[month] += item.total;
+                let finalItemTotal = item.total;
+                if (order.couponDiscount && order.subtotal > 0) {
+                    const itemShare = item.total / order.subtotal;
+                    const couponShare = order.couponDiscount * itemShare;
+                    finalItemTotal = Math.round(item.total - couponShare);
+                }
+                monthlyRevenue[month] += finalItemTotal;
             }
         });
     });
@@ -618,11 +631,11 @@ export const getTopCategories = async (dateFilter) => {
     ]);
 }
 
-export const reportService=async(search="",filter="all",page=1,limit=10,startDate=null,endDate=null)=>{
+export const reportService = async (search = "", filter = "all", page = 1, limit = 10, startDate = null, endDate = null) => {
 
-    const skip=(page-1)*limit
+    const skip = (page - 1) * limit
 
-    let query= {};
+    let query = {};
 
     if (search) {
         query.$or = [
@@ -661,7 +674,7 @@ export const reportService=async(search="",filter="all",page=1,limit=10,startDat
         };
     }
 
-    const orderList=await orderModel.find(query).sort({createdAt:-1}).populate("user").skip(skip).limit(limit)
+    const orderList = await orderModel.find(query).sort({ createdAt: -1 }).populate("user").skip(skip).limit(limit)
 
     const totalOrders = await orderModel.countDocuments(query);
 
