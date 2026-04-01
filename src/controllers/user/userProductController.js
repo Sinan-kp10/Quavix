@@ -313,6 +313,7 @@ export const AddToWishlist = async (req, res) => {
         res.json({
             success: true,
             added: result.added,
+            wishlistCount: result.count,
             message: result.added
                 ? "Added to wishlist"
                 : "Removed from wishlist"
@@ -902,7 +903,7 @@ export const orderRequest = async (req, res) => {
             if (coupon) {
                 const remainingSubtotal = order.subtotal - item.total;
                 if (remainingSubtotal < coupon.minPurchaseAmount) {
-                    req.session.toastMessage = `Cannot cancel/return this item. The remaining order value must be at least ₹${coupon.minPurchaseAmount} to keep your coupon discount.`;
+                    req.session.toastMessage = `Cannot cancel/return this item. Because you applied coupon so minimum purchase amount ₹${coupon.minPurchaseAmount} required.`;
                     req.session.toastType = "error";
                     return res.redirect("/order-details/" + order.orderId + "?item=" + variantId);
                 }

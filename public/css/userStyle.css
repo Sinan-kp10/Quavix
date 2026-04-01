@@ -656,13 +656,15 @@ input[type=number] {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
 }
 
-.cart-badge {
+.cart-badge,
+.wishlist-badge {
     min-width: 18px;
     height: 18px;
     padding: 0 5px;
 }
 
-.cart-sidebar-badge {
+.cart-sidebar-badge,
+.wishlist-sidebar-badge {
     position: relative !important;
     top: 0 !important;
     right: 0 !important;
@@ -8224,7 +8226,7 @@ ORDER TRACKING & STATUS BADGES CSS
         flex-direction: column;
         align-items: stretch;
     }
-    
+
     .checkout-coupon-btn {
         width: 100%;
     }
@@ -8313,6 +8315,7 @@ ORDER TRACKING & STATUS BADGES CSS
         align-items: flex-start;
         gap: 1rem;
     }
+
     .btn-remove-coupon {
         width: 100%;
         justify-content: flex-end;

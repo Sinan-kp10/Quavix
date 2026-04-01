@@ -35,7 +35,12 @@
                 <div class="sidebar-content">
                     <a href="/products"><i class="fa-solid fa-shop"></i> Shop</a>
                     <a href="order-history.html"><i class="fa-solid fa-box"></i> Orders</a>
-                    <a href="/wishlist"><i class="fa-regular fa-heart"></i> Wishlist</a>
+                    <a href="/wishlist" class="relative wishlist-nav">
+                        <i class="fa-regular fa-heart"></i> Wishlist
+                        <% if (wishlistCount > 0) { %>
+                            <span class="badge wishlist-sidebar-badge"><%= wishlistCount %></span>
+                        <% } %>
+                    </a>
                     <% if (user) { %>
                         <span id="cartSidebarBadge" class="badge cart-sidebar-badge">
                             <%= cartCount || 0 %>
@@ -67,8 +72,12 @@
                     <button><i class="fa-solid fa-magnifying-glass"></i></button>
                 </div>
 
-                <a href="/wishlist" class="text-danger">
-                    <i class="fa-solid fa-heart nav-icon-lg"></i>
+                <a href="/wishlist" class="relative wishlist-nav">
+                    <i class="fa-regular fa-heart nav-icon-lg"></i>
+                    <% if (wishlistCount > 0) { %>
+                        <span class="badge wishlist-badge"><%= wishlistCount %></span>
+                        
+                    <% } %>
                 </a>
                 <a href="/cart" class="relative">
                     <i class="fa-solid fa-cart-shopping nav-icon-lg"></i>
@@ -296,10 +305,14 @@
 
                     const item = button.closest(".wishlist-item");
 
-                    // Smooth remove animation
+
                     item.style.transition = "0.3s";
                     item.style.opacity = "0";
                     item.style.transform = "scale(0.95)";
+                    setTimeout(() => {
+                        const count = getWishlistCount() - 1;
+                        updateWishlistBadge(count);
+                    }, 0);
 
                     setTimeout(() => {
                         item.remove();
@@ -401,7 +414,7 @@
                     } 
                 }
 
-                await fetch("/wishlist/remove", {
+                const removeRes = await fetch("/wishlist/remove", {
                     method: "DELETE",
                     headers: {
                         "Content-Type": "application/json"
@@ -409,9 +422,16 @@
                     body: JSON.stringify({ productId, variantId })
                 });
 
+                const removeData = await removeRes.json();
 
                 const itemCard = cartBtn.closest(".wishlist-item");
-                if (itemCard) itemCard.remove();
+
+                if (itemCard) {
+                    itemCard.remove(); 
+
+                    const count = getWishlistCount(); 
+                    updateWishlistBadge(count);       
+                }
 
             } catch (err) {
                 triggerToast("Something went wrong", "error");
@@ -419,6 +439,33 @@
             }
 
         })
+        function updateWishlistBadge(count) {
+
+            const badges = document.querySelectorAll(".wishlist-nav");
+
+            badges.forEach(container => {
+
+                let badge = container.querySelector(".wishlist-badge, .wishlist-sidebar-badge");
+
+                if (count > 0) {
+                    if (badge) {
+                        badge.innerText = count;
+                        badge.style.display = "inline-block";
+                    } else {
+                        const span = document.createElement("span");
+                        span.className = "badge wishlist-badge";
+                        span.innerText = count;
+                        container.appendChild(span);
+                    }
+                } else {
+                    if (badge) badge.style.display = "none";
+                }
+
+            });
+        }
+        function getWishlistCount() {
+            return document.querySelectorAll(".wishlist-item").length;
+        }
 
         const toast = document.getElementById("toast");
 

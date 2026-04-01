@@ -156,7 +156,7 @@ export const addWishlistService = async (userId, productId, variantId) => {
         });
 
         await wishlist.save();
-        return { added: true };
+        return { added: true,count: wishlist.items.length };
     }
 
     const existingIndex = wishlist.items.findIndex(item =>
@@ -167,7 +167,7 @@ export const addWishlistService = async (userId, productId, variantId) => {
     if (existingIndex > -1) {
         wishlist.items.splice(existingIndex, 1);
         await wishlist.save();
-        return { added: false };
+        return { added: false,count: wishlist.items.length };
     }
 
     wishlist.items.push({
@@ -176,7 +176,7 @@ export const addWishlistService = async (userId, productId, variantId) => {
     });
 
     await wishlist.save();
-    return { added: true };
+    return { added: true,count: wishlist.items.length };
 }
 
 export const addToCartService = async (userId, productId, variantId) => {
