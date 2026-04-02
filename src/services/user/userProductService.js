@@ -30,6 +30,8 @@ export const getFilterdProduct = async (
     let variantList = [];
     products.forEach(product => {
 
+        if (product.category?.status !== "Active") return;
+
         const offer = Math.max(product.offerPercentage || 0, product.category?.categoryOffer || 0);
 
         product.variants
@@ -126,6 +128,8 @@ export const findProducts = async (search) => {
 
     products = products.map(product => {
 
+        if (product.category?.status !== "Active") return null;
+
         const matchedVariants = product.variants.filter(variant => {
 
             const priceMatch = priceFilter? variant.price <= priceFilter : true;
@@ -140,7 +144,7 @@ export const findProducts = async (search) => {
 
         return {...product.toObject(), variants: matchedVariants };
 
-    }).filter(product => product.variants.length > 0);
+    }).filter(product => product && product.variants.length > 0);
 
     return products;
 }
@@ -181,8 +185,8 @@ export const addWishlistService = async (userId, productId, variantId) => {
 
 export const addToCartService = async (userId, productId, variantId) => {
 
-    const product = await productModel.findById(productId)
-    if (!product || product.isDeleted) {
+    const product = await productModel.findById(productId).populate("category")
+    if (!product || product.isDeleted || product.category?.status !== "Active") {
         throw new Error("This product is currently not available");
     }
 
@@ -322,7 +326,7 @@ export const createOrder = async ({ userId,addressId, paymentMethod,buyNowData,c
 
         const variant = product.variants.id(variantId);
 
-        if (!variant || variant.status !== "Active" || product.isDeleted) {
+        if (!variant || variant.status !== "Active" || product.isDeleted || product.category?.status !== "Active") {
             throw new Error("Product is no longer available");
         }
 
@@ -374,7 +378,7 @@ export const createOrder = async ({ userId,addressId, paymentMethod,buyNowData,c
 
             const variant = product.variants.id(item.variant);
 
-            if (!variant || product.isDeleted) {
+            if (!variant || product.isDeleted || product.category?.status !== "Active") {
                 throw new Error(`${product.name} is no longer available`);
             }
 

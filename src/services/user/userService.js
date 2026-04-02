@@ -382,7 +382,8 @@ export const getActiveCategories=async()=>{
 }
 
 export const getHomepageProducts = async () => {
-    return await productModel.find({  isDeleted: false,showOnHomepage: true   }).populate("category").sort({ createdAt: -1 });
+    const products = await productModel.find({ isDeleted: false, showOnHomepage: true }).populate("category").sort({ createdAt: -1 });
+    return products.filter(product => product.category?.status === "Active");
 }
 
 export const getAllCoupons=async(page=1,limit=9)=>{

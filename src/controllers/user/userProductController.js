@@ -51,6 +51,8 @@ export const loadProducts = async (req, res) => {
 
         products.forEach(product => {
 
+            if (product.category?.status !== "Active") return;
+
             const offer = Math.max(product.offerPercentage || 0, product.category?.categoryOffer || 0);
 
             product.variants
@@ -149,6 +151,8 @@ export const searchProducts = async (req, res) => {
 
         products.forEach(product => {
 
+            if (product.category?.status !== "Active") return;
+
             const offer = Math.max(product.offerPercentage || 0, product.category?.categoryOffer || 0);
 
             product.variants.forEach(variant => {
@@ -210,7 +214,7 @@ export const loadProductDetials = async (req, res) => {
             return res.redirect("/products");
         }
 
-        const isBlocked = product.isDeleted;
+        const isBlocked = product.isDeleted || product.category?.status !== "Active";
 
         let activeVariant;
 
@@ -490,7 +494,7 @@ export const checkoutFromCart = async (req, res) => {
             const product = item.product;
             const variant = product.variants.id(item.variant);
 
-            if (!variant || product.isDeleted) {
+            if (!variant || product.isDeleted || product.category?.status !== "Active") {
                 return res.json({
                     success: false,
                     message: `${product.name} is no longer available`
@@ -534,6 +538,11 @@ export const loadCheckout = async (req, res) => {
             const { productId, variantId, quantity } = req.session.buyNow;
 
             const product = await productModel.findById(productId).populate("category");
+
+            if (!product || product.category?.status !== "Active") {
+                return res.redirect("/products");
+            }
+
             const variant = product.variants.id(variantId);
 
             const offer = Math.max(product.offerPercentage || 0, product.category?.categoryOffer || 0);
@@ -607,7 +616,7 @@ export const loadCheckout = async (req, res) => {
 
                 const product = item.product;
                 const variant = product.variants.id(item.variant);
-                if (!variant) return;
+                if (!variant || product.category?.status !== "Active") return;
 
                 const offer = Math.max(product.offerPercentage || 0, product.category?.categoryOffer || 0);
                 const discount = (variant.price * offer) / 100;

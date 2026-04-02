@@ -216,7 +216,7 @@
 
                     <div class="wishlist-btn-group">
 
-                        <% if (product.isDeleted) { %>
+                        <% if (product.isDeleted || (product.category && product.category.status !== 'Active')) { %>
                             <span class="out-of-stock-label" style="background: #fee2e2; color: #ef4444; padding: 0.5rem 1rem; border-radius: 0.5rem; font-weight: 600;">
                                 Product Unavailable
                             </span>
