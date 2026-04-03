@@ -437,8 +437,10 @@ export const uploadProfileImage = async (req, res) => {
     try {
 
         const imageUrl = await updateUserProfileImage(req.session.user.id, req.file);
+        
+        req.session.user.profileImage = imageUrl;
 
-        return res.json({ success: true });
+        return res.json({ success: true, imageUrl });
 
     } catch (err) {
         return res.status(500).json({ success: false, message: "Something went wrong" });

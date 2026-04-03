@@ -120,7 +120,8 @@ router.get("/auth/google/callback", passport.authenticate("google", { failureRed
   req.session.user = {
     id: req.user._id,
     name: req.user.name,
-    email: req.user.email
+    email: req.user.email,
+    profileImage: req.user.profileImage
   }
 
   res.redirect("/");
