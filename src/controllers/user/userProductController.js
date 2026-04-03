@@ -691,6 +691,16 @@ export const placeOrder = async (req, res) => {
 
         if (paymentMethod === "razorpay") {
 
+
+            const checkoutCheck = await createOrder({
+                userId,
+                addressId,
+                paymentMethod,
+                buyNowData: req.session.buyNow || null,
+                couponCode: req.session.couponCode || null,
+                walletCalculation: true
+            });
+
             req.session.checkoutData = {
                 userId,
                 addressId,
@@ -701,7 +711,8 @@ export const placeOrder = async (req, res) => {
 
             return res.json({
                 success: true,
-                razorpay: true
+                razorpay: true,
+                amount: checkoutCheck.totalAmount
             });
         }
 
@@ -907,17 +918,7 @@ export const orderRequest = async (req, res) => {
         }
 
 
-        if (order.couponCode) {
-            const coupon = await couponsModel.findOne({ code: order.couponCode });
-            if (coupon) {
-                const remainingSubtotal = order.subtotal - item.total;
-                if (remainingSubtotal < coupon.minPurchaseAmount) {
-                    req.session.toastMessage = `Cannot cancel/return this item. Because you applied coupon so minimum purchase amount ₹${coupon.minPurchaseAmount} required.`;
-                    req.session.toastType = "error";
-                    return res.redirect("/order-details/" + order.orderId + "?item=" + variantId);
-                }
-            }
-        }
+
 
         if (!reason) {
             throw new Error("Reason required")

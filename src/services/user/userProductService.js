@@ -432,16 +432,18 @@ export const createOrder = async ({ userId,addressId, paymentMethod,buyNowData,c
             expiryDate: { $gte: new Date() }
         });
 
-        if (coupon && subtotal >= coupon.minPurchaseAmount) {
-            if (coupon.couponType === "percentage") {
-                let discount = (subtotal * coupon.discountAmount) / 100;
-                if (coupon.maxDiscountAmount > 0 && discount > coupon.maxDiscountAmount) {
-                    discount = coupon.maxDiscountAmount;
-                }
-                couponDiscount = Math.round(discount);
-            } else {
-                couponDiscount = coupon.discountAmount;
+        if (!coupon) {
+            throw new Error("Applied coupon is no longer available or has expired");
+        }
+
+        if (coupon.couponType === "percentage") {
+            let discount = (subtotal * coupon.discountAmount) / 100;
+            if (coupon.maxDiscountAmount > 0 && discount > coupon.maxDiscountAmount) {
+                discount = coupon.maxDiscountAmount;
             }
+            couponDiscount = Math.round(discount);
+        } else {
+            couponDiscount = coupon.discountAmount;
         }
     }
 
