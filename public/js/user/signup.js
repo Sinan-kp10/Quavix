@@ -54,6 +54,8 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         if (isValid) {
+            const spinner = document.getElementById("admin-spinner");
+            if (spinner) spinner.style.display = "flex";
             form.submit();
         }
     });

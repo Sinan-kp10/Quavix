@@ -42,8 +42,10 @@ document.addEventListener('DOMContentLoaded',()=>{
             isValid = false;
         }
     }
-        if(!isValid){
-            e.preventDefault();
+        if(isValid){
+            const spinner = document.getElementById("admin-spinner");
+            if (spinner) spinner.style.display = "flex";
+            form.submit();
         }
     })
 
@@ -58,8 +60,10 @@ document.addEventListener('DOMContentLoaded',()=>{
             isValid = false;
         }
 
-        if(!isValid){
-            e.preventDefault();
+        if(isValid){
+            const spinner = document.getElementById("admin-spinner");
+            if (spinner) spinner.style.display = "flex";
+            formEmail.submit();
         }
     })
 

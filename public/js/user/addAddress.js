@@ -48,6 +48,9 @@ document.addEventListener("DOMContentLoaded", function(){
 
         if(!isValid) return
 
+        const spinner = document.getElementById("admin-spinner");
+        if (spinner) spinner.style.display = "flex";
+
        try {
 
         const response = await fetch(
@@ -57,6 +60,7 @@ document.addEventListener("DOMContentLoaded", function(){
         const data = await response.json();
 
         if (data[0].Status==="Error"){
+            if (spinner) spinner.style.display = "none";
             showError(pincode,"Pincode does not exist");
             return;
         }
@@ -67,17 +71,20 @@ document.addEventListener("DOMContentLoaded", function(){
         const apiCity=postOffice.District.toLowerCase();
 
         if(state.value.trim().toLowerCase() !== apiState){
+            if (spinner) spinner.style.display = "none";
             showError(state, "State does not match pincode");
             return;
         }
 
         if(city.value.trim().toLowerCase()!==apiCity){
+            if (spinner) spinner.style.display = "none";
             showError(city, "District does not match pincode");
             return;
         }
         form.submit();
 
         } catch (err){
+            if (spinner) spinner.style.display = "none";
             console.log(err);
             showError(pincode, "Unable to verify pincode");
         }
