@@ -36,7 +36,12 @@
                 <div class="sidebar-content">
                     <a href="/products"><i class="fa-solid fa-shop"></i> Shop</a>
                     <a href="/order-history"><i class="fa-solid fa-box"></i> Orders</a>
-                    <a href="/wishlist"><i class="fa-regular fa-heart"></i> Wishlist</a>
+                    <a href="/wishlist" class="relative wishlist-nav">
+                        <i class="fa-regular fa-heart"></i> Wishlist
+                        <% if (wishlistCount > 0) { %>
+                            <span class="badge wishlist-sidebar-badge"><%= wishlistCount %></span>
+                        <% } %>
+                    </a>
                     <a href="/cart" class="relative">
                         <i class="fa-solid fa-cart-shopping"></i> Cart
 
@@ -73,8 +78,12 @@
                     </button>
                 </form>
 
-                <a href="/wishlist" class="relative">
+                <a href="/wishlist" class="relative wishlist-nav">
                     <i class="fa-regular fa-heart nav-icon-lg"></i>
+                    <% if (wishlistCount > 0) { %>
+                        <span class="badge wishlist-badge"><%= wishlistCount %></span>
+                        
+                    <% } %>
                 </a>
                 
                 <a href="/cart" class="relative">
@@ -201,26 +210,32 @@
                     <!-- Actions -->
                     <div class="cart-actions">
 
-                        <div class="quantity-wrapper"
-                            data-original="<%= originalPrice %>"
-                            data-final="<%= finalPrice %>"
-                            data-discount="<%= discountPerUnit %>">
+                        <% if (product.isDeleted || (product.category && product.category.status !== 'Active')) { %>
+                            <span class="out-of-stock-label" style="background: #fee2e2; color: #ef4444; padding: 0.2rem 0.5rem; border-radius: 0.5rem; font-size: 0.75rem; font-weight: 600; margin-right: 1rem;">
+                                Unavailable
+                            </span>
+                        <% } else { %>
+                            <div class="quantity-wrapper"
+                                data-original="<%= originalPrice %>"
+                                data-final="<%= finalPrice %>"
+                                data-discount="<%= discountPerUnit %>">
 
-                            <button class="btn-qty qty-minus"
-                                <%= item.quantity <= 1 ? "disabled" : "" %>>
-                                <i class="fa-solid fa-minus"></i>
-                            </button>
+                                <button class="btn-qty qty-minus"
+                                    <%= item.quantity <= 1 ? "disabled" : "" %>>
+                                    <i class="fa-solid fa-minus"></i>
+                                </button>
 
-                            <input type="text"
-                                value="<%= item.quantity %>"
-                                class="qty-input"
-                            readonly>
+                                <input type="text"
+                                    value="<%= item.quantity %>"
+                                    class="qty-input"
+                                readonly>
 
-                            <button class="btn-qty qty-plus"
-                                <%= item.quantity >= 10 ? "disabled" : "" %>>
-                                <i class="fa-solid fa-plus"></i>
-                            </button>
-                        </div>
+                                <button class="btn-qty qty-plus"
+                                    <%= item.quantity >= 10 ? "disabled" : "" %>>
+                                    <i class="fa-solid fa-plus"></i>
+                                </button>
+                            </div>
+                        <% } %>
 
                         <div class="cart-price-total item-total">
                             ₹<%= itemTotal.toLocaleString() %>

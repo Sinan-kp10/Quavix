@@ -31,7 +31,7 @@ export const getAllCoupons=async(search="",status="all",page=1,limit=12)=>{
     }
 }
 
-export const addCouponService= async(code,discountAmount,minPurchaseAmount,date)=>{
+export const addCouponService= async(code,discountAmount,minPurchaseAmount,date,couponType,maxDiscountAmount)=>{
 
     const existingCoupon = await couponsModel.findOne({ code });
 
@@ -43,8 +43,9 @@ export const addCouponService= async(code,discountAmount,minPurchaseAmount,date)
         code:code,
         discountAmount:discountAmount,
         minPurchaseAmount:minPurchaseAmount,
-        expiryDate:date
-
+        expiryDate:date,
+        couponType: couponType || "fixed",
+        maxDiscountAmount: maxDiscountAmount || 0
     })
 
     await newCoupon.save()
@@ -53,7 +54,7 @@ export const addCouponService= async(code,discountAmount,minPurchaseAmount,date)
 
 }
 
-export const updateCoupon = async (id, code, discountAmount, minPurchaseAmount,date) => {
+export const updateCoupon = async (id, code, discountAmount, minPurchaseAmount,date,couponType,maxDiscountAmount) => {
 
     const coupon = await couponsModel.findById(id)
 
@@ -67,7 +68,7 @@ export const updateCoupon = async (id, code, discountAmount, minPurchaseAmount,d
         throw new Error("Coupon code already exists")
     }
 
-    if( coupon.code === code &&coupon.discountAmount == discountAmount &&coupon.minPurchaseAmount == minPurchaseAmount && new Date(coupon.expiryDate).toISOString().split("T")[0] === date ){
+    if( coupon.code === code &&coupon.discountAmount == discountAmount &&coupon.minPurchaseAmount == minPurchaseAmount && new Date(coupon.expiryDate).toISOString().split("T")[0] === date && coupon.couponType === couponType && coupon.maxDiscountAmount == maxDiscountAmount ){
         throw new Error("No changes were made")
     }
 
@@ -75,7 +76,9 @@ export const updateCoupon = async (id, code, discountAmount, minPurchaseAmount,d
         code,
         discountAmount,
         minPurchaseAmount,
-        expiryDate: date
+        expiryDate: date,
+        couponType,
+        maxDiscountAmount
     })
 
     return true

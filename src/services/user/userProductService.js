@@ -30,6 +30,8 @@ export const getFilterdProduct = async (
     let variantList = [];
     products.forEach(product => {
 
+        if (product.category?.status !== "Active") return;
+
         const offer = Math.max(product.offerPercentage || 0, product.category?.categoryOffer || 0);
 
         product.variants
@@ -126,6 +128,8 @@ export const findProducts = async (search) => {
 
     products = products.map(product => {
 
+        if (product.category?.status !== "Active") return null;
+
         const matchedVariants = product.variants.filter(variant => {
 
             const priceMatch = priceFilter? variant.price <= priceFilter : true;
@@ -140,7 +144,7 @@ export const findProducts = async (search) => {
 
         return {...product.toObject(), variants: matchedVariants };
 
-    }).filter(product => product.variants.length > 0);
+    }).filter(product => product && product.variants.length > 0);
 
     return products;
 }
@@ -156,7 +160,7 @@ export const addWishlistService = async (userId, productId, variantId) => {
         });
 
         await wishlist.save();
-        return { added: true };
+        return { added: true,count: wishlist.items.length };
     }
 
     const existingIndex = wishlist.items.findIndex(item =>
@@ -167,7 +171,7 @@ export const addWishlistService = async (userId, productId, variantId) => {
     if (existingIndex > -1) {
         wishlist.items.splice(existingIndex, 1);
         await wishlist.save();
-        return { added: false };
+        return { added: false,count: wishlist.items.length };
     }
 
     wishlist.items.push({
@@ -176,14 +180,14 @@ export const addWishlistService = async (userId, productId, variantId) => {
     });
 
     await wishlist.save();
-    return { added: true };
+    return { added: true,count: wishlist.items.length };
 }
 
 export const addToCartService = async (userId, productId, variantId) => {
 
-    const product = await productModel.findById(productId)
-    if (!product) {
-        throw new Error("Product not found");
+    const product = await productModel.findById(productId).populate("category")
+    if (!product || product.isDeleted || product.category?.status !== "Active") {
+        throw new Error("This product is currently not available");
     }
 
     const variant = product.variants.find(v =>
@@ -322,8 +326,8 @@ export const createOrder = async ({ userId,addressId, paymentMethod,buyNowData,c
 
         const variant = product.variants.id(variantId);
 
-        if (!variant || variant.status !== "Active") {
-            throw new Error("Variant not available");
+        if (!variant || variant.status !== "Active" || product.isDeleted || product.category?.status !== "Active") {
+            throw new Error("Product is no longer available");
         }
 
         if (variant.stock < quantity) {
@@ -374,7 +378,9 @@ export const createOrder = async ({ userId,addressId, paymentMethod,buyNowData,c
 
             const variant = product.variants.id(item.variant);
 
-            if (!variant) continue;
+            if (!variant || product.isDeleted || product.category?.status !== "Active") {
+                throw new Error(`${product.name} is no longer available`);
+            }
 
             if (variant.stock < item.quantity) {
                 throw new Error(`${product.name} is out of stock`);
@@ -426,8 +432,17 @@ export const createOrder = async ({ userId,addressId, paymentMethod,buyNowData,c
             expiryDate: { $gte: new Date() }
         });
 
-        if (coupon && subtotal >= coupon.minPurchaseAmount) {
+        if (!coupon) {
+            throw new Error("Applied coupon is no longer available or has expired");
+        }
 
+        if (coupon.couponType === "percentage") {
+            let discount = (subtotal * coupon.discountAmount) / 100;
+            if (coupon.maxDiscountAmount > 0 && discount > coupon.maxDiscountAmount) {
+                discount = coupon.maxDiscountAmount;
+            }
+            couponDiscount = Math.round(discount);
+        } else {
             couponDiscount = coupon.discountAmount;
         }
     }
@@ -449,6 +464,7 @@ export const createOrder = async ({ userId,addressId, paymentMethod,buyNowData,c
         discount: totalDiscount,
         shippingCharge: 0,
         couponDiscount,
+        couponCode: couponCode || null,
         totalAmount: finalTotal
     });
 
@@ -487,6 +503,8 @@ export const getAllOrders = async (userId, status = "all", search = "", page = 1
                 ...item.toObject(),
                 orderId: order.orderId,
                 createdAt: order.createdAt,
+                subtotal: order.subtotal,
+                couponDiscount: order.couponDiscount,
                 totalAmount: order.totalAmount
             })
 

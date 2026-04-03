@@ -857,11 +857,29 @@ export const loadReports=async(req,res)=>{
 
         const totalPages = Math.ceil(totalOrders / limit)
 
+        let flattenedItems = []
+
+        orderList.forEach(order => {
+            order.items.forEach(item => {
+                flattenedItems.push({
+                    _id: order._id,
+                    orderId: order.orderId,
+                    createdAt: order.createdAt,
+                    user: order.user,
+                    paymentMethod: order.paymentMethod,
+                    subtotal: order.subtotal,
+                    couponDiscount: order.couponDiscount,
+                    totalAmount: order.totalAmount,
+                    items: item
+                })
+            })
+        })
+
 
         res.render("admin/reports",{ 
             title: "Sales and Reports -Quavix",
             css: "adminStyle",
-            order:orderList,
+            order:flattenedItems,
             currentPage:page,
             totalPages,
             search,
@@ -957,6 +975,14 @@ export const exportExcel = async (req, res) => {
 
         orderList.forEach(order => {
             order.items.forEach(item => {
+
+                let finalItemTotal = item.total;
+                if(order.couponDiscount && order.subtotal > 0){
+                    const itemShare = item.total / order.subtotal;
+                    const couponShare = order.couponDiscount * itemShare;
+                    finalItemTotal = Math.round(item.total - couponShare);
+                }
+
                 data.push([
                     order.orderId,
                     formatDate(order.createdAt),
@@ -965,7 +991,7 @@ export const exportExcel = async (req, res) => {
                     item.productName,
                     item.quantity,
                     item.price,
-                    item.total,
+                    finalItemTotal,
                     order.paymentMethod,
                     formatStatus(item.orderStatus)
                 ]);
@@ -1135,12 +1161,19 @@ export const exportPDF = async (req, res) => {
                     ?.replaceAll("_", " ")
                     .replace(/\b\w/g, c => c.toUpperCase());
 
+                let finalItemTotal = item.total;
+                if(order.couponDiscount && order.subtotal > 0){
+                    const itemShare = item.total / order.subtotal;
+                    const couponShare = order.couponDiscount * itemShare;
+                    finalItemTotal = Math.round(item.total - couponShare);
+                }
+
                 doc.text(order.orderId, cols.order, y);
                 doc.text(formatDate(order.createdAt), cols.date, y);
                 doc.text(order.user?.name || "N/A", cols.customer, y);
                 doc.text(item.productName.substring(0, 25), cols.product, y);
                 doc.text(item.quantity.toString(), cols.qty, y);
-                doc.text(item.total.toString(), cols.total, y);
+                doc.text(finalItemTotal.toString(), cols.total, y);
                 doc.text(status, cols.status, y);
 
                 y += 18;

@@ -11,7 +11,7 @@ import nocache from "nocache";
 import { toastMiddleware } from "./src/middleware/toastMiddleware.js"
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
-import { cartCountMiddleware } from "./src/middleware/user/cartCount.js"
+import { cartCountMiddleware,wishlistCountMiddleware } from "./src/middleware/user/cartCount.js"
 const app=express()
 dotenv.config();
 import passport from "./src/config/passport.js";
@@ -39,6 +39,8 @@ app.use(passport.initialize())
 app.use(passport.session())
 app.use(toastMiddleware)
 app.use(cartCountMiddleware)
+app.use(wishlistCountMiddleware)
+
 
 app.use((req,res,next)=>{
   res.locals.user = req.user || req.session.user || null

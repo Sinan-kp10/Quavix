@@ -162,9 +162,6 @@ router.get("/wallet",isLogin , loadWallet)
 router.get("/referral",isLogin,loadReferral)
 
 router.get("/not-found", notFound)
-
 router.get("/logout", logout)
-
-
 
 export default router;

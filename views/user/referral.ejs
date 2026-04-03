@@ -23,7 +23,7 @@
             <!-- Mobile Sidebar (Hidden by default) -->
             <aside class="mobile-sidebar">
                 <div class="sidebar-header">
-                    <a href="index.html" class="logo">
+                    <a href="/" class="logo">
                         <i class="fa-solid fa-bolt text-gradient-clip"></i>
                         <span class="text-gradient">Quavix</span>
                     </a>
@@ -32,7 +32,12 @@
                 <div class="sidebar-content">
                     <a href="/products"><i class="fa-solid fa-shop"></i> Shop</a>
                     <a href="/order-history"><i class="fa-solid fa-box"></i> Orders</a>
-                    <a href="/wishlist"><i class="fa-regular fa-heart"></i> Wishlist</a>
+                    <a href="/wishlist" class="relative wishlist-nav">
+                        <i class="fa-regular fa-heart"></i> Wishlist
+                        <% if (wishlistCount > 0) { %>
+                            <span class="badge wishlist-sidebar-badge"><%= wishlistCount %></span>
+                        <% } %>
+                    </a>
                     <a href="/cart" class="relative">
                         <i class="fa-solid fa-cart-shopping"></i> Cart
 
@@ -69,8 +74,12 @@
                     </button>
                 </form>
 
-                <a href="/wishlist" class="relative">
+                <a href="/wishlist" class="relative wishlist-nav">
                     <i class="fa-regular fa-heart nav-icon-lg"></i>
+                    <% if (wishlistCount > 0) { %>
+                        <span class="badge wishlist-badge"><%= wishlistCount %></span>
+                        
+                    <% } %>
                 </a>
 
                 <a href="/cart" class="relative">

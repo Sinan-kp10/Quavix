@@ -1,197 +1,237 @@
 <link
     href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@400;500;600;700;800&display=swap"
     rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 
 <body class="order-details-page">
-    <% if (typeof toastMessage !== "undefined") { %>
-        <div id="toast" class="toast <%= toastType %>">
-            <%= toastMessage %>
-        </div>
-    <% } %>
-
-    <!-- Navbar -->
-    <nav class="navbar">
-        <div class="container nav-container">
-            <a href="/" class="logo">
-                <i class="fa-solid fa-bolt text-gradient-clip"></i>
-                <span class="text-gradient">Quavix</span>
-            </a>
-
-            <!-- Mobile Menu Elements (from standard template) -->
-            <div class="mobile-search-container">
-                <div class="hamburger-menu">
-                    <i class="fa-solid fa-bars"></i>
+    <div id="admin-spinner" class="spinner-overlay" style="display:none;">
+        <div class="spinner"></div>
+    </div>
+    <% if (typeof toastMessage !=="undefined" ) { %>
+        <% if (toastType==="error" ) { %>
+            <script>
+                document.addEventListener("DOMContentLoaded", function () {
+                    Swal.fire({
+                        icon: "error",
+                        title: "Action Restricted",
+                        text: "<%= toastMessage %>",
+                        confirmButtonColor: "#6366f1"
+                    })
+                })
+            </script>
+            <% } else { %>
+                <div id="toast" class="toast <%= toastType %>">
+                    <%= toastMessage %>
                 </div>
-                <div class="mobile-search">
-                    <input type="text" placeholder="Search gadgets...">
-                    <button><i class="fa-solid fa-magnifying-glass"></i></button>
-                </div>
-            </div>
-
-            <aside class="mobile-sidebar">
-                <div class="sidebar-header">
-                    <a href="/" class="logo">
-                        <i class="fa-solid fa-bolt text-gradient-clip"></i>
-                        <span class="text-gradient">Quavix</span>
-                    </a>
-                    <button class="close-btn"><i class="fa-solid fa-xmark"></i></button>
-                </div>
-                <div class="sidebar-content">
-                    <a href="/products"><i class="fa-solid fa-shop"></i> Shop</a>
-                    <a href="/order-history" class="text-primary"><i class="fa-solid fa-box text-primary"></i>
-                        Orders</a>
-                    <a href="/wishlist"><i class="fa-regular fa-heart"></i> Wishlist</a>
-                    <a href="/cart" class="relative">
-                        <i class="fa-solid fa-cart-shopping"></i> Cart
-
-                        <% if (cartCount > 0) { %>
-                            <span class="badge cart-sidebar-badge"><%= cartCount %></span>
-                        <% } %>
-
-                    </a>
-                    <% if (user) { %>
-                        <a href="/profile"><i class="fa-solid fa-user"></i> Profile</a>
-                        <a href="/logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
-                    <% } else { %>
-                            <a href="/login"><i class="fa-solid fa-right-to-bracket"></i> Sign In</a>
+                <% } %>
                     <% } %>
-                </div>
-            </aside>
 
-            <div class="mobile-overlay"></div>
+                        <!-- Navbar -->
+                        <nav class="navbar">
+                            <div class="container nav-container">
+                                <a href="/" class="logo">
+                                    <i class="fa-solid fa-bolt text-gradient-clip"></i>
+                                    <span class="text-gradient">Quavix</span>
+                                </a>
 
-            <!-- Desktop Menu -->
-            <div class="nav-menu">
-                <a href="/">Home</a>
-                <a href="/products">Shop</a>
-                <a href="/order-history" class="text-primary">Orders</a>
-            </div>
-
-            <div class="nav-icons">
-                <form class="nav-search" action="/products/search" method="GET">
-                    <input type="text" name="q" placeholder="Search gadgets...">
-                    <button type="submit">
-                        <i class="fa-solid fa-magnifying-glass"></i>
-                    </button>
-                </form>
-
-                <a href="/wishlist" class="relative">
-                    <i class="fa-regular fa-heart nav-icon-lg"></i>
-                </a>
-                <a href="/cart" class="relative">
-                    <i class="fa-solid fa-cart-shopping nav-icon-lg"></i>
-
-                    <% if (cartCount > 0) { %>
-                        <span class="badge cart-badge"><%= cartCount %></span>
-                    <% } %>
-                </a>
-                <% if (user) { %>
-                    <a href="/profile" class="nav-profile-icon">
-
-                        <% if (user.profileImage) { %>
-                            <img src="<%= user.profileImage %>" alt="Profile" class="nav-profile-img">
-                            <% } else { %>
-                                <div class="nav-default-avatar">
-                                    <%= user.name.charAt(0).toUpperCase() %>
+                                <!-- Mobile Menu Elements (from standard template) -->
+                                <div class="mobile-search-container">
+                                    <div class="hamburger-menu">
+                                        <i class="fa-solid fa-bars"></i>
+                                    </div>
+                                    <div class="mobile-search">
+                                        <input type="text" placeholder="Search gadgets...">
+                                        <button><i class="fa-solid fa-magnifying-glass"></i></button>
+                                    </div>
                                 </div>
-                                <% } %>
 
-                    </a>
-                <% } else { %>
-                        <a href="/login" class="btn btn-primary btn-sm">
-                            <i class="fa-solid fa-right-to-bracket"></i> Sign In
-                        </a>
-                <% } %>
-            </div>
-        </div>
-    </nav>
+                                <aside class="mobile-sidebar">
+                                    <div class="sidebar-header">
+                                        <a href="/" class="logo">
+                                            <i class="fa-solid fa-bolt text-gradient-clip"></i>
+                                            <span class="text-gradient">Quavix</span>
+                                        </a>
+                                        <button class="close-btn"><i class="fa-solid fa-xmark"></i></button>
+                                    </div>
+                                    <div class="sidebar-content">
+                                        <a href="/products"><i class="fa-solid fa-shop"></i> Shop</a>
+                                        <a href="/order-history" class="text-primary"><i
+                                                class="fa-solid fa-box text-primary"></i>Orders</a>
+                                        <a href="/wishlist" class="relative wishlist-nav">
+                                            <i class="fa-regular fa-heart"></i> Wishlist
+                                            <% if (wishlistCount> 0) { %>
+                                                <span class="badge wishlist-sidebar-badge">
+                                                    <%= wishlistCount %>
+                                                </span>
+                                                <% } %>
+                                        </a>
+                                        <a href="/cart" class="relative">
+                                            <i class="fa-solid fa-cart-shopping"></i> Cart
+
+                                            <% if (cartCount> 0) { %>
+                                                <span class="badge cart-sidebar-badge">
+                                                    <%= cartCount %>
+                                                </span>
+                                                <% } %>
+
+                                        </a>
+                                        <% if (user) { %>
+                                            <a href="/profile"><i class="fa-solid fa-user"></i> Profile</a>
+                                            <a href="/logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+                                            <% } else { %>
+                                                <a href="/login"><i class="fa-solid fa-right-to-bracket"></i> Sign
+                                                    In</a>
+                                                <% } %>
+                                    </div>
+                                </aside>
+
+                                <div class="mobile-overlay"></div>
+
+                                <!-- Desktop Menu -->
+                                <div class="nav-menu">
+                                    <a href="/">Home</a>
+                                    <a href="/products">Shop</a>
+                                    <a href="/order-history" class="text-primary">Orders</a>
+                                </div>
+
+                                <div class="nav-icons">
+                                    <form class="nav-search" action="/products/search" method="GET">
+                                        <input type="text" name="q" placeholder="Search gadgets...">
+                                        <button type="submit">
+                                            <i class="fa-solid fa-magnifying-glass"></i>
+                                        </button>
+                                    </form>
+
+                                    <a href="/wishlist" class="relative wishlist-nav">
+                                        <i class="fa-regular fa-heart nav-icon-lg"></i>
+                                        <% if (wishlistCount> 0) { %>
+                                            <span class="badge wishlist-badge">
+                                                <%= wishlistCount %>
+                                            </span>
+
+                                            <% } %>
+                                    </a>
+                                    <a href="/cart" class="relative">
+                                        <i class="fa-solid fa-cart-shopping nav-icon-lg"></i>
+
+                                        <% if (cartCount> 0) { %>
+                                            <span class="badge cart-badge">
+                                                <%= cartCount %>
+                                            </span>
+                                            <% } %>
+                                    </a>
+                                    <% if (user) { %>
+                                        <a href="/profile" class="nav-profile-icon">
+
+                                            <% if (user.profileImage) { %>
+                                                <img src="<%= user.profileImage %>" alt="Profile"
+                                                    class="nav-profile-img">
+                                                <% } else { %>
+                                                    <div class="nav-default-avatar">
+                                                        <%= user.name.charAt(0).toUpperCase() %>
+                                                    </div>
+                                                    <% } %>
+
+                                        </a>
+                                        <% } else { %>
+                                            <a href="/login" class="btn btn-primary btn-sm">
+                                                <i class="fa-solid fa-right-to-bracket"></i> Sign In
+                                            </a>
+                                            <% } %>
+                                </div>
+                            </div>
+                        </nav>
 
 
-    <div class="container order-details-py">
+                        <div class="container order-details-py">
 
 
-        <!-- Breadcrumb & Title -->
-        <div class="mb-6 flex justify-between items-end flex-wrap gap-4">
-            <div>
-                <a href="/order-history"
-                    class="text-sm text-muted hover-action inline-flex items-center gap-2 mb-2">
-                    <i class="fa-solid fa-arrow-left"></i> Back to Orders
-                </a>
-                <h1 class="text-2xl font-bold">Order Details</h1>
-            </div>
-            <%
-                
-                const status = item.orderStatus
+                            <!-- Breadcrumb & Title -->
+                            <div class="mb-6 flex justify-between items-end flex-wrap gap-4">
+                                <div>
+                                    <a href="/order-history"
+                                        class="text-sm text-muted hover-action inline-flex items-center gap-2 mb-2">
+                                        <i class="fa-solid fa-arrow-left"></i> Back to Orders
+                                    </a>
+                                    <h1 class="text-2xl font-bold">Order Details</h1>
+                                </div>
+                                <% const status=item.orderStatus; let returnAllowed=false; if(status==="delivered" &&
+                                    item.deliveredAt){ const days=(Date.now() - new Date(item.deliveredAt)) / (1000 * 60
+                                    * 60 * 24); if(days <=7){ returnAllowed=true; } } %>
 
-                let returnAllowed = false
+                                    <div class="mb-1 flex items-center gap-6">
 
-                if(status === "delivered" && item.deliveredAt){
-                    const days = (Date.now() - new Date(item.deliveredAt)) / (1000 * 60 * 60 * 24)
-                    if(days <= 7){
-                        returnAllowed = true
-                    }
-                }
-            %>
+                                        <% if( status !=="cancelled" && status !=="returned" && status
+                                            !=="return_Request" && status !=="return_rejected" ){ %>
 
-            <div class="mb-1 flex items-center gap-6">
+                                            <% if(status==="delivered" ){ %>
 
-                <% if(
-                    status !== "cancelled" &&
-                    status !== "returned" &&
-                    status !== "return_Request" &&
-                    status !== "return_rejected"
-                ){ %>
+                                                <% if(returnAllowed){ %>
 
-                    <% if(status === "delivered"){ %>
+                                                    <!-- RETURN ORDER -->
+                                                    <a href="#"
+                                                        class="text-sm font-medium text-primary hover:underline flex items-center gap-2"
+                                                        onclick="toggleModal(true); return false;"><i
+                                                            class="fa-solid fa-circle-question opacity-80"></i> Return
+                                                        Item</a>
 
-                        <% if(returnAllowed){ %>
+                                                    <% } %>
 
-                        <!-- RETURN ORDER -->
-                        <a href="#" class="text-sm font-medium text-primary hover:underline flex items-center gap-2"onclick="toggleModal(true); return false;"><i class="fa-solid fa-circle-question opacity-80"></i> Need Help?</a>
+                                                <% } else { %>
 
-                        <% } %>
+                                                        <!-- CANCEL ORDER -->
+                                                    <a href="#"
+                                                        class="text-sm font-medium text-primary hover:underline flex items-center gap-2"
+                                                        onclick="toggleModal(true); return false;"><i
+                                                            class="fa-solid fa-circle-question opacity-80"></i>
+                                                        Cancel Item</a>
 
-                    <% } else { %>
+                                                    <% } %>
 
-                        <!-- CANCEL ORDER -->
-                        <a href="#" class="text-sm font-medium text-primary hover:underline flex items-center gap-2"onclick="toggleModal(true); return false;"><i class="fa-solid fa-circle-question opacity-80"></i> Need Help?</a>
-
-                    <% } %>
-
-                <% } %>
+                                                <% } %>
 
 
-                <!-- Divider -->
-                <% if(status === "delivered"){ %>
-                    <div class="h-4 w-px bg-slate-200"></div>
+                                                <!-- Divider -->
+                                                <% if(status==="delivered" ){ %>
+                                                    <div class="h-4 w-px bg-slate-200"></div>
 
-                <!-- INVOICE -->
-                    <a href="/invoice/<%= order.orderId %>?itemId=<%= item.variantId %>" class="text-sm font-medium text-primary hover:underline flex items-center gap-2" title="Download Invoice">
-                        <i class="fa-solid fa-file-arrow-down opacity-80"></i>
-                        Download Invoice
-                    </a>
-                <% } %>
+                                                    <!-- INVOICE -->
+                                                    <a href="#"
+                                                        class="text-sm font-medium text-primary hover:underline flex items-center gap-2"
+                                                        onclick="downloadInvoice('<%= order.orderId %>', '<%= item.variantId %>'); return false;"
+                                                        title="Download Invoice">
+                                                        <i
+                                                            class="fa-solid fa-file-arrow-down opacity-80"></i>
+                                                        Download Invoice
+                                                    </a>
+                                             <% } %>
 
-            </div>
-        </div>
+                                    </div>
+                            </div>
 
-        <!-- Order Status Banner -->
-        <div class="order-status-banner">
-            <div>
-                <p class="text-xs text-muted font-medium tracking-wider">Order ID</p>
-                <p class="font-bold"><%= order.orderId %></p>
-            </div>
-            <div>
-                <p class="text-xs text-muted font-medium tracking-wider">Date Placed</p>
-                <p class="font-bold text-main">
-                <%= new Date(order.createdAt).toLocaleDateString("en-IN", { day: "numeric",month: "long",year: "numeric"}) %></p>
-            </div>
-            <div>
-                <p class="text-xs text-muted font-medium tracking-wider">Status</p>
+                            <!-- Order Status Banner -->
+                            <div class="order-status-banner">
+                                <div>
+                                    <p class="text-xs text-muted font-medium tracking-wider">Order ID</p>
+                                    <p class="font-bold">
+                                        <%= order.orderId %>
+                                    </p>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-muted font-medium tracking-wider">Date Placed</p>
+                                    <p class="font-bold text-main">
+                                        <%= new Date(order.createdAt).toLocaleDateString("en-IN", { day: "numeric"
+                                            ,month: "long" ,year: "numeric" }) %>
+                                    </p>
+                                </div>
+                                <div>
+                                    <p class="text-xs text-muted font-medium tracking-wider">Status</p>
 
-            <div class="status-badge badge-<%= item.orderStatus.toLowerCase().replaceAll('_','-') %>">
-                <i class="fa-solid fa-circle-check"></i>
-                <%= item.orderStatus.replaceAll("_"," ").replace(/\b\w/g, l => l.toUpperCase()) %>
+                                    <div
+                                        class="status-badge badge-<%= item.orderStatus.toLowerCase().replaceAll('_','-') %>">
+                                        <i class="fa-solid fa-circle-check"></i>
+                                        <%= item.orderStatus.replaceAll("_"," ").replace(/\b\w/g, l => l.toUpperCase()) %>
             </div>
 
             </div>
@@ -200,23 +240,24 @@
 
 
             <p class="text-sm font-medium text-yellow-700" style="color: red;">
-                 Your return request has been submitted and is waiting for admin approval.
+                Your return request has been submitted and is waiting for admin
+                approval.
             </p>
 
-        <% } %>
+            <% } %>
 
-        <% if(status === "return_rejected"){ %>
-
-
-            <p class="text-sm font-medium text-red-600" style="color: #6041E8;">
-                Your return request was rejected by admin.
-            </p>
-            <p class="text-sm text-red-600 mt-1">
-                Reason: <%= item.returnRejectReason || "No reason provided" %>
-            </p>
+                <% if(status==="return_rejected" ){ %>
 
 
-        <% } %>
+                    <p class="text-sm font-medium text-red-600" style="color: #6041E8;">
+                        Your return request was rejected by admin.
+                    </p>
+                    <p class="text-sm text-red-600 mt-1">
+                        Reason: <%= item.returnRejectReason || "No reason provided" %>
+                    </p>
+
+
+            <% } %>
 
         <!-- Main Combined Layout -->
         <div class="order-combined-layout">
@@ -227,53 +268,71 @@
                 <!-- Products Section -->
                 <div class="flex flex-col gap-2">
                     <!-- Product -->
-                   <div class="product-item-card">
+                    <div class="product-item-card">
 
                         <div class="product-img-wrap">
-                            <img src="<%= item.productImage %>" alt="<%= item.productName%>">
+                            <img src="<%= item.productImage %>"
+                                alt="<%= item.productName%>">
                         </div>
 
-                        <div class="flex-grow flex flex-col justify-between min-h-80">
+                        <div
+                            class="flex-grow flex flex-col justify-between min-h-80">
 
                             <div>
 
-                                <div class="flex justify-between items-start mb-1 flex-wrap gap-2">
+                                <div
+                                    class="flex justify-between items-start mb-1 flex-wrap gap-2">
 
-                                    <h3 class="font-bold text-lg text-main">
+                                    <h3
+                                        class="font-bold text-lg text-main">
                                         <%= item.productName %>
                                     </h3>
 
-                                    <%
-                                    let itemPriceAfterCoupon = item.price;
+                                    <% let
+                                        itemPriceAfterCoupon=item.price;
+                                        if(order.couponDiscount &&
+                                        order.subtotal> 0){
 
-                                    if(order.couponDiscount && order.subtotal > 0){
+                                        const itemShare = item.total /
+                                        order.subtotal
+                                        const couponShare =
+                                        order.couponDiscount * itemShare
 
-                                        const itemShare = item.total / order.subtotal
-                                        const couponShare = order.couponDiscount * itemShare
+                                        const perUnitCoupon =
+                                        couponShare / item.quantity
 
-                                        const perUnitCoupon = couponShare / item.quantity
+                                        itemPriceAfterCoupon =
+                                        Math.round(item.price -
+                                        perUnitCoupon)
+                                        }
+                                        %>
 
-                                        itemPriceAfterCoupon = Math.round(item.price - perUnitCoupon)
-                                    }
-                                    %>
-
-                                    <p class="font-bold text-lg text-primary">
-                                        ₹<%= itemPriceAfterCoupon.toLocaleString("en-IN") %>
-                                    </p>
+                                        <p
+                                            class="font-bold text-lg text-primary">
+                                            ₹<%= itemPriceAfterCoupon.toLocaleString("en-IN")
+                                                %>
+                                        </p>
 
                                 </div>
 
-                                <div class="text-sm text-muted flex flex-col gap-1 mt-2">
+                                <div
+                                    class="text-sm text-muted flex flex-col gap-1 mt-2">
 
-                                    <% item.attributes.forEach(attr => { %>
+                                    <% item.attributes.forEach(attr=> {
+                                        %>
                                         <span>
-                                            <strong><%= attr.name %>:</strong> <%= attr.value %>
+                                            <strong>
+                                                <%= attr.name %>:
+                                            </strong>
+                                            <%= attr.value %>
                                         </span>
-                                    <% }) %>
+                                        <% }) %>
 
-                                    <span class="font-medium mt-1">
-                                        Qty: <%= item.quantity %>
-                                    </span>
+                                            <span
+                                                class="font-medium mt-1">
+                                                Qty: <%= item.quantity
+                                                    %>
+                                            </span>
 
                                 </div>
 
@@ -288,42 +347,69 @@
                 <div class="order-info-bottom-grid">
                     <!-- Shipping Details -->
                     <div class="card p-6">
-                        <h3 class="font-bold text-lg mb-4 flex items-center gap-2">
-                            <i class="fa-solid fa-location-dot text-primary"></i> Shipping Address
+                        <h3
+                            class="font-bold text-lg mb-4 flex items-center gap-2">
+                            <i
+                                class="fa-solid fa-location-dot text-primary"></i>
+                            Shipping Address
                         </h3>
                         <div class="text-sm address-details-text">
-                            <p class="font-bold mb-1 text-main address-name"><%= order.shippingAddress?.fullname || "N/A" %></p>
+                            <p
+                                class="font-bold mb-1 text-main address-name">
+                                <%= order.shippingAddress?.fullname
+                                    || "N/A" %>
+                            </p>
 
-                            <p><%= order.shippingAddress?.street || "" %></p>
+                            <p>
+                                <%= order.shippingAddress?.street || ""
+                                    %>
+                            </p>
 
-                            <p><%= order.shippingAddress?.city || "" %> - <%= order.shippingAddress?.pincode || "" %></p>
+                            <p>
+                                <%= order.shippingAddress?.city || "" %>
+                                    - <%= order.shippingAddress?.pincode
+                                        || "" %>
+                            </p>
 
-                            <p><%= order.shippingAddress?.state || "" %></p>
+                            <p>
+                                <%= order.shippingAddress?.state || ""
+                                    %>
+                            </p>
 
-                            <p class="mt-3 text-primary font-medium"><i class="fa-solid fa-phone text-muted phone-icon-sm"></i><%= order.shippingAddress?.phone || "" %></p>
+                            <p class="mt-3 text-primary font-medium"><i
+                                    class="fa-solid fa-phone text-muted phone-icon-sm"></i>
+                                <%= order.shippingAddress?.phone || ""
+                                    %>
+                            </p>
 
-                            </div>
                         </div>
+                    </div>
 
                     <!-- Payment Summary -->
                     <div class="card p-6">
 
-                        <div class="flex justify-between items-center mb-6">
+                        <div
+                            class="flex justify-between items-center mb-6">
 
-                            <h3 class="font-bold text-lg flex items-center gap-2">
-                                <i class="fa-solid fa-receipt text-primary"></i>
+                            <h3
+                                class="font-bold text-lg flex items-center gap-2">
+                                <i
+                                    class="fa-solid fa-receipt text-primary"></i>
                                 Payment Summary
                             </h3>
 
-                            <% const payStatus = item.paymentStatus || "pending" %>
+                            <% const payStatus=item.paymentStatus
+                                || "pending" %>
 
-                            <% if(order.paymentMethod !== "cod" || payStatus === "refunded"){ %>
+                                <% if(order.paymentMethod !=="cod" ||
+                                    payStatus==="refunded" ){ %>
 
-                                <span class="pay-status-badge pay-status-<%= payStatus %>">
-                                    <%= payStatus.toUpperCase() %>
-                                </span>
+                                    <span
+                                        class="pay-status-badge pay-status-<%= payStatus %>">
+                                        <%= payStatus.toUpperCase() %>
+                                    </span>
 
-                            <% } %>
+                                    <% } %>
 
                         </div>
 
@@ -333,54 +419,69 @@
                             <div class="flex flex-col gap-3 mb-6">
 
                                 <div class="flex justify-between">
-                                    <span class="text-slate-500">Method</span>
+                                    <span
+                                        class="text-slate-500">Method</span>
 
                                     <span class="font-bold text-main">
-                                        <%= order.paymentMethod.toUpperCase() %>
+                                        <%= order.paymentMethod.toUpperCase()
+                                            %>
                                     </span>
                                 </div>
 
 
                                 <div class="flex justify-between">
-                                    <span class="text-slate-500">Items Total</span>
+                                    <span class="text-slate-500">Items
+                                        Total</span>
 
                                     <span class="font-medium text-main">
-                                        ₹<%= order.subtotal.toLocaleString() %>
+                                        ₹<%= item.total.toLocaleString()
+                                            %>
                                     </span>
                                 </div>
 
 
-                                <% if(order.couponDiscount && order.couponDiscount > 0){ %>
+                                <% if(itemDiscount && itemDiscount> 0){
+                                    %>
 
-                                <div class="flex justify-between">
-                                    <span class="text-slate-500">Coupon Discount</span>
+                                    <div class="flex justify-between">
+                                        <span
+                                            class="text-slate-500">Coupon
+                                            Discount</span>
 
-                                    <span class="text-green-600 font-medium">
-                                        - ₹<%= order.couponDiscount.toLocaleString() %>
-                                    </span>
-                                </div>
+                                        <span
+                                            class="text-green-600 font-medium">
+                                            - ₹<%=
+                                                Math.round(itemDiscount).toLocaleString()
+                                                %>
+                                        </span>
+                                    </div>
 
-                                <% } %>
-
-
-                                <div class="flex justify-between">
-                                    <span class="text-slate-500">Shipping</span>
-
-                                    <span class="font-medium text-main">
-                                        ₹<%= order.shippingCharge.toLocaleString() %>
-                                    </span>
-                                </div>
+                                    <% } %>
 
 
-                                <div class="flex justify-between items-center font-bold text-main mt-4 border-t pt-4">
+                                        <div
+                                            class="flex justify-between">
+                                            <span
+                                                class="text-slate-500">Shipping</span>
 
-                                    <span>Total Amount</span>
+                                            <span
+                                                class="font-medium text-main">
+                                                ₹<%= 0 %>
+                                            </span>
+                                        </div>
 
-                                    <span class="text-primary">
-                                        ₹<%= order.totalAmount.toLocaleString() %>
-                                    </span>
 
-                                </div>
+                                        <div
+                                            class="flex justify-between items-center font-bold text-main mt-4 border-t pt-4">
+
+                                            <span>Total Amount</span>
+
+                                            <span class="text-primary">
+                                                ₹<%= finalItemTotal.toLocaleString()
+                                                    %>
+                                            </span>
+
+                                        </div>
 
                             </div>
 
@@ -391,173 +492,205 @@
 
             </div>
 
-            <%
-                const steps = ["placed","pending","shipped","out_for_delivery","delivered"];
+            <% const
+                steps=["placed","pending","shipped","out_for_delivery","delivered"];
+                const currentStatus=item.orderStatus?.toLowerCase();
+                const currentIndex=steps.indexOf(currentStatus); let
+                progressClass="" ; if(currentStatus==="pending" )
+                progressClass="progress-h-25" ;
+                if(currentStatus==="shipped" )
+                progressClass="progress-h-50" ;
+                if(currentStatus==="out_for_delivery" )
+                progressClass="progress-h-75" ;
+                if(currentStatus==="delivered" )
+                progressClass="progress-h-100" ;
+                if(currentStatus==="returned" ||
+                currentStatus==="cancelled" )
+                progressClass="progress-h-100" ;
+                if(currentStatus==="return_request" )
+                progressClass="progress-h-100" ;
+                if(currentStatus==="return_rejected" )
+                progressClass="progress-h-100" ; %>
 
-                const currentStatus = item.orderStatus?.toLowerCase();
-                const currentIndex = steps.indexOf(currentStatus);
+                <!-- Right Col: Vertical Stepper -->
+                <aside>
 
-                let progressClass = "";
+                    <div
+                        class="order-tracking-stepper-vertical <%= currentStatus === 'returned' ? 'has-returned' : '' %> <%= currentStatus === 'cancelled' ? 'has-returned' : '' %>">
 
-                if(currentStatus === "pending") progressClass = "progress-h-25";
-                if(currentStatus === "shipped") progressClass = "progress-h-50";
-                if(currentStatus === "out_for_delivery") progressClass = "progress-h-75";
-                if(currentStatus === "delivered") progressClass = "progress-h-100";
-                if(currentStatus === "returned" || currentStatus === "cancelled") progressClass = "progress-h-100";
-                if(currentStatus === "return_request") progressClass = "progress-h-100";
-                if(currentStatus === "return_rejected") progressClass = "progress-h-100";
-            %>
-
-            <!-- Right Col: Vertical Stepper -->
-            <aside>
-
-                <div class="order-tracking-stepper-vertical <%= currentStatus === 'returned' ? 'has-returned' : '' %> <%= currentStatus === 'cancelled' ? 'has-returned' : '' %>">
-
-                    <div class="stepper-line">
-                        <div class="stepper-progress-bar <%= progressClass %>"></div>
-                    </div>
-
-
-                    <!-- PLACED -->
-                    <div class="step-item <%= currentIndex >= 0 ? 'completed' : '' %> <%= currentIndex === 0 ? 'active' : '' %>">
-
-                        <div class="step-icon">
-                            <i class="fa-solid fa-box"></i>
+                        <div class="stepper-line">
+                            <div
+                                class="stepper-progress-bar <%= progressClass %>">
+                            </div>
                         </div>
 
-                        <div class="step-info">
-                            <p class="step-label">Placed</p>
-                        </div>
 
-                    </div>
-
-
-                    <!-- PENDING -->
-                    <div class="step-item <%= currentIndex >= 1 ? 'completed' : '' %> <%= currentIndex === 1 ? 'active' : '' %>">
-
-                        <div class="step-icon">
-                            <i class="fa-solid fa-clock"></i>
-                        </div>
-
-                        <div class="step-info">
-                            <p class="step-label">Pending</p>
-                        </div>
-
-                    </div>
-
-
-                    <!-- SHIPPED -->
-                    <div class="step-item <%= currentIndex >= 2 ? 'completed' : '' %> <%= currentIndex === 2 ? 'active' : '' %>">
-
-                        <div class="step-icon">
-                            <i class="fa-solid fa-truck-fast"></i>
-                        </div>
-
-                        <div class="step-info">
-                            <p class="step-label">Shipped</p>
-                        </div>
-
-                    </div>
-
-
-                    <!-- OUT FOR DELIVERY -->
-                    <div class="step-item <%= currentIndex >= 3 ? 'completed' : '' %> <%= currentIndex === 3 ? 'active' : '' %>">
-
-                        <div class="step-icon">
-                            <i class="fa-solid fa-motorcycle"></i>
-                        </div>
-
-                        <div class="step-info">
-                            <p class="step-label">Out for Delivery</p>
-                        </div>
-
-                    </div>
-
-
-                    <!-- DELIVERED -->
-                    <div class="step-item <%= currentIndex >= 4 ? 'completed' : '' %> <%= currentIndex === 4 ? 'active' : '' %>">
-
-                        <div class="step-icon">
-                            <i class="fa-solid fa-house"></i>
-                        </div>
-
-                        <div class="step-info">
-                            <p class="step-label">Delivered</p>
-                        </div>
-
-                    </div>
-
-                    <% if(currentStatus === "return_request"){ %>
-
-                        <div class="step-item completed active returned-step">
+                        <!-- PLACED -->
+                        <div
+                            class="step-item <%= currentIndex >= 0 ? 'completed' : '' %> <%= currentIndex === 0 ? 'active' : '' %>">
 
                             <div class="step-icon">
-                                <i class="fa-solid fa-arrow-rotate-left"></i>
+                                <i class="fa-solid fa-box"></i>
                             </div>
 
                             <div class="step-info">
-                                <p class="step-label">Return Requested</p>
+                                <p class="step-label">Placed</p>
                             </div>
 
                         </div>
 
-                    <% } %>
 
-                    <% if(currentStatus === "return_rejected"){ %>
-
-                        <div class="step-item completed active return-rejected-step">
+                        <!-- PENDING -->
+                        <div
+                            class="step-item <%= currentIndex >= 1 ? 'completed' : '' %> <%= currentIndex === 1 ? 'active' : '' %>">
 
                             <div class="step-icon">
-                                <i class="fa-solid fa-circle-xmark"></i>
+                                <i class="fa-solid fa-clock"></i>
                             </div>
 
                             <div class="step-info">
-                                <p class="step-label">Return Rejected</p>
+                                <p class="step-label">Pending</p>
                             </div>
 
                         </div>
 
-                    <% } %>
 
-
-                    <!-- RETURNED -->
-                    <% if(currentStatus==="returned" ){ %>
-
-                        <div class="step-item completed active returned-step">
+                        <!-- SHIPPED -->
+                        <div
+                            class="step-item <%= currentIndex >= 2 ? 'completed' : '' %> <%= currentIndex === 2 ? 'active' : '' %>">
 
                             <div class="step-icon">
-                                <i class="fa-solid fa-arrow-rotate-left"></i>
+                                <i class="fa-solid fa-truck-fast"></i>
                             </div>
 
                             <div class="step-info">
-                                <p class="step-label">Returned</p>
+                                <p class="step-label">Shipped</p>
                             </div>
 
                         </div>
 
-                    <% } %>
 
-
-                        <!-- CANCELLED -->
-                    <% if(currentStatus==="cancelled" ){ %>
-
-                        <div class="step-item completed active returned-step">
+                        <!-- OUT FOR DELIVERY -->
+                        <div
+                            class="step-item <%= currentIndex >= 3 ? 'completed' : '' %> <%= currentIndex === 3 ? 'active' : '' %>">
 
                             <div class="step-icon">
-                                <i class="fa-solid fa-ban"></i>
+                                <i class="fa-solid fa-motorcycle"></i>
                             </div>
 
                             <div class="step-info">
-                                <p class="step-label">Cancelled</p>
+                                <p class="step-label">Out for Delivery
+                                </p>
                             </div>
 
                         </div>
 
-                    <% } %>
 
-                </div>
+                        <!-- DELIVERED -->
+                        <div
+                            class="step-item <%= currentIndex >= 4 ? 'completed' : '' %> <%= currentIndex === 4 ? 'active' : '' %>">
 
-            </aside>
+                            <div class="step-icon">
+                                <i class="fa-solid fa-house"></i>
+                            </div>
+
+                            <div class="step-info">
+                                <p class="step-label">Delivered</p>
+                            </div>
+
+                        </div>
+
+                        <% if(currentStatus==="return_request" ){ %>
+
+                            <div
+                                class="step-item completed active returned-step">
+
+                                <div class="step-icon">
+                                    <i
+                                        class="fa-solid fa-arrow-rotate-left"></i>
+                                </div>
+
+                                <div class="step-info">
+                                    <p class="step-label">Return
+                                        Requested</p>
+                                </div>
+
+                            </div>
+
+                            <% } %>
+
+                                <% if(currentStatus==="return_rejected"
+                                    ){ %>
+
+                                    <div
+                                        class="step-item completed active return-rejected-step">
+
+                                        <div class="step-icon">
+                                            <i
+                                                class="fa-solid fa-circle-xmark"></i>
+                                        </div>
+
+                                        <div class="step-info">
+                                            <p class="step-label">Return
+                                                Rejected</p>
+                                        </div>
+
+                                    </div>
+
+                            <% } %>
+
+
+                            <!-- RETURNED -->
+                            <% if(currentStatus==="returned"
+                                ){ %>
+
+                                <div
+                                    class="step-item completed active returned-step">
+
+                                    <div class="step-icon">
+                                        <i
+                                            class="fa-solid fa-arrow-rotate-left"></i>
+                                    </div>
+
+                                    <div class="step-info">
+                                        <p
+                                            class="step-label">
+                                            Returned</p>
+                                    </div>
+
+                                </div>
+
+                                <% } %>
+
+
+                                <!-- CANCELLED -->
+                                <% if(currentStatus==="cancelled"
+                                    ){ %>
+
+                                    <div
+                                        class="step-item completed active returned-step">
+
+                                        <div
+                                            class="step-icon">
+                                            <i
+                                                class="fa-solid fa-ban"></i>
+                                        </div>
+
+                                        <div
+                                            class="step-info">
+                                            <p
+                                                class="step-label">
+                                                Cancelled
+                                            </p>
+                                        </div>
+
+                                    </div>
+
+                                    <% } %>
+
+                    </div>
+
+                </aside>
         </div>
     </div>
 
@@ -566,7 +699,8 @@
         <div class="modal-container">
             <div class="modal-header">
                 <h3>Request Help</h3>
-                <button class="modal-close" id="closeHelpModal" onclick="toggleModal(false)"><i
+                <button class="modal-close" id="closeHelpModal"
+                    onclick="toggleModal(false)"><i
                         class="fa-solid fa-xmark"></i></button>
             </div>
             <div class="modal-body">
@@ -576,7 +710,7 @@
                     <p class="text-sm font-bold text-main mb-2">
                         Request Type:
                         <span class="text-primary">
-                        <%= requestType === "cancel" ? "Cancel Order" : "Return Order" %>
+                            <%= status==="delivered" ? "Return Order" : "Cancel Order" %>
                         </span>
                     </p>
                 </div>
@@ -597,7 +731,8 @@
 
                                     <!-- Product Image -->
                                     <div class="modal-product-img">
-                                        <img src="<%= item.productImage %>" alt="<%= item.productName %>">
+                                        <img src="<%= item.productImage %>"
+                                            alt="<%= item.productName %>">
                                     </div>
 
                                     <!-- Product Details -->
@@ -609,15 +744,20 @@
 
                                         <p class="modal-product-meta text-xs">
 
-                                            <% if(item.attributes && item.attributes.length){ %>
+                                            <% if(item.attributes &&
+                                                item.attributes.length){ %>
 
-                                                <% item.attributes.forEach((attr, index) => { %>
+                                                <% item.attributes.forEach((attr,
+                                                    index)=> { %>
 
-                                                    <%= attr.value %><%= index < item.attributes.length - 1 ? " | " : "" %>
+                                                    <%= attr.value %>
+                                                        <%= index <
+                                                        item.attributes.length - 1
+                                                        ? " | " : "" %>
 
-                                                <% }) %>
+                                                     <% }) %>
 
-                                            <% } %>
+                                                <% } %>
 
                                         </p>
 
@@ -627,9 +767,6 @@
 
                                 <!-- Quantity Selector (only if ordered quantity > 1) -->
                                 <input type="hidden" name="variantId" value="<%= item.variantId %>">
-
-                                
-
                             </div>
 
                         </div>
@@ -637,12 +774,16 @@
 
                     <!-- Select Reason -->
                     <div class="mb-6">
-                        <label class="font-bold block text-sm mb-3">Reason for Request</label>
-                        <select name="reason" id="reason" class="form-input-refined appearance-auto">
+                        <label class="font-bold block text-sm mb-3">Reason for
+                            Request</label>
+                        <select name="reason" id="reason"
+                            class="form-input-refined appearance-auto">
                             <option value="" selected disabled>Select a reason</option>
                             <option value="mind_change">Changed my mind</option>
-                            <option value="price_drop">Found a better price elsewhere</option>
-                            <option value="defective">Item is defective or damaged</option>
+                            <option value="price_drop">Found a better price elsewhere
+                            </option>
+                            <option value="defective">Item is defective or damaged
+                            </option>
                             <option value="wrong_item">Received wrong item</option>
                             <option value="others">Others</option>
                         </select>
@@ -652,19 +793,22 @@
                     <!-- Description -->
                     <div class="mb-4">
                         <label class="font-bold block text-sm mb-3">Details</label>
-                        <textarea name="description" id="description" class="form-input-refined" rows="4"
+                        <textarea name="description" id="description"
+                            class="form-input-refined" rows="4"
                             placeholder="Please describe the issue in detail..."></textarea>
                         <small class="error-message"></small>
 
                     </div>
-                
-            
+
+
                     <div class="modal-footer">
-                        <button class="btn btn-shopping" id="cancelModalBtn" onclick="toggleModal(false)">Cancel</button>
-                        <button type="submit" form="form" class="btn btn-primary">Submit Request</button>
-                    </div>    
-                </form>     
-            </div>      
+                        <button class="btn btn-shopping" id="cancelModalBtn"
+                            onclick="toggleModal(false)">Cancel</button>
+                        <button type="submit" form="form" class="btn btn-primary">Submit
+                            Request</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 
@@ -753,9 +897,9 @@
                 e.classList.remove("input-error")
             })
         }
-        document.getElementById("helpModalOverlay").addEventListener("click", function(e){
+        document.getElementById("helpModalOverlay").addEventListener("click", function (e) {
 
-            if(e.target === this){
+            if (e.target === this) {
                 toggleModal(false)
             }
 
@@ -764,14 +908,42 @@
 
         if (toast) {
             setTimeout(() => {
-            toast.classList.add("show");
+                toast.classList.add("show");
             }, 100);
 
             setTimeout(() => {
-            toast.classList.remove("show");
+                toast.classList.remove("show");
             }, 3000);
         }
-  
+
+        async function downloadInvoice(orderId, variantId) {
+            const spinner = document.getElementById("admin-spinner");
+            if (spinner) spinner.style.display = "flex";
+
+            try {
+                const response = await fetch(`/invoice/${orderId}?itemId=${variantId}`);
+                if (!response.ok) {
+                    throw new Error("Failed to download invoice");
+                }
+
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = `invoice-${orderId}.pdf`;
+                document.body.appendChild(a);
+                a.click();
+                window.URL.revokeObjectURL(url);
+                document.body.removeChild(a);
+
+            } catch (error) {
+                console.error("Error downloading invoice:", error);
+                alert("Failed to download invoice. Please try again.");
+            } finally {
+                if (spinner) spinner.style.display = "none";
+            }
+        }
+
 
     </script>
 

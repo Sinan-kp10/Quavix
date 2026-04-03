@@ -1,4 +1,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@400;500;600;700;800&display=swap"rel="stylesheet">
+<div id="admin-spinner" class="spinner-overlay" style="display:none;">
+    <div class="spinner"></div>
+</div>
 <body data-final="<%= finalTotal %>">
     <% if (typeof toastMessage !== "undefined") { %>
         <div id="toast" class="toast <%= toastType %>">
@@ -145,7 +148,7 @@
                             <% coupons.forEach(coupon => { %>
 
                                 <option value="<%= coupon.code %>">
-                                    <%= coupon.code %> (₹<%= coupon.discountAmount %> OFF)
+                                    <%= coupon.code %> (<%= coupon.couponType === 'percentage' ? coupon.discountAmount + '%' : '₹' + coupon.discountAmount %> OFF)
                                 </option>
 
                             <% }) %>
@@ -187,7 +190,7 @@
                             </p>
 
                             <p class="applied-subtitle">
-                                Coupon applied successfully!
+                                <%= appliedCoupon.couponType === 'percentage' ? appliedCoupon.discountAmount + '%' : '₹' + appliedCoupon.discountAmount %> OFF applied successfully!
                             </p>
 
                         </div>
@@ -301,7 +304,7 @@
 
                 <div class="flex justify-between mb-2">
                     <span>MRP</span>
-                    <span>₹<%= totalMRP.toLocaleString() %></span>
+                    <span>₹<%= subtotal.toLocaleString() %></span>
                 </div>
 
                 <div class="flex justify-between mb-2">
@@ -346,10 +349,16 @@
     <script>
         const finalAmount = Number(document.body.dataset.final);
 
+        const spinner = document.getElementById("admin-spinner");
+
+
         
         document.addEventListener("DOMContentLoaded", () => {
 
             document.getElementById("place-order-btn").addEventListener("click", async () => {
+
+                
+                
 
                 const address = document.querySelector('input[name="address"]:checked');
                 const payment = document.querySelector('input[name="payment"]:checked');
@@ -363,6 +372,8 @@
                     triggerToast("Please select a payment method", "error");
                     return;
                 }
+
+                spinner.style.display = "flex"
 
                 const orderData = {
                     addressId: address.value,
@@ -379,6 +390,9 @@
                     });
 
                     const data = await res.json();
+
+                    
+                    spinner.style.display = "none"
 
 
                     if (!data.success) {
@@ -422,6 +436,9 @@
 
                             handler: async function (response) {
 
+                                
+                                spinner.style.display = "flex"
+
                                 const verifyRes = await fetch("/verify-razorpay",{
                                     method:"POST",
                                     headers:{
@@ -435,6 +452,9 @@
                                 })
 
                                 const verification = await verifyRes.json()
+
+
+                                spinner.style.display = "none"
 
                                 if(verification.success){
                                     window.location.replace(`/order-success/${verification.orderId}`)
@@ -542,6 +562,8 @@
             }
 
         }
+
+        
 
     </script>
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>

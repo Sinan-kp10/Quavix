@@ -40,20 +40,17 @@ export const loadCoupons=async(req,res)=>{
 export const addCoupon=async(req,res)=>{
     try {
 
-        const {code,discountAmount,minPurchaseAmount,date}= req.body
-
-        
-        const regex = /^(?=.*[A-Z])(?=.*[0-9])[A-Z0-9]{6,12}$/
-
-        if (!regex.test(code)) {
-            throw new Error("Code must be at least 6 characters and contain both letters and numbers (A-Z, 0-9)")
-        }
-        
+        const {code,discountAmount,minPurchaseAmount,date,couponType,maxDiscountAmount}= req.body
 
         if (!discountAmount || discountAmount <= 0 ||!minPurchaseAmount || minPurchaseAmount <= 0  || !date){
             throw new Error("All fields are required");
         }
-        else if(minPurchaseAmount <= discountAmount){
+
+        if (couponType === "percentage" && (discountAmount <= 0 || discountAmount > 100)) {
+            throw new Error("Percentage discount must be between 1 and 100");
+        }
+
+        if(couponType === "fixed" && minPurchaseAmount <= discountAmount){
             throw new Error("Discount amount should be lower than min purchase amount");
         }
 
@@ -64,7 +61,7 @@ export const addCoupon=async(req,res)=>{
             throw new Error("Expiry date cannot be in the past");
         }
                 
-        await addCouponService(code,discountAmount,minPurchaseAmount,date)
+        await addCouponService(code,discountAmount,minPurchaseAmount,date,couponType,maxDiscountAmount)
 
         req.session.toastMessage = "Coupon added successfully"
         req.session.toastType = "success"
@@ -86,20 +83,17 @@ export const editCoupon=async(req,res)=>{
         
        
         const {id}=req.params
-        const {code,discountAmount,minPurchaseAmount,date}=req.body
-
-                
-        const regex = /^(?=.*[A-Z])(?=.*[0-9])[A-Z0-9]{6,12}$/
-
-        if (!regex.test(code)) {
-            throw new Error("Code must be at least 6 characters and contain both letters and numbers (A-Z, 0-9)")
-        }
-        
+        const {code,discountAmount,minPurchaseAmount,date,couponType,maxDiscountAmount}=req.body
 
         if (!discountAmount || discountAmount <= 0 ||!minPurchaseAmount || minPurchaseAmount <= 0|| !date){
             throw new Error("All fields are required");
         }
-        else if(minPurchaseAmount <= discountAmount){
+
+        if (couponType === "percentage" && (discountAmount <= 0 || discountAmount > 100)) {
+            throw new Error("Percentage discount must be between 1 and 100");
+        }
+
+        if(couponType === "fixed" && minPurchaseAmount <= discountAmount){
             throw new Error("Discount amount should be lower than min purchase amount");
         }
 
@@ -111,7 +105,7 @@ export const editCoupon=async(req,res)=>{
         }
           
 
-        await updateCoupon(id,code,discountAmount,minPurchaseAmount,date)
+        await updateCoupon(id,code,discountAmount,minPurchaseAmount,date,couponType,maxDiscountAmount)
         req.session.toastMessage = "Coupon updated successfully!";
         req.session.toastType = "success";
         res.redirect("/admin/coupons");

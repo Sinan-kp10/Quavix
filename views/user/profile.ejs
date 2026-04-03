@@ -5,6 +5,10 @@
         </div>
     <% } %>
 
+    <div id="admin-spinner" class="spinner-overlay" style="display:none;">
+        <div class="spinner"></div>
+    </div>
+
     <!-- Navbar -->
     <nav class="navbar navbar-fixed">
         <div class="container nav-container">
@@ -35,7 +39,12 @@
                 <div class="sidebar-content">
                     <a href="/products"><i class="fa-solid fa-shop"></i> Shop</a>
                     <a href="/order-history"><i class="fa-solid fa-box"></i> Orders</a>
-                    <a href="/wishlist"><i class="fa-regular fa-heart"></i> Wishlist</a>
+                    <a href="/wishlist" class="relative wishlist-nav">
+                        <i class="fa-regular fa-heart"></i> Wishlist
+                        <% if (wishlistCount > 0) { %>
+                            <span class="badge wishlist-sidebar-badge"><%= wishlistCount %></span>
+                        <% } %>
+                    </a>
                     <a href="/cart" class="relative">
                         <i class="fa-solid fa-cart-shopping"></i> Cart
 
@@ -73,8 +82,12 @@
                     </button>
                 </form>
 
-                <a href="/wishlist" class="relative">
+                <a href="/wishlist" class="relative wishlist-nav">
                     <i class="fa-regular fa-heart nav-icon-lg"></i>
+                    <% if (wishlistCount > 0) { %>
+                        <span class="badge wishlist-badge"><%= wishlistCount %></span>
+                        
+                    <% } %>
                 </a>
 
                 <a href="/cart" class="relative">
@@ -396,6 +409,9 @@
                 height: 300
             });
 
+            const spinner = document.getElementById("admin-spinner");
+            spinner.style.display = "flex"
+
             canvas.toBlob(function (blob) {
 
                 const formData = new FormData();
@@ -407,6 +423,8 @@
                 })
                 .then(res => res.json())
                 .then(data => {
+
+                    spinner.style.display = "none"
 
                     if (!data.success) {
                         showToast(data.message || "Upload failed", "error");
@@ -421,6 +439,7 @@
 
                 })
                 .catch(() => {
+                    spinner.style.display = "none"
                     showToast("Something went wrong. Please try again.", "error");
                 });
 

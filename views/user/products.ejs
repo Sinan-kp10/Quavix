@@ -35,7 +35,13 @@
                 <div class="sidebar-content">
                     <a href="/products"><i class="fa-solid fa-shop"></i> Shop</a>
                     <a href="/order-history"><i class="fa-solid fa-box"></i> Orders</a>
-                    <a href="/wishlist"><i class="fa-regular fa-heart"></i> Wishlist</a>
+                    <a href="/wishlist" class="relative wishlist-nav">
+                        <i class="fa-regular fa-heart"></i> Wishlist
+                        <% if (wishlistCount > 0) { %>
+                            <span class="badge wishlist-sidebar-badge"><%= wishlistCount %></span>
+                        <% } %>
+                    </a>
+
                     <a href="/cart" class="relative">
                         <i class="fa-solid fa-cart-shopping"></i> Cart
 
@@ -73,8 +79,12 @@
                     </button>
                 </form>
  
-                <a href="/wishlist" class="relative">
+                <a href="/wishlist" class="relative wishlist-nav">
                     <i class="fa-regular fa-heart nav-icon-lg"></i>
+                    <% if (wishlistCount > 0) { %>
+                        <span class="badge wishlist-badge"><%= wishlistCount %></span>
+                        
+                    <% } %>
                 </a>
                 <a href="/cart" class="relative">
                     <i class="fa-solid fa-cart-shopping nav-icon-lg"></i>
@@ -748,12 +758,14 @@
                     icon.classList.remove("fa-regular");
                     icon.classList.add("fa-solid");
                     icon.style.color = "red";
+                    updateWishlistBadge(data.wishlistCount);
 
                     triggerToast(data.message, "success");
                 } else {
                     icon.classList.remove("fa-solid");
                     icon.classList.add("fa-regular");
                     icon.style.color = "#cbd5e1";
+                    updateWishlistBadge(data.wishlistCount);
 
                     triggerToast(data.message, "error");
                 }
@@ -761,7 +773,31 @@
             } catch (err) {
                 triggerToast("Server error", "error");
             }
-        });
+        })
+
+        function updateWishlistBadge(count) {
+
+            const containers = document.querySelectorAll(".wishlist-nav");
+
+            containers.forEach(container => {
+
+                let badge = container.querySelector(".wishlist-badge");
+
+                if (count > 0) {
+                    if (badge) {
+                        badge.innerText = count;
+                    } else {
+                        badge = document.createElement("span");
+                        badge.className = "badge wishlist-badge";
+                        badge.innerText = count;
+                        container.appendChild(badge);
+                    }
+                } else {
+                    if (badge) badge.remove();
+                }
+
+            });
+        }
         const toast = document.getElementById("toast");
 
         if (toast) {

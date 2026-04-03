@@ -1,4 +1,7 @@
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet">
+
 <body>
 
     <!-- Navbar -->
@@ -31,17 +34,22 @@
                 <div class="sidebar-content">
                     <a href="/products"><i class="fa-solid fa-shop"></i> Shop</a>
                     <a href="/orderHistory"><i class="fa-solid fa-box"></i> Orders</a>
-                    <a href="/wishlist"><i class="fa-regular fa-heart"></i> Wishlist</a>
+                    <a href="/wishlist" class="relative wishlist-nav">
+                        <i class="fa-regular fa-heart"></i> Wishlist
+                        <% if (wishlistCount > 0) { %>
+                            <span class="badge wishlist-sidebar-badge"><%= wishlistCount %></span>
+                        <% } %>
+                    </a>
                     <a href="/cart" class="relative">
                         <i class="fa-solid fa-cart-shopping"></i> Cart
                         <span class="badge cart-sidebar-badge">3</span>
                     </a>
                     <% if (user) { %>
-                            <a href="/profile"><i class="fa-solid fa-user"></i> Profile</a>
-                            <a href="/logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+                        <a href="/profile"><i class="fa-solid fa-user"></i> Profile</a>
+                        <a href="/logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
                         <% } else { %>
                             <a href="/login"><i class="fa-solid fa-right-to-bracket"></i> Sign In</a>
-                    <% } %>
+                            <% } %>
                 </div>
             </aside>
 
@@ -64,35 +72,39 @@
                     </button>
                 </form>
 
-                <a href="/wishlist" class="relative">
+                <a href="/wishlist" class="relative wishlist-nav">
                     <i class="fa-regular fa-heart nav-icon-lg"></i>
+                    <% if (wishlistCount > 0) { %>
+                        <span class="badge wishlist-badge"><%= wishlistCount %></span>
+                        
+                    <% } %>
                 </a>
                 <a href="/cart" class="relative">
                     <i class="fa-solid fa-cart-shopping nav-icon-lg"></i>
 
-                    <% if (cartCount > 0) { %>
-                        <span class="badge cart-badge"><%= cartCount %></span>
-                    <% } %>
+                    <% if (cartCount> 0) { %>
+                        <span class="badge cart-badge">
+                            <%= cartCount %>
+                        </span>
+                        <% } %>
                 </a>
                 <% if (user) { %>
                     <a href="/profile" class="nav-profile-icon">
 
                         <% if (user.profileImage) { %>
-                            <img src="<%= user.profileImage %>" 
-                                alt="Profile"
-                                class="nav-profile-img">
-                        <% } else { %>
-                            <div class="nav-default-avatar">
-                                <%= user.name.charAt(0).toUpperCase() %>
-                            </div>
-                        <% } %>
+                            <img src="<%= user.profileImage %>" alt="Profile" class="nav-profile-img">
+                            <% } else { %>
+                                <div class="nav-default-avatar">
+                                    <%= user.name.charAt(0).toUpperCase() %>
+                                </div>
+                                <% } %>
 
                     </a>
-                <% } else { %>
-                    <a href="/login" class="btn btn-primary btn-sm">
-                        <i class="fa-solid fa-right-to-bracket"></i> Sign In
-                    </a>
-                <% } %>
+                    <% } else { %>
+                        <a href="/login" class="btn btn-primary btn-sm">
+                            <i class="fa-solid fa-right-to-bracket"></i> Sign In
+                        </a>
+                        <% } %>
             </div>
         </div>
     </nav>
@@ -104,45 +116,45 @@
             <!-- justify-btween -->
             <form method="GET" action="/order-history" class="page-search" style="flex:1;">
 
-                <input type="text"name="search"value="<%= search || '' %>" placeholder="Search orders..."style="width:100%;">
+                <input type="text" name="search" value="<%= search || '' %>" placeholder="Search orders..."
+                    style="width:100%;">
 
                 <input type="hidden" name="status" value="<%= status %>">
 
                 <% if (search) { %>
-                    <a href="/order-history?status=<%= status %>" 
-                    class="search-clear active" >
+                    <a href="/order-history?status=<%= status %>" class="search-clear active">
                         <i class="fa-solid fa-xmark"></i>
                     </a>
-                <% } %>
+                    <% } %>
 
-                <button type="submit" style="margin-left: 10px;">
-                    <i class="fa-solid fa-magnifying-glass"></i>
-                </button>
+                        <button type="submit" style="margin-left: 10px;">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                        </button>
 
             </form>
             <select class="form-select"
-                    style="width: auto; padding: 0.5rem 0.75rem; font-size: 0.85rem; border: 1.5px solid #e2e8f0; color: #475569; border-radius: 8px; outline: none;"
-                    onchange="filterStatus(this.value)">
+                style="width: auto; padding: 0.5rem 0.75rem; font-size: 0.85rem; border: 1.5px solid #e2e8f0; color: #475569; border-radius: 8px; outline: none;"
+                onchange="filterStatus(this.value)">
 
-                <option value="all" <%= status === "all" ? "selected" : "" %>>All Status</option>
+                <option value="all" <%=status==="all" ? "selected" : "" %>>All Status</option>
 
-                <option value="delivered" <%= status === "delivered" ? "selected" : "" %>>
+                <option value="delivered" <%=status==="delivered" ? "selected" : "" %>>
                     Delivered
                 </option>
 
-                <option value="shipped" <%= status === "shipped" ? "selected" : "" %>>
+                <option value="shipped" <%=status==="shipped" ? "selected" : "" %>>
                     Shipped
                 </option>
 
-                <option value="pending" <%= status === "pending" ? "selected" : "" %>>
+                <option value="pending" <%=status==="pending" ? "selected" : "" %>>
                     Pending
                 </option>
 
-                <option value="cancelled" <%= status === "cancelled" ? "selected" : "" %>>
+                <option value="cancelled" <%=status==="cancelled" ? "selected" : "" %>>
                     Cancelled
                 </option>
 
-                <option value="returned" <%= status === "returned" ? "selected" : "" %>>
+                <option value="returned" <%=status==="returned" ? "selected" : "" %>>
                     Returned
                 </option>
 
@@ -151,170 +163,177 @@
 
         <div class="orders-list">
 
-            <% if (!orders || orders.length === 0) { %>
+            <% if (!orders || orders.length===0) { %>
 
                 <div style="text-align:center;padding:40px">
                     <h3>No Orders Yet</h3>
                     <p class="text-muted">Start shopping to place your first order.</p>
                 </div>
 
-            <% } %>
+                <% } %>
 
 
-            <% orders.forEach(item => { %>
+                    <% orders.forEach(item=> { %>
 
-                <div class="order-history-card">
+                        <div class="order-history-card">
 
-                    <!-- ORDER HEADER -->
-                    <div class="order-card-header">
+                            <!-- ORDER HEADER -->
+                            <div class="order-card-header">
 
-                        <div class="order-header-info">
+                                <div class="order-header-info">
 
-                            <div class="order-info-group">
-                                <p>Order Placed</p>
-                                <p>
-                                    <%= new Date(item.createdAt).toLocaleDateString("en-IN",{
-                                        year:"numeric",
-                                        month:"long",
-                                        day:"numeric"
-                                    }) %>
-                                </p>
-                            </div>
+                                    <div class="order-info-group">
+                                        <p>Order Placed</p>
+                                        <p>
+                                            <%= new Date(item.createdAt).toLocaleDateString("en-IN",{ year:"numeric",
+                                                month:"long", day:"numeric" }) %>
+                                        </p>
+                                    </div>
 
-                            <div class="order-info-group">
-                                <p>Total</p>
-                                <p>₹<%= item.totalAmount.toLocaleString() %></p>
-                            </div>
+                                    <% 
+                                        let finalItemTotal = item.total;
+                                        if (item.couponDiscount && item.subtotal > 0) {
+                                            const itemShare = item.total / item.subtotal;
+                                            const couponShare = item.couponDiscount * itemShare;
+                                            finalItemTotal = Math.round(item.total - couponShare);
+                                        }
+                                    %>
+                                    <div class="order-info-group">
+                                        <p>Total</p>
+                                        <p>₹<%= finalItemTotal.toLocaleString() %>
+                                        </p>
+                                    </div>
 
-                            <div class="order-info-group">
-                                <p>Order ID</p>
-                                <p><%= item.orderId %></p>
-                            </div>
+                                    <div class="order-info-group">
+                                        <p>Order ID</p>
+                                        <p>
+                                            <%= item.orderId %>
+                                        </p>
+                                    </div>
 
-                        </div>
-
-
-                        <div class="order-header-actions">
-
-                            <div class="status-badge badge-<%= item.orderStatus.toLowerCase().replaceAll("_","-") %>">
-
-                                <% if(item.orderStatus === "pending"){ %>
-                                    <i class="fa-solid fa-box"></i>
-                                <% } %>
-
-                                <% if(item.orderStatus === "shipped"){ %>
-                                    <i class="fa-solid fa-truck"></i>
-                                <% } %>
-
-                                <% if(item.orderStatus === "out_for_delivery"){ %>
-                                    <i class="fa-solid fa-truck-fast"></i>
-                                <% } %>
-
-                                <% if(item.orderStatus === "delivered"){ %>
-                                    <i class="fa-solid fa-circle-check"></i>
-                                <% } %>
-
-                                <% if(item.orderStatus === "cancelled"){ %>
-                                    <i class="fa-solid fa-circle-xmark"></i>
-                                <% } %>
-
-                                <% if(item.orderStatus === "returned"){ %>
-                                    <i class="fa-solid fa-rotate-left"></i>
-                                <% } %>
-
-                                <%= item.orderStatus.replaceAll("_"," ").replace(/\b\w/g,l=>l.toUpperCase()) %>
-
-                            </div>
-
-                            <a href="/order-details/<%= item.orderId %>?item=<%= item.variantId %>"
-                            class="btn btn-outline btn-sm">View Details</a>
-
-                        </div>
-
-                    </div>
-
-
-                    <!-- PRODUCT ITEM -->
-                    <div class="order-card-body">
-
-                        <div class="order-product-item">
-
-                            <div class="order-product-img">
-                                <img src="<%= item.productImage %>" alt="<%= item.productName %>">
-                            </div>
-
-                            <div class="order-product-info">
-
-                                <div class="flex justify-between items-start mb-2">
-                                    <h3 class="font-bold text-lg">
-                                        <%= item.productName %>
-                                    </h3>
                                 </div>
 
-                                <% if(item.attributes && item.attributes.length > 0){ %>
 
-                                    <p class="text-sm text-muted">
-                                        <%= item.attributes.map(a => a.value).join(" | ") %>
-                                    </p>
+                                <div class="order-header-actions">
 
-                                <% } %>
+                                    <div class="status-badge badge-<%= item.orderStatus.toLowerCase().replaceAll("_","-") %>">
 
-                                <p class="text-sm text-muted">
-                                    Qty: <%= item.quantity %>
-                                </p>
+                                        <% if(item.orderStatus==="pending" ){ %>
+                                            <i class="fa-solid fa-box"></i>
+                                            <% } %>
+
+                                                <% if(item.orderStatus==="shipped" ){ %>
+                                                    <i class="fa-solid fa-truck"></i>
+                                                    <% } %>
+
+                                                        <% if(item.orderStatus==="out_for_delivery" ){ %>
+                                                            <i class="fa-solid fa-truck-fast"></i>
+                                                            <% } %>
+
+                                                                <% if(item.orderStatus==="delivered" ){ %>
+                                                                    <i class="fa-solid fa-circle-check"></i>
+                                                                    <% } %>
+
+                                                                        <% if(item.orderStatus==="cancelled" ){ %>
+                                                                            <i class="fa-solid fa-circle-xmark"></i>
+                                                                            <% } %>
+
+                                                                                <% if(item.orderStatus==="returned" ){
+                                                                                    %>
+                                                                                    <i
+                                                                                        class="fa-solid fa-rotate-left"></i>
+                                                                                    <% } %>
+
+                                                                                        <%= item.orderStatus.replaceAll("_"," ").replace(/\b\w/g,l=>l.toUpperCase()) %>
 
                             </div>
 
+                            <a href=" /order-details/<%=item.orderId %>?item=<%= item.variantId %>"
+                                                                                                class="btn btn-outline
+                                                                                                btn-sm">View Details</a>
+
+                                    </div>
+
+                                </div>
+
+
+                                <!-- PRODUCT ITEM -->
+                                <div class="order-card-body">
+
+                                    <div class="order-product-item">
+
+                                        <div class="order-product-img">
+                                            <img src="<%= item.productImage %>" alt="<%= item.productName %>">
+                                        </div>
+
+                                        <div class="order-product-info">
+
+                                            <div class="flex justify-between items-start mb-2">
+                                                <h3 class="font-bold text-lg">
+                                                    <%= item.productName %>
+                                                </h3>
+                                            </div>
+
+                                            <% if(item.attributes && item.attributes.length> 0){ %>
+
+                                                <p class="text-sm text-muted">
+                                                    <%= item.attributes.map(a=> a.value).join(" | ") %>
+                                                </p>
+
+                                                <% } %>
+
+                                                    <p class="text-sm text-muted">
+                                                        Qty: <%= item.quantity %>
+                                                    </p>
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                            <% }) %>
+
                         </div>
 
-                    </div>
+                        <!-- Pagination -->
+                        <div class="pagination">
 
-                </div>
+                            <% if(page> 1){ %>
+                                <a href="?status=<%= status %>&search=<%= search %>&page=<%= page - 1 %>"
+                                    class="page-link">
+                                    <i class="fa-solid fa-chevron-left"></i>
+                                </a>
+                                <% } %>
 
-            <% }) %>
+                                    <% let startPage=Math.max(1, page - 1); let endPage=Math.min(totalPages, startPage +
+                                        2); if(endPage - startPage < 2){ startPage=Math.max(1, endPage - 2); } %>
 
+                                        <% for(let i=startPage; i <=endPage; i++){ %>
+                                            <a href="?status=<%= status %>&search=<%= search %>&page=<%= i %>"
+                                                class="page-link <%= page === i ? 'active' : '' %>">
+                                                <%= i %>
+                                            </a>
+                                            <% } %>
+
+                                                <% if(page < totalPages){ %>
+                                                    <a href="?status=<%= status %>&page=<%= page + 1 %>"
+                                                        class="page-link">
+                                                        <i class="fa-solid fa-chevron-right"></i>
+                                                    </a>
+                                                    <% } %>
+
+                        </div>
         </div>
 
-        <!-- Pagination -->
-        <div class="pagination">
-
-            <% if(page > 1){ %>
-                <a href="?status=<%= status %>&search=<%= search %>&page=<%= page - 1 %>" class="page-link">
-                    <i class="fa-solid fa-chevron-left"></i>
-                </a>
-            <% } %>
-
-            <% 
-                let startPage = Math.max(1, page - 1);
-                let endPage = Math.min(totalPages, startPage + 2);
-
-                if(endPage - startPage < 2){
-                    startPage = Math.max(1, endPage - 2);
-                }
-            %>
-
-            <% for(let i = startPage; i <= endPage; i++){ %>
-                <a href="?status=<%= status %>&search=<%= search %>&page=<%= i %>"
-                class="page-link <%= page === i ? 'active' : '' %>">
-                    <%= i %>
-                </a>
-            <% } %>
-
-            <% if(page < totalPages){ %>
-                <a href="?status=<%= status %>&page=<%= page + 1 %>" class="page-link">
-                    <i class="fa-solid fa-chevron-right"></i>
-                </a>
-            <% } %>
-
-        </div>
-    </div>
-    
-    <script src="/js/user/navbar.js"></script>
-    <script>
-        function filterStatus(status){
-            const search = "<%= search || '' %>"
-            window.location.href = `/order-history?status=${status}&search=${search}`;
-        }
-    </script>
+        <script src="/js/user/navbar.js"></script>
+        <script>
+            function filterStatus(status) {
+                const search = "<%= search || '' %>"
+                window.location.href = `/order-history?status=${status}&search=${search}`;
+            }
+        </script>
 
 </body>

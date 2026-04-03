@@ -4,7 +4,24 @@
         <div id="toast" class="toast <%= toastType %> show">
             <%= toastMessage %>
         </div>
-        <% } %>
+    <% } %>
+
+    <% if (typeof isBlocked !== "undefined" && isBlocked) { %>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script>
+            document.addEventListener("DOMContentLoaded", () => {
+                Swal.fire({
+                    title: "Product Unavailable",
+                    text: "This product is currently not available.",
+                    icon: "error",
+                    confirmButtonColor: "#6C5CE7",
+                    confirmButtonText: "Go to Shop"
+                }).then((result) => {
+                    window.location.href = "/products";
+                });
+            });
+        </script>
+    <% } %>
 
             <!-- Navbar -->
             <nav class="navbar">
@@ -36,7 +53,12 @@
                         <div class="sidebar-content">
                             <a href="products.html"><i class="fa-solid fa-shop"></i> Shop</a>
                             <a href="/order-history"><i class="fa-solid fa-box"></i> Orders</a>
-                            <a href="/wishlist"><i class="fa-regular fa-heart"></i> Wishlist</a>
+                            <a href="/wishlist" class="relative wishlist-nav">
+                                <i class="fa-regular fa-heart"></i> Wishlist
+                                <% if (wishlistCount > 0) { %>
+                                    <span class="badge wishlist-sidebar-badge"><%= wishlistCount %></span>
+                                <% } %>
+                            </a>
                             <a href="/cart" class="relative">
                                 <i class="fa-solid fa-cart-shopping"></i> Cart
 
@@ -74,8 +96,12 @@
                             </button>
                         </form>
 
-                        <a href="/wishlist" class="relative">
+                        <a href="/wishlist" class="relative wishlist-nav">
                             <i class="fa-regular fa-heart nav-icon-lg"></i>
+                            <% if (wishlistCount > 0) { %>
+                                <span class="badge wishlist-badge"><%= wishlistCount %></span>
+                                
+                            <% } %>
                         </a>
                         <a href="/cart" class="relative">
                             <i class="fa-solid fa-cart-shopping nav-icon-lg"></i>
@@ -611,6 +637,7 @@
                     icon.classList.remove("fa-regular");
                     icon.classList.add("fa-solid");
                     icon.style.color = "red";
+                    updateWishlistBadge(data.wishlistCount);
 
                     triggerToast(data.message, "success");
 
@@ -618,6 +645,7 @@
                     icon.classList.remove("fa-solid");
                     icon.classList.add("fa-regular");
                     icon.style.color = "#cbd5e1";
+                    updateWishlistBadge(data.wishlistCount);
 
                     triggerToast(data.message, "error");
                 }
@@ -655,7 +683,21 @@
                     return window.location.href="/login"
                 }
                 if (response.status === 400) {
-                    triggerToast(data.message || "This product is currently out of stock.", "error");
+                    const msg = data.message ? data.message.toLowerCase() : "";
+                    if (msg.includes("out of stock") || msg.includes("available in stock")) {
+                        triggerToast(data.message, "error");
+                        return;
+                    }
+
+                    Swal.fire({
+                        icon: "error",
+                        title: "Unavailable",
+                        text: data.message || "This product is currently not available.",
+                        confirmButtonColor: "#6C5CE7",
+                        confirmButtonText: "Go to Shop"
+                    }).then(() => {
+                        window.location.href = "/products";
+                    });
                     return;
                 }
 
@@ -686,6 +728,30 @@
                 sidebarBadge.innerText = count;
                 sidebarBadge.style.display = count > 0 ? "inline-block" : "none";
             } 
+        }
+        function updateWishlistBadge(count) {
+
+            const badges = document.querySelectorAll(".wishlist-nav");
+
+            badges.forEach(container => {
+
+                let badge = container.querySelector(".wishlist-badge, .wishlist-sidebar-badge");
+
+                if (count > 0) {
+                    if (badge) {
+                        badge.innerText = count;
+                        badge.style.display = "inline-block";
+                    } else {
+                        const span = document.createElement("span");
+                        span.className = "badge wishlist-badge";
+                        span.innerText = count;
+                        container.appendChild(span);
+                    }
+                } else {
+                    if (badge) badge.style.display = "none";
+                }
+
+            });
         }
 
 
@@ -726,7 +792,20 @@
             if(data.success){
                 window.location.href="/checkout";
             }else{
-                triggerToast(data.message,"error");
+                if (data.message && data.message.toLowerCase().includes("out of stock")) {
+                    triggerToast(data.message, "error");
+                    return;
+                }
+
+                Swal.fire({
+                    icon: "error",
+                    title: "Unavailable",
+                    text: data.message || "This product is currently not available.",
+                    confirmButtonColor: "#6C5CE7",
+                    confirmButtonText: "Go to Shop"
+                }).then(() => {
+                    window.location.href = "/products";
+                });
             }
         }
 
