@@ -6,10 +6,7 @@ import cartModel from "../../models/cartModel.js"
 import orderModel from "../../models/orderModel.js"
 import walletModel from "../../models/walletModel.js"
 import couponsModel from "../../models/couponsModel.js"
-import pdf from "html-pdf-node"
-import ejs from "ejs"
-import path from "path"
-import fs from "fs"
+import { generateInvoicePDF } from "../../utils/pdfGenerator.js"
 
 import {
 
@@ -1057,13 +1054,6 @@ export const downloadInvoice = async (req, res) => {
         const product = await productModel.findById(item.product).populate("category");
         const offer = Math.max(product?.offerPercentage || 0, product?.category?.categoryOffer || 0);
 
-        const templatePath = path.join(
-            process.cwd(),
-            "views",
-            "user",
-            "invoice.ejs"
-        );
-
 
         let finalItemTotal = item.total;
         let couponDiscount = 0;
@@ -1091,7 +1081,7 @@ export const downloadInvoice = async (req, res) => {
         const finalPrice = Math.round(finalItemTotal / item.quantity);
 
 
-        const html = await ejs.renderFile(templatePath, {
+        const pdfBuffer = await generateInvoicePDF({
             order,
             item,
             finalItemTotal,
@@ -1103,11 +1093,6 @@ export const downloadInvoice = async (req, res) => {
             itemDiscount,
             offer
         });
-
-        const pdfBuffer = await pdf.generatePdf(
-            { content: html },
-            { format: "A4", printBackground: true }
-        );
 
         res.setHeader("Content-Type", "application/pdf");
         res.setHeader(

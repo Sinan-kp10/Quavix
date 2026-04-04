@@ -1,4 +1,3 @@
-
 <body>
 
     <!-- Navbar -->
@@ -33,25 +32,29 @@
                     <a href="order-history"><i class="fa-solid fa-box"></i> Orders</a>
                     <a href="/wishlist" class="relative wishlist-nav">
                         <i class="fa-regular fa-heart"></i> Wishlist
-                        <% if (wishlistCount > 0) { %>
-                            <span class="badge wishlist-sidebar-badge"><%= wishlistCount %></span>
-                        <% } %>
+                        <% if (wishlistCount> 0) { %>
+                            <span class="badge wishlist-sidebar-badge">
+                                <%= wishlistCount %>
+                            </span>
+                            <% } %>
                     </a>
                     <a href="/cart" class="relative">
                         <i class="fa-solid fa-cart-shopping"></i> Cart
 
-                        <% if (cartCount > 0) { %>
-                            <span class="badge cart-sidebar-badge"><%= cartCount %></span>
-                        <% } %>
+                        <% if (cartCount> 0) { %>
+                            <span class="badge cart-sidebar-badge">
+                                <%= cartCount %>
+                            </span>
+                            <% } %>
 
                     </a>
 
                     <% if (user) { %>
-                            <a href="/profile"><i class="fa-solid fa-user"></i> Profile</a>
-                            <a href="/logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+                        <a href="/profile"><i class="fa-solid fa-user"></i> Profile</a>
+                        <a href="/logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
                         <% } else { %>
                             <a href="/login"><i class="fa-solid fa-right-to-bracket"></i> Sign In</a>
-                    <% } %>
+                            <% } %>
                 </div>
             </aside>
 
@@ -76,39 +79,41 @@
 
                 <a href="/wishlist" class="relative wishlist-nav">
                     <i class="fa-regular fa-heart nav-icon-lg"></i>
-                    <% if (wishlistCount > 0) { %>
-                        <span class="badge wishlist-badge"><%= wishlistCount %></span>
-                        
-                    <% } %>
+                    <% if (wishlistCount> 0) { %>
+                        <span class="badge wishlist-badge">
+                            <%= wishlistCount %>
+                        </span>
+
+                        <% } %>
                 </a>
 
                 <a href="/cart" class="relative">
                     <i class="fa-solid fa-cart-shopping nav-icon-lg"></i>
 
-                    <% if (cartCount > 0) { %>
-                        <span class="badge cart-badge"><%= cartCount %></span>
-                    <% } %>
+                    <% if (cartCount> 0) { %>
+                        <span class="badge cart-badge">
+                            <%= cartCount %>
+                        </span>
+                        <% } %>
                 </a>
 
                 <% if (user) { %>
                     <a href="/profile" class="nav-profile-icon">
 
                         <% if (user.profileImage) { %>
-                            <img src="<%= user.profileImage %>" 
-                                alt="Profile"
-                                class="nav-profile-img">
-                        <% } else { %>
-                            <div class="nav-default-avatar">
-                                <%= user.name.charAt(0).toUpperCase() %>
-                            </div>
-                        <% } %>
+                            <img src="<%= user.profileImage %>" alt="Profile" class="nav-profile-img">
+                            <% } else { %>
+                                <div class="nav-default-avatar">
+                                    <%= user.name.charAt(0).toUpperCase() %>
+                                </div>
+                                <% } %>
 
                     </a>
-                <% } else { %>
-                    <a href="/login" class="btn btn-primary btn-sm">
-                        <i class="fa-solid fa-right-to-bracket"></i> Sign In
-                    </a>
-                <% } %>
+                    <% } else { %>
+                        <a href="/login" class="btn btn-primary btn-sm">
+                            <i class="fa-solid fa-right-to-bracket"></i> Sign In
+                        </a>
+                        <% } %>
             </div>
         </div>
     </nav>
@@ -117,7 +122,7 @@
     <!-- Vibrant Hero Section -->
     <header class="hero-large relative overflow-hidden">
         <!-- Hero Background Image -->
-        <img src="images/banner.png" alt="Hero Banner" class="absolute inset-0 w-full h-full object-cover z-0">
+        <img src="https://res.cloudinary.com/dewyevzar/image/upload/v1775283673/banner_aoliu4.png" alt="Hero Banner" class="absolute inset-0 w-full h-full object-cover z-0">
         <div class="absolute inset-0 bg-black/60 z-0"></div>
 
         <div class="container relative z-10">
@@ -156,13 +161,12 @@
         <div class="category-marquee">
             <div class="category-marquee-inner">
 
-                <% if (categories && categories.length > 0) { %>
+                <% if (categories && categories.length> 0) { %>
 
-                    <% categories.forEach(category => { %>
+                    <% categories.forEach(category=> { %>
                         <div class="category-card-lg">
                             <div class="overlay-gradient"></div>
-                            <img src="<%= category.categoryImage %>" 
-                                alt="<%= category.name %>" 
+                            <img src="<%= category.categoryImage %>" alt="<%= category.name %>"
                                 class="w-full h-full object-cover">
                             <div class="category-content-abs">
                                 <h3 class="text-white text-2xl">
@@ -170,23 +174,22 @@
                                 </h3>
                             </div>
                         </div>
-                    <% }) %>
+                        <% }) %>
 
-                    <% categories.forEach(category => { %>
-                        <div class="category-card-lg">
-                            <div class="overlay-gradient"></div>
-                            <img src="<%= category.categoryImage %>" 
-                                alt="<%= category.name %>" 
-                                class="w-full h-full object-cover">
-                            <div class="category-content-abs">
-                                <h3 class="text-white text-2xl">
-                                    <%= category.name %>
-                                </h3>
-                            </div>
-                        </div>
-                    <% }) %>
+                            <% categories.forEach(category=> { %>
+                                <div class="category-card-lg">
+                                    <div class="overlay-gradient"></div>
+                                    <img src="<%= category.categoryImage %>" alt="<%= category.name %>"
+                                        class="w-full h-full object-cover">
+                                    <div class="category-content-abs">
+                                        <h3 class="text-white text-2xl">
+                                            <%= category.name %>
+                                        </h3>
+                                    </div>
+                                </div>
+                                <% }) %>
 
-                <% } %>
+                                    <% } %>
 
             </div>
         </div>
@@ -197,9 +200,9 @@
         <h2 class="text-center mb-8">Products</h2>
         <div class="home-product-grid">
 
-            <% if (products && products.length > 0) { %>
+            <% if (products && products.length> 0) { %>
 
-                <% products.forEach(product => { 
+                <% products.forEach(product=> {
 
                     const variant = product.variants.find(v => v.status === "Active") || product.variants[0];
 
@@ -207,75 +210,75 @@
                     const offer = Math.max(product.offerPercentage || 0, product.category?.categoryOffer || 0);
                     const discount = (originalPrice * offer) / 100;
                     const finalPrice = Math.round(originalPrice - discount);
-                %>
-
-                <div class="home-product-card">
-                    <div class="home-card-img-box">
-
-                        <% if (offer > 0) { %>
-                            <span class="home-card-offer"><%= offer %>% OFF</span>
-                        <% } %>
-
-                        <% const isWishlisted = wishlistItems?.some(item =>
-                            item.product === product._id.toString() &&
-                            item.variant === variant._id.toString()
-                        );
-                        %>
-
-                        <button 
-                            class="wishlist-btn-sm wishlist-toggle"
-                            data-product="<%= product._id %>"
-                            data-variant="<%= variant._id %>">
-
-                            <i class="fa-heart <%= isWishlisted ? 'fa-solid text-danger' : 'fa-regular' %>"></i>
-
-                        </button>
-
-                        <a href="/product/<%= product.slug %>">
-                            <img src="<%= variant.images.primary.url %>" alt="<%= product.name %>">
-                        </a>
-                    </div>
-
-                    <div class="home-card-content">
-
-                        <div class="card-cat-rating">
-                            <span class="product-cat-sm">
-                                <%= product.category.name %>
-                            </span>
-                        </div>
-
-                        <%const attributes = variant.attributes || [];
-
-                        const colorAttr = attributes.find(a =>
-                            a.name.toLowerCase().includes("color") ||
-                            a.name.toLowerCase().includes("colour")
-                        );
-
-                        const ramAttr = attributes.find(a =>
-                            a.name.toLowerCase().includes("ram")
-                        );
-
-                        const storageAttr = attributes.find(a =>
-                            a.name.toLowerCase().includes("rom") ||
-                            a.name.toLowerCase().includes("storage")
-                        );
-
-                        const color = colorAttr ? colorAttr.value : "";
-                        const ram = ramAttr ? ramAttr.value : "";
-                        const storage = storageAttr ? storageAttr.value : "";
                     %>
 
-                    <h3 class="home-card-title">
-                        <%= product.name %>
-                        <% if (color || storage) { %>
-                            (<%= [color, storage].filter(Boolean).join(", ") %>)
+                    <div class="home-product-card">
+                        <div class="home-card-img-box">
+
+                            <% if (offer> 0) { %>
+                                <span class="home-card-offer">
+                                    <%= offer %>% OFF
+                                </span>
+                                <% } %>
+
+                                    <% const isWishlisted=wishlistItems?.some(item=>
+                                        item.product === product._id.toString() &&
+                                        item.variant === variant._id.toString()
+                                        );
+                                        %>
+
+                                        <button class="wishlist-btn-sm wishlist-toggle"
+                                            data-product="<%= product._id %>" data-variant="<%= variant._id %>">
+
+                                            <i
+                                                class="fa-heart <%= isWishlisted ? 'fa-solid text-danger' : 'fa-regular' %>"></i>
+
+                                        </button>
+
+                                        <a href="/product/<%= product.slug %>">
+                                            <img src="<%= variant.images.primary.url %>" alt="<%= product.name %>">
+                                        </a>
+                        </div>
+
+                        <div class="home-card-content">
+
+                            <div class="card-cat-rating">
+                                <span class="product-cat-sm">
+                                    <%= product.category.name %>
+                                </span>
+                            </div>
+
+                            <%const attributes=variant.attributes || []; const colorAttr=attributes.find(a=>
+                                a.name.toLowerCase().includes("color") ||
+                                a.name.toLowerCase().includes("colour")
+                                );
+
+                                const ramAttr = attributes.find(a =>
+                                a.name.toLowerCase().includes("ram")
+                                );
+
+                                const storageAttr = attributes.find(a =>
+                                a.name.toLowerCase().includes("rom") ||
+                                a.name.toLowerCase().includes("storage")
+                                );
+
+                                const color = colorAttr ? colorAttr.value : "";
+                                const ram = ramAttr ? ramAttr.value : "";
+                                const storage = storageAttr ? storageAttr.value : "";
+                                %>
+
+                                <h3 class="home-card-title">
+                                    <%= product.name %>
+                                        <% if (color || storage) { %>
+                                            (<%= [color, storage].filter(Boolean).join(", ") %>)
                         <% } %>
                     </h3>
 
-                    <ul class="home-card-highlights">
+                    <ul class=" home-card-highlights">
 
-                        <% if (ram || storage) { %>
-                            <li><%= [ram, storage].filter(Boolean).join(" | ") %></li>
+                                                <% if (ram || storage) { %>
+                                                    <li>
+                                                        <%= [ram, storage].filter(Boolean).join(" | ") %></li>
                         <% } %>
 
                         <% product.highlights.slice(0,2).forEach(h => { %>
@@ -285,34 +288,34 @@
                     </ul>
                         
 
-                        <div class="home-card-bottom">
-                            <div class="price-box">
+                        <div class=" home-card-bottom">
+                                                            <div class="price-box">
 
-                                <% if (offer > 0) { %>
-                                    <span class="price-old-sm">
-                                        ₹<%= originalPrice.toLocaleString() %>
-                                    </span>
-                                <% } %>
+                                                                <% if (offer> 0) { %>
+                                                                    <span class="price-old-sm">
+                                                                        ₹<%= originalPrice.toLocaleString() %>
+                                                                    </span>
+                                                                    <% } %>
 
-                                <span class="price-new-sm">
-                                    ₹<%= finalPrice.toLocaleString() %>
-                                </span>
+                                                                        <span class="price-new-sm">
+                                                                            ₹<%= finalPrice.toLocaleString() %>
+                                                                        </span>
 
-                            </div>
+                                                            </div>
                         </div>
 
                     </div>
-                </div>
+        </div>
 
-                <% }) %>
+        <% }) %>
 
             <% } else { %>
 
                 <p class="text-center">No products available.</p>
 
-            <% } %>
+                <% } %>
 
-            </div>
+                    </div>
     </section>
 
 
@@ -351,8 +354,11 @@
                 <div>
                     <h4 class="mb-6">Follow Us</h4>
                     <div class="flex gap-4">
-                        <a target="_blank"  href="https://www.instagram.com/sin4n_x4?igsh=MWlvYzhzMTZsenl6aw%3D%3D&utm_source=qr" class="social-icon"><i class="fa-brands fa-instagram"></i></a>
-                        <a target="_blank"  href="https://www.linkedin.com/in/muhammed-sinan-kp-853057383/" class="social-icon"><i class="fa-brands fa-linkedin-in"></i></a>
+                        <a target="_blank"
+                            href="https://www.instagram.com/sin4n_x4?igsh=MWlvYzhzMTZsenl6aw%3D%3D&utm_source=qr"
+                            class="social-icon"><i class="fa-brands fa-instagram"></i></a>
+                        <a target="_blank" href="https://www.linkedin.com/in/muhammed-sinan-kp-853057383/"
+                            class="social-icon"><i class="fa-brands fa-linkedin-in"></i></a>
                         <a target="_blank" href="#" class="social-icon"><i class="fa-brands fa-facebook-f"></i></a>
                     </div>
                 </div>
@@ -456,6 +462,5 @@
             }, 3000);
         }
     </script>
-    
-</body>
 
+</body>
