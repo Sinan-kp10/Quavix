@@ -1,0 +1,472 @@
+<body>
+    <% if (typeof toastMessage !== "undefined") { %>
+        <div id="toast" class="toast <%= toastType %>">
+            <%= toastMessage %>
+        </div>
+    <% } %>
+
+    <div id="admin-spinner" class="spinner-overlay" style="display:none;">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-fixed">
+        <div class="container nav-container">
+            <a href="/" class="logo">
+                <i class="fa-solid fa-bolt text-gradient-clip"></i>
+                <span class="text-gradient">Quavix</span>
+            </a>
+
+            <div class="mobile-search-container">
+                <div class="hamburger-menu">
+                    <i class="fa-solid fa-bars"></i>
+                </div>
+                <div class="mobile-search">
+                    <input type="text" placeholder="Search gadgets...">
+                    <button><i class="fa-solid fa-magnifying-glass"></i></button>
+                </div>
+            </div>
+
+            <!-- Mobile Sidebar (Hidden by default) -->
+            <aside class="mobile-sidebar">
+                <div class="sidebar-header">
+                    <a href="/" class="logo">
+                        <i class="fa-solid fa-bolt text-gradient-clip"></i>
+                        <span class="text-gradient">Quavix</span>
+                    </a>
+                    <button class="close-btn"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <div class="sidebar-content">
+                    <a href="/products"><i class="fa-solid fa-shop"></i> Shop</a>
+                    <a href="/order-history"><i class="fa-solid fa-box"></i> Orders</a>
+                    <a href="/wishlist" class="relative wishlist-nav">
+                        <i class="fa-regular fa-heart"></i> Wishlist
+                        <% if (wishlistCount > 0) { %>
+                            <span class="badge wishlist-sidebar-badge"><%= wishlistCount %></span>
+                        <% } %>
+                    </a>
+                    <a href="/cart" class="relative">
+                        <i class="fa-solid fa-cart-shopping"></i> Cart
+
+                        <% if (cartCount > 0) { %>
+                            <span class="badge cart-sidebar-badge"><%= cartCount %></span>
+                        <% } %>
+
+                    </a>
+                    <% if(user){ %>
+                            <a href="/profile"><i class="fa-solid fa-user"></i> Profile</a>
+                            <a href="/logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+                        <%} else{ %>
+                            <a href="/login"><i class="fa-solid fa-right-to-bracket"></i> Sign In</a>
+                    <% } %>
+
+                </div>
+            </aside>
+
+            <!-- Overlay -->
+            <div class="mobile-overlay"></div>
+
+            <!-- Desktop Menu -->
+            <div class="nav-menu">
+                <a href="/">Home</a>
+                <a href="/products">Shop</a>
+                <a href="/order-history">Orders</a>
+            </div>
+
+            <div class="nav-icons">
+                <!-- Search Bar -->
+                <form class="nav-search" action="/products/search" method="GET">
+                    <input type="text" name="q" placeholder="Search gadgets...">
+                    <button type="submit">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </button>
+                </form>
+
+                <a href="/wishlist" class="relative wishlist-nav">
+                    <i class="fa-regular fa-heart nav-icon-lg"></i>
+                    <% if (wishlistCount > 0) { %>
+                        <span class="badge wishlist-badge"><%= wishlistCount %></span>
+                        
+                    <% } %>
+                </a>
+
+                <a href="/cart" class="relative">
+                    <i class="fa-solid fa-cart-shopping nav-icon-lg"></i>
+
+                    <% if (cartCount > 0) { %>
+                        <span class="badge cart-badge"><%= cartCount %></span>
+                    <% } %>
+                </a>
+
+                <% if (user) { %>
+                    <a href="/profile" class="nav-profile-icon">
+
+                        <% if (user.profileImage) { %>
+                            <img src="<%= user.profileImage %>" 
+                                alt="Profile"
+                                class="nav-profile-img">
+                        <% } else { %>
+                            <div class="nav-default-avatar">
+                                <%= user.name.charAt(0).toUpperCase() %>
+                            </div>
+                        <% } %>
+
+                    </a>
+                <% } else { %>
+                    <a href="/login" class="btn btn-primary btn-sm">
+                        <i class="fa-solid fa-right-to-bracket"></i> Sign In
+                    </a>
+                <% } %>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Profile Section -->
+    <section class="section-padding section-profile">
+        <div class="container">
+            <h2 class="mb-8">My Profile</h2>
+
+            <div class="grid gap-8 profile-grid">
+                <!-- Profile Sidebar / Card -->
+                <div class="card p-6">
+                    <div class="text-center mb-6">
+    
+                        <div class="profile-img-container">
+                            <% if (user.profileImage) { %>
+                                <img src="<%= user.profileImage %>" alt="Profile" class="profile-img">
+                            <% } else { %>
+                                <div class="default-avatar">
+                                    <i class="fa-solid fa-user"></i>
+                                </div>
+                            <% } %>
+
+                            <form action="/upload-profile" method="POST" enctype="multipart/form-data">
+                                <label for="profileInput" class="change-btn">
+                                    <i class="fa-solid fa-camera"></i>
+                                </label>
+                                <input type="file" name="profileImage" id="profileInput" hidden accept="image/*">
+                            </form>
+                        </div>
+
+                        <% if (user.profileImage) { %>
+                            <form id="removeProfileForm" action="/remove-profile-image" method="POST">
+                                <button type="submit" class="remove-btn">
+                                    Remove Photo
+                                </button>
+                            </form>
+                        <% } %>
+                        
+
+                        <h3 class="text-xl font-bold"><%= user.name %></h3>
+                        <p class="text-muted"><%= user.email %></p>
+
+                    </div>
+                    <br>
+                    <div class="flex flex-col">
+                        <a href="/order-history" class="profile-nav-link">
+                            <i class="fa-solid fa-box"></i> My Orders
+                        </a>
+                        <a href="/cart" class="profile-nav-link">
+                            <i class="fa-solid fa-cart-shopping"></i> My Cart
+                        </a>
+                        <a href="/wishlist" class="profile-nav-link">
+                            <i class="fa-regular fa-heart"></i> My Wishlist
+                        </a>
+                        <a href="/coupons" class="profile-nav-link">
+                            <i class="fa-solid fa-ticket"></i> My Coupons
+                        </a>
+                        <a href="/wallet" class="profile-nav-link">
+                            <i class="fa-solid fa-wallet"></i> My Wallet
+                        </a>
+                        <a href="/referral" class="profile-nav-link">
+                            <i class="fa-solid fa-share-nodes"></i> Refer & Earn
+                        </a>
+                        <a href="/logout" class="btn btn-outline-danger w-full mt-4 text-left">
+                            <i class="fa-solid fa-right-from-bracket mr-2"></i> Logout
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Profile Details Form -->
+                <div class="flex flex-col gap-8">
+
+                    <!-- Personal Details & Addresses -->
+                    <div class="card p-8">
+                        <h3 class="text-xl font-bold mb-6">Personal Details</h3>
+                        <form id="profileUpdateForm" method="post" action="/updateProfile">
+                            
+                            <div class="form-group mb-4">
+                                <label class="form-label">Full Name</label>
+                                <input type="text" id="name" name="name" class="form-input" value="<%= user.name %>" >
+                                <small class="error-message"></small>
+                            </div>
+
+
+                            <div class="form-group mb-4">
+                                <label class="form-label">Current password</label>
+                                <div class="password-group">
+                                    <input type="password"  name="currentPassword" id="currentPassword" class="form-input" placeholder="Enter current password">
+                                    <button type="button" class="password-toggle" data-target="currentPassword">
+                                        <i class="fa-regular fa-eye-slash"></i>
+                                    </button>
+
+                                </div>
+                                <small class="error-message"></small>
+
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">New Password</label>
+                                    <div class="password-group">
+                                    <input type="password" id="newPassword" name="newPassword" class="form-input" placeholder="Enter your password">
+                                    <button type="button" class="password-toggle" data-target="newPassword">
+                                        <i class="fa-regular fa-eye-slash"></i>
+                                    </button>
+                                </div>
+                                <small class="error-message"></small>
+                            </div>
+                            <br>
+
+                            <div class="flex justify-end">
+                                <button type="submit" class="btn btn-primary update-email-btn">Save Profile</button>
+                            </div>
+                        </form>
+
+                        <form id="emailForm" method="post" action="/verifyEmailResetOtp">
+                            <div class="form-group mb-6">
+                                <label class="form-label">Email</label>
+
+                                <div class="email-update-group">
+                                    <input  type="email" id="newEmail" name="newEmail" class="form-input" value="<%= user.email %>">
+                                    <button  type="submit" class="btn btn-primary update-email-btn">
+                                        Update Email
+                                    </button>
+                                </div>
+                               <small class="error-message" id="passwordError"></small>
+
+                            </div>
+
+                        </form>
+                        <br>
+
+                        <div class="address-header">
+                            <h3 class="text-xl font-bold">Saved Addresses</h3>
+                            <a href="/addAddress" class="btn btn-primary update-email-btn ">+ Add Address</a>
+                        </div>
+                        <br>
+
+
+                       <% if(user.address && user.address.length > 0){ %>
+
+                            <% user.address.forEach(function(addr){ %>
+
+                                <div class="address-card">
+                                    <h4 class="font-bold mb-1 flex items-center gap-2">
+                                    <%= addr.fullname %>
+                                    <span class="address-badge">
+                                        <%= addr.addressType %>
+                                    </span>
+                                </h4>
+
+
+                                    <p class="text-muted text-sm leading-relaxed mb-2">
+                                        <%= addr.street %>, <br>
+                                        <%= addr.city %>, <%= addr.state %> - <%= addr.pincode %> <br>
+                                        India
+                                    </p>
+
+                                    <p class="text-sm font-medium mb-3">
+                                        Phone: +91 <%= addr.phone %>
+                                    </p>
+
+                                    <div class="flex gap-4 justify-end">
+                                        <a href="/editAddress/<%= addr._id %>" class="btn btn-google btn-sm">Edit</a>
+                                        <button class="btn btn-outline-danger btn-sm delete-btn" data-id="<%= addr._id %>">Remove</button>
+                                    </div>
+                                </div>
+
+                            <% }) %>
+
+                        <% } else { %>
+
+                            <p class="text-muted">No addresses added yet.</p>
+
+                        <% } %>
+                        
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <div id="cropModal" class="crop-modal">
+    <div class="crop-modal-content">
+        <div class="crop-header">
+            <h3>Crop Image</h3>
+        </div>
+
+        <div class="crop-body">
+            <img id="cropImage">
+        </div>
+
+        <div class="crop-footer">
+            <button id="cropConfirm" class="btn btn-primary">Save</button>
+            <button id="cropCancel" class="btn btn-outline">Cancel</button>
+        </div>
+    </div>
+</div>
+    
+    <script src="/js/user/navbar.js"></script>
+    <script src="/js/user/profile.js"></script>
+
+    <script>
+        let cropper;
+        let selectedFile = null;
+
+        const input = document.getElementById("profileInput");
+        const image = document.getElementById("cropImage");
+        const modal = document.getElementById("cropModal");
+        const cropConfirm = document.getElementById("cropConfirm");
+        const cropCancel = document.getElementById("cropCancel");
+
+        function showToast(message, type = "error") {
+
+            let toast = document.getElementById("toast");
+
+            if (!toast) {
+                toast = document.createElement("div");
+                toast.id = "toast";
+                document.body.appendChild(toast);
+            }
+
+            toast.className = `toast ${type}`;
+            toast.innerText = message;
+
+            setTimeout(() => {
+                toast.classList.add("show");
+            }, 100);
+
+            setTimeout(() => {
+                toast.classList.remove("show");
+            }, 3000);
+        }
+
+        input.addEventListener("change", function (e) {
+
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
+            const maxSize = 2 * 1024 * 1024; 
+
+
+            if (!allowedTypes.includes(file.type)) {
+                showToast("Only JPG, PNG, WEBP images are allowed", "error");
+                input.value = "";
+                return;
+            }
+
+            if (file.size > maxSize) {
+                showToast("File too large. Max size is 2MB.", "error");
+                input.value = "";
+                return;
+            }
+
+            selectedFile = file;
+
+            const reader = new FileReader();
+
+            reader.onload = function () {
+
+                image.src = reader.result;
+                modal.style.display = "flex";
+
+                if (cropper) {
+                    cropper.destroy();
+                }
+
+                cropper = new Cropper(image, {
+                    aspectRatio: 1,
+                    viewMode: 1,
+                    dragMode: "move",
+                    cropBoxResizable: false,
+                    cropBoxMovable: false,
+                    zoomable: true,
+                    scalable: false,
+                    responsive: true
+                });
+            };
+
+            reader.readAsDataURL(file);
+        });
+
+        cropConfirm.addEventListener("click", function () {
+
+            if (!cropper) return;
+
+            const canvas = cropper.getCroppedCanvas({
+                width: 300,
+                height: 300
+            });
+
+            const spinner = document.getElementById("admin-spinner");
+            spinner.style.display = "flex"
+
+            canvas.toBlob(function (blob) {
+
+                const formData = new FormData();
+                formData.append("profileImage", blob, "profile.jpg");
+
+                fetch("/upload-profile", {
+                    method: "POST",
+                    body: formData
+                })
+                .then(res => res.json())
+                .then(data => {
+
+                    spinner.style.display = "none"
+
+                    if (!data.success) {
+                        showToast(data.message || "Upload failed", "error");
+                        return;
+                    }
+
+                    
+                    window.location.reload();
+
+                })
+                .catch(() => {
+                    spinner.style.display = "none"
+                    showToast("Something went wrong. Please try again.", "error");
+                });
+
+            }, "image/jpeg");
+
+            modal.style.display = "none";
+        });
+
+
+        cropCancel.addEventListener("click", function () {
+
+            modal.style.display = "none";
+
+            if (cropper) {
+                cropper.destroy();
+                cropper = null;
+            }
+
+            input.value = "";
+        })
+
+        const removeProfileForm = document.getElementById("removeProfileForm");
+        if (removeProfileForm) {
+            removeProfileForm.addEventListener("submit", function () {
+                const spinner = document.getElementById("admin-spinner");
+                if (spinner) spinner.style.display = "flex";
+            });
+        }
+    </script>
+
+    
+</body>
+

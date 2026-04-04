@@ -1,0 +1,176 @@
+<body>
+    <% if (typeof toastMessage !== "undefined") { %>
+    <div id="toast" class="toast <%= toastType %>">
+         <%= toastMessage %>
+    </div>
+    <% } %>
+
+    <div class="admin-layout">
+        <!-- Mobile Header -->
+        <div class="mobile-header">
+            <div class="mobile-logo">
+                <i class="fa-solid fa-bolt"></i> Quavix
+            </div>
+            <button class="menu-toggle" onclick="toggleSidebar()">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+        </div>
+
+        <!-- Sidebar Overlay -->
+        <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo">
+                <i class="fa-solid fa-bolt"></i> Quavix Admin
+            </div>
+
+            <nav>
+                <a href="/admin/dashboard" class="sidebar-link"><i class="fa-solid fa-chart-line"></i>
+                    Dashboard</a>
+                <a href="/admin/products" class="sidebar-link"><i class="fa-solid fa-box"></i>
+                    Products</a>
+                <a href="/admin/orders" class="sidebar-link"><i class="fa-solid fa-clipboard-list"></i> Orders</a>
+                <a href="/admin/coupons" class="sidebar-link"><i class="fa-solid fa-ticket"></i> Coupons</a>
+                <a href="/admin/category" class="sidebar-link"><i class="fa-solid fa-tags"></i>
+                    Categories</a>
+                <a href="/admin/users" class="sidebar-link active"><i class="fa-solid fa-users"></i>
+                    Users</a>
+                <a href="/admin/reports"  class="sidebar-link"><i class="fa-solid fa-chart-pie"></i>
+                    Reports</a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <a href="/admin/logout" class="sidebar-link"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+            </div>
+        </aside>
+
+        <!-- User Content -->
+        <main class="content">
+            <header class="flex justify-between items-center mb-4">
+                <h2>User Management</h2>
+
+            </header>
+
+            <div class="card p-4">
+                <div class="flex justify-between items-center mb-4">
+                    <form method="GET" action="/admin/users" class="flex gap-2">
+
+                        <div class="search-group" style="position: relative;">
+                            <input type="text" name="search" value="<%= search || '' %>" class="form-input" placeholder="Search users..."  style="width: 300px;">
+                            <% if (search) { %>
+                                <a href="/admin/users?status=<%= status %>" 
+                                class="search-clear active">
+                                    <i class="fa-solid fa-xmark"></i>
+                                </a>
+                            <% } %>
+                            <button type="submit" class="btn btn-primary" style="height: 50px;">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                            </button>
+                        </div>
+                        <select name="status" class="form-select" style="width: 150px;" onchange="this.form.submit()">
+                            <option value="all" <%= status === "all" ? "selected" : "" %>>All Users</option>
+                            <option value="active" <%= status === "active" ? "selected" : "" %>>Active</option>
+                            <option value="blocked" <%= status === "blocked" ? "selected" : "" %>>Blocked</option>
+                        </select>
+                    </form>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>User</th>
+                                <th>Email</th>
+                                <th>Joined</th>
+                                <th>Status</th>
+                                <th style="text-align: right;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                             <% if (users.length === 0) { %>
+                                <tr>
+                                <td colspan="5" style="text-align:center; padding:20px;">
+                                    No users found
+                                </td>
+                                </tr>
+                                <% } else { %>
+                                <% users.forEach(user => { %>
+                                    <tr>
+                                    <td><%= user.name %></td>
+                                    <td><%= user.email %></td>
+                                    <td><%= user.createdAt.toDateString() %></td>
+
+                                    <td>
+                                        <% if(user.status === "blocked") { %>
+                                        <span class="status-badge status-danger">Blocked</span>
+                                        <% } else { %>
+                                        <span class="status-badge status-success">Active</span>
+                                        <% } %>
+                                    </td>
+
+                                    <td style="text-align: right;">
+                                        <% if(user.status === "blocked"){ %>
+
+                                            <button 
+                                                class="btn btn-success btn-sm"
+                                                onclick="confirmUnblock('<%= user._id %>')">
+                                                Unblock
+                                            </button>
+
+                                        <% } else { %>
+
+                                            <button 
+                                                class="btn btn-danger btn-sm"
+                                                onclick="confirmBlock('<%= user._id %>')">
+                                                Block
+                                            </button>
+
+                                        <% } %>
+                                    </td>
+
+                                    </tr>
+                                <% }) %>
+                            <% } %> 
+                        </tbody>
+
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                <div class="pagination">
+                    <% if(currentPage > 1){ %>
+                        <a href="?search=<%= search %>&status=<%= status %>&page=<%= currentPage - 1 %>"
+                        class="page-link">
+                            <i class="fa-solid fa-chevron-left"></i>
+                        </a>
+                    <% } %>
+                    <% 
+                        let startPage = Math.max(1, currentPage - 1);
+                        let endPage = Math.min(totalPages, startPage + 2);
+                        if(endPage - startPage < 2){
+                            startPage = Math.max(1, endPage - 2);
+                        }
+                    %>
+                    <% for(let i = startPage; i <= endPage; i++){ %>
+                        <a href="?search=<%= search %>&status=<%= status %>&page=<%= i %>"
+                        class="page-link <%= currentPage === i ? 'active' : '' %>">
+                            <%= i %>
+                        </a>
+                    <% } %>
+                    <% if(currentPage < totalPages){ %>
+                        <a href="?search=<%= search %>&status=<%= status %>&page=<%= currentPage + 1 %>"
+                        class="page-link">
+                            <i class="fa-solid fa-chevron-right"></i>
+                        </a>
+                    <% } %>
+                </div>
+
+
+            </div>
+        </main>
+    </div>
+    <script src="/js/admin/users.js"></script>
+    <script src="/js/admin/sidebar.js"></script>
+</body>
+

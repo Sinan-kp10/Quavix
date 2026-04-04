@@ -1,0 +1,287 @@
+<body>
+    <% if (typeof toastMessage !== "undefined") { %>
+    <div id="toast" class="toast <%= toastType %>">
+         <%= toastMessage %>
+    </div>
+    <% } %>
+
+    <div class="admin-layout">
+        <!-- Mobile Header -->
+        <div class="mobile-header">
+            <div class="mobile-logo">
+                <i class="fa-solid fa-bolt"></i> Quavix
+            </div>
+            <button class="menu-toggle" onclick="toggleSidebar()">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+        </div>
+
+        <!-- Sidebar Overlay -->
+        <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="logo">
+                <i class="fa-solid fa-bolt"></i> Quavix Admin
+            </div>
+
+            <nav>
+                <a href="/admin/dashboard" class="sidebar-link active"><i class="fa-solid fa-chart-line"></i>
+                    Dashboard</a>
+                <a href="/admin/products" class="sidebar-link"><i class="fa-solid fa-box"></i>
+                    Products</a>
+                <a href="/admin/orders" class="sidebar-link"><i class="fa-solid fa-clipboard-list"></i> Orders</a>
+                <a href="/admin/coupons" class="sidebar-link"><i class="fa-solid fa-ticket"></i> Coupons</a>
+                <a href="/admin/category" class="sidebar-link"><i class="fa-solid fa-tags"></i>
+                    Categories</a>
+                <a href="/admin/users" class="sidebar-link"><i class="fa-solid fa-users"></i>
+                    Users</a>
+                <a href="/admin/reports" class="sidebar-link"><i class="fa-solid fa-chart-pie"></i>
+                    Reports</a>
+
+            </nav>
+
+            <div class="sidebar-footer">
+                <a href="/admin/logout" class="sidebar-link"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="content">
+            <header class="flex justify-between items-center mb-4">
+                <h2>Dashboard Overview</h2>
+                <div class="header-actions">
+                    <select class="form-select" onchange="handleFilter(this.value)">
+                        <option value="all" <%= filter === 'all' ? 'selected' : '' %>>All Time</option>
+                        <option value="today" <%= filter === 'today' ? 'selected' : '' %>>Today</option>
+                        <option value="week" <%= filter === 'week' ? 'selected' : '' %>>This Week</option>
+                        <option value="month" <%= filter === 'month' ? 'selected' : '' %>>This Month</option>
+                        <option value="year" <%= filter === 'year' ? 'selected' : '' %>>This Year</option>
+                    </select>
+                </div>
+            </header>
+
+            <!-- Stats Grid -->
+            <div class="grid gap-4 mb-4 grid-cols-3">
+                <div class="stat-card">
+                    <div class="stat-icon bg-indigo-100 text-primary">
+                        <i class="fa-solid fa-rupee-sign"></i>
+                    </div>
+                    <div class="text-sm text-muted">Total Revenue</div>
+                    <div class="text-2xl font-bold">₹<%= Number(totalRevenue).toLocaleString('en-IN') %></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon bg-green-100 text-success">
+                        <i class="fa-solid fa-shopping-cart"></i>
+                    </div>
+                    <div class="text-sm text-muted">Total Orders</div>
+                    <div class="text-2xl font-bold"><%= totalOrders %></div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon bg-amber-100 text-warning">
+                        <i class="fa-solid fa-users"></i>
+                    </div>
+                    <div class="text-sm text-muted">Total Customers</div>
+                    <div class="text-2xl font-bold"><%= filteredUsers %></div>
+                </div>
+            </div>
+
+
+
+            <div class="grid gap-4 mb-4 grid-cols-2">
+                <!-- Revenue Chart -->
+                <div class="card p-4">
+                    <h3 class="mb-4 font-semibold text-lg">Revenue Overview</h3>
+                    <div style="height: 300px;">
+                        <canvas id="revenueChart"></canvas>
+                    </div>
+                </div>
+                <!-- Orders Chart -->
+                <div class="card p-4">
+                    <h3 class="mb-4 font-semibold text-lg">Orders Summary</h3>
+                    <div style="height: 300px;">
+                        <canvas id="ordersChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Top Products & Categories -->
+            <div class="grid gap-4 mb-4 grid-cols-2">
+                <!-- Top 3 Selling Products -->
+                <div class="card p-xl">
+                    <h3 class="card-title">Top 3 Selling Products</h3>
+                    <div class="top-list">
+                        <% if(topProducts.length > 0){ %>
+
+                            <% topProducts.forEach((product, index) => { %>
+                                <div class="top-list-item">
+                                    <div class="top-list-item-left">
+                                        <div class="top-list-rank"><%= index + 1 %></div>
+
+                                        <div class="top-list-icon product cover">
+                                            <img src="<%= product.productImage %>" alt="<%= product.productName %>">
+                                        </div>
+
+                                        <div>
+                                            <div class="top-list-title"><%= product.productName %></div>
+                                            <div class="top-list-subtitle"><%= product.categoryName %></div>
+                                        </div>
+                                    </div>
+
+                                    <div class="top-list-item-right">
+                                        <div class="top-list-value"><%= product.totalSold %></div>
+                                        <div class="top-list-label">Sales</div>
+                                    </div>
+                                </div>
+                            <% }) %>
+
+                        <% } else { %>
+                            <p>No sales data available</p>
+                        <% } %>
+                    </div>
+                </div>
+
+                <!-- Top Categories -->
+                <div class="card p-xl">
+                    <h3 class="card-title">Top Categories</h3>
+                    <div style="height: 300px;">
+                        <canvas id="topCategoriesChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+    <!-- Chart.js Integration -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="/js/admin/dashboard.js"></script>
+    <script src="/js/admin/sidebar.js"></script>
+    <script>
+        function toggleSidebar() {
+            document.querySelector('.sidebar').classList.toggle('active');
+            document.getElementById('sidebarOverlay').classList.toggle('active');
+        }
+
+        // Revenue Overview Chart
+        const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+        new Chart(revenueCtx, {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                datasets: [{
+                    label: 'Revenue',
+                    data: <%- JSON.stringify(monthlyRevenue) %>,
+                    borderColor: '#4f46e5',
+                    backgroundColor: 'rgba(79, 70, 229, 0.1)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            borderDash: [5, 5]
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            }
+        });
+
+        // Orders Summary Chart
+        const ordersCtx = document.getElementById('ordersChart').getContext('2d');
+        new Chart(ordersCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],
+                datasets: [{
+                    label: 'Orders',
+                    data:  <%- JSON.stringify(weeklyOrders) %>,
+                    backgroundColor: '#4f46e5',
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            borderDash: [5, 5]
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            }
+        })
+        
+        // Top Categories Chart
+        const topCategoriesData = <%- JSON.stringify(topCategories) %>;
+
+        const labels = topCategoriesData.map(c => c.categoryName);
+        const data = topCategoriesData.map(c => c.totalSold);
+
+        const topCategoriesCtx = document.getElementById('topCategoriesChart').getContext('2d');
+
+        new Chart(topCategoriesCtx, {
+            type: 'doughnut',
+            data: {
+                labels: labels,
+                datasets: [{
+                    data: data,
+                    backgroundColor: [
+                        '#4f46e5',
+                        '#0ea5e9',
+                        '#10b981',
+                        '#f59e0b',
+                        '#ef4444'
+                    ],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        usePointStyle: true, 
+                        pointStyle: 'circle' 
+                    }
+                }
+            },
+                cutout: '70%'
+            }
+        });
+        function handleFilter(value) {
+            window.location.href = `/admin/dashboard?filter=${value}`;
+        }
+    </script>
+
+</body>
+

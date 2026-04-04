@@ -57,14 +57,24 @@ const userSchema = new mongoose.Schema(
     },
 
     googleId:{
-        type:String,
-        unique:true
+      type:String,
+      unique:true,
+      sparse: true
     },
 
     referralCode: {
       type: String,
       unique: true
     },
+
+    profileImage: {
+      type: String
+    },
+
+    profileImageId: {
+      type: String
+    },
+    
     address:[addressSchema],
 
     status: {

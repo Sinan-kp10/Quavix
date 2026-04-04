@@ -1,0 +1,848 @@
+<body>
+
+    <% if (typeof toastMessage !=="undefined" ) { %>
+        <div id="toast" class="toast <%= toastType %> show">
+            <%= toastMessage %>
+        </div>
+    <% } %>
+
+    <% if (typeof isBlocked !== "undefined" && isBlocked) { %>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script>
+            document.addEventListener("DOMContentLoaded", () => {
+                Swal.fire({
+                    title: "Product Unavailable",
+                    text: "This product is currently not available.",
+                    icon: "error",
+                    confirmButtonColor: "#6C5CE7",
+                    confirmButtonText: "Go to Shop"
+                }).then((result) => {
+                    window.location.href = "/products";
+                });
+            });
+        </script>
+    <% } %>
+
+            <!-- Navbar -->
+            <nav class="navbar">
+                <div class="container nav-container">
+                    <a href="/" class="logo">
+                        <i class="fa-solid fa-bolt text-gradient-clip"></i>
+                        <span class="text-gradient">Quavix</span>
+                    </a>
+
+                    <div class="mobile-search-container">
+                        <div class="hamburger-menu">
+                            <i class="fa-solid fa-bars"></i>
+                        </div>
+                        <div class="mobile-search">
+                            <input type="text" placeholder="Search gadgets...">
+                            <button><i class="fa-solid fa-magnifying-glass"></i></button>
+                        </div>
+                    </div>
+
+                    <!-- Mobile Sidebar (Hidden by default) -->
+                    <aside class="mobile-sidebar">
+                        <div class="sidebar-header">
+                            <a href="/" class="logo">
+                                <i class="fa-solid fa-bolt text-gradient-clip"></i>
+                                <span class="text-gradient">Quavix</span>
+                            </a>
+                            <button class="close-btn"><i class="fa-solid fa-xmark"></i></button>
+                        </div>
+                        <div class="sidebar-content">
+                            <a href="products.html"><i class="fa-solid fa-shop"></i> Shop</a>
+                            <a href="/order-history"><i class="fa-solid fa-box"></i> Orders</a>
+                            <a href="/wishlist" class="relative wishlist-nav">
+                                <i class="fa-regular fa-heart"></i> Wishlist
+                                <% if (wishlistCount > 0) { %>
+                                    <span class="badge wishlist-sidebar-badge"><%= wishlistCount %></span>
+                                <% } %>
+                            </a>
+                            <a href="/cart" class="relative">
+                                <i class="fa-solid fa-cart-shopping"></i> Cart
+
+                                <% if (user) { %>
+                                    <span id="cartSidebarBadge" class="badge cart-sidebar-badge">
+                                        <%= cartCount || 0 %>
+                                    </span>
+                                <% } %>
+                            </a>
+                            <% if (user) { %>
+                                <a href="/profile"><i class="fa-solid fa-user"></i> Profile</a>
+                                <a href="/logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+                                <% } else { %>
+                                    <a href="/login"><i class="fa-solid fa-right-to-bracket"></i> Sign In</a>
+                            <% } %>
+                        </div>
+                    </aside>
+
+                    <!-- Overlay -->
+                    <div class="mobile-overlay"></div>
+
+                    <!-- Desktop Menu -->
+                    <div class="nav-menu">
+                        <a href="/">Home</a>
+                        <a href="/products" class="text-primary">Shop</a>
+                        <a href="/order-history">Orders</a>
+                    </div>
+
+                    <div class="nav-icons">
+                        <!-- Search Bar -->
+                        <form class="nav-search" action="/products/search" method="GET">
+                            <input type="text" name="q" placeholder="Search gadgets...">
+                            <button type="submit">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                            </button>
+                        </form>
+
+                        <a href="/wishlist" class="relative wishlist-nav">
+                            <i class="fa-regular fa-heart nav-icon-lg"></i>
+                            <% if (wishlistCount > 0) { %>
+                                <span class="badge wishlist-badge"><%= wishlistCount %></span>
+                                
+                            <% } %>
+                        </a>
+                        <a href="/cart" class="relative">
+                            <i class="fa-solid fa-cart-shopping nav-icon-lg"></i>
+
+                            <% if (user) { %>
+                                <span id="cartBadge" class="badge-1 cart-badge">
+                                    <%= cartCount || 0 %>
+                                </span>
+                            <% } %>
+                        </a>
+                                                <% if (user) { %>
+                            <a href="/profile" class="nav-profile-icon">
+
+                                <% if (user.profileImage) { %>
+                                    <img src="<%= user.profileImage %>" alt="Profile" class="nav-profile-img">
+                                    <% } else { %>
+                                        <div class="nav-default-avatar">
+                                            <%= user.name.charAt(0).toUpperCase() %>
+                                        </div>
+                                        <% } %>
+
+                            </a>
+                            <% } else { %>
+                                <a href="/login" class="btn btn-primary btn-sm">
+                                    <i class="fa-solid fa-right-to-bracket"></i> Sign In
+                                </a>
+                        <% } %>
+                    </div>
+                </div>
+            </nav>
+
+
+            <!-- ================= PRODUCT DETAILS ================= -->
+            <div class="container product-details-container">
+
+                <!-- Breadcrumb -->
+                <nav class="breadcrumb-nav mb-4 text-sm text-muted">
+
+                    <!-- Home -->
+                    <a href="/" class="hover:text-primary">Home</a>
+                    <span class="mx-1">/</span>
+
+                    <!-- Products -->
+                    <a href="/products" class="hover:text-primary">Products</a>
+                    <span class="mx-1">/</span>
+
+                    <!-- Category -->
+                    <a href="/products?category=<%= product.category._id %>" class="hover:text-primary">
+                        <%= product.category.name %>
+                    </a>
+                    <span class="mx-1">/</span>
+
+                    <!-- Product Name -->
+                    <span class="text-dark font-medium">
+                        <%= product.name %>
+                    </span>
+
+                </nav>
+
+
+                <div class="product-details-grid">
+
+                    <!-- ================= LEFT SIDE (IMAGES) ================= -->
+                    <div class="product-sticky-sidebar">
+
+                        <div class="image-gallery">
+
+                            <!-- Thumbnails -->
+                            <div class="thumbnail-list">
+
+                                <!-- Primary Image -->
+                                <div class="thumbnail-item active" onclick="changeImage(this)">
+                                    <img src="<%= activeVariant.images.primary.url %>" alt="">
+                                </div>
+
+                                <!-- Gallery Images -->
+                                <% activeVariant.images.gallery.forEach(img => { %>
+                                    <div class="thumbnail-item" onclick="changeImage(this)">
+                                        <img src="<%= img.url %>" alt="">
+                                    </div>
+                                <% }) %>
+
+                            </div>
+
+                            <!-- Main Image -->
+                            <div class="gallery-right-column">
+                                <div class="main-image-container">
+
+                                    <img 
+                                        id="mainProductImage"
+                                        src="<%= activeVariant.images.primary.url %>" 
+                                        alt="<%= product.name %>">
+
+                                    <button 
+                                        class="wishlist-btn-abs wishlist-toggle"
+                                        data-product="<%= product._id %>"
+                                        data-variant="<%= activeVariant._id %>">
+
+                                        <i class="fa-heart <%= isWishlisted ? 'fa-solid text-danger' : 'fa-regular' %>"></i>
+
+                                    </button>
+
+                                </div>
+
+                                <div class="action-buttons">
+                                    <button 
+                                        class="btn btn-cart btn-lg add-to-cart-btn"
+                                        data-product="<%= product._id %>"
+                                        data-variant="<%= activeVariant._id %>">
+
+                                        <i class="fa-solid fa-cart-shopping mr-2"></i> Add to Cart
+                                    </button>
+
+                                    <button class="btn btn-buy btn-lg" onclick="buyNow('<%= activeVariant._id %>')">
+                                        <i class="fa-solid fa-bolt mr-2"></i> Buy Now
+                                    </button>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+
+
+                    <!-- ================= RIGHT SIDE (PRODUCT INFO) ================= -->
+                    <div>
+
+                        <!-- Product Title + Attributes -->
+                        <h1 class="product-title product-title-main">
+                            <%= product.name %>
+                                (
+                                <% activeVariant.attributes.forEach((attr, index)=> { %>
+                                    <%= attr.value %>
+                                    <%= index < activeVariant.attributes.length - 1 ? ', ' : '' %>
+                            <% }) %>
+                            )
+                        </h1>
+
+
+                        <!-- ===== PRICE CALCULATION ===== -->
+                        <% const originalPrice=activeVariant.price; const offer=Math.max(product.offerPercentage || 0, product.category?.categoryOffer || 0); const
+                            discount=(originalPrice * offer) / 100; const finalPrice=Math.round(originalPrice -
+                            discount); 
+                        %>
+
+                        <div class="price-section mb-2">
+                            <span class="current-price">
+                                ₹<%= finalPrice.toLocaleString() %>
+                            </span>
+
+                            <% if (offer> 0) { %>
+                                <span class="original-price">
+                                    ₹<%= originalPrice.toLocaleString() %>
+                                </span>
+                                <span class="text-green font-bold ml-2 text-sm" style="margin-left: 10px;">
+                                    <%= offer %>% OFF
+                                </span>
+                                <% } %>
+                        </div>
+
+
+                        <!-- Rating + Stock -->
+                        <div class="flex items-center gap-4 mb-4">
+
+                            <span
+                                class="stock-status <%= activeVariant.stock > 0 ? 'text-green' : 'text-red' %> font-bold text-sm">
+                                <%= activeVariant.stock> 0 ? `In Stock (${activeVariant.stock})` : 'Out of Stock' %>
+                            </span>
+
+                        </div>
+                        <!-- Colour -->
+                            
+                        <div class="color-selection-container">
+                            <h4 class="color-label">Color</h4>
+                            <div class="color-options">
+
+                                <% colorVariants.forEach(variant => { 
+                                    const colorAttr = variant.attributes.find(attr =>
+                                        attr.name && attr.name.toLowerCase() === "color"
+                                    );
+
+                                    const isActive = variant._id.toString() === activeVariant._id.toString();
+
+                                    if (colorAttr && variant.status === "Active") { %>
+
+                                        <a href="?variant=<%= variant._id %>">
+                                            <button
+                                                class="color-swatch <%= isActive ? 'active' : '' %>"
+                                                data-color="<%= colorAttr.value %>"
+                                                title="<%= colorAttr.value %>">
+                                            </button>
+                                        </a>
+
+                                <% } }); %>
+
+                            </div>
+                        </div>
+
+                        <!-- Storage Selection -->
+                        <%
+                            const storageMap = {};
+                            product.variants.forEach(v => {
+
+                                if (v.status !== "Active") return;
+
+                                const storageAttr = v.attributes.find(a =>
+                                    a.name &&
+                                    (
+                                        a.name.toLowerCase().includes("storage") ||
+                                        a.name.toLowerCase().includes("rom")
+                                    )
+                                );
+
+                                if (!storageAttr) return;
+
+                                const value = storageAttr.value;
+
+                                if (!storageMap[value]) {
+                                    storageMap[value] = v;
+                                }
+                            });
+
+                            const storageList = Object.keys(storageMap);
+                        %>
+
+                        <% if (storageList.length > 0) { %>
+
+                        <div class="storage-selection-container mb-6">
+                            <h4 class="storage-label">Storage</h4>
+
+                            <div class="storage-options">
+
+                                <% storageList.forEach(value => {
+
+                                    const variant = storageMap[value];
+
+                                    const isActive = activeVariant.attributes.some(a =>
+                                        (
+                                            a.name.toLowerCase().includes("storage") ||
+                                            a.name.toLowerCase().includes("rom")
+                                        ) && a.value === value
+                                    );
+
+                                %>
+
+                                    <a href="?variant=<%= variant._id %>">
+                                        <button class="storage-btn <%= isActive ? 'active' : '' %>">
+                                            <%= value %>
+                                        </button>
+                                    </a>
+
+                                <% }) %>
+
+                            </div>
+                        </div>
+
+                        <% } %>
+
+                        <!-- ===== HIGHLIGHTS ===== -->
+                        <% if (product.highlights.length> 0) { %>
+                        <div class="details-section mb-4">
+                            <div class="highlight-row">
+                                <h4>Highlights</h4>
+                                <div class="highlight-content">
+                                    <% product.highlights.forEach(item=> { %>
+                                        <span>
+                                            <%= item %>
+                                        </span>
+                                        <% }) %>
+                                </div>
+                            </div>
+                        </div>
+                        <% } %>
+
+
+                            <!-- ===== SERVICES ===== -->
+                        <% if (product.services.length> 0) { %>
+                            <div class="details-section">
+                                <div class="service-row">
+                                    <h4>Services</h4>
+                                    <div class="service-content">
+                                        <% product.services.forEach(service=> { %>
+                                            <span class="flex items-center">
+                                                <i class="fa-solid fa-check mr-2"></i>
+                                                <%= service %>
+                                            </span>
+                                            <% }) %>
+                                    </div>
+                                </div>
+                            </div>
+                        <% } %>
+
+
+                        <!-- ===== DESCRIPTION ===== -->
+                        <div class="mt-8">
+                            <div class="p-4 font-bold text-lg">
+                                Product Description
+                            </div>
+                            <div class="p-6 text-muted text-sm">
+                                <p class="product-desc-text">
+                                    <%= product.description %>
+                                </p>
+                            </div>
+                        </div>                   
+                    </div>
+        </div>
+
+    <% if (relatedProducts && relatedProducts.length > 0) { %>
+
+        <section class="container section-padding">
+            <h2 class="text-center mb-8">Related Products</h2>
+
+            <div class="home-product-grid">
+
+                <% relatedProducts.forEach(rp => { 
+
+                    const firstVariant = rp.variants.find(v => v.status === "Active") || rp.variants[0];
+
+                    if (!firstVariant) return;
+
+                    const originalPrice = firstVariant.price || 0;
+                    const offer = Math.max(rp.offerPercentage || 0, rp.category?.categoryOffer || 0);
+                    const discount = (originalPrice * offer) / 100;
+                    const finalPrice = Math.round(originalPrice - discount);
+
+                %>
+
+                <div class="home-product-card">
+
+                    <!-- Image Section -->
+                    <div class="home-card-img-box">
+
+                        <% if (offer > 0) { %>
+                            <span class="home-card-offer">
+                                <%= offer %>% OFF
+                            </span>
+                        <% } %>
+
+                        <a href="/product/<%= rp.slug %>">
+                            <img 
+                                src="<%= firstVariant.images?.primary?.url %>" 
+                                alt="<%= rp.name %>">
+                        </a>
+
+                    </div>
+
+                    <!-- Content Section -->
+                    <div class="home-card-content">
+
+                        <!-- Category + Rating -->
+                        <div class="card-cat-rating">
+
+                            <span class="product-cat-sm">
+                                <%= rp.category?.name %>
+                            </span>
+
+                            <% if (rp.rating !== undefined) { %>
+                                <span class="home-card-rating">
+                                    <%= rp.rating.toFixed(1) %>
+                                    <i class="fa-solid fa-star"></i>
+                                </span>
+                            <% } %>
+
+                        </div>
+
+                        <%
+                            const attributes = firstVariant.attributes || [];
+
+                            const colorAttr = attributes.find(a =>
+                                a.name.toLowerCase().includes("color") ||
+                                a.name.toLowerCase().includes("colour")
+                            );
+
+                            const ramAttr = attributes.find(a =>
+                                a.name.toLowerCase().includes("ram")
+                            );
+
+                            const storageAttr = attributes.find(a =>
+                                a.name.toLowerCase().includes("rom") ||
+                                a.name.toLowerCase().includes("storage")
+                            );
+
+                            const color = colorAttr ? colorAttr.value : "";
+                            const ram = ramAttr ? ramAttr.value : "";
+                            const storage = storageAttr ? storageAttr.value : "";
+                        %>
+
+                        <!-- Product Title With Attributes -->
+                        <h3 class="home-card-title">
+                            <%= rp.name %>
+                            <% if (color || storage) { %>
+                                (<%= [color, storage].filter(Boolean).join(", ") %>)
+                            <% } %>
+                        </h3>
+
+                        <!-- Highlights -->
+                        <ul class="home-card-highlights">
+
+                            <% if (ram || storage) { %>
+                                <li><%= [ram, storage].filter(Boolean).join(" | ") %></li>
+                            <% } %>
+
+                            <% if (rp.highlights && rp.highlights.length > 0) { %>
+                                <% rp.highlights.slice(0,2).forEach(h => { %>
+                                    <li><%= h %></li>
+                                <% }) %>
+                            <% } %>
+
+                        </ul>
+                        
+
+                        <!-- Price Section -->
+                        <div class="home-card-bottom">
+                            <div class="price-box">
+
+                                <% if (offer > 0) { %>
+                                    <span class="price-old-sm">
+                                        ₹<%= originalPrice.toLocaleString() %>
+                                    </span>
+                                <% } %>
+
+                                <span class="price-new-sm">
+                                    ₹<%= finalPrice.toLocaleString() %>
+                                </span>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <% }) %>
+
+            </div>
+        </section>
+
+        <% } else { %>
+
+        <section class="container section-padding">
+            <h2 class="text-center mb-8">Related Products</h2>
+            <p class="text-center text-muted">
+                No related products available.
+            </p>
+        </section>
+
+        <% } %>
+
+    <script src="/js/user/navbar.js"></script>
+
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const badge = document.getElementById("cartBadge");
+            const sidebarBadge = document.getElementById("cartSidebarBadge");
+
+            if (badge && Number(badge.innerText) === 0) {
+                badge.style.display = "none";
+            }
+
+            if (sidebarBadge && Number(sidebarBadge.innerText) === 0) {
+                sidebarBadge.style.display = "none";
+            }
+        });
+        const mainImageContainer = document.querySelector('.main-image-container');
+
+        if (mainImageContainer) {
+            const mainImage = mainImageContainer.querySelector('img');
+
+            if (mainImage) {
+                mainImageContainer.addEventListener('mousemove', (e) => {
+                    const { left, top, width, height } = mainImageContainer.getBoundingClientRect();
+                    const x = e.clientX - left;
+                    const y = e.clientY - top;
+
+                    const xPercent = (x / width) * 100;
+                    const yPercent = (y / height) * 100;
+
+                    mainImage.style.transformOrigin = `${xPercent}% ${yPercent}%`;
+                    mainImage.style.transform = 'scale(2.5)'; 
+                });
+
+                mainImageContainer.addEventListener('mouseleave', () => {
+
+                    mainImage.style.transformOrigin = 'center center';
+                    mainImage.style.transform = 'scale(1)';
+                });
+            }
+        }
+
+
+        document.querySelectorAll(".color-swatch").forEach(btn => {
+            const color = btn.getAttribute("data-color");
+            if (color) {
+                btn.style.backgroundColor = color;
+            }
+        });
+
+        //wishlist
+
+        document.addEventListener("click", async function (e) {
+
+            const btn = e.target.closest(".wishlist-toggle");
+            if (!btn) return;
+
+            e.preventDefault();
+
+            const productId = btn.dataset.product;
+            const variantId = btn.dataset.variant;
+
+            try {
+
+                const response = await fetch("/wishlist", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ productId, variantId })
+                });
+
+                const data = await response.json();
+
+                if (response.status === 401) {
+                    triggerToast(data.message || "Please login to use wishlist", "error");
+                    return;
+                }
+
+                if (!data.success) {
+                    triggerToast(data.message || "Something went wrong", "error");
+                    return;
+                }
+
+                const icon = btn.querySelector("i");
+
+                if (data.added) {
+                    icon.classList.remove("fa-regular");
+                    icon.classList.add("fa-solid");
+                    icon.style.color = "red";
+                    updateWishlistBadge(data.wishlistCount);
+
+                    triggerToast(data.message, "success");
+
+                } else {
+                    icon.classList.remove("fa-solid");
+                    icon.classList.add("fa-regular");
+                    icon.style.color = "#cbd5e1";
+                    updateWishlistBadge(data.wishlistCount);
+
+                    triggerToast(data.message, "error");
+                }
+
+            } catch (err) {
+                triggerToast("Server error", "error");
+            }
+        });
+
+
+        //cart
+        document.addEventListener("click", async function (e) {
+
+            const button = e.target.closest(".add-to-cart-btn");
+            if (!button) return;
+
+            const productId = button.dataset.product;
+            const variantId = button.dataset.variant;
+
+            try {
+
+                const response = await fetch("/cart", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ productId, variantId })
+                });
+
+                const data = await response.json();
+
+
+                if (response.status === 401) {
+                    
+                    return window.location.href="/login"
+                }
+                if (response.status === 400) {
+                    const msg = data.message ? data.message.toLowerCase() : "";
+                    if (msg.includes("out of stock") || msg.includes("available in stock")) {
+                        triggerToast(data.message, "error");
+                        return;
+                    }
+
+                    Swal.fire({
+                        icon: "error",
+                        title: "Unavailable",
+                        text: data.message || "This product is currently not available.",
+                        confirmButtonColor: "#6C5CE7",
+                        confirmButtonText: "Go to Shop"
+                    }).then(() => {
+                        window.location.href = "/products";
+                    });
+                    return;
+                }
+
+                if (!data.success) {
+                    triggerToast(data.message || "Fialed to add to cart", "error");
+                    return;
+                }
+
+                triggerToast(data.message, "success");
+                updateCartBadge(data.cartCount);
+
+            } catch (error) {
+                triggerToast("Something went wrong", "error");
+            }
+
+        });
+        function updateCartBadge(count) {
+
+            const badge = document.getElementById("cartBadge");
+            const sidebarBadge = document.getElementById("cartSidebarBadge");
+
+            if (badge){
+                badge.innerText = count;
+                badge.style.display = count > 0 ? "inline-block" : "none";
+            }
+
+            if (sidebarBadge){
+                sidebarBadge.innerText = count;
+                sidebarBadge.style.display = count > 0 ? "inline-block" : "none";
+            } 
+        }
+        function updateWishlistBadge(count) {
+
+            const badges = document.querySelectorAll(".wishlist-nav");
+
+            badges.forEach(container => {
+
+                let badge = container.querySelector(".wishlist-badge, .wishlist-sidebar-badge");
+
+                if (count > 0) {
+                    if (badge) {
+                        badge.innerText = count;
+                        badge.style.display = "inline-block";
+                    } else {
+                        const span = document.createElement("span");
+                        span.className = "badge wishlist-badge";
+                        span.innerText = count;
+                        container.appendChild(span);
+                    }
+                } else {
+                    if (badge) badge.style.display = "none";
+                }
+
+            });
+        }
+
+
+        function changeImage(element) {
+
+            const mainImage = document.getElementById("mainProductImage");
+            const newSrc = element.querySelector("img").src;
+
+            mainImage.style.opacity = 0;
+
+            setTimeout(() => {
+                mainImage.src = newSrc;
+                mainImage.style.opacity = 1;
+            }, 150);
+
+            document.querySelectorAll(".thumbnail-item").forEach(item => {
+                item.classList.remove("active");
+            });
+
+
+            element.classList.add("active");
+        }
+
+        async function buyNow(variantId){
+
+            const response = await fetch("/buy-now",{
+                method:"POST",
+                headers: { "Content-Type": "application/json" },
+                body:JSON.stringify({variantId})
+            });
+
+            if (response.status === 401) {
+                return window.location.href="/login";
+            }
+
+            const data = await response.json();
+
+            if(data.success){
+                window.location.href="/checkout";
+            }else{
+                if (data.message && data.message.toLowerCase().includes("out of stock")) {
+                    triggerToast(data.message, "error");
+                    return;
+                }
+
+                Swal.fire({
+                    icon: "error",
+                    title: "Unavailable",
+                    text: data.message || "This product is currently not available.",
+                    confirmButtonColor: "#6C5CE7",
+                    confirmButtonText: "Go to Shop"
+                }).then(() => {
+                    window.location.href = "/products";
+                });
+            }
+        }
+
+        const toast = document.getElementById("toast");
+
+        if (toast) {
+            setTimeout(() => {
+                toast.classList.add("show");
+            }, 100);
+
+            setTimeout(() => {
+                toast.classList.remove("show");
+            }, 3000);
+        }
+
+        function triggerToast(message, type = "error") {
+
+            let toast = document.getElementById("toast");
+
+            if (!toast) {
+                toast = document.createElement("div");
+                toast.id = "toast";
+                document.body.appendChild(toast);
+            }
+
+            toast.className = `toast ${type}`;
+            toast.innerText = message;
+
+            setTimeout(() => {
+                toast.classList.add("show");
+            }, 100);
+
+            setTimeout(() => {
+                toast.classList.remove("show");
+            }, 3000);
+        }
+    </script>
+
+
+</body>

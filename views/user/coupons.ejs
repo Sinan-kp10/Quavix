@@ -1,0 +1,270 @@
+
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Outfit:wght@400;500;700;800&display=swap" rel="stylesheet">
+
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar navbar-fixed">
+        <div class="container nav-container">
+            <a href="index.html" class="logo">
+                <i class="fa-solid fa-bolt text-gradient-clip"></i>
+                <span class="text-gradient">Quavix</span>
+            </a>
+
+            <div class="mobile-search-container">
+                <div class="hamburger-menu">
+                    <i class="fa-solid fa-bars"></i>
+                </div>
+                <div class="mobile-search">
+                    <input type="text" placeholder="Search gadgets...">
+                    <button><i class="fa-solid fa-magnifying-glass"></i></button>
+                </div>
+            </div>
+
+            <!-- Mobile Sidebar (Hidden by default) -->
+            <aside class="mobile-sidebar">
+                <div class="sidebar-header">
+                    <a href="/" class="logo">
+                        <i class="fa-solid fa-bolt text-gradient-clip"></i>
+                        <span class="text-gradient">Quavix</span>
+                    </a>
+                    <button class="close-btn"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <div class="sidebar-content">
+                    <a href="/products"><i class="fa-solid fa-shop"></i> Shop</a>
+                    <a href="/order-history"><i class="fa-solid fa-box"></i> Orders</a>
+                    <a href="/wishlist" class="relative wishlist-nav">
+                        <i class="fa-regular fa-heart"></i> Wishlist
+                        <% if (wishlistCount > 0) { %>
+                            <span class="badge wishlist-sidebar-badge"><%= wishlistCount %></span>
+                        <% } %>
+                    </a>
+                    <a href="/cart"><i class="fa-solid fa-cart-shopping"></i> Cart</a>
+                    <a href="/cart" class="relative">
+                        <i class="fa-solid fa-cart-shopping"></i> Cart
+                        <% if (cartCount > 0) { %>
+                            <span class="badge cart-sidebar-badge"><%= cartCount %></span>
+                        <% } %>
+                    </a>
+
+                    <% if (user) { %>
+                            <a href="/profile"><i class="fa-solid fa-user"></i> Profile</a>
+                            <a href="/logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+                        <% } else { %>
+                            <a href="/login"><i class="fa-solid fa-right-to-bracket"></i> Sign In</a>
+                    <% } %>
+                </div>
+            </aside>
+
+            <!-- Overlay -->
+            <div class="mobile-overlay"></div>
+
+            <!-- Desktop Menu -->
+            <div class="nav-menu">
+                <a href="/">Home</a>
+                <a href="/products">Shop</a>
+                <a href="/order-history">Orders</a>
+            </div>
+
+            <div class="nav-icons">
+                <!-- Search Bar -->
+                <div class="nav-search">
+                    <input type="text" placeholder="Search gadgets...">
+                    <button><i class="fa-solid fa-magnifying-glass"></i></button>
+                </div>
+
+                <a href="/wishlist" class="relative wishlist-nav">
+                    <i class="fa-regular fa-heart nav-icon-lg"></i>
+                    <% if (wishlistCount > 0) { %>
+                        <span class="badge wishlist-badge"><%= wishlistCount %></span>
+                        
+                    <% } %>
+                </a>
+
+                <a href="/cart" class="relative">
+                    <i class="fa-solid fa-cart-shopping nav-icon-lg"></i>
+
+                    <% if (cartCount > 0) { %>
+                        <span class="badge cart-badge"><%= cartCount %></span>
+                    <% } %>
+                </a>
+
+                <% if (user) { %>
+                    <a href="/profile" class="nav-profile-icon">
+
+                        <% if (user.profileImage) { %>
+                            <img src="<%= user.profileImage %>" 
+                                alt="Profile"
+                                class="nav-profile-img">
+                        <% } else { %>
+                            <div class="nav-default-avatar">
+                                <%= user.name.charAt(0).toUpperCase() %>
+                            </div>
+                        <% } %>
+
+                    </a>
+                <% } else { %>
+                    <a href="/login" class="btn btn-primary btn-sm">
+                        <i class="fa-solid fa-right-to-bracket"></i> Sign In
+                    </a>
+                <% } %>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Profile Section -->
+    <section class="section-padding section-profile">
+        <div class="container">
+            <h2 class="mb-8">My Profile</h2>
+
+            <div class="grid gap-8 profile-grid">
+                <!-- Profile Sidebar / Card -->
+                <div class="card p-6">
+                    <div class="text-center mb-6">
+    
+                        <div class="profile-img-container">
+                            <% if (user.profileImage) { %>
+                                <img src="<%= user.profileImage %>" alt="Profile" class="profile-img">
+                            <% } else { %>
+                                <div class="default-avatar">
+                                    <i class="fa-solid fa-user"></i>
+                                </div>
+                            <% } %>
+
+                            <form action="/upload-profile" method="POST" enctype="multipart/form-data">
+                                <label for="profileInput" class="change-btn">
+                                    <i class="fa-solid fa-camera"></i>
+                                </label>
+                                <input type="file" name="profileImage" id="profileInput" hidden accept="image/*">
+                            </form>
+                        </div>
+
+                        <% if (user.profileImage) { %>
+                            <form action="/remove-profile-image" method="POST">
+                                <button type="submit" class="remove-btn">
+                                    Remove Photo
+                                </button>
+                            </form>
+                        <% } %>
+                        
+
+                        <h3 class="text-xl font-bold"><%= user.name %></h3>
+                        <p class="text-muted"><%= user.email %></p>
+
+                    </div>
+                    <br>
+                    <div class="flex flex-col">
+                        <a href="/order-history" class="profile-nav-link">
+                            <i class="fa-solid fa-box"></i> My Orders
+                        </a>
+                        <a href="/cart" class="profile-nav-link">
+                            <i class="fa-solid fa-cart-shopping"></i> My Cart
+                        </a>
+                        <a href="/wishlist" class="profile-nav-link">
+                            <i class="fa-regular fa-heart"></i> My Wishlist
+                        </a>
+
+                        <a href="/coupons" class="profile-nav-link active">
+                            <i class="fa-solid fa-ticket"></i> My Coupons
+                        </a>
+                        <a href="/wallet" class="profile-nav-link">
+                            <i class="fa-solid fa-wallet"></i> My Wallet
+                        </a>
+                        <a href="/referral" class="profile-nav-link">
+                            <i class="fa-solid fa-share-nodes"></i> Refer & Earn
+                        </a>
+                        <a href="/logout" class="btn btn-outline-danger w-full mt-4 text-left">
+                            <i class="fa-solid fa-right-from-bracket mr-2"></i> Logout
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Coupons Content -->
+                <div class="flex flex-col gap-8">
+
+                    <div class="card p-8">
+                        <h3 class="text-xl font-bold mb-6">Coupons</h3>
+                        <br>
+
+                        <div class="grid gap-4 grid-coupons">
+
+                            <% if(couponsList.length > 0){ %>
+
+                                <% couponsList.forEach(coupon => { %>
+
+                                    <% 
+                                        const isExpired = new Date(coupon.expiryDate) < new Date();
+                                    %>
+
+                                    <div class="coupon-card <%= isExpired ? 'expired' : '' %>">
+
+                                        <div class="coupon-left">
+                                            <div class="coupon-value">
+                                                <% if(coupon.discountType === "percentage"){ %>
+                                                    <%= coupon.discountAmount %>% OFF
+                                                <% } else { %>
+                                                    ₹<%= coupon.discountAmount %> OFF
+                                                <% } %>
+                                            </div>
+
+                                            <div class="coupon-desc">
+                                                Min. purchase ₹<%= coupon.minPurchaseAmount %>
+                                            </div>
+                                        </div>
+
+                                        <div class="coupon-right">
+
+                                            <div class="coupon-code">
+                                                <%= coupon.code %>
+                                            </div>
+
+                                            <div class="coupon-expiry">
+                                                Exp: <%= new Date(coupon.expiryDate).toDateString() %>
+                                            </div>
+
+                                            <% if(isExpired){ %>
+                                                <button class="btn-copy" disabled>Expired</button>
+                                            <% } else { %>
+                                                <button class="btn-copy" onclick="copyCoupon('<%= coupon.code %>', this)">
+                                                    Copy Code
+                                                </button>
+                                            <% } %>
+
+                                        </div>
+
+                                    </div>
+
+                                <% }) %>
+
+                            <% } else { %>
+
+                                <p>No coupons available</p>
+
+                            <% } %>
+
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+
+        function copyCoupon(code, btn){
+
+            navigator.clipboard.writeText(code)
+
+            btn.innerHTML = '<i class="fa-solid fa-check"></i> Copied'
+
+            setTimeout(() => {
+                btn.innerHTML = 'Copy Code'
+            }, 3000)
+
+        }
+
+    </script>
+</body>
+

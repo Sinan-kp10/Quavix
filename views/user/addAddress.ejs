@@ -1,0 +1,95 @@
+
+<body>
+    <div id="admin-spinner" class="spinner-overlay" style="display:none;">
+        <div class="spinner"></div>
+    </div>
+    <% if (typeof toastMessage !== "undefined") { %>
+        <div id="toast" class="toast <%= toastType %>">
+            <%= toastMessage %>
+        </div>
+    <% } %>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="container nav-container">
+            <a href="index.html" class="logo">
+                <i class="fa-solid fa-bolt text-gradient-clip"></i>
+                <span class="text-gradient">Quavix</span>
+            </a>
+            <div class="nav-menu">
+                <span class="text-muted">Add New Address</span>
+            </div>
+            <a href="<%= from === 'checkout' ? '/checkout' : '/profile' %>" 
+                class="text-muted nav-back-link">
+                <i class="fa-solid fa-arrow-left"></i> Back
+            </a>
+        </div>
+    </nav>
+
+    <div class="container py-16">
+        <div class="card max-w-2xl mx-auto">
+            <h1 class="mb-6 font-bold text-xl">Add New Address</h1>
+
+            <form id="addressForm" class="form-grid" method="post" action="<%= address ? '/editAddress/' + address._id + '?from=' + from : '/addAddress?from=' + from %>">
+                <div class="form-group col-span-2">
+                    <label class="form-label">Full Name</label>
+                    <input type="text" name="fullname" id="name" class="form-input" placeholder="Full Name" value="<%= address ? address.fullname : '' %>">
+                    <small class="error-message" id="emailError"></small>
+
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Phone Number</label>
+                    <input type="tel" name="phone" id="phone" class="form-input" placeholder="Phone Number" value="<%= address ? address.phone : '' %>">
+                    <small class="error-message" id="emailError"></small>
+
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Pincode</label>
+                    <input type="text" name="pincode" id="pincode"  class="form-input" placeholder="Pincode"  value="<%= address ? address.pincode : '' %>">
+                    <small class="error-message" id="emailError"></small>
+
+                </div>
+                <div class="form-group" style="grid-column: span 2;">
+                    <label class="form-label">Street Address</label>
+                    <input type="text" name="street" id="street" class="form-input" placeholder="123 Main St" value="<%= address ? address.street : '' %>">
+                    <small class="error-message" id="emailError"></small>
+
+                </div>
+                <div class="form-group">
+                    <label class="form-label">State</label>
+                    <input type="text" name="state" id="state" class="form-input" placeholder="State" value="<%= address ? address.state : '' %>">
+                    <small class="error-message" id="emailError"></small>
+                    
+                </div>
+                <div class="form-group">
+                    <label class="form-label">District</label>
+                    <input type="text" name="city" id="city" class="form-input" placeholder="District" value="<%= address ? address.city : '' %>">
+                    <small class="error-message" id="emailError"></small>
+
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Address Type</label>
+                    <select name="addressType" id="addressType" class="form-select form-input">
+                        <option value="Home"
+                            <%= address && address.addressType === "Home" ? "selected" : "" %>>
+                            Home
+                        </option>
+                        <option value="Work"
+                            <%= address && address.addressType === "Work" ? "selected" : "" %>>
+                            Work
+                        </option>
+                    </select>
+
+                </div>
+                <div class="col-span-2 flex gap-4 mt-4 justify-end address-btn-container">
+                    <button type="submit" class="btn btn-primary px-8">Save Address</button>
+                    <a href="<%= from === 'checkout' ? '/checkout' : '/profile' %>" class="btn btn-google px-8">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="/js/user/addAddress.js"></script>
+
+
+</body>

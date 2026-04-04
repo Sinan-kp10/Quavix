@@ -1,0 +1,531 @@
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@400;500;600;700;800&display=swap">
+<body class="cart-page">
+        <% if (typeof toastMessage !=="undefined" ) { %>
+        <div id="toast" class="toast <%= toastType %> show">
+            <%= toastMessage %>
+        </div>
+    <% } %>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="container nav-container">
+            <a href="/" class="logo">
+                <i class="fa-solid fa-bolt text-gradient-clip"></i>
+                <span class="text-gradient">Quavix</span>
+            </a>
+
+            <div class="mobile-search-container">
+                <div class="hamburger-menu">
+                    <i class="fa-solid fa-bars"></i>
+                </div>
+                <div class="mobile-search">
+                    <input type="text" placeholder="Search gadgets...">
+                    <button><i class="fa-solid fa-magnifying-glass"></i></button>
+                </div>
+            </div>
+
+            <!-- Mobile Sidebar (Hidden by default) -->
+            <aside class="mobile-sidebar">
+                <div class="sidebar-header">
+                    <a href="/" class="logo">
+                        <i class="fa-solid fa-bolt text-gradient-clip"></i>
+                        <span class="text-gradient">Quavix</span>
+                    </a>
+                    <button class="close-btn"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <div class="sidebar-content">
+                    <a href="/products"><i class="fa-solid fa-shop"></i> Shop</a>
+                    <a href="/order-history"><i class="fa-solid fa-box"></i> Orders</a>
+                    <a href="/wishlist" class="relative wishlist-nav">
+                        <i class="fa-regular fa-heart"></i> Wishlist
+                        <% if (wishlistCount > 0) { %>
+                            <span class="badge wishlist-sidebar-badge"><%= wishlistCount %></span>
+                        <% } %>
+                    </a>
+                    <a href="/cart" class="relative">
+                        <i class="fa-solid fa-cart-shopping"></i> Cart
+
+                        <% if (cartCount > 0) { %>
+                            <span class="badge cart-sidebar-badge"><%= cartCount %></span>
+                        <% } %>
+
+                    </a>
+                    <% if (user) { %>
+                            <a href="/profile"><i class="fa-solid fa-user"></i> Profile</a>
+                            <a href="/logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+                        <% } else { %>
+                            <a href="/login"><i class="fa-solid fa-right-to-bracket"></i> Sign In</a>
+                    <% } %>
+                </div>
+            </aside>
+
+            <!-- Overlay -->
+            <div class="mobile-overlay"></div>
+
+            <!-- Desktop Menu -->
+            <div class="nav-menu">
+                <a href="/" style="color: var(--text-muted);">Home</a>
+                <a href="/products" style="color: var(--text-muted);">Shop</a>
+                <a href="/order-history" style="color: var(--text-muted);">Orders</a>
+            </div>
+
+            <div class="nav-icons">
+                <!-- Search Bar -->
+                <form class="nav-search" action="/products/search" method="GET">
+                    <input type="text" name="q" placeholder="Search gadgets...">
+                    <button type="submit">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </button>
+                </form>
+
+                <a href="/wishlist" class="relative wishlist-nav">
+                    <i class="fa-regular fa-heart nav-icon-lg"></i>
+                    <% if (wishlistCount > 0) { %>
+                        <span class="badge wishlist-badge"><%= wishlistCount %></span>
+                        
+                    <% } %>
+                </a>
+                
+                <a href="/cart" class="relative">
+                    <i class="fa-solid fa-cart-shopping nav-icon-lg"></i>
+
+                    <% if (cartCount > 0) { %>
+                        <span class="badge cart-badge"><%= cartCount %></span>
+                    <% } %>
+                </a>    
+                <% if (user) { %>
+                    <a href="/profile" class="nav-profile-icon">
+
+                        <% if (user.profileImage) { %>
+                            <img src="<%= user.profileImage %>" 
+                                alt="Profile"
+                                class="nav-profile-img">
+                        <% } else { %>
+                            <div class="nav-default-avatar">
+                                <%= user.name.charAt(0).toUpperCase() %>
+                            </div>
+                        <% } %>
+
+                    </a>
+                <% } else { %>
+                    <a href="/login" class="btn btn-primary btn-sm">
+                        <i class="fa-solid fa-right-to-bracket"></i> Sign In
+                    </a>
+                <% } %>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container py-16">
+        <h1 class="mb-8">Shopping Cart</h1>
+
+        <div class="cart-grid">
+
+            <!-- ================= LEFT SIDE ================= -->
+            <div class="card cart-items-container" style="padding:0;">
+
+            <% 
+                let totalMRP = 0;
+                let totalDiscount = 0;
+                let grandTotal = 0;
+                let totalItems = 0;
+            %>
+
+            <% if (cart && cart.items.length > 0) { %>
+
+                <% cart.items.forEach(item => { 
+
+                    const product = item.product;
+                    if (!product) return;
+
+                    const variant = product.variants.find(v => 
+                        v._id.toString() === item.variant.toString()
+                    );
+                    if (!variant) return;
+
+                    const originalPrice = variant.price;
+                    const offer = Math.max(product.offerPercentage || 0, product.category?.categoryOffer || 0);
+
+                    const discountPerUnit = (originalPrice * offer) / 100;
+                    const finalPrice = Math.round(originalPrice - discountPerUnit);
+
+                    const itemMRP = originalPrice * item.quantity;
+                    const itemDiscount = discountPerUnit * item.quantity;
+                    const itemTotal = finalPrice * item.quantity;
+
+                    totalMRP += itemMRP;
+                    totalDiscount += itemDiscount;
+                    grandTotal += itemTotal;
+                    totalItems += item.quantity;
+                %>
+
+                <div class="cart-item">
+
+                    <!-- Image -->
+                    <div class="cart-image-box">
+                        <a href="/product/<%= product.slug %>">
+                            <img src="<%= variant.images.primary.url %>" alt="<%= product.name %>">
+                        </a>
+                    </div>
+
+                    <!-- Info -->
+                    <div class="cart-info">
+                        <%
+                            const attributes = variant.attributes || [];
+
+                            const attributeValues = attributes.map(attr => attr.value);
+                        %>
+
+                        <h3 class="product-title-card">
+                            <%= product.name %>
+                            <% if (attributeValues.length > 0) { %>
+                                (
+                                <%= attributeValues.join(", ") %>
+                                )
+                            <% } %>
+                        </h3>
+
+                        <div class="cart-price-block">
+                            <div class="price-row-inner">
+
+                                <% if (offer > 0) { %>
+                                    <span class="price-old">
+                                        ₹<%= originalPrice.toLocaleString() %>
+                                    </span>
+                                <% } %>
+
+                                <span class="price-new">
+                                    ₹<%= finalPrice.toLocaleString() %>
+                                </span>
+                            </div>
+
+                            <% if (offer > 0) { %>
+                                <span class="discount-badge">
+                                    <%= offer %>% Off
+                                </span>
+                            <% } %>
+                        </div>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="cart-actions">
+
+                        <% if (product.isDeleted || (product.category && product.category.status !== 'Active')) { %>
+                            <span class="out-of-stock-label" style="background: #fee2e2; color: #ef4444; padding: 0.2rem 0.5rem; border-radius: 0.5rem; font-size: 0.75rem; font-weight: 600; margin-right: 1rem;">
+                                Unavailable
+                            </span>
+                        <% } else { %>
+                            <div class="quantity-wrapper"
+                                data-original="<%= originalPrice %>"
+                                data-final="<%= finalPrice %>"
+                                data-discount="<%= discountPerUnit %>">
+
+                                <button class="btn-qty qty-minus"
+                                    <%= item.quantity <= 1 ? "disabled" : "" %>>
+                                    <i class="fa-solid fa-minus"></i>
+                                </button>
+
+                                <input type="text"
+                                    value="<%= item.quantity %>"
+                                    class="qty-input"
+                                readonly>
+
+                                <button class="btn-qty qty-plus"
+                                    <%= item.quantity >= 10 ? "disabled" : "" %>>
+                                    <i class="fa-solid fa-plus"></i>
+                                </button>
+                            </div>
+                        <% } %>
+
+                        <div class="cart-price-total item-total">
+                            ₹<%= itemTotal.toLocaleString() %>
+                        </div>
+
+                        <button 
+                            class="btn btn-remove remove-cart-item"
+                            data-product="<%= product._id %>"
+                            data-variant="<%= variant._id %>">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+
+                    </div>
+                </div>
+
+                <% }) %>
+
+            <% } else { %>
+
+                <div class="p-8 text-center text-muted">
+                    Your cart is empty.
+                </div>
+
+            <% } %>
+
+            </div>
+
+            <!-- ================= RIGHT SIDE SUMMARY ================= -->
+            <% if (cart && cart.items.length > 0) { %>
+
+            <div class="cart-summary">
+                <div class="card price-details-card">
+
+                    <h2 class="price-details-title">Price details</h2>
+
+                    <div class="price-row">
+                        <span class="price-label">
+                            MRP (<span id="summary-items"><%= totalItems %></span> items)
+                        </span>
+                        <span class="price-value">
+                            ₹<span id="summary-mrp"><%= totalMRP.toLocaleString() %></span>
+                        </span>
+                    </div>
+
+                    <div class="price-row">
+                        <span class="price-label">Discount</span>
+                        <span class="price-value text-success">
+                            - ₹<span id="summary-discount"><%= Math.round(totalDiscount).toLocaleString() %></span>
+                        </span>
+                    </div>
+
+                    <div class="price-divider"></div>
+
+                    <div class="price-row total-row">
+                        <span class="total-label">Total Amount</span>
+                        <span class="total-value">
+                            ₹<span id="summary-total"><%= grandTotal.toLocaleString() %></span>
+                        </span>
+                    </div>
+
+                    <div class="savings-badge">
+                        You will save ₹<span id="summary-save"><%= Math.round(totalDiscount).toLocaleString() %></span> on this order
+                    </div>
+
+                    <button class="btn-place-order" onclick="goToCheckout()">
+                        Place Order
+                    </button>
+
+                </div>
+            </div>
+
+            <% } %>
+
+        </div>
+    </div>
+
+    <script src="/js/user/navbar.js"></script>
+
+
+    <script>
+        document.addEventListener("click", function (e) {
+
+            const btn = e.target.closest(".remove-cart-item");
+            if (!btn) return;
+
+            const productId = btn.dataset.product;
+            const variantId = btn.dataset.variant;
+
+            Swal.fire({
+                title: "Are you sure?",
+                text: "This product will be removed from cart!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#6366f1",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Yes, remove it"
+            }).then(async (result) => {
+
+                if (!result.isConfirmed) return;
+
+                try {
+
+                    const response = await fetch("/cart/remove", {
+                        method: "DELETE",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({ productId, variantId })
+                    });
+
+                    const data = await response.json();
+
+                    if (data.success) {
+
+                        Swal.fire({
+                            icon: "success",
+                            title: "Removed!",
+                            text: data.message,
+                            timer: 1500,
+                            showConfirmButton: false
+                        });
+
+                        setTimeout(() => {
+                            location.reload();
+                        }, 1200);
+
+                    } else {
+                        Swal.fire("Error", data.message, "error");
+                    }
+
+                } catch (err) {
+                    Swal.fire("Error", "Something went wrong", "error");
+                }
+
+            });
+        });
+
+        document.addEventListener("click", async function (e) {
+
+            const plusBtn = e.target.closest(".qty-plus");
+            const minusBtn = e.target.closest(".qty-minus");
+
+            if (!plusBtn && !minusBtn) return;
+
+            const button = plusBtn || minusBtn;
+            const cartItem = button.closest(".cart-item");
+
+            const productId = cartItem.querySelector(".remove-cart-item").dataset.product;
+            const variantId = cartItem.querySelector(".remove-cart-item").dataset.variant;
+
+            const type = plusBtn ? "inc" : "dec";
+
+            try {
+
+                const response = await fetch("/cart/update-quantity", {
+                    method: "PATCH",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ productId, variantId, type })
+                });
+
+                const data = await response.json();
+
+                if (!data.success) {
+                    return triggerToast(data.message, "error");
+                }
+                updateCartUI(cartItem, data.quantity, type);
+
+            } catch (err) {
+                triggerToast("Something went wrong", "error");
+            }
+        })
+
+        async function goToCheckout(){
+
+            const response = await fetch("/checkout-from-cart",{
+                method:"POST",
+                
+            });
+
+            if (response.status === 401) {
+                return window.location.href="/login";
+            }
+
+            const data = await response.json();
+
+            if(data.success){
+                window.location.href="/checkout";
+            }else{
+                triggerToast(data.message || "Something went wrong","error");
+            }
+        }
+
+        function updateCartUI(cartItem, newQty) {
+
+            const qtyInput = cartItem.querySelector(".qty-input");
+            const itemTotalEl = cartItem.querySelector(".item-total");
+            const wrapper = cartItem.querySelector(".quantity-wrapper");
+
+            const minusBtn = cartItem.querySelector(".qty-minus");
+            const plusBtn = cartItem.querySelector(".qty-plus");
+
+            qtyInput.value = newQty;
+
+            const final = Number(wrapper.dataset.final);
+
+            const newTotal = final * newQty;
+            itemTotalEl.innerText = "₹" + newTotal.toLocaleString();
+
+            minusBtn.disabled = newQty <= 1;
+            plusBtn.disabled = newQty >= 10;
+
+
+            updateSummary();
+        }
+        
+        function updateSummary() {
+
+            const cartItems = document.querySelectorAll(".cart-item");
+
+            let totalItems = 0;
+            let totalMRP = 0;
+            let totalDiscount = 0;
+            let grandTotal = 0;
+
+            cartItems.forEach(item => {
+
+                const qty = Number(item.querySelector(".qty-input").value);
+
+                const wrapper = item.querySelector(".quantity-wrapper");
+
+                const original = Number(wrapper.dataset.original);
+                const final = Number(wrapper.dataset.final);
+                const discount = Number(wrapper.dataset.discount);
+
+                totalItems += qty;
+                totalMRP += original * qty;
+                totalDiscount += discount * qty;
+                grandTotal += final * qty;
+            });
+
+            document.getElementById("summary-items").innerText = totalItems;
+            document.getElementById("summary-mrp").innerText = totalMRP.toLocaleString();
+            document.getElementById("summary-discount").innerText = totalDiscount.toLocaleString();
+            document.getElementById("summary-total").innerText = grandTotal.toLocaleString();
+            document.getElementById("summary-save").innerText = totalDiscount.toLocaleString();
+
+
+            const cartBadge = document.querySelector(".cart-badge");
+            const cartSidebarBadge = document.querySelector(".cart-sidebar-badge");
+
+            if (cartBadge) cartBadge.innerText = totalItems;
+            if (cartSidebarBadge) cartSidebarBadge.innerText = totalItems;
+        }
+
+        const toast = document.getElementById("toast");
+
+        if (toast) {
+            setTimeout(() => {
+                toast.classList.add("show");
+            }, 100);
+
+            setTimeout(() => {
+                toast.classList.remove("show");
+            }, 3000);
+        }
+
+        function triggerToast(message, type = "error") {
+
+            let toast = document.getElementById("toast");
+
+            if (!toast) {
+                toast = document.createElement("div");
+                toast.id = "toast";
+                document.body.appendChild(toast);
+            }
+
+            toast.className = `toast ${type}`;
+            toast.innerText = message;
+
+            setTimeout(() => {
+                toast.classList.add("show");
+            }, 100);
+
+            setTimeout(() => {
+                toast.classList.remove("show");
+            }, 3000);
+        }
+
+    </script>
+
+    
+</body>
+
