@@ -149,7 +149,7 @@
                         </div>
 
                         <% if (user.profileImage) { %>
-                            <form action="/remove-profile-image" method="POST">
+                            <form id="removeProfileForm" action="/remove-profile-image" method="POST">
                                 <button type="submit" class="remove-btn">
                                     Remove Photo
                                 </button>
@@ -431,11 +431,8 @@
                         return;
                     }
 
-                    showToast("Profile updated successfully!", "success");
-
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 1000);
+                    
+                    window.location.reload();
 
                 })
                 .catch(() => {
@@ -460,6 +457,14 @@
 
             input.value = "";
         })
+
+        const removeProfileForm = document.getElementById("removeProfileForm");
+        if (removeProfileForm) {
+            removeProfileForm.addEventListener("submit", function () {
+                const spinner = document.getElementById("admin-spinner");
+                if (spinner) spinner.style.display = "flex";
+            });
+        }
     </script>
 
     
