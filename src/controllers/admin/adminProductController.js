@@ -1,0 +1,410 @@
+
+import categoryModal from "../../models/category.js"
+import slugify from "slugify";
+import productModel from "../../models/productModal.js"
+import cloudinary from "../../config/cloudinary.js";
+import { compressImage } from "../../utils/imageUpload.js";
+
+
+import {
+    getAllProducts,
+    createProducts,
+    updateProduct,
+    deleteProduct,
+}from "../../services/admin/adminProductService.js"
+
+
+export const loadProducts=async(req,res)=>{
+ 
+    try {
+
+        const search=req.query.search || ""
+        const status=req.query.status || "all"
+        const stock =req.query.stock || ""
+        const selectedCategory=req.query.category || ""
+        const page=parseInt(req.query.page) || 1
+        const limit = 6
+
+        
+        const {productsList,totalProducts}=await getAllProducts(search,status,stock,selectedCategory,page,limit)
+
+        const totalPages=Math.ceil(totalProducts/limit)
+        const categories = await categoryModal.find({ status: "Active" });
+
+        res.render("admin/products", {
+            title: "Products Admin - Quavix",
+            css: "adminStyle",
+            products: productsList, 
+            search,
+            status,
+            stock,
+            categories,
+            selectedCategory,
+            currentPage: page,
+            totalPages,
+            noProducts: productsList.length === 0
+        });
+
+    }catch(err){
+        console.log(err);
+        res.redirect("/admin/dashboard");
+    }
+}
+
+export const loadAddProducts=async(req,res)=>{
+    try {
+        const categories=await categoryModal.find({status:"Active"})
+        res.render("admin/addProducts",{ title: "Add products Admin-Quavix",css: "adminStyle", categories,product:null })
+
+    }catch(err){
+        res.redirect("/admin/products")
+    }
+}
+
+export const addProduct = async (req, res) => {
+    try{
+
+        const {
+            name,
+            category,
+            offerPercentage,
+            showOnHomepage,
+            highlights,
+            services,
+            description,
+            variants
+        } = req.body;
+
+        if (!name || !category || !description ||!highlights ||!services) {
+            throw new Error("Required fields missing");
+        }
+
+        const slug = slugify(name, { lower: true, strict: true });
+
+        const existingProduct = await productModel.findOne({ slug });
+        if (existingProduct) {
+            throw new Error("Product already exists");
+        }
+
+        const homepageValue = showOnHomepage === "Yes";
+
+        const parsedVariants = Array.isArray(variants) ? variants: JSON.parse(variants);
+
+
+        for (let i = 0; i < parsedVariants.length; i++) {
+
+ 
+            const primaryFile = req.files.find(file =>
+                file.fieldname === `variants[${i}][images][primary]`
+            );
+
+            if (!primaryFile) {
+                throw new Error(`Primary image required for variant ${i + 1}`);
+            }
+            const compressedPrimary = await compressImage(primaryFile.buffer);
+
+            const primaryUpload = await cloudinary.uploader.upload(
+                `data:image/webp;base64,${compressedPrimary.toString("base64")}`,
+                { folder: "product_images" }
+            );
+
+            const galleryFiles = req.files.filter(file =>
+                file.fieldname.startsWith(`variants[${i}][images][gallery]`)
+            );
+
+            const gallery = [];
+
+            for (const file of galleryFiles) {
+
+                const compressedGallery = await compressImage(file.buffer);
+
+                const upload = await cloudinary.uploader.upload(
+                    `data:image/webp;base64,${compressedGallery.toString("base64")}`,
+                    { folder: "product_images" }
+                );
+
+                gallery.push({
+                    url: upload.secure_url,
+                    publicId: upload.public_id
+                });
+            }
+
+
+            parsedVariants[i].images = {
+                primary: {
+                    url: primaryUpload.secure_url,
+                    publicId: primaryUpload.public_id
+                },
+                gallery: gallery
+            };
+        }
+
+        const formattedHighlights = highlights ? highlights.split("\n").map(i => i.trim()).filter(Boolean): [];
+
+        const formattedServices = services ? services.split("\n").map(i => i.trim()).filter(Boolean): [];
+
+        await createProducts({
+            name,
+            slug,
+            category,
+            offerPercentage: Number(offerPercentage) || 0,
+            showOnHomepage: homepageValue, 
+            highlights: formattedHighlights,
+            services: formattedServices,
+            description,
+            variants: parsedVariants
+        });
+
+        req.session.toastMessage = "Product added successfully!";
+        req.session.toastType = "success";
+
+        res.redirect("/admin/products");
+
+    }catch(err) {
+        req.session.toastMessage = err.message || "Something went wrong.";
+        req.session.toastType = "error";
+        res.redirect("/admin/products/add");
+    }
+} 
+
+export const loadEditProduct = async(req,res)=>{
+    try {
+        
+        const product = await productModel.findById(req.params.id).populate("category")
+        const categories=await categoryModal.find({status:"Active"})
+
+        if(!product){
+            res.redirect("/admin/products")
+        }
+
+        res.render("admin/addProducts",{
+            title:"Edit Product - Quavix",
+            css:"adminStyle",
+            categories,
+            product
+        })
+
+
+    }catch(err){
+        
+        res.redirect("/admin/products")
+    }
+}
+
+export const editProduct = async (req, res) => {
+    try{
+        const { id } = req.params;
+
+        const {
+            name,
+            category,
+            offerPercentage,
+            showOnHomepage,
+            highlights,
+            services,
+            description,
+            variants
+        } = req.body;
+
+        const product = await productModel.findById(id);
+        if (!product) throw new Error("Product not found");
+        const homepageValue = showOnHomepage === "Yes";
+        const newSlug = slugify(name, { lower: true, strict: true })
+
+        const parsedVariants = Array.isArray(variants) ? variants: JSON.parse(variants);
+
+        const formattedHighlights = highlights ? highlights.split("\n").map(i => i.trim()).filter(Boolean): [];
+
+        const formattedServices = services ? services.split("\n").map(i => i.trim()).filter(Boolean): [];
+
+        
+
+        const baseFieldsSame =
+        product.name === name && product.slug === newSlug &&
+        product.category.equals(category) && 
+        product.offerPercentage === Number(offerPercentage) &&product.showOnHomepage === homepageValue && 
+        product.description === description &&
+        JSON.stringify(product.highlights) === JSON.stringify(formattedHighlights) &&
+        JSON.stringify(product.services) === JSON.stringify(formattedServices);
+
+        const getVariantSignature = (v) => {
+
+            const attrs = (v.attributes || [])
+            .filter(a => a.name?.trim() && a.value?.trim())
+            .map(a => `${a.name.trim()}-${a.value.trim()}`)
+            .sort()
+            .join("|");
+
+            return `${v._id || "new"}_${attrs}_${Number(v.price)}_${Number(v.stock)}_${v.status}`;
+        };
+
+        const existingSignatures = product.variants.map(getVariantSignature).sort();
+
+        const incomingSignatures = parsedVariants.map(getVariantSignature).sort();
+
+        const variantsSame =JSON.stringify(existingSignatures) === JSON.stringify(incomingSignatures);
+
+        const imagesUploaded = req.files?.length > 0;
+
+        if (baseFieldsSame && variantsSame && !imagesUploaded) {
+            req.session.toastMessage = "No changes were made";
+            req.session.toastType = "error";
+            return res.redirect(`/admin/products/edit/${id}`);
+        }
+
+        const existingProduct = await productModel.findOne({
+            slug: newSlug,
+            _id: { $ne: id }
+        });
+
+        if(existingProduct) {
+            req.session.toastMessage = "Product with this name already exists";
+            req.session.toastType = "error";
+            return res.redirect(`/admin/products/edit/${id}`);
+        }
+
+
+        for (let i = 0; i < parsedVariants.length; i++) {
+
+        const updatedVariant = parsedVariants[i];
+        const existingVariant = product.variants.find(v =>
+            v._id?.toString() === updatedVariant._id?.toString()
+        );
+
+        if (!updatedVariant.images) {
+            updatedVariant.images = {};
+        }
+
+
+        const primaryField = `variants[${i}][images][primary]`;
+
+        const primaryFile = req.files?.find(file =>
+            file.fieldname === primaryField
+        );
+
+        if (primaryFile) {
+
+            const compressed = await compressImage(primaryFile.buffer);
+
+            const result = await cloudinary.uploader.upload(
+                `data:image/webp;base64,${compressed.toString("base64")}`,
+                { folder: "product_images" }
+            );
+
+            updatedVariant.images.primary = {
+                url: result.secure_url,
+                publicId: result.public_id
+            };
+
+        } else {
+
+            updatedVariant.images.primary =
+            existingVariant?.images?.primary || {};
+        }
+
+
+
+        let gallery = [];
+
+        if (Array.isArray(existingVariant?.images?.gallery)) {
+            gallery = existingVariant.images.gallery.map(img => ({
+                url: img.url,
+                publicId: img.publicId
+            }));
+        }
+
+        if (!gallery[0]) gallery[0] = null;
+        if (!gallery[1]) gallery[1] = null;
+
+
+        const secondaryField = `variants[${i}][images][gallery][0]`;
+
+        const secondaryFile = req.files?.find(file =>
+            file.fieldname === secondaryField
+        );
+
+        if (secondaryFile) {
+
+            const compressed = await compressImage(secondaryFile.buffer);
+
+            const upload = await cloudinary.uploader.upload(
+                `data:image/webp;base64,${compressed.toString("base64")}`,
+                { folder: "product_images" }
+            );
+
+            gallery[0] = {
+                url: upload.secure_url,
+                publicId: upload.public_id
+            };
+        }
+
+        const otherField = `variants[${i}][images][gallery][1]`;
+
+        const otherFile = req.files?.find(file =>
+            file.fieldname === otherField
+        );
+
+        if (otherFile) {
+
+            const compressed = await compressImage(otherFile.buffer);
+
+            const upload = await cloudinary.uploader.upload(
+                `data:image/webp;base64,${compressed.toString("base64")}`,
+                { folder: "product_images" }
+            );
+
+            gallery[1] = {
+                url: upload.secure_url,
+                publicId: upload.public_id
+            };
+        }
+
+        updatedVariant.images.gallery =
+            gallery.filter(img => img && img.url && img.publicId);
+        }
+
+        await updateProduct(id, {
+            name,
+            slug:newSlug,
+            category,
+            offerPercentage: Number(offerPercentage) || 0,
+            showOnHomepage: homepageValue,
+            highlights: formattedHighlights,
+            services: formattedServices,
+            description,
+            variants: parsedVariants
+        });
+
+        req.session.toastMessage = "Product updated successfully!";
+        req.session.toastType = "success";
+
+        res.redirect("/admin/products");
+
+    } catch (err) {
+        req.session.toastMessage = err.message || "Something went wrong.";
+        req.session.toastType = "error";
+        res.redirect("back");
+    }
+}
+
+export const removeProduct=async(req,res)=>{
+    try {
+
+        const {id}=req.params
+
+        const updatedProduct=await deleteProduct(id) 
+        if (updatedProduct.isDeleted) {
+            req.session.toastMessage = "Product restored successfully!";
+        } else {
+            req.session.toastMessage = "Product deactivated successfully!";
+        }
+
+        req.session.toastType = "success";
+        res.redirect("/admin/products")
+        
+    }catch(err){
+        req.session.toastMessage = err.message || "Action failed";
+        req.session.toastType = "error";
+        res.redirect("/admin/products");
+    }
+}
