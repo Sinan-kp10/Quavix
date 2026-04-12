@@ -5,6 +5,13 @@ const router=express.Router()
 import {isLogin,checkSession} from "../middleware/admin/adminAuth.js"
 import { loadCoupons,addCoupon,editCoupon,removeCoupon} from "../controllers/admin/adminCouponsController.js"
 import {
+    loadOrders,
+    editOrderStatus,
+    OrderDetails,
+    handleReturnRequest
+ } from "../controllers/admin/adminOrderController.js"
+
+import {
     loadLogin,
     loadDashboard,
     adminLogin,
@@ -16,21 +23,21 @@ import {
     addCategory,
     removeCategory,
     editCategory,
-    loadProducts,
-    loadAddProducts,
-    addProduct,
-    loadEditProduct,
-    editProduct,
-    removeProduct,
-    loadOrders,
-    editOrderStatus,
-    OrderDetails,
-    handleReturnRequest,
     loadReports,
     exportExcel,
     exportPDF
     
 } from "../controllers/admin/adminController.js"
+
+import { 
+    loadProducts,
+    loadAddProducts,
+    addProduct,
+    loadEditProduct,
+    editProduct,
+    removeProduct
+} from "../controllers/admin/adminProductController.js"
+
 
 
 router.get("/admin/login", checkSession, loadLogin)

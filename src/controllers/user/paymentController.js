@@ -1,7 +1,7 @@
 
 import crypto from "crypto"
 import {createRazorpayPayment,} from "../../services/user/paymentServices.js"
-import { createOrder } from "../../services/user/userProductService.js"
+import { createOrder } from "../../services/user/userOrderService.js"
 import productModel from "../../models/productModal.js"
 import cartModel from "../../models/cartModel.js"
 import userModal from "../../models/userModal.js"
