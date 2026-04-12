@@ -1,4 +1,4 @@
-import category from "../../models/category.js"
+
 import userModel from "../../models/userModal.js"
 import wishlistModel from "../../models/wishlistModel.js"
 import walletModel from "../../models/walletModel.js"

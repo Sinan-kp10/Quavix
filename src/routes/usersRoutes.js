@@ -57,6 +57,12 @@ import {
   buyNowProduct,
   loadCheckout,
   checkoutFromCart,
+  
+
+} from "../controllers/user/userProductController.js"
+
+import {
+
   placeOrder,
   loadOrderSuccess,
   loadOrderHistory,
@@ -64,7 +70,8 @@ import {
   orderRequest,
   downloadInvoice,
 
-} from "../controllers/user/userProductController.js"
+} from "../controllers/user/userOrderController.js"
+
 
 import {
 
