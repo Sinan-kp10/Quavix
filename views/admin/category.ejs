@@ -241,47 +241,5 @@
     <script src="/js/admin/category.js"></script>
     <script src="/js/admin/sidebar.js"></script>
 
-    <script>
-        function toggleSidebar() {
-        document.querySelector('.sidebar').classList.toggle('active');
-        document.getElementById('sidebarOverlay').classList.toggle('active');
-    }
-    function openModal(modalId) {
-        document.getElementById(modalId).classList.add('active');
-    }
-    function closeModal(modalId) {
-    document.getElementById(modalId).classList.remove('active');
-    }
-    
-    function resetCategoryModal() {
-
-        const form = document.getElementById("form");
-        const previewImage = document.getElementById("previewImage");
-        const uploadArea = document.getElementById("uploadArea");
-        const changeImageBtn = document.getElementById("changeImageBtn");
-        const fileInput = document.getElementById("catImage");
-
-        form.action = "/admin/category";
-        form.reset();
-
-        if (cropper) {
-            cropper.destroy();
-            cropper = null;
-        }
-
-        previewImage.src = "";
-        previewImage.classList.add("hidden");
-
-        uploadArea.classList.remove("hidden");
-        changeImageBtn.classList.add("hidden");
-
-        fileInput.value = "";
-
-        document.getElementById("modalTitle").innerText = "Add Category";
-
-        openModal("categoryModal");
-    }
-
-    </script>
 </body>
 
