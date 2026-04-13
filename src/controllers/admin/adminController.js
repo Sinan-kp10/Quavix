@@ -92,16 +92,22 @@ export const loadAllUsers=async(req,res)=>{
     }
 }
 
-export const blockedUsers=async(req,res)=>{
-
-    await allBlockedUser(req.params.id)
-    res.redirect("/admin/users");     
-
+export const blockedUsers = async (req, res) => {
+    try {
+        const user = await allBlockedUser(req.params.id);
+        res.json({ success: true, status: user.status });
+    } catch (err) {
+        res.json({ success: false, message:err.message });
+    }
 }
 
-export const activeUsers=async(req,res)=>{
-    await allActiveUsers(req.params.id)
-    res.redirect("/admin/users");
+export const activeUsers = async (req, res) => {
+    try {
+        const user = await allActiveUsers(req.params.id);
+        res.json({ success: true, status: user.status });
+    } catch (err) {
+        res.json({ success: false ,message:err.message });
+    }
 }
 
 export const loadLogin=(req,res)=>{
