@@ -32,7 +32,7 @@ document.addEventListener('DOMContentLoaded',()=>{
         if (currentPassVal || newPassVal) {
             const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*(),.?":{}|<>]).{6,}$/;
 
-            // Validate Current Password
+
             if (!currentPassVal) {
                 showError(currentPassword, "Current password is required");
                 isValid = false;
@@ -41,7 +41,6 @@ document.addEventListener('DOMContentLoaded',()=>{
                 isValid = false;
             }
 
-            // Validate New Password
             if (!newPassVal) {
                 showError(newPassword, "New password is required");
                 isValid = false;
