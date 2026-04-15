@@ -144,7 +144,7 @@ export const findProducts = async (search) => {
 
     }).filter(product => product && product.variants.length > 0);
 
-    return products;
+    return {products , search};
 }
 
 export const addWishlistService = async (userId, productId, variantId) => {

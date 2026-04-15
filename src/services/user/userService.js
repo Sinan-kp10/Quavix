@@ -108,6 +108,22 @@ export const registerUser = async ({ name, email, password }) => {
     if(user){
         throw new Error("User already exists!");
     }
+
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*(),.?":{}|<>]).{6,}$/;
+
+    if (!password) {
+        throw new Error("Password required");
+
+
+    } else if (password !== password.trim()) {
+
+        throw new Error("No spaces allowed at start or end");
+
+    } else if (!passwordRegex.test(password)) {
+        throw new Error("Password must be 6+ chars, include uppercase, lowercase, and special character");
+
+    }
+
     const otp=generateOtp()
     const emailSent= await sendVerificationEmail(email,otp)
 
@@ -124,7 +140,7 @@ export const registerUser = async ({ name, email, password }) => {
         userData: { name, email, password: hashedPassword }
     };
     
-};
+}
 
 export const sendForgotPassword=async(email)=>{
 

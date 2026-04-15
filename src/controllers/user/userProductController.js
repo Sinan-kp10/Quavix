@@ -80,6 +80,8 @@ export const loadProducts = async (req, res) => {
             }
         }
 
+        let search=""
+
         res.render("user/products", {
             title: "products-Quavix",
             css: "userStyle",
@@ -90,7 +92,8 @@ export const loadProducts = async (req, res) => {
             currentPage: page,
             minPrice,
             maxPrice,
-            selectedCategory: category
+            selectedCategory: category,
+            search
         });
 
     } catch (err) {
@@ -133,7 +136,7 @@ export const searchProducts = async (req, res) => {
     try {
 
         const { q } = req.query
-        const products = await findProducts(q)
+        const {products,search} = await findProducts(q)
 
         if (!q || q.trim() === "") {
             return res.redirect("/products");
@@ -189,7 +192,8 @@ export const searchProducts = async (req, res) => {
             totalPages: 1,
             currentPage: 1,
             minPrice,
-            maxPrice
+            maxPrice,
+            search
         })
 
     } catch (err) {
