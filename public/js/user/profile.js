@@ -8,6 +8,24 @@ document.addEventListener('DOMContentLoaded',()=>{
     const newPassword=document.getElementById("newPassword")
     const name=document.getElementById("name")
     const toggleButtons = document.querySelectorAll(".password-toggle");
+    const saveProfileBtn = document.getElementById("saveProfileBtn");
+
+    const initialName = name.value.trim();
+
+    function checkChanges() {
+        const currentName = name.value.trim();
+        const currentPass = currentPassword.value.trim();
+        const newPass = newPassword.value.trim();
+
+        const isNameChanged = currentName !== initialName;
+        const isPasswordTyped = currentPass !== "" || newPass !== "";
+
+        saveProfileBtn.disabled = !(isNameChanged || isPasswordTyped);
+    }
+
+    name.addEventListener("input", checkChanges);
+    currentPassword.addEventListener("input", checkChanges);
+    newPassword.addEventListener("input", checkChanges);
 
 
     form.addEventListener('submit',function(e){
@@ -37,7 +55,7 @@ document.addEventListener('DOMContentLoaded',()=>{
                 showError(currentPassword, "Current password is required");
                 isValid = false;
             } else if (currentPassVal.length < 6 || !passwordRegex.test(currentPassVal)) {
-                showError(currentPassword, "Incorrect password format");
+                showError(currentPassword, "Incorrect password");
                 isValid = false;
             }
 
