@@ -33,7 +33,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const remaining=Math.floor((expiryTime - Date.now()) / 1000)
 
         if(remaining <= 0){
-            timer.textContent = "Expired"
+            timerWrapper.textContent = "OTP Expired"
             clearInterval(interval)
             return;
         }
