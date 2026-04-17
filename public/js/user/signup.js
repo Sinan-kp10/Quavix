@@ -40,11 +40,22 @@ document.addEventListener("DOMContentLoaded", function () {
             showError(email, "Email is required");
             isValid = false;
         }
-        if (password.value.trim().length < 6) {
-            showError(password, "Password must be at least 6 characters");
+
+        const value = password.value;
+
+        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*(),.?":{}|<>]).{6,}$/;
+
+        if (!value) {
+            showError(password, "Password required");
             isValid = false;
-        }else if (password.value.includes(" ")) {
-            showError(passwordInput, "Password cannot contain spaces");
+
+        } else if (value !== value.trim()) {
+
+            showError(password, "No spaces allowed at start or end");
+            isValid = false;
+
+        } else if (!passwordRegex.test(value)) {
+            showError(password, "Password must be 6+ chars, include uppercase, lowercase, and special character");
             isValid = false;
         }
 

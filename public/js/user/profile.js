@@ -8,40 +8,69 @@ document.addEventListener('DOMContentLoaded',()=>{
     const newPassword=document.getElementById("newPassword")
     const name=document.getElementById("name")
     const toggleButtons = document.querySelectorAll(".password-toggle");
+    const saveProfileBtn = document.getElementById("saveProfileBtn");
+
+    const initialName = name.value.trim();
+
+    function checkChanges() {
+        const currentName = name.value.trim();
+        const currentPass = currentPassword.value.trim();
+        const newPass = newPassword.value.trim();
+
+        const isNameChanged = currentName !== initialName;
+        const isPasswordTyped = currentPass !== "" || newPass !== "";
+
+        saveProfileBtn.disabled = !(isNameChanged || isPasswordTyped);
+    }
+
+    name.addEventListener("input", checkChanges);
+    currentPassword.addEventListener("input", checkChanges);
+    newPassword.addEventListener("input", checkChanges);
 
 
     form.addEventListener('submit',function(e){
-        
+        e.preventDefault();
 
         clearErrors()
 
         let isValid=true
 
-        if(name.value.trim().length== 0 ){
-            showError(name,"Enter your name")
+        if(name.value.trim().length === 0 ){
+            showError(name,"Name is required")
             isValid=false
         }
-        else if(name.value.trim().length<3){
-            showError(name,"Enter your name")
+        else if(name.value.trim().length < 3){
+            showError(name,"Name must be at least 3 characters")
             isValid=false
         }
 
-    if (currentPassword.value || newPassword.value) {
+        const currentPassVal = currentPassword.value.trim();
+        const newPassVal = newPassword.value.trim();
 
-        if(currentPassword.value.length < 6) {
-            showError(currentPassword, "Password must be at least 6 characters");
-            isValid = false;
+        if (currentPassVal || newPassVal) {
+            const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*(),.?":{}|<>]).{6,}$/;
+
+
+            if (!currentPassVal) {
+                showError(currentPassword, "Current password is required");
+                isValid = false;
+            } else if (currentPassVal.length < 6 || !passwordRegex.test(currentPassVal)) {
+                showError(currentPassword, "Incorrect password");
+                isValid = false;
+            }
+
+            if (!newPassVal) {
+                showError(newPassword, "New password is required");
+                isValid = false;
+            } else if (newPassVal.length < 6) {
+                showError(newPassword, "Password must be at least 6 characters");
+                isValid = false;
+            } else if (!passwordRegex.test(newPassVal)) {
+                showError(newPassword, "Must include uppercase, lowercase, and special character");
+                isValid = false;
+            }
         }
 
-        if (newPassword.value.length < 6) {
-            showError(newPassword, "Password must be at least 6 characters");
-            isValid = false;
-        }
-        else if (newPassword.value.includes(" ")) {
-            showError(newPassword, "Password cannot contain spaces");
-            isValid = false;
-        }
-    }
         if(isValid){
             const spinner = document.getElementById("admin-spinner");
             if (spinner) spinner.style.display = "flex";
@@ -50,6 +79,7 @@ document.addEventListener('DOMContentLoaded',()=>{
     })
 
     formEmail.addEventListener('submit',function(e){
+        e.preventDefault();
         
         clearErrors()
 

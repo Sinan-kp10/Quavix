@@ -5,6 +5,9 @@ document.addEventListener("DOMContentLoaded", function(){
   const passwordError = document.getElementById("passwordError");
   const toggleBtn = document.getElementById("togglePassword");
   const eyeIcon = document.getElementById("eyeIcon");
+  const confirmBtn = document.getElementById("confirmBtn");
+
+  const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*(),.?":{}|<>]).{6,}$/;
 
   function clearErrors() {
     passwordError.textContent = "";
@@ -28,10 +31,19 @@ document.addEventListener("DOMContentLoaded", function(){
       passwordInput.classList.add("input-error");
       isValid = false;
     }
+    else if (!passwordRegex.test(passwordInput.value.trim())) {
+      passwordError.textContent = "Must include uppercase, lowercase, and special character";
+      passwordInput.classList.add("input-error");
+      isValid = false;
+    }
 
     if (!isValid) {
       e.preventDefault();
     }
+  });
+
+  passwordInput.addEventListener("input", function() {
+    confirmBtn.disabled = passwordInput.value.trim() === "";
   });
 
     toggleBtn.addEventListener("click", function(){
