@@ -132,29 +132,17 @@
                                 </div>
                             <% } %>
 
-                            <form action="/upload-profile" method="POST" enctype="multipart/form-data">
-                                <label for="profileInput" class="change-btn">
-                                    <i class="fa-solid fa-camera"></i>
-                                </label>
-                                <input type="file" name="profileImage" id="profileInput" hidden accept="image/*">
-                            </form>
                         </div>
-
-                        <% if (user.profileImage) { %>
-                            <form action="/remove-profile-image" method="POST">
-                                <button type="submit" class="remove-btn">
-                                    Remove Photo
-                                </button>
-                            </form>
-                        <% } %>
                         
-
                         <h3 class="text-xl font-bold"><%= user.name %></h3>
                         <p class="text-muted"><%= user.email %></p>
 
                     </div>
                     <br>
                     <div class="flex flex-col">
+                        <a href="/profile" class="profile-nav-link">
+                            <i class="fa-solid fa-user"></i> Personal Details
+                        </a>
                         <a href="/order-history" class="profile-nav-link">
                             <i class="fa-solid fa-box"></i> My Orders
                         </a>

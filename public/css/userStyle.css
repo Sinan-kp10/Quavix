@@ -122,6 +122,14 @@ img {
     font-size: 0.95rem;
 }
 
+.btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
+
 .btn-primary {
     background: #6366f1;
     /* Fallback */

@@ -49,8 +49,8 @@ router.get("/admin/reports/excel", isLogin, exportExcel)
 router.get("/admin/reports/pdf", isLogin, exportPDF);
 
 router.get("/admin/users", isLogin, loadAllUsers)
-router.get("/admin/block/:id",isLogin, blockedUsers);
-router.get("/admin/unblock/:id",isLogin, activeUsers)
+router.patch("/admin/users/block/:id", isLogin, blockedUsers);
+router.patch("/admin/users/unblock/:id", isLogin, activeUsers);
 
 router.get("/admin/category",isLogin, loadCategory)
 router.post("/admin/category",isLogin,upload.single("categoryImage"),addCategory);
