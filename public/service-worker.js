@@ -1,4 +1,4 @@
-const CACHE_NAME = 'quavix-pwa-v1';
+const CACHE_NAME = 'quavix-pwa-v2'; // Updated version to trigger install
 
 self.addEventListener('install', (event) => {
     event.waitUntil(
@@ -6,7 +6,8 @@ self.addEventListener('install', (event) => {
             // Pre-cache the minimal required resources
             return cache.addAll([
                 '/',
-                '/manifest.json'
+                '/manifest.json',
+                '/offline.html'
             ]);
         })
     );
@@ -36,6 +37,19 @@ self.addEventListener('fetch', (event) => {
     }
     
     event.respondWith(
-        fetch(event.request).catch(() => caches.match(event.request))
+        fetch(event.request)
+            .catch(() => {
+                return caches.match(event.request).then((cachedResponse) => {
+                    if (cachedResponse) {
+                        return cachedResponse;
+                    }
+                    
+                    // If the request is for an HTML page (navigation), serve the offline page
+                    if (event.request.mode === 'navigate' || 
+                        (event.request.headers.get('accept') && event.request.headers.get('accept').includes('text/html'))) {
+                        return caches.match('/offline.html');
+                    }
+                });
+            })
     );
 });
